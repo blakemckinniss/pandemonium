@@ -512,6 +512,7 @@ export interface RoomCard {
 
 export type TurnPhase = 'playerTurn' | 'enemyTurn' | 'victory' | 'defeat'
 export type GamePhase = 'menu' | 'roomSelect' | 'combat' | 'reward' | 'campfire' | 'gameOver'
+export type AppScreen = 'menu' | 'deckBuilder' | 'game'
 
 export interface CombatState {
   phase: TurnPhase

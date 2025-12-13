@@ -17,9 +17,14 @@ import { getRoomDefinition } from '../../content/rooms'
 import { enableDragDrop, disableDragDrop, gsap } from '../../lib/dragdrop'
 import { generateUid } from '../../lib/utils'
 import { useMetaStore, checkUnlocks } from '../../stores/metaStore'
-import { saveRun } from '../../stores/db'
+import { saveRun, getCustomDeckById } from '../../stores/db'
 
-export function GameScreen() {
+interface GameScreenProps {
+  deckId?: string | null
+  onReturnToMenu?: () => void
+}
+
+export function GameScreen({ deckId, onReturnToMenu }: GameScreenProps) {
   const [state, setState] = useState<RunState | null>(null)
   const [combatNumbers, setCombatNumbers] = useState<CombatNumber[]>([])
   const [isAnimating, setIsAnimating] = useState(false)
@@ -39,8 +44,18 @@ export function GameScreen() {
 
   // Initialize game
   useEffect(() => {
-    setState(createNewRun('warrior'))
-  }, [])
+    async function init() {
+      let customCardIds: string[] | undefined
+
+      if (deckId) {
+        const deck = await getCustomDeckById(deckId)
+        if (deck) customCardIds = deck.cardIds
+      }
+
+      setState(createNewRun('warrior', customCardIds))
+    }
+    init()
+  }, [deckId])
 
   // Animate cards when a new turn starts
   useEffect(() => {
@@ -482,15 +497,19 @@ export function GameScreen() {
   }, [state, isAnimating])
 
   const handleRestart = useCallback(() => {
-    prevHealthRef.current = {}
-    runStartRef.current = new Date()
-    runRecordedRef.current = false
-    lastTurnRef.current = 0
-    setCombatNumbers([])
-    setPendingUnlocks([])
-    setCurrentRoomId(null)
-    setState(createNewRun('warrior'))
-  }, [])
+    if (onReturnToMenu) {
+      onReturnToMenu()
+    } else {
+      prevHealthRef.current = {}
+      runStartRef.current = new Date()
+      runRecordedRef.current = false
+      lastTurnRef.current = 0
+      setCombatNumbers([])
+      setPendingUnlocks([])
+      setCurrentRoomId(null)
+      setState(createNewRun('warrior'))
+    }
+  }, [onReturnToMenu])
 
   const handleUnlocksDismissed = useCallback(() => {
     setPendingUnlocks([])

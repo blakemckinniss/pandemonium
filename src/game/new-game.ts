@@ -78,14 +78,18 @@ export function createEnemy(templateId: string): EnemyEntity {
   }
 }
 
-export function createNewRun(heroId: string = 'warrior'): RunState {
+export function createNewRun(
+  heroId: string = 'warrior',
+  customCardIds?: string[]
+): RunState {
   const hero = HEROES[heroId]
   if (!hero) {
     throw new Error(`Unknown hero: ${heroId}`)
   }
 
-  // Build deck from starter cards
-  const deck = hero.starterDeck.map((cardId) => createCardInstance(cardId))
+  // Build deck from custom cards or hero starter deck
+  const cardIds = customCardIds ?? hero.starterDeck
+  const deck = cardIds.map((cardId) => createCardInstance(cardId))
 
   // Create dungeon deck and draw initial choices
   const dungeonDeck = createDungeonDeck()

@@ -34,12 +34,27 @@ export interface GeneratedCardRecord {
 }
 
 // ============================================
+// CUSTOM DECKS SCHEMA
+// ============================================
+
+export interface CustomDeckRecord {
+  id?: number
+  deckId: string // Unique ID for the deck
+  name: string
+  heroId: string
+  cardIds: string[] // Array of CardDefinition IDs
+  createdAt: Date
+  updatedAt: Date
+}
+
+// ============================================
 // DATABASE
 // ============================================
 
 class PandemoniumDB extends Dexie {
   runs!: EntityTable<RunRecord, 'id'>
   generatedCards!: EntityTable<GeneratedCardRecord, 'id'>
+  customDecks!: EntityTable<CustomDeckRecord, 'id'>
 
   constructor() {
     super('PandemoniumDB')
@@ -52,6 +67,13 @@ class PandemoniumDB extends Dexie {
     this.version(2).stores({
       runs: '++id, startedAt, heroId, won, floor',
       generatedCards: '++id, cardId, generatedAt, model',
+    })
+
+    // Version 3: Add custom decks storage
+    this.version(3).stores({
+      runs: '++id, startedAt, heroId, won, floor',
+      generatedCards: '++id, cardId, generatedAt, model',
+      customDecks: '++id, deckId, heroId, createdAt',
     })
   }
 }
@@ -152,4 +174,43 @@ export async function clearGeneratedCards(): Promise<void> {
 
 export async function getGeneratedCardCount(): Promise<number> {
   return db.generatedCards.count()
+}
+
+// ============================================
+// CUSTOM DECKS FUNCTIONS
+// ============================================
+
+export async function saveCustomDeck(
+  deck: Omit<CustomDeckRecord, 'id'>
+): Promise<number> {
+  const id = await db.customDecks.add(deck)
+  return id as number
+}
+
+export async function getCustomDecks(): Promise<CustomDeckRecord[]> {
+  return db.customDecks.orderBy('createdAt').reverse().toArray()
+}
+
+export async function getCustomDeckById(
+  deckId: string
+): Promise<CustomDeckRecord | undefined> {
+  return db.customDecks.where('deckId').equals(deckId).first()
+}
+
+export async function updateCustomDeck(
+  deckId: string,
+  updates: Partial<Pick<CustomDeckRecord, 'name' | 'cardIds' | 'heroId'>>
+): Promise<void> {
+  await db.customDecks.where('deckId').equals(deckId).modify({
+    ...updates,
+    updatedAt: new Date(),
+  })
+}
+
+export async function deleteCustomDeck(deckId: string): Promise<void> {
+  await db.customDecks.where('deckId').equals(deckId).delete()
+}
+
+export async function clearCustomDecks(): Promise<void> {
+  await db.customDecks.clear()
 }
