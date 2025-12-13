@@ -8,6 +8,9 @@ import {
   executeBlock,
   executeHeal,
   executeLifesteal,
+  executeDestroyBlock,
+  executeMaxHealth,
+  executeSetHealth,
   setExecuteEffect as setCombatExecuteEffect,
   setExecutePowerTriggers as setCombatPowerTriggers,
 } from './combat-effects'
@@ -19,10 +22,14 @@ import {
   executeAddCard,
   executeShuffle,
   executeRetain,
+  executeCopyCard,
+  executePutOnDeck,
+  executeModifyCost,
 } from './card-effects'
 import {
   executeApplyPower,
   executeRemovePower,
+  executeTransferPower,
 } from './power-effects'
 import {
   executeConditional,
@@ -102,6 +109,27 @@ export function executeEffect(
       break
     case 'removePower':
       executeRemovePower(draft, effect, ctx)
+      break
+    case 'transferPower':
+      executeTransferPower(draft, effect, ctx)
+      break
+    case 'destroyBlock':
+      executeDestroyBlock(draft, effect, ctx)
+      break
+    case 'maxHealth':
+      executeMaxHealth(draft, effect, ctx)
+      break
+    case 'setHealth':
+      executeSetHealth(draft, effect, ctx)
+      break
+    case 'copyCard':
+      executeCopyCard(draft, effect, ctx)
+      break
+    case 'putOnDeck':
+      executePutOnDeck(draft, effect, ctx)
+      break
+    case 'modifyCost':
+      executeModifyCost(draft, effect, ctx)
       break
     case 'conditional':
       executeConditional(draft, effect, ctx)

@@ -196,3 +196,105 @@ export function executeRetain(
     }
   }
 }
+
+export function executeCopyCard(
+  draft: RunState,
+  effect: { type: 'copyCard'; target: CardTarget | FilteredCardTarget; destination: 'hand' | 'drawPile' | 'discardPile'; position?: 'top' | 'bottom' | 'random'; count?: EffectValue },
+  ctx: EffectContext
+): void {
+  if (!draft.combat) return
+
+  const cards = resolveCardTarget(effect.target, draft, ctx)
+  const count = effect.count ? resolveValue(effect.count, draft, ctx) : 1
+
+  for (let i = 0; i < Math.min(count, cards.length); i++) {
+    const sourceCard = cards[i]
+    const copy: CardInstance = {
+      uid: generateUid(),
+      definitionId: sourceCard.definitionId,
+      upgraded: sourceCard.upgraded,
+    }
+
+    const pile = draft.combat[effect.destination]
+    const pos = effect.position ?? 'random'
+
+    switch (pos) {
+      case 'top':
+        pile.push(copy)
+        break
+      case 'bottom':
+        pile.unshift(copy)
+        break
+      case 'random':
+        const idx = Math.floor(Math.random() * (pile.length + 1))
+        pile.splice(idx, 0, copy)
+        break
+    }
+  }
+
+  if (cards.length > 0) {
+    emitVisual(draft, {
+      type: 'addCard',
+      cardId: cards[0].definitionId,
+      destination: effect.destination,
+      count: Math.min(count, cards.length),
+    })
+  }
+}
+
+export function executePutOnDeck(
+  draft: RunState,
+  effect: { type: 'putOnDeck'; target: CardTarget | FilteredCardTarget; position?: 'top' | 'bottom' | 'random' },
+  ctx: EffectContext
+): void {
+  if (!draft.combat) return
+
+  const cards = resolveCardTarget(effect.target, draft, ctx)
+  const pos = effect.position ?? 'top'
+
+  for (const card of cards) {
+    // Remove from hand
+    const handIdx = draft.combat.hand.findIndex((c) => c.uid === card.uid)
+    if (handIdx !== -1) {
+      draft.combat.hand.splice(handIdx, 1)
+
+      switch (pos) {
+        case 'top':
+          draft.combat.drawPile.push(card)
+          break
+        case 'bottom':
+          draft.combat.drawPile.unshift(card)
+          break
+        case 'random':
+          const idx = Math.floor(Math.random() * (draft.combat.drawPile.length + 1))
+          draft.combat.drawPile.splice(idx, 0, card)
+          break
+      }
+    }
+  }
+}
+
+export function executeModifyCost(
+  draft: RunState,
+  effect: { type: 'modifyCost'; target: CardTarget | FilteredCardTarget; amount: EffectValue; duration?: 'turn' | 'combat' | 'permanent' },
+  ctx: EffectContext
+): void {
+  if (!draft.combat) return
+
+  const cards = resolveCardTarget(effect.target, draft, ctx)
+  const amount = resolveValue(effect.amount, draft, ctx)
+  const modifiedUids: string[] = []
+
+  for (const card of cards) {
+    // Find the card in hand and mark it with cost modifier
+    const handCard = draft.combat.hand.find((c) => c.uid === card.uid)
+    if (handCard) {
+      handCard.costModifier = (handCard.costModifier ?? 0) + amount
+      modifiedUids.push(card.uid)
+    }
+  }
+
+  if (modifiedUids.length > 0) {
+    emitVisual(draft, { type: 'costModify', cardUids: modifiedUids, delta: amount })
+  }
+}

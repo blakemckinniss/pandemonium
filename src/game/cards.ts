@@ -1262,3 +1262,233 @@ registerCard({
     effects: [{ type: 'applyPower', powerId: 'elementalMastery', amount: 100, target: 'self' }],
   },
 })
+
+// ============================================
+// NEW ATOMIC EFFECT CARDS
+// ============================================
+
+// --- MAX HEALTH / SET HEALTH ---
+registerCard({
+  id: 'feed',
+  name: 'Feed',
+  description: 'Deal 10 damage. If this kills, gain 3 Max HP permanently.',
+  energy: 1,
+  theme: 'attack',
+  target: 'enemy',
+  rarity: 'rare',
+  tags: ['finisher'],
+  effects: [
+    { type: 'damage', amount: 10, triggerOnHit: [
+      {
+        type: 'conditional',
+        condition: { type: 'health', target: 'enemy', compare: 'current', op: '<=', value: 0 },
+        then: [{ type: 'maxHealth', amount: 3, target: 'self', operation: 'gain' }],
+      },
+    ]},
+  ],
+  upgradesTo: {
+    name: 'Feed+',
+    description: 'Deal 12 damage. If this kills, gain 4 Max HP permanently.',
+    effects: [
+      { type: 'damage', amount: 12, triggerOnHit: [
+        {
+          type: 'conditional',
+          condition: { type: 'health', target: 'enemy', compare: 'current', op: '<=', value: 0 },
+          then: [{ type: 'maxHealth', amount: 4, target: 'self', operation: 'gain' }],
+        },
+      ]},
+    ],
+  },
+})
+
+registerCard({
+  id: 'offering',
+  name: 'Offering',
+  description: 'Lose 6 HP. Gain 2 Energy. Draw 3 cards.',
+  energy: 0,
+  theme: 'skill',
+  target: 'self',
+  rarity: 'rare',
+  effects: [
+    { type: 'maxHealth', amount: 6, target: 'self', operation: 'lose' },
+    { type: 'energy', amount: 2, operation: 'gain' },
+    { type: 'draw', amount: 3 },
+  ],
+})
+
+registerCard({
+  id: 'blood_pact',
+  name: 'Blood Pact',
+  description: 'Set your HP to 1. Draw 5 cards. Gain 3 Energy.',
+  energy: 0,
+  theme: 'skill',
+  target: 'self',
+  rarity: 'rare',
+  effects: [
+    { type: 'setHealth', amount: 1, target: 'self' },
+    { type: 'draw', amount: 5 },
+    { type: 'energy', amount: 3, operation: 'gain' },
+  ],
+})
+
+// --- DESTROY BLOCK ---
+registerCard({
+  id: 'sunder',
+  name: 'Sunder',
+  description: 'Remove all Block from an enemy. Deal 8 damage.',
+  energy: 2,
+  theme: 'attack',
+  target: 'enemy',
+  rarity: 'uncommon',
+  effects: [
+    { type: 'destroyBlock', target: 'enemy' },
+    { type: 'damage', amount: 8 },
+  ],
+  upgradesTo: {
+    name: 'Sunder+',
+    description: 'Remove all Block from an enemy. Deal 12 damage.',
+    effects: [
+      { type: 'destroyBlock', target: 'enemy' },
+      { type: 'damage', amount: 12 },
+    ],
+  },
+})
+
+registerCard({
+  id: 'shatter_guard',
+  name: 'Shatter Guard',
+  description: 'Remove 10 Block from an enemy. Gain Block equal to amount removed.',
+  energy: 1,
+  theme: 'skill',
+  target: 'enemy',
+  rarity: 'uncommon',
+  effects: [
+    { type: 'destroyBlock', target: 'enemy', amount: 10 },
+    { type: 'block', amount: 10, target: 'self' },
+  ],
+})
+
+// --- COPY CARD ---
+registerCard({
+  id: 'duplicate',
+  name: 'Duplicate',
+  description: 'Copy a card from your discard pile to your hand.',
+  energy: 1,
+  theme: 'skill',
+  target: 'self',
+  rarity: 'uncommon',
+  effects: [
+    { type: 'copyCard', target: 'randomDiscard', destination: 'hand' },
+  ],
+  upgradesTo: {
+    name: 'Duplicate+',
+    description: 'Copy 2 cards from your discard pile to your hand.',
+    effects: [
+      { type: 'copyCard', target: 'randomDiscard', destination: 'hand', count: 2 },
+    ],
+  },
+})
+
+registerCard({
+  id: 'echo',
+  name: 'Echo',
+  description: 'Copy the top card of your draw pile to your hand.',
+  energy: 0,
+  theme: 'skill',
+  target: 'self',
+  rarity: 'common',
+  effects: [
+    { type: 'copyCard', target: 'topDraw', destination: 'hand' },
+  ],
+})
+
+// --- PUT ON DECK ---
+registerCard({
+  id: 'setup',
+  name: 'Setup',
+  description: 'Put a card from your hand on top of your draw pile. Draw 1 card.',
+  energy: 0,
+  theme: 'skill',
+  target: 'self',
+  rarity: 'uncommon',
+  effects: [
+    { type: 'putOnDeck', target: 'leftmostHand', position: 'top' },
+    { type: 'draw', amount: 1 },
+  ],
+})
+
+registerCard({
+  id: 'headstart',
+  name: 'Headstart',
+  description: 'Put 2 cards from your hand on top of your draw pile. Gain 1 Energy.',
+  energy: 0,
+  theme: 'skill',
+  target: 'self',
+  rarity: 'uncommon',
+  effects: [
+    { type: 'putOnDeck', target: { from: 'hand', count: 2 }, position: 'top' },
+    { type: 'energy', amount: 1, operation: 'gain' },
+  ],
+})
+
+// --- MODIFY COST ---
+registerCard({
+  id: 'enlightenment',
+  name: 'Enlightenment',
+  description: 'All cards in your hand cost 1 less this turn.',
+  energy: 0,
+  theme: 'skill',
+  target: 'self',
+  rarity: 'uncommon',
+  effects: [
+    { type: 'modifyCost', target: 'hand', amount: -1, duration: 'turn' },
+  ],
+  upgradesTo: {
+    name: 'Enlightenment+',
+    description: 'All cards in your hand cost 1 less for the rest of combat.',
+    effects: [
+      { type: 'modifyCost', target: 'hand', amount: -1, duration: 'combat' },
+    ],
+  },
+})
+
+registerCard({
+  id: 'madness',
+  name: 'Madness',
+  description: 'A random card in your hand costs 0 for the rest of combat. Exhaust.',
+  energy: 0,
+  theme: 'skill',
+  target: 'self',
+  rarity: 'uncommon',
+  effects: [
+    { type: 'modifyCost', target: 'randomHand', amount: -99, duration: 'combat' },
+    { type: 'exhaust', target: 'thisCard' },
+  ],
+})
+
+// --- TRANSFER POWER ---
+registerCard({
+  id: 'steal_strength',
+  name: 'Steal Strength',
+  description: 'Transfer all Strength from an enemy to yourself.',
+  energy: 1,
+  theme: 'skill',
+  target: 'enemy',
+  rarity: 'rare',
+  effects: [
+    { type: 'transferPower', powerId: 'strength', from: 'enemy', to: 'self' },
+  ],
+})
+
+registerCard({
+  id: 'dark_embrace',
+  name: 'Dark Embrace',
+  description: 'Transfer 2 Vulnerable from yourself to an enemy.',
+  energy: 1,
+  theme: 'skill',
+  target: 'enemy',
+  rarity: 'uncommon',
+  effects: [
+    { type: 'transferPower', powerId: 'vulnerable', from: 'self', to: 'enemy', amount: 2 },
+  ],
+})

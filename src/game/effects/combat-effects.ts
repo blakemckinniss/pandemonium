@@ -272,3 +272,86 @@ export function executeLifesteal(
   const healTarget = effect.healTarget ?? 'self'
   executeHeal(draft, { type: 'heal', amount: healAmount, target: healTarget }, ctx)
 }
+
+export function executeDestroyBlock(
+  draft: RunState,
+  effect: { type: 'destroyBlock'; target: EntityTarget; amount?: EffectValue },
+  ctx: EffectContext
+): void {
+  if (!draft.combat) return
+
+  const targetIds = resolveEntityTargets(effect.target, draft, ctx)
+
+  for (const targetId of targetIds) {
+    const entity = getEntityById(targetId, draft)
+    if (!entity) continue
+
+    const maxRemove = effect.amount ? resolveValue(effect.amount, draft, ctx) : Infinity
+    const removed = Math.min(entity.block, maxRemove)
+
+    entity.block = Math.max(0, entity.block - removed)
+
+    if (removed > 0) {
+      emitVisual(draft, { type: 'block', targetId, amount: -removed })
+    }
+  }
+}
+
+export function executeMaxHealth(
+  draft: RunState,
+  effect: { type: 'maxHealth'; amount: EffectValue; target?: EntityTarget; operation: 'gain' | 'lose' | 'set' },
+  ctx: EffectContext
+): void {
+  if (!draft.combat) return
+
+  const amount = resolveValue(effect.amount, draft, ctx)
+  const target = effect.target ?? 'self'
+  const targetIds = resolveEntityTargets(target, draft, ctx)
+
+  for (const targetId of targetIds) {
+    const entity = getEntityById(targetId, draft)
+    if (!entity) continue
+
+    switch (effect.operation) {
+      case 'gain':
+        entity.maxHealth += amount
+        entity.currentHealth += amount // Also heal by the amount
+        break
+      case 'lose':
+        entity.maxHealth = Math.max(1, entity.maxHealth - amount)
+        entity.currentHealth = Math.min(entity.currentHealth, entity.maxHealth)
+        break
+      case 'set':
+        entity.maxHealth = Math.max(1, amount)
+        entity.currentHealth = Math.min(entity.currentHealth, entity.maxHealth)
+        break
+    }
+  }
+}
+
+export function executeSetHealth(
+  draft: RunState,
+  effect: { type: 'setHealth'; amount: EffectValue; target?: EntityTarget },
+  ctx: EffectContext
+): void {
+  if (!draft.combat) return
+
+  const amount = resolveValue(effect.amount, draft, ctx)
+  const target = effect.target ?? 'self'
+  const targetIds = resolveEntityTargets(target, draft, ctx)
+
+  for (const targetId of targetIds) {
+    const entity = getEntityById(targetId, draft)
+    if (!entity) continue
+
+    const oldHealth = entity.currentHealth
+    entity.currentHealth = Math.max(1, Math.min(amount, entity.maxHealth))
+
+    const delta = entity.currentHealth - oldHealth
+    if (delta > 0) {
+      emitVisual(draft, { type: 'heal', targetId, amount: delta })
+    } else if (delta < 0) {
+      emitVisual(draft, { type: 'damage', targetId, amount: -delta })
+    }
+  }
+}

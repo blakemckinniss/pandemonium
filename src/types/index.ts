@@ -323,6 +323,50 @@ export interface TutorEffect {
   shuffle?: boolean // Shuffle draw pile after?
 }
 
+export interface CopyCardEffect {
+  type: 'copyCard'
+  target: CardTarget | FilteredCardTarget
+  destination: 'hand' | 'drawPile' | 'discardPile'
+  position?: 'top' | 'bottom' | 'random'
+  count?: EffectValue
+}
+
+export interface PutOnDeckEffect {
+  type: 'putOnDeck'
+  target: CardTarget | FilteredCardTarget
+  position?: 'top' | 'bottom' | 'random'
+}
+
+export interface ModifyCostEffect {
+  type: 'modifyCost'
+  target: CardTarget | FilteredCardTarget
+  amount: EffectValue // Negative = reduce, positive = increase
+  duration?: 'turn' | 'combat' | 'permanent'
+}
+
+// --- HEALTH EFFECTS ---
+
+export interface MaxHealthEffect {
+  type: 'maxHealth'
+  amount: EffectValue
+  target?: EntityTarget
+  operation: 'gain' | 'lose' | 'set'
+}
+
+export interface SetHealthEffect {
+  type: 'setHealth'
+  amount: EffectValue
+  target?: EntityTarget
+}
+
+// --- BLOCK EFFECTS ---
+
+export interface DestroyBlockEffect {
+  type: 'destroyBlock'
+  target: EntityTarget
+  amount?: EffectValue // If omitted, destroys all block
+}
+
 // --- POWER EFFECTS ---
 
 export interface ApplyPowerEffect {
@@ -388,6 +432,9 @@ export type AtomicEffect =
   | BlockEffect
   | HealEffect
   | LifestealEffect
+  | DestroyBlockEffect
+  | MaxHealthEffect
+  | SetHealthEffect
   // Resource
   | EnergyEffect
   // Card
@@ -401,6 +448,9 @@ export type AtomicEffect =
   | TransformEffect
   | ScryEffect
   | TutorEffect
+  | CopyCardEffect
+  | PutOnDeckEffect
+  | ModifyCostEffect
   // Power
   | ApplyPowerEffect
   | RemovePowerEffect
@@ -494,6 +544,7 @@ export interface CardInstance {
   definitionId: string
   upgraded: boolean
   retained?: boolean // Card stays in hand at end of turn
+  costModifier?: number // Temporary cost adjustment (negative = cheaper)
 }
 
 // ============================================
