@@ -56,6 +56,7 @@ Powers (duration-based effects):
 - { "type": "applyPower", "powerId": "eternalFlames", "amount": N, "target": "self" } - At turn start, deal N damage to ALL enemies
 - { "type": "applyPower", "powerId": "noxiousFumes", "amount": N, "target": "self" } - At turn start, apply N Poison to ALL enemies
 - { "type": "applyPower", "powerId": "temporalAnchor", "amount": N, "target": "self" } - At turn start, gain N Energy and draw 1 card
+- { "type": "applyPower", "powerId": "echoShield", "amount": N, "target": "self" } - Next card played grants N Block (consumed)
 
 Card manipulation:
 - { "type": "discard", "target": "randomHand", "amount": N } - Discard N random cards

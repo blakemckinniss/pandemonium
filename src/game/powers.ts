@@ -427,6 +427,30 @@ registerPower({
   ],
 })
 
+registerPower({
+  id: 'echoShield',
+  name: 'Echo Shield',
+  description: 'Next time you play a card, gain {amount} Block. Then remove this power.',
+  stackBehavior: 'intensity',
+  triggers: [
+    {
+      event: 'onCardPlayed',
+      effects: [
+        {
+          type: 'block',
+          amount: { type: 'scaled', base: 0, perUnit: 1, source: 'powerStacks' },
+          target: 'self',
+        },
+        {
+          type: 'removePower',
+          powerId: 'echoShield',
+          target: 'self',
+        },
+      ],
+    },
+  ],
+})
+
 // ============================================
 // DAMAGE/BLOCK MODIFIERS
 // ============================================
