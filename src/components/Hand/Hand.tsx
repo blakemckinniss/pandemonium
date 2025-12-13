@@ -1,6 +1,7 @@
 import { Card } from '../Card/Card'
 import type { CardInstance } from '../../types'
 import { getCardDefinition } from '../../game/cards'
+import { getEnergyCost, getEnergyCostNumber } from '../../lib/effects'
 
 interface HandProps {
   cards: CardInstance[]
@@ -19,7 +20,8 @@ export function Hand({ cards, energy, onPlayCard }: HandProps) {
         const def = getCardDefinition(card.definitionId)
         if (!def) return null
 
-        const canPlay = energy >= def.energy
+        const energyCost = getEnergyCostNumber(def.energy)
+        const canPlay = energy >= energyCost
         const fanRotation = getFanRotation(index, cards.length)
 
         return (
@@ -33,7 +35,7 @@ export function Hand({ cards, energy, onPlayCard }: HandProps) {
               theme={def.theme}
               name={def.name}
               description={def.description}
-              energy={def.energy}
+              energy={getEnergyCost(def.energy)}
               playable={canPlay}
               disabled={!canPlay}
               onClick={() => canPlay && onPlayCard(card.uid)}

@@ -12,7 +12,7 @@ interface CardProps {
   maxHealth?: number
   block?: number
   powers?: Powers
-  energy?: number
+  energy?: number | 'X'
   maxEnergy?: number
 
   // enemy variant

@@ -4,11 +4,33 @@ import type {
   CombatState,
   CardInstance,
   EnemyEntity,
+  Entity,
   GameAction,
-  CardDefinition,
+  AtomicEffect,
+  EffectContext,
+  EffectValue,
+  EntityTarget,
+  CardTarget,
+  FilteredCardTarget,
 } from '../types'
 import { getCardDefinition } from './cards'
 import { generateUid } from '../lib/utils'
+import {
+  resolveValue,
+  evaluateCondition,
+  resolveEntityTargets,
+  getEntityById,
+  resolveCardTarget,
+} from '../lib/effects'
+import {
+  applyOutgoingDamageModifiers,
+  applyIncomingDamageModifiers,
+  applyOutgoingBlockModifiers,
+  applyPowerToEntity,
+  removePowerFromEntity,
+  decayPowers,
+  getPowerTriggers,
+} from './powers'
 
 // ============================================
 // ACTION HANDLERS
@@ -56,6 +78,9 @@ export function applyAction(state: RunState, action: GameAction): RunState {
       case 'gainEnergy':
         handleGainEnergy(draft, action.amount)
         break
+      case 'applyPower':
+        handleApplyPower(draft, action.targetId, action.powerId, action.amount)
+        break
       case 'enemyAction':
         handleEnemyAction(draft, action.enemyId)
         break
@@ -74,12 +99,11 @@ export function applyAction(state: RunState, action: GameAction): RunState {
 // ============================================
 
 function handleStartCombat(draft: RunState, enemies: EnemyEntity[]): void {
-  // Shuffle deck into draw pile
   const shuffledDeck = shuffleArray([...draft.deck])
 
   draft.combat = {
     phase: 'playerTurn',
-    turn: 0, // Will be incremented to 1 on first startTurn
+    turn: 0,
     player: {
       id: 'player',
       name: draft.hero.name,
@@ -96,6 +120,7 @@ function handleStartCombat(draft: RunState, enemies: EnemyEntity[]): void {
     drawPile: shuffledDeck,
     discardPile: [],
     exhaustPile: [],
+    cardsPlayedThisTurn: 0,
   }
 
   draft.gamePhase = 'combat'
@@ -120,15 +145,20 @@ function handleStartTurn(draft: RunState): void {
 
   const combat = draft.combat
   combat.phase = 'playerTurn'
-
-  // Increment turn counter
   combat.turn += 1
+  combat.cardsPlayedThisTurn = 0
 
   // Reset energy
   combat.player.energy = combat.player.maxEnergy
 
   // Clear block
   combat.player.block = 0
+
+  // Decay powers at turn start
+  decayPowers(combat.player, 'turnStart')
+
+  // Execute power triggers for player
+  executePowerTriggers(draft, combat.player, 'onTurnStart')
 
   // Draw 5 cards
   drawCardsInternal(combat, 5)
@@ -138,6 +168,12 @@ function handleEndTurn(draft: RunState): void {
   if (!draft.combat) return
 
   const combat = draft.combat
+
+  // Execute power triggers for player
+  executePowerTriggers(draft, combat.player, 'onTurnEnd')
+
+  // Decay powers at turn end
+  decayPowers(combat.player, 'turnEnd')
 
   // Discard hand
   combat.discardPile.push(...combat.hand)
@@ -158,7 +194,6 @@ function handleDrawCards(draft: RunState, amount: number): void {
 
 function drawCardsInternal(combat: CombatState, amount: number): void {
   for (let i = 0; i < amount; i++) {
-    // Reshuffle if draw pile empty
     if (combat.drawPile.length === 0) {
       if (combat.discardPile.length === 0) break
       combat.drawPile = shuffleArray([...combat.discardPile])
@@ -187,61 +222,40 @@ function handlePlayCard(
   const cardDef = getCardDefinition(cardInstance.definitionId)
   if (!cardDef) return
 
+  // Resolve energy cost
+  const energyCost = typeof cardDef.energy === 'number'
+    ? cardDef.energy
+    : resolveValue(cardDef.energy, draft, { source: 'player', cardTarget: targetId })
+
   // Check energy
-  if (combat.player.energy < cardDef.energy) return
+  if (combat.player.energy < energyCost) return
 
   // Spend energy
-  combat.player.energy -= cardDef.energy
+  combat.player.energy -= energyCost
 
   // Remove from hand
   combat.hand.splice(cardIndex, 1)
 
-  // Track stat
+  // Track stats
   draft.stats.cardsPlayed++
+  combat.cardsPlayedThisTurn++
 
-  // Apply effects
-  applyCardEffects(draft, cardDef, targetId)
+  // Build effect context
+  const ctx: EffectContext = {
+    source: 'player',
+    cardTarget: targetId,
+  }
+
+  // Execute all effects
+  for (const effect of cardDef.effects) {
+    executeEffect(draft, effect, ctx)
+  }
+
+  // Execute onCardPlayed triggers
+  executePowerTriggers(draft, combat.player, 'onCardPlayed')
 
   // Move to discard
   combat.discardPile.push(cardInstance)
-}
-
-function applyCardEffects(
-  draft: RunState,
-  cardDef: CardDefinition,
-  targetId?: string
-): void {
-  if (!draft.combat) return
-
-  for (const effect of cardDef.effects) {
-    switch (effect.type) {
-      case 'damage': {
-        if (cardDef.target === 'allEnemies') {
-          for (const enemy of draft.combat.enemies) {
-            applyDamageInternal(draft, enemy.id, effect.amount)
-          }
-        } else if (targetId) {
-          applyDamageInternal(draft, targetId, effect.amount)
-        }
-        break
-      }
-      case 'block':
-        draft.combat.player.block += effect.amount
-        break
-      case 'draw':
-        drawCardsInternal(draft.combat, effect.amount)
-        break
-      case 'energy':
-        draft.combat.player.energy += effect.amount
-        break
-      case 'heal':
-        draft.combat.player.currentHealth = Math.min(
-          draft.combat.player.currentHealth + effect.amount,
-          draft.combat.player.maxHealth
-        )
-        break
-    }
-  }
 }
 
 function handleDiscardCard(draft: RunState, cardUid: string): void {
@@ -263,7 +277,493 @@ function handleDiscardHand(draft: RunState): void {
 }
 
 // ============================================
-// DAMAGE & HEALING
+// EFFECT EXECUTION ENGINE
+// ============================================
+
+function executeEffect(
+  draft: RunState,
+  effect: AtomicEffect,
+  ctx: EffectContext
+): void {
+  if (!draft.combat) return
+
+  switch (effect.type) {
+    case 'damage':
+      executeDamage(draft, effect, ctx)
+      break
+    case 'block':
+      executeBlock(draft, effect, ctx)
+      break
+    case 'heal':
+      executeHeal(draft, effect, ctx)
+      break
+    case 'lifesteal':
+      executeLifesteal(draft, effect, ctx)
+      break
+    case 'energy':
+      executeEnergy(draft, effect, ctx)
+      break
+    case 'draw':
+      executeDraw(draft, effect, ctx)
+      break
+    case 'discard':
+      executeDiscard(draft, effect, ctx)
+      break
+    case 'exhaust':
+      executeExhaust(draft, effect, ctx)
+      break
+    case 'addCard':
+      executeAddCard(draft, effect, ctx)
+      break
+    case 'shuffle':
+      executeShuffle(draft, effect, ctx)
+      break
+    case 'applyPower':
+      executeApplyPower(draft, effect, ctx)
+      break
+    case 'removePower':
+      executeRemovePower(draft, effect, ctx)
+      break
+    case 'conditional':
+      executeConditional(draft, effect, ctx)
+      break
+    case 'repeat':
+      executeRepeat(draft, effect, ctx)
+      break
+    case 'random':
+      executeRandom(draft, effect, ctx)
+      break
+    case 'sequence':
+      executeSequence(draft, effect, ctx)
+      break
+    case 'forEach':
+      executeForEach(draft, effect, ctx)
+      break
+  }
+}
+
+function executeDamage(
+  draft: RunState,
+  effect: { type: 'damage'; amount: EffectValue; target?: EntityTarget; piercing?: boolean; triggerOnHit?: AtomicEffect[] },
+  ctx: EffectContext
+): void {
+  if (!draft.combat) return
+
+  const baseDamage = resolveValue(effect.amount, draft, ctx)
+  const target = effect.target ?? (ctx.cardTarget ? 'enemy' : 'allEnemies')
+  const targetIds = resolveEntityTargets(target, draft, ctx)
+
+  // Get attacker for modifiers
+  const attacker = getEntityById(ctx.source, draft)
+
+  for (const targetId of targetIds) {
+    let damage = baseDamage
+
+    // Apply outgoing modifiers (Strength, Weak)
+    if (attacker) {
+      damage = applyOutgoingDamageModifiers(damage, attacker)
+    }
+
+    // Apply incoming modifiers (Vulnerable)
+    const defender = getEntityById(targetId, draft)
+    if (defender) {
+      damage = applyIncomingDamageModifiers(damage, defender)
+    }
+
+    // Apply damage
+    const damageDealt = applyDamageInternal(draft, targetId, damage, effect.piercing)
+
+    // Trigger onHit effects
+    if (effect.triggerOnHit && damageDealt > 0) {
+      const hitCtx = { ...ctx, currentTarget: targetId }
+      for (const onHitEffect of effect.triggerOnHit) {
+        executeEffect(draft, onHitEffect, hitCtx)
+      }
+    }
+
+    // Trigger onAttacked/onDamaged for defender
+    if (defender && damageDealt > 0) {
+      executePowerTriggers(draft, defender, 'onAttacked', ctx.source)
+      executePowerTriggers(draft, defender, 'onDamaged', ctx.source)
+    }
+  }
+}
+
+function executeBlock(
+  draft: RunState,
+  effect: { type: 'block'; amount: EffectValue; target?: EntityTarget },
+  ctx: EffectContext
+): void {
+  if (!draft.combat) return
+
+  const baseBlock = resolveValue(effect.amount, draft, ctx)
+  const target = effect.target ?? 'self'
+  const targetIds = resolveEntityTargets(target, draft, ctx)
+
+  for (const targetId of targetIds) {
+    const entity = getEntityById(targetId, draft)
+    if (!entity) continue
+
+    // Apply block modifiers (Dexterity, Frail)
+    const block = applyOutgoingBlockModifiers(baseBlock, entity)
+
+    entity.block += block
+
+    // Trigger onBlock
+    executePowerTriggers(draft, entity, 'onBlock')
+  }
+}
+
+function executeHeal(
+  draft: RunState,
+  effect: { type: 'heal'; amount: EffectValue; target?: EntityTarget; canOverheal?: boolean },
+  ctx: EffectContext
+): void {
+  if (!draft.combat) return
+
+  const amount = resolveValue(effect.amount, draft, ctx)
+  const target = effect.target ?? 'self'
+  const targetIds = resolveEntityTargets(target, draft, ctx)
+
+  for (const targetId of targetIds) {
+    const entity = getEntityById(targetId, draft)
+    if (!entity) continue
+
+    if (effect.canOverheal) {
+      entity.currentHealth += amount
+    } else {
+      entity.currentHealth = Math.min(entity.currentHealth + amount, entity.maxHealth)
+    }
+  }
+}
+
+function executeLifesteal(
+  draft: RunState,
+  effect: { type: 'lifesteal'; amount: EffectValue; target: EntityTarget; healTarget?: EntityTarget; ratio?: number },
+  ctx: EffectContext
+): void {
+  if (!draft.combat) return
+
+  const damage = resolveValue(effect.amount, draft, ctx)
+  const ratio = effect.ratio ?? 1
+
+  // Deal damage
+  executeDamage(draft, { type: 'damage', amount: damage, target: effect.target }, ctx)
+
+  // Heal
+  const healAmount = Math.floor(damage * ratio)
+  const healTarget = effect.healTarget ?? 'self'
+  executeHeal(draft, { type: 'heal', amount: healAmount, target: healTarget }, ctx)
+}
+
+function executeEnergy(
+  draft: RunState,
+  effect: { type: 'energy'; amount: EffectValue; operation: 'gain' | 'spend' | 'set' },
+  ctx: EffectContext
+): void {
+  if (!draft.combat) return
+
+  const amount = resolveValue(effect.amount, draft, ctx)
+
+  switch (effect.operation) {
+    case 'gain':
+      draft.combat.player.energy += amount
+      break
+    case 'spend':
+      draft.combat.player.energy = Math.max(0, draft.combat.player.energy - amount)
+      break
+    case 'set':
+      draft.combat.player.energy = amount
+      break
+  }
+}
+
+function executeDraw(
+  draft: RunState,
+  effect: { type: 'draw'; amount: EffectValue },
+  ctx: EffectContext
+): void {
+  if (!draft.combat) return
+
+  const amount = resolveValue(effect.amount, draft, ctx)
+  drawCardsInternal(draft.combat, amount)
+}
+
+function executeDiscard(
+  draft: RunState,
+  effect: { type: 'discard'; target: CardTarget | FilteredCardTarget; amount?: EffectValue },
+  ctx: EffectContext
+): void {
+  if (!draft.combat) return
+
+  let cards = resolveCardTarget(effect.target, draft, ctx)
+
+  if (effect.amount !== undefined) {
+    const count = resolveValue(effect.amount, draft, ctx)
+    cards = cards.slice(0, count)
+  }
+
+  for (const card of cards) {
+    const idx = draft.combat.hand.findIndex((c) => c.uid === card.uid)
+    if (idx !== -1) {
+      draft.combat.hand.splice(idx, 1)
+      draft.combat.discardPile.push(card)
+    }
+  }
+}
+
+function executeExhaust(
+  draft: RunState,
+  effect: { type: 'exhaust'; target: CardTarget | FilteredCardTarget; amount?: EffectValue },
+  ctx: EffectContext
+): void {
+  if (!draft.combat) return
+
+  let cards = resolveCardTarget(effect.target, draft, ctx)
+
+  if (effect.amount !== undefined) {
+    const count = resolveValue(effect.amount, draft, ctx)
+    cards = cards.slice(0, count)
+  }
+
+  for (const card of cards) {
+    // Check hand
+    let idx = draft.combat.hand.findIndex((c) => c.uid === card.uid)
+    if (idx !== -1) {
+      draft.combat.hand.splice(idx, 1)
+      draft.combat.exhaustPile.push(card)
+      continue
+    }
+
+    // Check discard
+    idx = draft.combat.discardPile.findIndex((c) => c.uid === card.uid)
+    if (idx !== -1) {
+      draft.combat.discardPile.splice(idx, 1)
+      draft.combat.exhaustPile.push(card)
+    }
+  }
+}
+
+function executeAddCard(
+  draft: RunState,
+  effect: { type: 'addCard'; cardId: string; destination: 'hand' | 'drawPile' | 'discardPile'; position?: 'top' | 'bottom' | 'random'; upgraded?: boolean; count?: EffectValue },
+  ctx: EffectContext
+): void {
+  if (!draft.combat) return
+
+  const count = effect.count ? resolveValue(effect.count, draft, ctx) : 1
+
+  for (let i = 0; i < count; i++) {
+    const card: CardInstance = {
+      uid: generateUid(),
+      definitionId: effect.cardId,
+      upgraded: effect.upgraded ?? false,
+    }
+
+    const pile = draft.combat[effect.destination]
+    const pos = effect.position ?? 'random'
+
+    switch (pos) {
+      case 'top':
+        pile.push(card)
+        break
+      case 'bottom':
+        pile.unshift(card)
+        break
+      case 'random':
+        const idx = Math.floor(Math.random() * (pile.length + 1))
+        pile.splice(idx, 0, card)
+        break
+    }
+  }
+}
+
+function executeShuffle(
+  draft: RunState,
+  effect: { type: 'shuffle'; pile: 'drawPile' | 'discardPile'; into?: 'drawPile' },
+  _ctx: EffectContext
+): void {
+  if (!draft.combat) return
+
+  if (effect.into === 'drawPile' && effect.pile === 'discardPile') {
+    // Shuffle discard into draw pile
+    draft.combat.drawPile = shuffleArray([
+      ...draft.combat.drawPile,
+      ...draft.combat.discardPile,
+    ])
+    draft.combat.discardPile = []
+  } else {
+    // Just shuffle the pile
+    draft.combat[effect.pile] = shuffleArray([...draft.combat[effect.pile]])
+  }
+}
+
+function executeApplyPower(
+  draft: RunState,
+  effect: { type: 'applyPower'; powerId: string; amount: EffectValue; target?: EntityTarget; duration?: number },
+  ctx: EffectContext
+): void {
+  if (!draft.combat) return
+
+  const amount = resolveValue(effect.amount, draft, ctx)
+  const target = effect.target ?? 'self'
+  const targetIds = resolveEntityTargets(target, draft, ctx)
+
+  for (const targetId of targetIds) {
+    const entity = getEntityById(targetId, draft)
+    if (!entity) continue
+
+    applyPowerToEntity(entity, effect.powerId, amount, effect.duration)
+  }
+}
+
+function executeRemovePower(
+  draft: RunState,
+  effect: { type: 'removePower'; powerId: string; target?: EntityTarget; amount?: EffectValue },
+  ctx: EffectContext
+): void {
+  if (!draft.combat) return
+
+  const amount = effect.amount ? resolveValue(effect.amount, draft, ctx) : undefined
+  const target = effect.target ?? 'self'
+  const targetIds = resolveEntityTargets(target, draft, ctx)
+
+  for (const targetId of targetIds) {
+    const entity = getEntityById(targetId, draft)
+    if (!entity) continue
+
+    removePowerFromEntity(entity, effect.powerId, amount)
+  }
+}
+
+function executeConditional(
+  draft: RunState,
+  effect: { type: 'conditional'; condition: import('../types').Condition; then: AtomicEffect[]; else?: AtomicEffect[] },
+  ctx: EffectContext
+): void {
+  if (evaluateCondition(effect.condition, draft, ctx)) {
+    for (const e of effect.then) {
+      executeEffect(draft, e, ctx)
+    }
+  } else if (effect.else) {
+    for (const e of effect.else) {
+      executeEffect(draft, e, ctx)
+    }
+  }
+}
+
+function executeRepeat(
+  draft: RunState,
+  effect: { type: 'repeat'; times: EffectValue; effects: AtomicEffect[] },
+  ctx: EffectContext
+): void {
+  const times = resolveValue(effect.times, draft, ctx)
+
+  for (let i = 0; i < times; i++) {
+    for (const e of effect.effects) {
+      executeEffect(draft, e, ctx)
+    }
+  }
+}
+
+function executeRandom(
+  draft: RunState,
+  effect: { type: 'random'; choices: AtomicEffect[][]; weights?: number[] },
+  ctx: EffectContext
+): void {
+  if (effect.choices.length === 0) return
+
+  let choiceIndex: number
+
+  if (effect.weights && effect.weights.length === effect.choices.length) {
+    // Weighted random
+    const totalWeight = effect.weights.reduce((a, b) => a + b, 0)
+    let roll = Math.random() * totalWeight
+    choiceIndex = 0
+    for (let i = 0; i < effect.weights.length; i++) {
+      roll -= effect.weights[i]
+      if (roll <= 0) {
+        choiceIndex = i
+        break
+      }
+    }
+  } else {
+    // Uniform random
+    choiceIndex = Math.floor(Math.random() * effect.choices.length)
+  }
+
+  for (const e of effect.choices[choiceIndex]) {
+    executeEffect(draft, e, ctx)
+  }
+}
+
+function executeSequence(
+  draft: RunState,
+  effect: { type: 'sequence'; effects: AtomicEffect[] },
+  ctx: EffectContext
+): void {
+  for (const e of effect.effects) {
+    executeEffect(draft, e, ctx)
+  }
+}
+
+function executeForEach(
+  draft: RunState,
+  effect: { type: 'forEach'; target: EntityTarget | CardTarget; effects: AtomicEffect[] },
+  ctx: EffectContext
+): void {
+  if (!draft.combat) return
+
+  // Check if it's an entity target or card target
+  const entityTargets = ['self', 'player', 'source', 'enemy', 'randomEnemy', 'weakestEnemy', 'strongestEnemy', 'frontEnemy', 'backEnemy', 'allEnemies', 'allEntities', 'otherEnemies']
+
+  if (entityTargets.includes(effect.target as string)) {
+    const targetIds = resolveEntityTargets(effect.target as EntityTarget, draft, ctx)
+    for (const targetId of targetIds) {
+      const iterCtx = { ...ctx, currentTarget: targetId }
+      for (const e of effect.effects) {
+        executeEffect(draft, e, iterCtx)
+      }
+    }
+  } else {
+    const cards = resolveCardTarget(effect.target as CardTarget, draft, ctx)
+    for (const card of cards) {
+      const iterCtx = { ...ctx, currentTarget: card.uid }
+      for (const e of effect.effects) {
+        executeEffect(draft, e, iterCtx)
+      }
+    }
+  }
+}
+
+// ============================================
+// POWER TRIGGER EXECUTION
+// ============================================
+
+function executePowerTriggers(
+  draft: RunState,
+  entity: Entity,
+  event: string,
+  sourceId?: string
+): void {
+  const triggers = getPowerTriggers(entity, event)
+
+  for (const trigger of triggers) {
+    const ctx: EffectContext = {
+      source: entity.id,
+      powerId: trigger.powerId,
+      powerStacks: trigger.stacks,
+      currentTarget: sourceId,
+    }
+
+    for (const effect of trigger.effects) {
+      executeEffect(draft, effect, ctx)
+    }
+  }
+}
+
+// ============================================
+// DAMAGE & HEALING (Direct Actions)
 // ============================================
 
 function handleDamage(draft: RunState, targetId: string, amount: number): void {
@@ -271,20 +771,23 @@ function handleDamage(draft: RunState, targetId: string, amount: number): void {
   applyDamageInternal(draft, targetId, amount)
 }
 
+/**
+ * Apply damage to an entity, returns actual damage dealt
+ */
 function applyDamageInternal(
   draft: RunState,
   targetId: string,
-  amount: number
-): void {
-  if (!draft.combat) return
+  amount: number,
+  piercing?: boolean
+): number {
+  if (!draft.combat) return 0
   const combat = draft.combat
 
   if (targetId === 'player') {
-    // Damage player
     let remaining = amount
 
-    // Block absorbs first
-    if (combat.player.block > 0) {
+    // Block absorbs first (unless piercing)
+    if (!piercing && combat.player.block > 0) {
       const blocked = Math.min(combat.player.block, remaining)
       combat.player.block -= blocked
       remaining -= blocked
@@ -296,14 +799,15 @@ function applyDamageInternal(
     if (combat.player.currentHealth <= 0) {
       combat.phase = 'defeat'
     }
+
+    return remaining
   } else {
-    // Damage enemy
     const enemy = combat.enemies.find((e) => e.id === targetId)
-    if (!enemy) return
+    if (!enemy) return 0
 
     let remaining = amount
 
-    if (enemy.block > 0) {
+    if (!piercing && enemy.block > 0) {
       const blocked = Math.min(enemy.block, remaining)
       enemy.block -= blocked
       remaining -= blocked
@@ -312,16 +816,16 @@ function applyDamageInternal(
     enemy.currentHealth -= remaining
     draft.stats.damageDealt += remaining
 
-    // Remove dead enemies
     if (enemy.currentHealth <= 0) {
       combat.enemies = combat.enemies.filter((e) => e.id !== targetId)
       draft.stats.enemiesKilled++
 
-      // Check victory
       if (combat.enemies.length === 0) {
         combat.phase = 'victory'
       }
     }
+
+    return remaining
   }
 }
 
@@ -367,6 +871,20 @@ function handleGainEnergy(draft: RunState, amount: number): void {
   draft.combat.player.energy += amount
 }
 
+function handleApplyPower(
+  draft: RunState,
+  targetId: string,
+  powerId: string,
+  amount: number
+): void {
+  if (!draft.combat) return
+
+  const entity = getEntityById(targetId, draft)
+  if (!entity) return
+
+  applyPowerToEntity(entity, powerId, amount)
+}
+
 // ============================================
 // ENEMY AI
 // ============================================
@@ -377,19 +895,45 @@ function handleEnemyAction(draft: RunState, enemyId: string): void {
   const enemy = draft.combat.enemies.find((e) => e.id === enemyId)
   if (!enemy) return
 
+  // Decay powers at turn start for enemy
+  decayPowers(enemy, 'turnStart')
+  executePowerTriggers(draft, enemy, 'onTurnStart')
+
+  // Clear enemy block at turn start
+  enemy.block = 0
+
   const intent = enemy.intent
 
   switch (intent.type) {
-    case 'attack':
-      applyDamageInternal(draft, 'player', intent.value ?? 0)
+    case 'attack': {
+      const baseDamage = intent.value ?? 0
+      const damage = applyOutgoingDamageModifiers(baseDamage, enemy)
+      const finalDamage = applyIncomingDamageModifiers(damage, draft.combat.player)
+      applyDamageInternal(draft, 'player', finalDamage)
+
+      // Trigger onAttack for enemy
+      executePowerTriggers(draft, enemy, 'onAttack')
+      // Trigger onAttacked for player
+      executePowerTriggers(draft, draft.combat.player, 'onAttacked', enemyId)
       break
+    }
     case 'defend':
-      enemy.block += intent.value ?? 0
+      enemy.block += applyOutgoingBlockModifiers(intent.value ?? 0, enemy)
+      break
+    case 'buff':
+      // Intent pattern buff
+      break
+    case 'debuff':
+      // Intent pattern debuff
       break
   }
 
-  // Advance pattern for next turn
-  enemy.patternIndex = (enemy.patternIndex + 1) % 2 // Simple toggle for now
+  // End of enemy turn triggers
+  executePowerTriggers(draft, enemy, 'onTurnEnd')
+  decayPowers(enemy, 'turnEnd')
+
+  // Advance pattern
+  enemy.patternIndex = (enemy.patternIndex + 1) % 2
 }
 
 // ============================================
@@ -400,15 +944,11 @@ function handleSelectRoom(draft: RunState, roomUid: string): void {
   const room = draft.roomChoices.find((r) => r.uid === roomUid)
   if (!room) return
 
-  // Clear choices
   draft.roomChoices = []
-
-  // TODO: Start room encounter based on room type
   draft.gamePhase = 'combat'
 }
 
 function handleDealRoomChoices(draft: RunState): void {
-  // Draw 3 rooms from dungeon deck
   const choices: typeof draft.roomChoices = []
 
   for (let i = 0; i < 3 && draft.dungeonDeck.length > 0; i++) {
@@ -436,7 +976,6 @@ function shuffleArray<T>(array: T[]): T[] {
   return result
 }
 
-// Create card instance from definition
 export function createCardInstance(definitionId: string): CardInstance {
   return {
     uid: generateUid(),

@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import { Card } from '../Card/Card'
 import type { CardDefinition } from '../../types'
 import { getAllCards } from '../../game/cards'
+import { getEnergyCost } from '../../lib/effects'
 import { gsap } from '../../lib/animations'
 
 interface RewardScreenProps {
@@ -80,7 +81,7 @@ export function RewardScreen({ floor, gold, onAddCard, onSkip }: RewardScreenPro
               theme={cardDef.theme}
               name={cardDef.name}
               description={cardDef.description}
-              energy={cardDef.energy}
+              energy={getEnergyCost(cardDef.energy)}
               playable
             />
           </button>

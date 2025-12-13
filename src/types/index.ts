@@ -5,27 +5,397 @@
 // Card Variants
 export type CardVariant = 'player' | 'hand' | 'enemy' | 'room'
 export type CardTheme = 'attack' | 'skill' | 'power' | 'curse' | 'status'
-export type TargetType = 'enemy' | 'player' | 'allEnemies' | 'self' | 'none'
 
 // Intent system for enemies
-export type IntentType =
-  | 'attack'
-  | 'defend'
-  | 'buff'
-  | 'debuff'
-  | 'unknown'
+export type IntentType = 'attack' | 'defend' | 'buff' | 'debuff' | 'unknown'
 
 export interface Intent {
   type: IntentType
-  value?: number // damage amount for attack, block for defend
+  value?: number
 }
 
-// Powers (buffs/debuffs)
-export interface Power {
+// ============================================
+// TARGETING SYSTEM
+// ============================================
+
+export type EntityTarget =
+  // Direct
+  | 'self'
+  | 'player'
+  | 'source' // Who caused this effect (for triggers)
+  // Single enemy
+  | 'enemy' // Requires player selection
+  | 'randomEnemy'
+  | 'weakestEnemy' // Lowest current HP
+  | 'strongestEnemy' // Highest current HP
+  | 'frontEnemy' // First in array
+  | 'backEnemy' // Last in array
+  // Multiple
+  | 'allEnemies'
+  | 'allEntities' // Player + all enemies
+  | 'otherEnemies' // All except current target
+
+export type CardTarget =
+  | 'hand'
+  | 'drawPile'
+  | 'discardPile'
+  | 'exhaustPile'
+  | 'randomHand'
+  | 'randomDraw'
+  | 'randomDiscard'
+  | 'leftmostHand'
+  | 'rightmostHand'
+  | 'topDraw'
+  | 'thisCard'
+
+export interface CardFilter {
+  theme?: CardTheme | CardTheme[]
+  costMin?: number
+  costMax?: number
+  hasEffect?: AtomicEffectType
+}
+
+export interface FilteredCardTarget {
+  from: CardTarget
+  filter?: CardFilter
+  count?: number
+}
+
+// ============================================
+// VALUE SYSTEM (Range + Scaling)
+// ============================================
+
+export type ScalingSource =
+  | 'energy'
+  | 'maxEnergy'
+  | 'cardsInHand'
+  | 'cardsPlayed'
+  | 'block'
+  | 'missingHealth'
+  | 'healthPercent'
+  | 'enemyCount'
+  | 'turnNumber'
+  | 'powerStacks' // For power-triggered effects
+
+export interface FixedValue {
+  type: 'fixed'
+  value: number
+}
+
+export interface RangeValue {
+  type: 'range'
+  min: number
+  max: number
+}
+
+export interface ScaledValue {
+  type: 'scaled'
+  base: number
+  perUnit: number
+  source: ScalingSource
+  max?: number
+}
+
+export interface GeneratedScaledValue {
+  type: 'generatedScaled'
+  baseRange: [number, number]
+  perUnit: number
+  source: ScalingSource
+}
+
+export type EffectValue = number | FixedValue | RangeValue | ScaledValue | GeneratedScaledValue
+
+// ============================================
+// CONDITION SYSTEM (Nestable)
+// ============================================
+
+export type ComparisonOp = '<' | '<=' | '=' | '>=' | '>' | '!='
+
+export interface HealthCondition {
+  type: 'health'
+  target: EntityTarget
+  compare: 'current' | 'max' | 'percent' | 'missing'
+  op: ComparisonOp
+  value: number
+}
+
+export interface HasPowerCondition {
+  type: 'hasPower'
+  target: EntityTarget
+  powerId: string
+  minStacks?: number
+}
+
+export interface ResourceCondition {
+  type: 'resource'
+  resource: 'energy' | 'gold' | 'block'
+  target?: EntityTarget
+  op: ComparisonOp
+  value: number
+}
+
+export interface CardCountCondition {
+  type: 'cardCount'
+  pile: 'hand' | 'drawPile' | 'discardPile' | 'exhaustPile'
+  op: ComparisonOp
+  value: number
+  filter?: CardFilter
+}
+
+export interface TurnCondition {
+  type: 'turn'
+  op: ComparisonOp
+  value: number
+}
+
+export interface CombatCondition {
+  type: 'combat'
+  check: 'enemyCount' | 'isPlayerTurn' | 'isFirstTurn'
+  op?: ComparisonOp
+  value?: number
+}
+
+export interface AndCondition {
+  type: 'and'
+  conditions: Condition[]
+}
+
+export interface OrCondition {
+  type: 'or'
+  conditions: Condition[]
+}
+
+export interface NotCondition {
+  type: 'not'
+  condition: Condition
+}
+
+export type Condition =
+  | HealthCondition
+  | HasPowerCondition
+  | ResourceCondition
+  | CardCountCondition
+  | TurnCondition
+  | CombatCondition
+  | AndCondition
+  | OrCondition
+  | NotCondition
+
+// ============================================
+// ATOMIC EFFECTS
+// ============================================
+
+// --- COMBAT EFFECTS ---
+
+export interface DamageEffect {
+  type: 'damage'
+  amount: EffectValue
+  target?: EntityTarget
+  piercing?: boolean
+  triggerOnHit?: AtomicEffect[]
+}
+
+export interface BlockEffect {
+  type: 'block'
+  amount: EffectValue
+  target?: EntityTarget
+}
+
+export interface HealEffect {
+  type: 'heal'
+  amount: EffectValue
+  target?: EntityTarget
+  canOverheal?: boolean
+}
+
+export interface LifestealEffect {
+  type: 'lifesteal'
+  amount: EffectValue
+  target: EntityTarget
+  healTarget?: EntityTarget
+  ratio?: number
+}
+
+// --- RESOURCE EFFECTS ---
+
+export interface EnergyEffect {
+  type: 'energy'
+  amount: EffectValue
+  operation: 'gain' | 'spend' | 'set'
+}
+
+// --- CARD EFFECTS ---
+
+export interface DrawEffect {
+  type: 'draw'
+  amount: EffectValue
+}
+
+export interface DiscardEffect {
+  type: 'discard'
+  target: CardTarget | FilteredCardTarget
+  amount?: EffectValue
+}
+
+export interface ExhaustEffect {
+  type: 'exhaust'
+  target: CardTarget | FilteredCardTarget
+  amount?: EffectValue
+}
+
+export interface AddCardEffect {
+  type: 'addCard'
+  cardId: string
+  destination: 'hand' | 'drawPile' | 'discardPile'
+  position?: 'top' | 'bottom' | 'random'
+  upgraded?: boolean
+  count?: EffectValue
+}
+
+export interface ShuffleEffect {
+  type: 'shuffle'
+  pile: 'drawPile' | 'discardPile'
+  into?: 'drawPile'
+}
+
+export interface UpgradeEffect {
+  type: 'upgrade'
+  target: CardTarget | FilteredCardTarget
+}
+
+// --- POWER EFFECTS ---
+
+export interface ApplyPowerEffect {
+  type: 'applyPower'
+  powerId: string
+  amount: EffectValue
+  target?: EntityTarget
+  duration?: number
+}
+
+export interface RemovePowerEffect {
+  type: 'removePower'
+  powerId: string
+  target?: EntityTarget
+  amount?: EffectValue
+}
+
+export interface TransferPowerEffect {
+  type: 'transferPower'
+  powerId: string
+  from: EntityTarget
+  to: EntityTarget
+  amount?: EffectValue
+}
+
+// --- META EFFECTS (Composition) ---
+
+export interface ConditionalEffect {
+  type: 'conditional'
+  condition: Condition
+  then: AtomicEffect[]
+  else?: AtomicEffect[]
+}
+
+export interface RepeatEffect {
+  type: 'repeat'
+  times: EffectValue
+  effects: AtomicEffect[]
+}
+
+export interface RandomEffect {
+  type: 'random'
+  choices: AtomicEffect[][]
+  weights?: number[]
+}
+
+export interface SequenceEffect {
+  type: 'sequence'
+  effects: AtomicEffect[]
+}
+
+export interface ForEachEffect {
+  type: 'forEach'
+  target: EntityTarget | CardTarget
+  effects: AtomicEffect[]
+}
+
+// --- UNION TYPE ---
+
+export type AtomicEffect =
+  // Combat
+  | DamageEffect
+  | BlockEffect
+  | HealEffect
+  | LifestealEffect
+  // Resource
+  | EnergyEffect
+  // Card
+  | DrawEffect
+  | DiscardEffect
+  | ExhaustEffect
+  | AddCardEffect
+  | ShuffleEffect
+  | UpgradeEffect
+  // Power
+  | ApplyPowerEffect
+  | RemovePowerEffect
+  | TransferPowerEffect
+  // Meta
+  | ConditionalEffect
+  | RepeatEffect
+  | RandomEffect
+  | SequenceEffect
+  | ForEachEffect
+
+export type AtomicEffectType = AtomicEffect['type']
+
+// ============================================
+// POWER SYSTEM
+// ============================================
+
+export type StackBehavior = 'intensity' | 'duration' | 'both'
+
+export type PowerTrigger =
+  | 'onTurnStart'
+  | 'onTurnEnd'
+  | 'onAttack'
+  | 'onAttacked'
+  | 'onDamaged'
+  | 'onBlock'
+  | 'onCardPlayed'
+  | 'onDeath'
+  | 'onKill'
+
+export interface PowerModifiers {
+  outgoingDamage?: number // Multiplier or flat add
+  incomingDamage?: number // Multiplier
+  outgoingBlock?: number // Flat add
+}
+
+export interface PowerTriggerDef {
+  event: PowerTrigger
+  effects: AtomicEffect[]
+}
+
+export interface PowerDefinition {
   id: string
   name: string
+  description: string
+  stackBehavior: StackBehavior
+  modifiers?: PowerModifiers
+  triggers?: PowerTriggerDef[]
+  decayOn?: 'turnStart' | 'turnEnd'
+  removeAtZero?: boolean
+  isDebuff?: boolean
+  icon?: string
+}
+
+// Runtime power instance on entity
+export interface Power {
+  id: string
   amount: number
-  duration?: number // turns remaining, undefined = permanent
+  duration?: number
 }
 
 export type Powers = Record<string, Power>
@@ -34,31 +404,28 @@ export type Powers = Record<string, Power>
 // CARDS
 // ============================================
 
-// Base card definition (content/registry)
 export interface CardDefinition {
   id: string
   name: string
   description: string
-  energy: number
+  energy: number | EffectValue
   theme: CardTheme
-  target: TargetType
+  target: EntityTarget
+  effects: AtomicEffect[]
+  tags?: string[]
+  rarity?: 'starter' | 'common' | 'uncommon' | 'rare'
   image?: string
-  effects: CardEffect[]
   upgraded?: boolean
+  upgradesTo?: Partial<CardDefinition>
+  generatedFrom?: {
+    template: string
+    seed: number
+    parameters: Record<string, number>
+  }
 }
 
-// Card effect types
-export type CardEffect =
-  | { type: 'damage'; amount: number }
-  | { type: 'block'; amount: number }
-  | { type: 'draw'; amount: number }
-  | { type: 'energy'; amount: number }
-  | { type: 'heal'; amount: number }
-  | { type: 'applyPower'; powerId: string; amount: number; target: TargetType }
-
-// Card instance in game (has unique ID)
 export interface CardInstance {
-  uid: string // unique instance ID
+  uid: string
   definitionId: string
   upgraded: boolean
 }
@@ -84,7 +451,6 @@ export interface PlayerEntity extends Entity {
 
 export interface EnemyEntity extends Entity {
   intent: Intent
-  // AI pattern for determining next intent
   patternIndex: number
 }
 
@@ -95,7 +461,7 @@ export interface EnemyEntity extends Entity {
 export interface MonsterDefinition {
   id: string
   name: string
-  health: [number, number] // [min, max] for variance
+  health: [number, number]
   image?: string
   pattern: IntentPattern[]
 }
@@ -116,7 +482,7 @@ export interface HeroDefinition {
   health: number
   energy: number
   image?: string
-  starterDeck: string[] // card definition IDs
+  starterDeck: string[]
 }
 
 // ============================================
@@ -131,8 +497,7 @@ export interface RoomDefinition {
   name: string
   description: string
   icon?: string
-  // For combat rooms
-  monsters?: string[] // monster IDs to spawn
+  monsters?: string[]
 }
 
 export interface RoomCard {
@@ -157,27 +522,18 @@ export interface CombatState {
   drawPile: CardInstance[]
   discardPile: CardInstance[]
   exhaustPile: CardInstance[]
+  cardsPlayedThisTurn: number
 }
 
 export interface RunState {
   gamePhase: GamePhase
   floor: number
   hero: HeroDefinition
-
-  // Deck (master list for run)
   deck: CardInstance[]
-
-  // Combat (null when not in combat)
   combat: CombatState | null
-
-  // Dungeon deck
   dungeonDeck: RoomCard[]
-  roomChoices: RoomCard[] // current 3 choices
-
-  // Resources
+  roomChoices: RoomCard[]
   gold: number
-
-  // Run statistics
   stats: RunStats
 }
 
@@ -186,6 +542,18 @@ export interface RunStats {
   cardsPlayed: number
   damageDealt: number
   damageTaken: number
+}
+
+// ============================================
+// EFFECT CONTEXT (for execution)
+// ============================================
+
+export interface EffectContext {
+  source: 'player' | string
+  cardTarget?: string
+  currentTarget?: string
+  powerId?: string
+  powerStacks?: number
 }
 
 // ============================================

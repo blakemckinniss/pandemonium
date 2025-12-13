@@ -10,6 +10,7 @@ import type { RunState, CombatNumber } from '../../types'
 import { applyAction, createCardInstance } from '../../game/actions'
 import { createNewRun, createEnemiesFromRoom } from '../../game/new-game'
 import { getCardDefinition } from '../../game/cards'
+import { getEnergyCostNumber } from '../../lib/effects'
 import { drawRoomChoices } from '../../game/dungeon-deck'
 import { getRoomDefinition } from '../../content/rooms'
 import { enableDragDrop, disableDragDrop, gsap } from '../../lib/dragdrop'
@@ -106,7 +107,7 @@ export function GameScreen() {
         const def = getCardDefinition(card.definitionId)
         if (!def) return false
 
-        return state.combat.player.energy >= def.energy
+        return state.combat.player.energy >= getEnergyCostNumber(def.energy)
       },
     })
 
@@ -325,7 +326,7 @@ export function GameScreen() {
       const def = getCardDefinition(card.definitionId)
       if (!def) return
 
-      if (def.target === 'self' || def.target === 'none') {
+      if (def.target === 'self' || def.target === 'allEnemies') {
         setState((prev) => {
           if (!prev) return prev
           return applyAction(prev, { type: 'playCard', cardUid })
