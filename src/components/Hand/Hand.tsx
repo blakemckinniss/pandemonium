@@ -1,7 +1,7 @@
 import { useLayoutEffect, useRef } from 'react'
 import { Card } from '../Card/Card'
 import type { CardInstance } from '../../types'
-import { getCardDefinition } from '../../game/cards'
+import { getEffectiveCardDef } from '../../game/cards'
 import { getEnergyCost, getEnergyCostNumber } from '../../lib/effects'
 
 export interface CardPosition {
@@ -52,7 +52,7 @@ export function Hand({ cards, energy, onPlayCard, onPositionsUpdate }: HandProps
   return (
     <div ref={containerRef} className="Hand flex gap-2 justify-center items-end p-4">
       {cards.map((card, index) => {
-        const def = getCardDefinition(card.definitionId)
+        const def = getEffectiveCardDef(card)
         if (!def) return null
 
         const energyCost = getEnergyCostNumber(def.energy)

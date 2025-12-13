@@ -35,6 +35,7 @@ import {
 import {
   executeScry,
   executeTutor,
+  executeUpgrade,
   handleResolveScry,
   handleResolveTutor as resolveTutorSelection,
 } from './selection-effects'
@@ -366,7 +367,7 @@ function executeEffect(
       executeShuffle(draft, effect, ctx)
       break
     case 'upgrade':
-      // TODO: implement upgrade effect
+      executeUpgrade(draft, effect, ctx)
       break
     case 'retain':
       executeRetain(draft, effect, ctx)

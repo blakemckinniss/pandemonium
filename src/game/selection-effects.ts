@@ -1,6 +1,6 @@
 /**
- * Card Selection Effects (Scry, Tutor)
- * These effects require async player interaction via modals
+ * Card Selection & Manipulation Effects
+ * Scry/Tutor require async UI interaction, Upgrade is synchronous
  */
 
 import type {
@@ -10,9 +10,10 @@ import type {
   CardFilter,
   ScryEffect,
   TutorEffect,
+  UpgradeEffect,
 } from '../types'
 import { getCardDefinition } from './cards'
-import { resolveValue } from '../lib/effects'
+import { resolveValue, resolveCardTarget } from '../lib/effects'
 
 /**
  * Execute scry effect - sets up pending selection for UI
@@ -83,6 +84,36 @@ export function executeTutor(
     destination: effect.destination,
     position: effect.position,
     shuffle: effect.shuffle,
+  }
+}
+
+/**
+ * Execute upgrade effect - marks cards as upgraded
+ */
+export function executeUpgrade(
+  draft: RunState,
+  effect: UpgradeEffect,
+  ctx: EffectContext
+): void {
+  if (!draft.combat) return
+
+  const cards = resolveCardTarget(effect.target, draft, ctx)
+
+  for (const card of cards) {
+    // Find and upgrade the card in its current location
+    const locations = [
+      draft.combat.hand,
+      draft.combat.drawPile,
+      draft.combat.discardPile,
+    ]
+
+    for (const pile of locations) {
+      const found = pile.find((c) => c.uid === card.uid)
+      if (found && !found.upgraded) {
+        found.upgraded = true
+        break
+      }
+    }
   }
 }
 

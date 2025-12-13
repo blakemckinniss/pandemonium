@@ -69,6 +69,8 @@ Card manipulation:
 - { "type": "tutor", "from": "drawPile", "destination": "hand" } - Search draw pile, add card to hand
 - { "type": "tutor", "from": "drawPile", "filter": { "theme": "attack" }, "destination": "hand" } - Search for an Attack card
 - { "type": "tutor", "from": "discardPile", "destination": "hand", "shuffle": true } - Retrieve from discard, shuffle deck
+- { "type": "upgrade", "target": "randomHand" } - Upgrade a random card in hand
+- { "type": "upgrade", "target": "hand" } - Upgrade all cards in hand
 
 Meta effects:
 - { "type": "repeat", "times": N, "effects": [...] } - Repeat effects N times

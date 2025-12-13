@@ -1,7 +1,7 @@
 import { useState, useCallback } from 'react'
 import { Modal } from './Modal'
 import { Card } from '../Card/Card'
-import { getCardDefinition } from '../../game/cards'
+import { getEffectiveCardDef } from '../../game/cards'
 import { getEnergyCost } from '../../lib/effects'
 import type { CardInstance } from '../../types'
 
@@ -115,7 +115,7 @@ export function CardSelectionModal({
       {/* Card grid */}
       <div className="CardSelectionModal-grid">
         {cards.map((card, index) => {
-          const def = getCardDefinition(card.definitionId)
+          const def = getEffectiveCardDef(card)
           if (!def) return null
 
           const isSelected = mode === 'scry'

@@ -1,4 +1,4 @@
-import type { CardDefinition } from '../types'
+import type { CardDefinition, CardInstance } from '../types'
 
 // ============================================
 // CARD REGISTRY
@@ -18,6 +18,29 @@ export function getAllCards(): CardDefinition[] {
   return Array.from(cardRegistry.values())
 }
 
+/**
+ * Get effective card definition, applying upgrades if card is upgraded
+ * Use this when displaying cards or resolving effects
+ */
+export function getEffectiveCardDef(card: CardInstance): CardDefinition | undefined {
+  const base = cardRegistry.get(card.definitionId)
+  if (!base) return undefined
+
+  if (!card.upgraded || !base.upgradesTo) {
+    return base
+  }
+
+  // Merge upgraded properties over base
+  return {
+    ...base,
+    ...base.upgradesTo,
+    // Preserve id from base
+    id: base.id,
+    // Mark as upgraded
+    upgraded: true,
+  }
+}
+
 // ============================================
 // STARTER CARDS
 // ============================================
@@ -31,6 +54,11 @@ registerCard({
   target: 'enemy',
   rarity: 'starter',
   effects: [{ type: 'damage', amount: 6 }],
+  upgradesTo: {
+    name: 'Strike+',
+    description: 'Deal 9 damage.',
+    effects: [{ type: 'damage', amount: 9 }],
+  },
 })
 
 registerCard({
@@ -42,6 +70,11 @@ registerCard({
   target: 'self',
   rarity: 'starter',
   effects: [{ type: 'block', amount: 5 }],
+  upgradesTo: {
+    name: 'Defend+',
+    description: 'Gain 8 Block.',
+    effects: [{ type: 'block', amount: 8 }],
+  },
 })
 
 registerCard({
@@ -56,6 +89,14 @@ registerCard({
     { type: 'damage', amount: 8 },
     { type: 'applyPower', powerId: 'vulnerable', amount: 2 },
   ],
+  upgradesTo: {
+    name: 'Bash+',
+    description: 'Deal 10 damage. Apply 3 Vulnerable.',
+    effects: [
+      { type: 'damage', amount: 10 },
+      { type: 'applyPower', powerId: 'vulnerable', amount: 3 },
+    ],
+  },
 })
 
 // ============================================
@@ -638,4 +679,47 @@ registerCard({
   effects: [
     { type: 'tutor', from: 'discardPile', destination: 'hand' },
   ],
+})
+
+registerCard({
+  id: 'armaments',
+  name: 'Armaments',
+  description: 'Gain 5 Block. Upgrade a random card in your hand.',
+  energy: 1,
+  theme: 'skill',
+  target: 'self',
+  rarity: 'common',
+  effects: [
+    { type: 'block', amount: 5 },
+    { type: 'upgrade', target: 'randomHand' },
+  ],
+  upgradesTo: {
+    name: 'Armaments+',
+    description: 'Gain 5 Block. Upgrade ALL cards in your hand.',
+    effects: [
+      { type: 'block', amount: 5 },
+      { type: 'upgrade', target: 'hand' },
+    ],
+  },
+})
+
+registerCard({
+  id: 'apotheosis',
+  name: 'Apotheosis',
+  description: 'Upgrade ALL cards in your deck for the rest of combat. Exhaust.',
+  energy: 2,
+  theme: 'skill',
+  target: 'self',
+  rarity: 'rare',
+  effects: [
+    { type: 'upgrade', target: 'hand' },
+    { type: 'upgrade', target: 'drawPile' },
+    { type: 'upgrade', target: 'discardPile' },
+    { type: 'exhaust', target: 'thisCard' },
+  ],
+  upgradesTo: {
+    name: 'Apotheosis+',
+    description: 'Upgrade ALL cards in your deck for the rest of combat. Exhaust.',
+    energy: 1,
+  },
 })
