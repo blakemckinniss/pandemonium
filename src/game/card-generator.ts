@@ -31,7 +31,9 @@ AVAILABLE EFFECTS:
 Combat:
 - { "type": "damage", "amount": N } - Deal N damage to target
 - { "type": "damage", "amount": N, "target": "allEnemies" } - Hit all enemies
-- { "type": "block", "amount": N } - Gain N block
+- { "type": "damage", "amount": N, "piercing": true } - Deal N damage ignoring block/barrier
+- { "type": "block", "amount": N } - Gain N block (decays at turn start)
+- { "type": "block", "amount": N, "persistent": true } - Gain N barrier (doesn't decay, absorbed after block)
 - { "type": "heal", "amount": N } - Restore N HP
 
 Resource:
@@ -61,6 +63,8 @@ Powers (duration-based effects):
 Card manipulation:
 - { "type": "discard", "target": "randomHand", "amount": N } - Discard N random cards
 - { "type": "exhaust", "target": "thisCard" } - Remove this card from combat
+- { "type": "retain", "target": "thisCard" } - This card stays in hand at end of turn
+- { "type": "retain", "target": "hand" } - All cards in hand stay at end of turn
 
 Meta effects:
 - { "type": "repeat", "times": N, "effects": [...] } - Repeat effects N times

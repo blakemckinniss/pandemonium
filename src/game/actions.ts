@@ -114,6 +114,7 @@ function handleStartCombat(draft: RunState, enemies: EnemyEntity[]): void {
       currentHealth: draft.hero.health,
       maxHealth: draft.hero.health,
       block: 0,
+      barrier: 0,
       powers: {},
       energy: draft.hero.energy,
       maxEnergy: draft.hero.energy,
@@ -196,9 +197,22 @@ function handleEndTurn(draft: RunState): void {
   // Decay powers at turn end
   decayPowers(combat.player, 'turnEnd')
 
-  // Discard hand
-  combat.discardPile.push(...combat.hand)
-  combat.hand = []
+  // Discard hand (except retained cards)
+  const retained: typeof combat.hand = []
+  const toDiscard: typeof combat.hand = []
+
+  for (const card of combat.hand) {
+    if (card.retained) {
+      // Keep in hand but clear retain flag (one-time effect)
+      card.retained = false
+      retained.push(card)
+    } else {
+      toDiscard.push(card)
+    }
+  }
+
+  combat.discardPile.push(...toDiscard)
+  combat.hand = retained
 
   // Enemy turn
   combat.phase = 'enemyTurn'
@@ -339,6 +353,12 @@ function executeEffect(
     case 'shuffle':
       executeShuffle(draft, effect, ctx)
       break
+    case 'upgrade':
+      // TODO: implement upgrade effect
+      break
+    case 'retain':
+      executeRetain(draft, effect, ctx)
+      break
     case 'applyPower':
       executeApplyPower(draft, effect, ctx)
       break
@@ -427,7 +447,7 @@ function executeDamage(
 
 function executeBlock(
   draft: RunState,
-  effect: { type: 'block'; amount: EffectValue; target?: EntityTarget },
+  effect: { type: 'block'; amount: EffectValue; target?: EntityTarget; persistent?: boolean },
   ctx: EffectContext
 ): void {
   if (!draft.combat) return
@@ -443,11 +463,21 @@ function executeBlock(
     // Apply block modifiers (Dexterity, Frail)
     const block = applyOutgoingBlockModifiers(baseBlock, entity)
 
-    entity.block += block
+    // Persistent block goes to barrier (doesn't decay at turn start)
+    if (effect.persistent) {
+      entity.barrier += block
+    } else {
+      entity.block += block
+    }
 
     // Emit visual event
     if (block > 0) {
-      emitVisual(draft, { type: 'block', targetId, amount: block })
+      emitVisual(draft, {
+        type: 'block',
+        targetId,
+        amount: block,
+        variant: effect.persistent ? 'barrier' : undefined,
+      })
     }
 
     // Trigger onBlock
@@ -683,6 +713,24 @@ function executeShuffle(
   emitVisual(draft, { type: 'shuffle' })
 }
 
+function executeRetain(
+  draft: RunState,
+  effect: { type: 'retain'; target: CardTarget | FilteredCardTarget },
+  ctx: EffectContext
+): void {
+  if (!draft.combat) return
+
+  const cards = resolveCardTarget(effect.target, draft, ctx)
+
+  for (const card of cards) {
+    // Find card in hand and mark as retained
+    const handCard = draft.combat.hand.find((c) => c.uid === card.uid)
+    if (handCard) {
+      handCard.retained = true
+    }
+  }
+}
+
 function executeApplyPower(
   draft: RunState,
   effect: { type: 'applyPower'; powerId: string; amount: EffectValue; target?: EntityTarget; duration?: number },
@@ -897,6 +945,13 @@ function applyDamageInternal(
       remaining -= blocked
     }
 
+    // Barrier absorbs second (unless piercing)
+    if (!piercing && remaining > 0 && combat.player.barrier > 0) {
+      const absorbed = Math.min(combat.player.barrier, remaining)
+      combat.player.barrier -= absorbed
+      remaining -= absorbed
+    }
+
     combat.player.currentHealth -= remaining
     draft.stats.damageTaken += remaining
 
@@ -915,6 +970,13 @@ function applyDamageInternal(
       const blocked = Math.min(enemy.block, remaining)
       enemy.block -= blocked
       remaining -= blocked
+    }
+
+    // Barrier absorbs second (unless piercing)
+    if (!piercing && remaining > 0 && enemy.barrier > 0) {
+      const absorbed = Math.min(enemy.barrier, remaining)
+      enemy.barrier -= absorbed
+      remaining -= absorbed
     }
 
     enemy.currentHealth -= remaining

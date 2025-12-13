@@ -199,6 +199,7 @@ export interface BlockEffect {
   type: 'block'
   amount: EffectValue
   target?: EntityTarget
+  persistent?: boolean // Barrier - doesn't decay at turn start
 }
 
 export interface HealEffect {
@@ -260,6 +261,11 @@ export interface ShuffleEffect {
 
 export interface UpgradeEffect {
   type: 'upgrade'
+  target: CardTarget | FilteredCardTarget
+}
+
+export interface RetainEffect {
+  type: 'retain'
   target: CardTarget | FilteredCardTarget
 }
 
@@ -337,6 +343,7 @@ export type AtomicEffect =
   | AddCardEffect
   | ShuffleEffect
   | UpgradeEffect
+  | RetainEffect
   // Power
   | ApplyPowerEffect
   | RemovePowerEffect
@@ -428,6 +435,7 @@ export interface CardInstance {
   uid: string
   definitionId: string
   upgraded: boolean
+  retained?: boolean // Card stays in hand at end of turn
 }
 
 // ============================================
@@ -440,6 +448,7 @@ export interface Entity {
   currentHealth: number
   maxHealth: number
   block: number
+  barrier: number // Persistent block that doesn't decay
   powers: Powers
   image?: string
 }
@@ -589,7 +598,7 @@ export type GameAction =
 export type VisualEvent =
   | { type: 'damage'; targetId: string; amount: number; variant?: 'poison' | 'piercing' }
   | { type: 'heal'; targetId: string; amount: number }
-  | { type: 'block'; targetId: string; amount: number }
+  | { type: 'block'; targetId: string; amount: number; variant?: 'barrier' }
   | { type: 'draw'; count: number }
   | { type: 'discard'; cardUids: string[] }
   | { type: 'exhaust'; cardUids: string[] }

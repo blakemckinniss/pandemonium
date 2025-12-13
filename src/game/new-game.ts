@@ -89,6 +89,7 @@ export function createEnemy(templateId: string): EnemyEntity {
     currentHealth: health,
     maxHealth: health,
     block: 0,
+    barrier: 0,
     powers: {},
     intent: { type: 'attack', value: template.damage },
     patternIndex: 0,
