@@ -235,3 +235,251 @@ body {
 .HandCard.is-dealt:hover {
   transform: rotate(var(--fan-rotation, 0deg)) translateY(-16px);
 }
+
+/* ============================================
+   PROFESSIONAL GLOW EFFECTS
+   ============================================ */
+
+/* Ambient card shimmer - subtle idle animation */
+@keyframes card-shimmer {
+  0%, 100% {
+    box-shadow:
+      0 0 15px oklch(0.4 0.05 260 / 0.3),
+      inset 0 0 20px oklch(0.3 0.02 260 / 0.1);
+  }
+  50% {
+    box-shadow:
+      0 0 20px oklch(0.5 0.08 260 / 0.4),
+      inset 0 0 30px oklch(0.4 0.03 260 / 0.15);
+  }
+}
+
+/* Playable card pulse - energy glow */
+@keyframes playable-pulse {
+  0%, 100% {
+    box-shadow:
+      0 0 20px oklch(0.5 0.15 70 / 0.5),
+      0 0 40px oklch(0.4 0.12 70 / 0.3),
+      inset 0 0 15px oklch(0.5 0.1 70 / 0.1);
+  }
+  50% {
+    box-shadow:
+      0 0 30px oklch(0.6 0.18 70 / 0.6),
+      0 0 60px oklch(0.5 0.15 70 / 0.4),
+      inset 0 0 25px oklch(0.6 0.12 70 / 0.15);
+  }
+}
+
+/* Rare card glow - golden shimmer */
+@keyframes rare-glow {
+  0%, 100% {
+    box-shadow:
+      0 0 25px oklch(0.65 0.15 80 / 0.5),
+      0 0 50px oklch(0.55 0.12 80 / 0.3),
+      inset 0 1px 0 oklch(0.8 0.1 80 / 0.4);
+    border-color: oklch(0.55 0.15 80);
+  }
+  50% {
+    box-shadow:
+      0 0 35px oklch(0.7 0.18 80 / 0.6),
+      0 0 70px oklch(0.6 0.15 80 / 0.4),
+      inset 0 1px 0 oklch(0.9 0.12 80 / 0.5);
+    border-color: oklch(0.65 0.18 80);
+  }
+}
+
+/* Attack card glow - red pulse */
+@keyframes attack-glow {
+  0%, 100% {
+    box-shadow:
+      0 0 15px oklch(0.45 0.15 20 / 0.4),
+      0 0 30px oklch(0.35 0.12 20 / 0.2);
+  }
+  50% {
+    box-shadow:
+      0 0 25px oklch(0.55 0.18 20 / 0.5),
+      0 0 45px oklch(0.45 0.15 20 / 0.3);
+  }
+}
+
+/* Skill card glow - blue pulse */
+@keyframes skill-glow {
+  0%, 100% {
+    box-shadow:
+      0 0 15px oklch(0.45 0.1 240 / 0.4),
+      0 0 30px oklch(0.35 0.08 240 / 0.2);
+  }
+  50% {
+    box-shadow:
+      0 0 25px oklch(0.55 0.12 240 / 0.5),
+      0 0 45px oklch(0.45 0.1 240 / 0.3);
+  }
+}
+
+/* Power card glow - purple pulse */
+@keyframes power-glow {
+  0%, 100% {
+    box-shadow:
+      0 0 15px oklch(0.45 0.12 280 / 0.4),
+      0 0 30px oklch(0.35 0.1 280 / 0.2);
+  }
+  50% {
+    box-shadow:
+      0 0 25px oklch(0.55 0.15 280 / 0.5),
+      0 0 45px oklch(0.45 0.12 280 / 0.3);
+  }
+}
+
+/* Apply shimmer to all field cards */
+.Card--player,
+.Card--enemy {
+  animation: card-shimmer 4s ease-in-out infinite;
+}
+
+/* Playable cards get energy glow */
+.Card.is-playable {
+  animation: playable-pulse 1.5s ease-in-out infinite;
+}
+
+/* Theme-specific glows for hand cards */
+.Card--hand.Card--attack:not(.is-playable):not(.is-disabled) {
+  animation: attack-glow 3s ease-in-out infinite;
+}
+
+.Card--hand.Card--skill:not(.is-playable):not(.is-disabled) {
+  animation: skill-glow 3s ease-in-out infinite;
+}
+
+.Card--hand.Card--power:not(.is-playable):not(.is-disabled) {
+  animation: power-glow 3s ease-in-out infinite;
+}
+
+/* Rare card override - golden glow */
+.Card.Card--rare {
+  animation: rare-glow 2s ease-in-out infinite !important;
+}
+
+/* Uncommon card glow - cyan/teal shimmer */
+@keyframes uncommon-glow {
+  0%, 100% {
+    box-shadow:
+      0 0 20px oklch(0.55 0.12 190 / 0.4),
+      0 0 40px oklch(0.45 0.1 190 / 0.25),
+      inset 0 1px 0 oklch(0.7 0.1 190 / 0.3);
+    border-color: oklch(0.45 0.12 190);
+  }
+  50% {
+    box-shadow:
+      0 0 28px oklch(0.6 0.14 190 / 0.5),
+      0 0 55px oklch(0.5 0.12 190 / 0.35),
+      inset 0 1px 0 oklch(0.8 0.12 190 / 0.4);
+    border-color: oklch(0.55 0.14 190);
+  }
+}
+
+.Card.Card--uncommon {
+  animation: uncommon-glow 2.5s ease-in-out infinite;
+}
+
+/* Energy orb ambient glow */
+@keyframes energy-orb-glow {
+  0%, 100% {
+    box-shadow:
+      0 0 12px oklch(0.5 0.12 70 / 0.5),
+      0 0 24px oklch(0.4 0.1 70 / 0.3),
+      inset 0 0 8px oklch(0.7 0.15 70 / 0.4);
+  }
+  50% {
+    box-shadow:
+      0 0 18px oklch(0.6 0.15 70 / 0.6),
+      0 0 36px oklch(0.5 0.12 70 / 0.4),
+      inset 0 0 12px oklch(0.8 0.18 70 / 0.5);
+  }
+}
+
+.EnergyOrb {
+  animation: energy-orb-glow 2s ease-in-out infinite;
+}
+
+/* Health bar glow effect when low */
+@keyframes health-critical {
+  0%, 100% {
+    box-shadow: 0 0 8px oklch(0.55 0.18 20 / 0.4);
+  }
+  50% {
+    box-shadow: 0 0 15px oklch(0.65 0.2 20 / 0.6);
+  }
+}
+
+.HealthBar--critical {
+  animation: health-critical 1s ease-in-out infinite;
+}
+
+/* Power badge glow on apply */
+@keyframes power-apply {
+  0% {
+    transform: scale(1.3);
+    box-shadow: 0 0 20px currentColor;
+  }
+  100% {
+    transform: scale(1);
+    box-shadow: none;
+  }
+}
+
+.PowerBadge.is-new {
+  animation: power-apply 0.4s ease-out forwards;
+}
+
+/* Damage flash overlay */
+@keyframes damage-flash {
+  0% { opacity: 0.6; }
+  100% { opacity: 0; }
+}
+
+.Card.is-damaged::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle, oklch(0.55 0.2 20 / 0.8), transparent 70%);
+  pointer-events: none;
+  animation: damage-flash 0.3s ease-out forwards;
+}
+
+/* Block gain effect */
+@keyframes block-gain {
+  0% {
+    transform: scale(1.2);
+    box-shadow: 0 0 30px oklch(0.55 0.12 240);
+  }
+  100% {
+    transform: scale(1);
+    box-shadow: none;
+  }
+}
+
+.Card.is-blocking::before {
+  content: '';
+  position: absolute;
+  inset: -4px;
+  border: 3px solid oklch(0.55 0.12 240);
+  border-radius: 16px;
+  animation: block-gain 0.4s ease-out forwards;
+  pointer-events: none;
+}
+
+/* Heal effect */
+@keyframes heal-glow {
+  0% {
+    box-shadow:
+      0 0 30px oklch(0.55 0.15 145),
+      inset 0 0 20px oklch(0.5 0.12 145 / 0.3);
+  }
+  100% {
+    box-shadow: none;
+  }
+}
+
+.Card.is-healing {
+  animation: heal-glow 0.5s ease-out forwards;
+}

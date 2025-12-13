@@ -6,6 +6,7 @@ interface CardProps {
   theme?: CardTheme
   name: string
   image?: string
+  rarity?: 'starter' | 'common' | 'uncommon' | 'rare'
 
   // player/enemy variants
   currentHealth?: number
@@ -35,6 +36,7 @@ export function Card({
   theme,
   name,
   image,
+  rarity,
   currentHealth,
   maxHealth,
   block = 0,
@@ -53,6 +55,8 @@ export function Card({
     'Card',
     `Card--${variant}`,
     theme && `Card--${theme}`,
+    rarity === 'rare' && 'Card--rare',
+    rarity === 'uncommon' && 'Card--uncommon',
     playable && 'is-playable',
     disabled && 'is-disabled',
     className,

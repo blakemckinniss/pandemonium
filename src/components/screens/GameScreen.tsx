@@ -7,6 +7,7 @@ import { CombatNumbers } from '../CombatNumbers/CombatNumbers'
 import { RoomSelect } from '../DungeonDeck/RoomSelect'
 import { RewardScreen } from './RewardScreen'
 import { UnlockNotification } from '../UnlockNotification/UnlockNotification'
+import { ParticleEffects, emitParticle } from '../ParticleEffects/ParticleEffects'
 import type { RunState, CombatNumber } from '../../types'
 import { applyAction, createCardInstance } from '../../game/actions'
 import { createNewRun, createEnemiesFromRoom } from '../../game/new-game'
@@ -85,15 +86,27 @@ export function GameScreen({ deckId, onReturnToMenu }: GameScreenProps) {
     // Process each visual event
     for (const event of queue) {
       switch (event.type) {
-        case 'damage':
+        case 'damage': {
           spawnCombatNumber(event.targetId, event.amount, 'damage')
+          // Spawn spark particles on target
+          const damageTarget = containerRef.current?.querySelector(`[data-target="${event.targetId}"]`)
+          if (damageTarget) emitParticle(damageTarget, 'spark')
           break
-        case 'heal':
+        }
+        case 'heal': {
           spawnCombatNumber(event.targetId, event.amount, 'heal')
+          // Spawn heal particles on target
+          const healTarget = containerRef.current?.querySelector(`[data-target="${event.targetId}"]`)
+          if (healTarget) emitParticle(healTarget, 'heal')
           break
-        case 'block':
+        }
+        case 'block': {
           spawnCombatNumber(event.targetId, event.amount, 'block')
+          // Spawn block particles on target
+          const blockTarget = containerRef.current?.querySelector(`[data-target="${event.targetId}"]`)
+          if (blockTarget) emitParticle(blockTarget, 'block')
           break
+        }
         case 'draw':
           // Animate mid-turn draws (turn-start draws handled by turn change effect)
           if (lastTurnRef.current === state.combat?.turn) {
@@ -160,11 +173,16 @@ export function GameScreen({ deckId, onReturnToMenu }: GameScreenProps) {
             `[data-target="${event.targetId}"]`
           )
           if (targetEl) {
+            const isDebuff = event.powerId.match(/vulnerable|weak|frail|poison/)
             gsap.effects.pulse(targetEl, {
-              color: event.powerId.match(/vulnerable|weak|frail|poison/)
+              color: isDebuff
                 ? 'oklch(0.55 0.18 20)'  // Debuff = red
                 : 'oklch(0.5 0.12 145)', // Buff = green
             })
+            // Poison gets special particles
+            if (event.powerId === 'poison') {
+              emitParticle(targetEl, 'poison')
+            }
           }
           break
         }
@@ -179,6 +197,10 @@ export function GameScreen({ deckId, onReturnToMenu }: GameScreenProps) {
                 ? 'oklch(0.7 0.15 70)'  // Gain = bright gold
                 : 'oklch(0.4 0.1 70)',  // Spend = dim
             })
+            // Spawn energy particles on gain
+            if (event.delta > 0) {
+              emitParticle(energyOrb, 'energy')
+            }
           }
           break
         }
@@ -663,6 +685,7 @@ export function GameScreen({ deckId, onReturnToMenu }: GameScreenProps) {
       ref={containerRef}
       className="GameScreen h-screen flex flex-col overflow-hidden relative"
     >
+      <ParticleEffects containerRef={containerRef} />
       <CombatNumbers numbers={combatNumbers} onComplete={removeCombatNumber} />
       <UnlockNotification unlocks={pendingUnlocks} onComplete={handleUnlocksDismissed} />
 

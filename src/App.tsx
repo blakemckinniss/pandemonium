@@ -3,6 +3,7 @@ import type { AppScreen } from './types'
 import { GameScreen } from './components/screens/GameScreen'
 import { MenuScreen } from './components/screens/MenuScreen'
 import { DeckBuilderScreen } from './components/screens/DeckBuilderScreen'
+import { AmbientBackground } from './components/AmbientBackground/AmbientBackground'
 import { loadGeneratedCardsIntoRegistry } from './game/card-generator'
 
 function App() {
@@ -30,19 +31,29 @@ function App() {
     setCurrentScreen('menu')
   }
 
-  switch (currentScreen) {
-    case 'menu':
-      return (
-        <MenuScreen
-          onStartRun={handleStartRun}
-          onDeckBuilder={() => setCurrentScreen('deckBuilder')}
-        />
-      )
-    case 'deckBuilder':
-      return <DeckBuilderScreen onBack={() => setCurrentScreen('menu')} />
-    case 'game':
-      return <GameScreen deckId={selectedDeckId} onReturnToMenu={handleReturnToMenu} />
+  // Render content based on current screen
+  const renderScreen = () => {
+    switch (currentScreen) {
+      case 'menu':
+        return (
+          <MenuScreen
+            onStartRun={handleStartRun}
+            onDeckBuilder={() => setCurrentScreen('deckBuilder')}
+          />
+        )
+      case 'deckBuilder':
+        return <DeckBuilderScreen onBack={() => setCurrentScreen('menu')} />
+      case 'game':
+        return <GameScreen deckId={selectedDeckId} onReturnToMenu={handleReturnToMenu} />
+    }
   }
+
+  return (
+    <>
+      <AmbientBackground />
+      {renderScreen()}
+    </>
+  )
 }
 
 export default App
