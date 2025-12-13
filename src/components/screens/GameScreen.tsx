@@ -1,6 +1,7 @@
 import { useState, useCallback, useEffect, useRef } from 'react'
 import { Icon } from '@iconify/react'
-import { Hand } from '../Hand/Hand'
+import { Hand, type CardPosition } from '../Hand/Hand'
+import { CardAnimationOverlay, type PendingCardAnimation } from '../Hand/CardAnimationOverlay'
 import { Field } from '../Field/Field'
 import { CombatNumbers } from '../CombatNumbers/CombatNumbers'
 import { RoomSelect } from '../DungeonDeck/RoomSelect'
@@ -24,12 +25,14 @@ export function GameScreen() {
   const [isAnimating, setIsAnimating] = useState(false)
   const [pendingUnlocks, setPendingUnlocks] = useState<string[]>([])
   const [currentRoomId, setCurrentRoomId] = useState<string | null>(null)
+  const [pendingAnimations, setPendingAnimations] = useState<PendingCardAnimation[]>([])
   const containerRef = useRef<HTMLDivElement>(null)
   const handRef = useRef<HTMLDivElement>(null)
   const prevHealthRef = useRef<Record<string, number>>({})
   const runStartRef = useRef<Date>(new Date())
   const runRecordedRef = useRef(false)
   const lastTurnRef = useRef<number>(0)
+  const cardPositionsRef = useRef<Map<string, CardPosition>>(new Map())
 
   // Meta store for progression
   const metaStore = useMetaStore()
@@ -79,14 +82,50 @@ export function GameScreen() {
         case 'draw':
           // Draw animation handled by turn change effect (lines 43-59)
           break
-        case 'discard':
-          // Note: Cards already removed from DOM when queue processes
-          // TODO: Pre-mutation animation architecture needed
+        case 'discard': {
+          // Create ghost animations using cached positions
+          const discardAnims: PendingCardAnimation[] = []
+          for (const cardUid of event.cardUids) {
+            const cached = cardPositionsRef.current.get(cardUid)
+            if (!cached) continue
+
+            const cardDef = getCardDefinition(cached.definitionId)
+            if (!cardDef) continue
+
+            discardAnims.push({
+              id: `discard-${cardUid}-${Date.now()}`,
+              cardDef,
+              position: { x: cached.x, y: cached.y },
+              type: 'discard',
+            })
+          }
+          if (discardAnims.length > 0) {
+            setPendingAnimations((prev) => [...prev, ...discardAnims])
+          }
           break
-        case 'exhaust':
-          // Note: Cards already removed from DOM when queue processes
-          // TODO: Pre-mutation animation architecture needed
+        }
+        case 'exhaust': {
+          // Create ghost animations using cached positions
+          const exhaustAnims: PendingCardAnimation[] = []
+          for (const cardUid of event.cardUids) {
+            const cached = cardPositionsRef.current.get(cardUid)
+            if (!cached) continue
+
+            const cardDef = getCardDefinition(cached.definitionId)
+            if (!cardDef) continue
+
+            exhaustAnims.push({
+              id: `exhaust-${cardUid}-${Date.now()}`,
+              cardDef,
+              position: { x: cached.x, y: cached.y },
+              type: 'exhaust',
+            })
+          }
+          if (exhaustAnims.length > 0) {
+            setPendingAnimations((prev) => [...prev, ...exhaustAnims])
+          }
           break
+        }
         case 'powerApply': {
           // Pulse the target entity when power applied
           const targetEl = containerRef.current?.querySelector(
@@ -257,6 +296,14 @@ export function GameScreen() {
 
   const removeCombatNumber = useCallback((id: string) => {
     setCombatNumbers((prev) => prev.filter((n) => n.id !== id))
+  }, [])
+
+  const handleCardPositionsUpdate = useCallback((positions: Map<string, CardPosition>) => {
+    cardPositionsRef.current = positions
+  }, [])
+
+  const handleAnimationComplete = useCallback((id: string) => {
+    setPendingAnimations((prev) => prev.filter((a) => a.id !== id))
   }, [])
 
   // ============================================
@@ -576,8 +623,15 @@ export function GameScreen() {
           cards={combat.hand}
           energy={combat.player.energy}
           onPlayCard={handleClickPlayCard}
+          onPositionsUpdate={handleCardPositionsUpdate}
         />
       </div>
+
+      {/* Card animation overlay for discard/exhaust ghosts */}
+      <CardAnimationOverlay
+        animations={pendingAnimations}
+        onComplete={handleAnimationComplete}
+      />
 
       {isVictory && (
         <div className="absolute inset-0 bg-black/80 flex items-center justify-center z-40">
