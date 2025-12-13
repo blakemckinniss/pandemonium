@@ -8,6 +8,7 @@ interface CardProps {
   name: string
   image?: string
   rarity?: 'starter' | 'common' | 'uncommon' | 'rare'
+  upgraded?: boolean
 
   // player/enemy variants
   currentHealth?: number
@@ -38,6 +39,7 @@ export function Card({
   name,
   image,
   rarity,
+  upgraded = false,
   currentHealth,
   maxHealth,
   block = 0,
@@ -52,12 +54,14 @@ export function Card({
   className = '',
   ...dataAttrs
 }: CardProps) {
+  const displayName = upgraded ? `${name}+` : name
   const classes = [
     'Card',
     `Card--${variant}`,
     theme && `Card--${theme}`,
     rarity === 'rare' && 'Card--rare',
     rarity === 'uncommon' && 'Card--uncommon',
+    upgraded && 'Card--upgraded',
     playable && 'is-playable',
     disabled && 'is-disabled',
     className,
@@ -115,7 +119,7 @@ export function Card({
 
       {/* Name */}
       <div className="px-3 py-2 text-center text-sm font-medium truncate bg-surface-alt/50">
-        {name}
+        {displayName}
       </div>
 
       {/* Description (hand cards) */}

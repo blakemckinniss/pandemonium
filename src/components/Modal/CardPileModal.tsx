@@ -34,12 +34,13 @@ const PILE_CONFIG: Record<PileType, { title: string; icon: string; emptyMessage:
 export function CardPileModal({ isOpen, onClose, pileType, cards }: CardPileModalProps) {
   const config = PILE_CONFIG[pileType]
 
-  // Group cards by definition for cleaner display
+  // Group cards by definition + upgraded status for cleaner display
   const groupedCards = cards.reduce((acc, card) => {
     const def = getCardDefinition(card.definitionId)
     if (!def) return acc
 
-    const key = card.definitionId
+    // Separate upgraded and non-upgraded versions
+    const key = `${card.definitionId}:${card.upgraded ? 'upgraded' : 'base'}`
     if (!acc[key]) {
       acc[key] = { def, count: 0, upgraded: card.upgraded }
     }
@@ -69,18 +70,24 @@ export function CardPileModal({ isOpen, onClose, pileType, cards }: CardPileModa
         </div>
       ) : (
         <div className="CardPileModal-grid">
-          {sortedGroups.map(({ def, count }) => {
+          {sortedGroups.map(({ def, count, upgraded }) => {
             if (!def) return null
+            // Get effective definition (applies upgradesTo if upgraded)
+            const effectiveDef = upgraded && def.upgradesTo
+              ? { ...def, ...def.upgradesTo }
+              : def
+            const key = `${def.id}:${upgraded ? 'upgraded' : 'base'}`
             return (
-              <div key={def.id} className="CardPileModal-item">
+              <div key={key} className="CardPileModal-item">
                 <div className="CardPileModal-card">
                   <Card
                     variant="hand"
-                    theme={def.theme}
-                    name={def.name}
-                    description={def.description}
-                    energy={getEnergyCost(def.energy)}
-                    rarity={def.rarity}
+                    theme={effectiveDef.theme}
+                    name={effectiveDef.name}
+                    description={effectiveDef.description}
+                    energy={getEnergyCost(effectiveDef.energy)}
+                    rarity={effectiveDef.rarity}
+                    upgraded={upgraded}
                   />
                 </div>
                 {count > 1 && (
