@@ -79,7 +79,7 @@ function handleStartCombat(draft: RunState, enemies: EnemyEntity[]): void {
 
   draft.combat = {
     phase: 'playerTurn',
-    turn: 1,
+    turn: 0, // Will be incremented to 1 on first startTurn
     player: {
       id: 'player',
       name: draft.hero.name,
@@ -120,6 +120,9 @@ function handleStartTurn(draft: RunState): void {
 
   const combat = draft.combat
   combat.phase = 'playerTurn'
+
+  // Increment turn counter
+  combat.turn += 1
 
   // Reset energy
   combat.player.energy = combat.player.maxEnergy
