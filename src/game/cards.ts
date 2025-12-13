@@ -570,3 +570,72 @@ registerCard({
     // Max HP increase on kill would need special handling
   ],
 })
+
+// ============================================
+// SCRY / TUTOR CARDS
+// ============================================
+
+registerCard({
+  id: 'foresight',
+  name: 'Foresight',
+  description: 'Scry 3. Draw 1 card.',
+  energy: 1,
+  theme: 'skill',
+  target: 'self',
+  rarity: 'uncommon',
+  effects: [
+    { type: 'scry', amount: 3 },
+    { type: 'draw', amount: 1 },
+  ],
+})
+
+registerCard({
+  id: 'third_eye',
+  name: 'Third Eye',
+  description: 'Scry 5.',
+  energy: 0,
+  theme: 'skill',
+  target: 'self',
+  rarity: 'common',
+  effects: [{ type: 'scry', amount: 5 }],
+})
+
+registerCard({
+  id: 'battle_trance',
+  name: 'Battle Trance',
+  description: 'Search your draw pile for an Attack and add it to your hand.',
+  energy: 1,
+  theme: 'skill',
+  target: 'self',
+  rarity: 'uncommon',
+  effects: [
+    { type: 'tutor', from: 'drawPile', filter: { theme: 'attack' }, destination: 'hand' },
+  ],
+})
+
+registerCard({
+  id: 'seek',
+  name: 'Seek',
+  description: 'Search your draw pile and add a card to your hand. Shuffle.',
+  energy: 0,
+  theme: 'skill',
+  target: 'self',
+  rarity: 'rare',
+  effects: [
+    { type: 'tutor', from: 'drawPile', destination: 'hand', shuffle: true },
+    { type: 'exhaust', target: 'thisCard' },
+  ],
+})
+
+registerCard({
+  id: 'recycle',
+  name: 'Recycle',
+  description: 'Return a card from your discard pile to your hand.',
+  energy: 1,
+  theme: 'skill',
+  target: 'self',
+  rarity: 'uncommon',
+  effects: [
+    { type: 'tutor', from: 'discardPile', destination: 'hand' },
+  ],
+})

@@ -65,6 +65,10 @@ Card manipulation:
 - { "type": "exhaust", "target": "thisCard" } - Remove this card from combat
 - { "type": "retain", "target": "thisCard" } - This card stays in hand at end of turn
 - { "type": "retain", "target": "hand" } - All cards in hand stay at end of turn
+- { "type": "scry", "amount": N } - Look at top N cards, choose which go to bottom
+- { "type": "tutor", "from": "drawPile", "destination": "hand" } - Search draw pile, add card to hand
+- { "type": "tutor", "from": "drawPile", "filter": { "theme": "attack" }, "destination": "hand" } - Search for an Attack card
+- { "type": "tutor", "from": "discardPile", "destination": "hand", "shuffle": true } - Retrieve from discard, shuffle deck
 
 Meta effects:
 - { "type": "repeat", "times": N, "effects": [...] } - Repeat effects N times

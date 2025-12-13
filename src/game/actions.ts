@@ -32,6 +32,12 @@ import {
   decayPowers,
   getPowerTriggers,
 } from './powers'
+import {
+  executeScry,
+  executeTutor,
+  handleResolveScry,
+  handleResolveTutor as resolveTutorSelection,
+} from './selection-effects'
 
 // ============================================
 // ACTION HANDLERS
@@ -93,6 +99,12 @@ export function applyAction(state: RunState, action: GameAction): RunState {
         break
       case 'clearVisualQueue':
         handleClearVisualQueue(draft)
+        break
+      case 'resolveScry':
+        handleResolveScry(draft, action.keptUids, action.discardedUids)
+        break
+      case 'resolveTutor':
+        resolveTutorSelection(draft, action.selectedUids, shuffleArray)
         break
     }
   })
@@ -358,6 +370,12 @@ function executeEffect(
       break
     case 'retain':
       executeRetain(draft, effect, ctx)
+      break
+    case 'scry':
+      executeScry(draft, effect, ctx)
+      break
+    case 'tutor':
+      executeTutor(draft, effect, ctx)
       break
     case 'applyPower':
       executeApplyPower(draft, effect, ctx)

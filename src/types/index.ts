@@ -269,6 +269,21 @@ export interface RetainEffect {
   target: CardTarget | FilteredCardTarget
 }
 
+export interface ScryEffect {
+  type: 'scry'
+  amount: EffectValue // How many cards to look at from top of draw pile
+}
+
+export interface TutorEffect {
+  type: 'tutor'
+  from: 'drawPile' | 'discardPile'
+  filter?: CardFilter
+  amount?: EffectValue // How many to select (default 1)
+  destination: 'hand' | 'drawPile'
+  position?: 'top' | 'bottom' | 'random' // For drawPile destination
+  shuffle?: boolean // Shuffle draw pile after?
+}
+
 // --- POWER EFFECTS ---
 
 export interface ApplyPowerEffect {
@@ -344,6 +359,8 @@ export type AtomicEffect =
   | ShuffleEffect
   | UpgradeEffect
   | RetainEffect
+  | ScryEffect
+  | TutorEffect
   // Power
   | ApplyPowerEffect
   | RemovePowerEffect
@@ -523,6 +540,25 @@ export type TurnPhase = 'playerTurn' | 'enemyTurn' | 'victory' | 'defeat'
 export type GamePhase = 'menu' | 'roomSelect' | 'combat' | 'reward' | 'campfire' | 'gameOver'
 export type AppScreen = 'menu' | 'deckBuilder' | 'game'
 
+// Pending player selections (for scry, tutor, etc.)
+export interface PendingScry {
+  type: 'scry'
+  cards: CardInstance[] // Cards being viewed (removed from draw pile temporarily)
+}
+
+export interface PendingTutor {
+  type: 'tutor'
+  cards: CardInstance[] // Cards matching filter
+  sourceIndices: number[] // Original indices in source pile for removal
+  from: 'drawPile' | 'discardPile'
+  maxSelect: number
+  destination: 'hand' | 'drawPile'
+  position?: 'top' | 'bottom' | 'random'
+  shuffle?: boolean
+}
+
+export type PendingSelection = PendingScry | PendingTutor
+
 export interface CombatState {
   phase: TurnPhase
   turn: number
@@ -534,6 +570,7 @@ export interface CombatState {
   exhaustPile: CardInstance[]
   cardsPlayedThisTurn: number
   visualQueue: VisualEvent[]
+  pendingSelection?: PendingSelection
 }
 
 export interface RunState {
@@ -590,6 +627,8 @@ export type GameAction =
   | { type: 'selectRoom'; roomUid: string }
   | { type: 'dealRoomChoices' }
   | { type: 'clearVisualQueue' }
+  | { type: 'resolveScry'; keptUids: string[]; discardedUids: string[] }
+  | { type: 'resolveTutor'; selectedUids: string[] }
 
 // ============================================
 // VISUAL EVENTS (Animation Queue)

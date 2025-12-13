@@ -9,6 +9,7 @@ import { RewardScreen } from './RewardScreen'
 import { UnlockNotification } from '../UnlockNotification/UnlockNotification'
 import { ParticleEffects, emitParticle } from '../ParticleEffects/ParticleEffects'
 import { CardPileModal, type PileType } from '../Modal/CardPileModal'
+import { CardSelectionModal } from '../Modal/CardSelectionModal'
 import type { RunState, CombatNumber } from '../../types'
 import { applyAction, createCardInstance } from '../../game/actions'
 import { createNewRun, createEnemiesFromRoom } from '../../game/new-game'
@@ -614,6 +615,62 @@ export function GameScreen({ deckId, onReturnToMenu }: GameScreenProps) {
     setPendingUnlocks([])
   }, [])
 
+  // Handle scry/tutor selection resolution
+  const handleSelectionConfirm = useCallback(
+    (selectedUids: string[], discardedUids?: string[]) => {
+      if (!state?.combat?.pendingSelection) return
+
+      const pending = state.combat.pendingSelection
+
+      if (pending.type === 'scry') {
+        setState((prev) => {
+          if (!prev) return prev
+          return applyAction(prev, {
+            type: 'resolveScry',
+            keptUids: selectedUids,
+            discardedUids: discardedUids ?? [],
+          })
+        })
+      } else if (pending.type === 'tutor') {
+        setState((prev) => {
+          if (!prev) return prev
+          return applyAction(prev, {
+            type: 'resolveTutor',
+            selectedUids,
+          })
+        })
+      }
+    },
+    [state?.combat?.pendingSelection]
+  )
+
+  const handleSelectionClose = useCallback(() => {
+    // For now, closing without selection = empty selection
+    if (!state?.combat?.pendingSelection) return
+
+    const pending = state.combat.pendingSelection
+    if (pending.type === 'scry') {
+      // Put all cards back on top in original order
+      setState((prev) => {
+        if (!prev) return prev
+        return applyAction(prev, {
+          type: 'resolveScry',
+          keptUids: pending.cards.map((c) => c.uid),
+          discardedUids: [],
+        })
+      })
+    } else if (pending.type === 'tutor') {
+      // Skip tutor selection
+      setState((prev) => {
+        if (!prev) return prev
+        return applyAction(prev, {
+          type: 'resolveTutor',
+          selectedUids: [],
+        })
+      })
+    }
+  }, [state?.combat?.pendingSelection])
+
   // ============================================
   // RENDER
   // ============================================
@@ -809,6 +866,30 @@ export function GameScreen({ deckId, onReturnToMenu }: GameScreenProps) {
           combat.exhaustPile
         }
       />
+
+      {/* Card Selection Modal (for scry/tutor) */}
+      {combat.pendingSelection && (
+        <CardSelectionModal
+          isOpen={true}
+          onClose={handleSelectionClose}
+          title={
+            combat.pendingSelection.type === 'scry'
+              ? `Scry ${combat.pendingSelection.cards.length}`
+              : `Search for a card`
+          }
+          cards={combat.pendingSelection.cards}
+          minSelect={combat.pendingSelection.type === 'tutor' ? 0 : 0}
+          maxSelect={
+            combat.pendingSelection.type === 'tutor'
+              ? combat.pendingSelection.maxSelect
+              : combat.pendingSelection.cards.length
+          }
+          mode={combat.pendingSelection.type === 'scry' ? 'scry' : 'pick'}
+          onConfirm={handleSelectionConfirm}
+          confirmText={combat.pendingSelection.type === 'scry' ? 'Confirm' : 'Add to Hand'}
+          allowSkip={combat.pendingSelection.type === 'tutor'}
+        />
+      )}
     </div>
   )
 }
