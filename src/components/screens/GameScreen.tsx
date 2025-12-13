@@ -1,4 +1,5 @@
 import { useState, useCallback, useEffect, useRef } from 'react'
+import { Icon } from '@iconify/react'
 import { Hand } from '../Hand/Hand'
 import { Field } from '../Field/Field'
 import { CombatNumbers } from '../CombatNumbers/CombatNumbers'
@@ -10,6 +11,7 @@ import { applyAction, createCardInstance } from '../../game/actions'
 import { createNewRun, createEnemiesFromRoom } from '../../game/new-game'
 import { getCardDefinition } from '../../game/cards'
 import { drawRoomChoices } from '../../game/dungeon-deck'
+import { getRoomDefinition } from '../../content/rooms'
 import { enableDragDrop, disableDragDrop, gsap } from '../../lib/dragdrop'
 import { generateUid } from '../../lib/utils'
 import { useMetaStore, checkUnlocks } from '../../stores/metaStore'
@@ -20,6 +22,7 @@ export function GameScreen() {
   const [combatNumbers, setCombatNumbers] = useState<CombatNumber[]>([])
   const [isAnimating, setIsAnimating] = useState(false)
   const [pendingUnlocks, setPendingUnlocks] = useState<string[]>([])
+  const [currentRoomId, setCurrentRoomId] = useState<string | null>(null)
   const containerRef = useRef<HTMLDivElement>(null)
   const handRef = useRef<HTMLDivElement>(null)
   const prevHealthRef = useRef<Record<string, number>>({})
@@ -204,6 +207,8 @@ export function GameScreen() {
       const room = prev.roomChoices.find((r) => r.uid === roomUid)
       if (!room) return prev
 
+      setCurrentRoomId(room.definitionId)
+
       // Create enemies from room
       const enemies = createEnemiesFromRoom(room.definitionId)
 
@@ -371,6 +376,7 @@ export function GameScreen() {
     runRecordedRef.current = false
     setCombatNumbers([])
     setPendingUnlocks([])
+    setCurrentRoomId(null)
     setState(createNewRun('warrior'))
   }, [])
 
@@ -442,40 +448,60 @@ export function GameScreen() {
   const isVictory = combat.phase === 'victory'
   const isDefeat = combat.phase === 'defeat'
 
+  // Get current room info
+  const currentRoom = currentRoomId ? getRoomDefinition(currentRoomId) : null
+  const deckRemaining = state.dungeonDeck.length
+
   return (
     <div
       ref={containerRef}
-      className="GameScreen h-screen flex flex-col bg-gradient-to-b from-gray-900 to-gray-950 overflow-hidden"
+      className="GameScreen h-screen flex flex-col overflow-hidden relative"
     >
       <CombatNumbers numbers={combatNumbers} onComplete={removeCombatNumber} />
       <UnlockNotification unlocks={pendingUnlocks} onComplete={handleUnlocksDismissed} />
 
-      <header className="flex justify-between items-center px-6 py-3 bg-surface">
-        <div className="text-lg font-bold">Floor {state.floor}</div>
-        <div className="text-sm">Turn {combat.turn}</div>
-        <div className="text-sm text-gray-400">Gold: {state.gold}</div>
-      </header>
+      {/* Top-right UI cluster */}
+      <div className="absolute top-4 right-4 z-10 flex flex-col items-end gap-2">
+        <button
+          onClick={handleEndTurn}
+          disabled={!isPlayerTurn || isAnimating}
+          className="EndTurnBtn"
+        >
+          End Turn
+        </button>
+        <div className="flex gap-2">
+          <div className="Chip">
+            <Icon icon="game-icons:hourglass" className="text-gray-400" />
+            <span>Turn {combat.turn}</span>
+          </div>
+          <div className="Chip">
+            <Icon icon="game-icons:two-coins" className="text-gold" />
+            <span>{state.gold}</span>
+          </div>
+        </div>
+      </div>
 
+      {/* Top-left room info */}
+      <div className="absolute top-4 left-4 z-10">
+        <div className="Chip">
+          <Icon icon="game-icons:dungeon-gate" className="text-gray-400" />
+          <span>{currentRoom?.name ?? 'Unknown Room'}</span>
+          <span className="text-gray-500 ml-1">({deckRemaining} left)</span>
+        </div>
+      </div>
+
+      {/* Combat field - centered */}
       <div className="flex-1 flex flex-col justify-center">
         <Field player={combat.player} enemies={combat.enemies} />
       </div>
 
-      <div ref={handRef} className="bg-surface-alt border-t border-border">
+      {/* Hand area - no border/divider */}
+      <div ref={handRef} className="pb-4">
         <Hand
           cards={combat.hand}
           energy={combat.player.energy}
           onPlayCard={handleClickPlayCard}
         />
-
-        <div className="flex justify-center gap-4 pb-4">
-          <button
-            onClick={handleEndTurn}
-            disabled={!isPlayerTurn || isAnimating}
-            className="px-6 py-2 bg-energy text-black font-bold rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:brightness-110 transition"
-          >
-            End Turn
-          </button>
-        </div>
       </div>
 
       {isVictory && (

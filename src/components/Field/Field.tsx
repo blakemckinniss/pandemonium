@@ -9,30 +9,24 @@ interface FieldProps {
 
 export function Field({ player, enemies, onTargetClick }: FieldProps) {
   return (
-    <div className="Field flex justify-between items-center px-16 py-8">
-      {/* Player side */}
-      <div className="flex flex-col items-center gap-2">
-        <Card
-          variant="player"
-          name={player.name}
-          currentHealth={player.currentHealth}
-          maxHealth={player.maxHealth}
-          block={player.block}
-          image={player.image}
-          className="Target"
-          data-target-type="player"
-          onClick={() => onTargetClick?.('player')}
-        />
-        <div className="EnergyOrb">
-          {player.energy}/{player.maxEnergy}
-        </div>
-      </div>
+    <div className="Field flex justify-center items-center gap-16 px-8 py-6">
+      {/* Player */}
+      <Card
+        variant="player"
+        name={player.name}
+        currentHealth={player.currentHealth}
+        maxHealth={player.maxHealth}
+        block={player.block}
+        energy={player.energy}
+        maxEnergy={player.maxEnergy}
+        image={player.image}
+        className="Target"
+        data-target-type="player"
+        onClick={() => onTargetClick?.('player')}
+      />
 
-      {/* VS divider */}
-      <div className="text-4xl font-bold text-gray-600">VS</div>
-
-      {/* Enemy side */}
-      <div className="flex gap-4">
+      {/* Enemies */}
+      <div className="flex gap-6">
         {enemies.map((enemy) => (
           <Card
             key={enemy.id}
