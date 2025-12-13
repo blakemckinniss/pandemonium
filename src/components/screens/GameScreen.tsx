@@ -8,6 +8,7 @@ import { RoomSelect } from '../DungeonDeck/RoomSelect'
 import { RewardScreen } from './RewardScreen'
 import { UnlockNotification } from '../UnlockNotification/UnlockNotification'
 import { ParticleEffects, emitParticle } from '../ParticleEffects/ParticleEffects'
+import { CardPileModal, type PileType } from '../Modal/CardPileModal'
 import type { RunState, CombatNumber } from '../../types'
 import { applyAction, createCardInstance } from '../../game/actions'
 import { createNewRun, createEnemiesFromRoom } from '../../game/new-game'
@@ -32,6 +33,7 @@ export function GameScreen({ deckId, onReturnToMenu }: GameScreenProps) {
   const [pendingUnlocks, setPendingUnlocks] = useState<string[]>([])
   const [currentRoomId, setCurrentRoomId] = useState<string | null>(null)
   const [pendingAnimations, setPendingAnimations] = useState<PendingCardAnimation[]>([])
+  const [pileModalOpen, setPileModalOpen] = useState<PileType | null>(null)
   const containerRef = useRef<HTMLDivElement>(null)
   const handRef = useRef<HTMLDivElement>(null)
   const prevHealthRef = useRef<Record<string, number>>({})
@@ -718,14 +720,31 @@ export function GameScreen({ deckId, onReturnToMenu }: GameScreenProps) {
           <span className="text-gray-500 ml-1">({deckRemaining} left)</span>
         </div>
         <div className="flex gap-2">
-          <div className="Chip" data-deck-pile>
+          <div
+            className="Chip PileIndicator"
+            data-deck-pile
+            onClick={() => setPileModalOpen('draw')}
+          >
             <Icon icon="game-icons:card-pickup" className="text-gray-400" />
             <span>{combat.drawPile.length}</span>
           </div>
-          <div className="Chip" data-discard-pile>
+          <div
+            className="Chip PileIndicator"
+            data-discard-pile
+            onClick={() => setPileModalOpen('discard')}
+          >
             <Icon icon="game-icons:card-discard" className="text-gray-400" />
             <span>{combat.discardPile.length}</span>
           </div>
+          {combat.exhaustPile.length > 0 && (
+            <div
+              className="Chip PileIndicator"
+              onClick={() => setPileModalOpen('exhaust')}
+            >
+              <Icon icon="game-icons:card-burn" className="text-damage" />
+              <span>{combat.exhaustPile.length}</span>
+            </div>
+          )}
         </div>
       </div>
 
@@ -778,6 +797,18 @@ export function GameScreen({ deckId, onReturnToMenu }: GameScreenProps) {
           </div>
         </div>
       )}
+
+      {/* Card Pile Modal */}
+      <CardPileModal
+        isOpen={pileModalOpen !== null}
+        onClose={() => setPileModalOpen(null)}
+        pileType={pileModalOpen ?? 'draw'}
+        cards={
+          pileModalOpen === 'draw' ? combat.drawPile :
+          pileModalOpen === 'discard' ? combat.discardPile :
+          combat.exhaustPile
+        }
+      />
     </div>
   )
 }

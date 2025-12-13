@@ -1,4 +1,5 @@
 import { Icon } from '@iconify/react'
+import { PowerTooltip } from '../PowerTooltip/PowerTooltip'
 import type { CardVariant, CardTheme, Intent, Powers } from '../../types'
 
 interface CardProps {
@@ -216,14 +217,14 @@ function PowerIndicators({ powers }: PowerIndicatorsProps) {
       {entries.map(([id, power]) => {
         const config = POWER_ICONS[id] || { icon: 'game-icons:uncertainty', color: 'text-gray-400' }
         return (
-          <div
-            key={id}
-            className={`PowerBadge ${config.isDebuff ? 'PowerBadge--debuff' : 'PowerBadge--buff'}`}
-            title={`${id}: ${power.amount}${power.duration ? ` (${power.duration} turns)` : ''}`}
-          >
-            <Icon icon={config.icon} className={`w-4 h-4 ${config.color}`} />
-            <span className="text-xs font-bold">{power.amount}</span>
-          </div>
+          <PowerTooltip key={id} powerId={id} power={power}>
+            <div
+              className={`PowerBadge ${config.isDebuff ? 'PowerBadge--debuff' : 'PowerBadge--buff'}`}
+            >
+              <Icon icon={config.icon} className={`w-4 h-4 ${config.color}`} />
+              <span className="text-xs font-bold">{power.amount}</span>
+            </div>
+          </PowerTooltip>
         )
       })}
     </div>
