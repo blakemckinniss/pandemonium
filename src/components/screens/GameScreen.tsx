@@ -11,7 +11,7 @@ import { UnlockNotification } from '../UnlockNotification/UnlockNotification'
 import { ParticleEffects, emitParticle } from '../ParticleEffects/ParticleEffects'
 import { CardPileModal, type PileType } from '../Modal/CardPileModal'
 import { CardSelectionModal } from '../Modal/CardSelectionModal'
-import type { RunState, CombatNumber } from '../../types'
+import type { RunState, CombatNumber, Element } from '../../types'
 import { applyAction, createCardInstance } from '../../game/actions'
 import { createNewRun, createEnemiesFromRoom } from '../../game/new-game'
 import { getCardDefinition } from '../../game/cards'
@@ -91,7 +91,11 @@ export function GameScreen({ deckId, onReturnToMenu }: GameScreenProps) {
     for (const event of queue) {
       switch (event.type) {
         case 'damage': {
-          spawnCombatNumber(event.targetId, event.amount, 'damage')
+          spawnCombatNumber(event.targetId, event.amount, 'damage', {
+            element: event.element,
+            variant: event.variant,
+            comboName: event.comboName,
+          })
           // Spawn spark particles on target
           const damageTarget = containerRef.current?.querySelector(`[data-target="${event.targetId}"]`)
           if (damageTarget) emitParticle(damageTarget, 'spark')
@@ -378,7 +382,16 @@ export function GameScreen({ deckId, onReturnToMenu }: GameScreenProps) {
   }, [state?.gamePhase, state?.combat?.phase, metaStore])
 
   const spawnCombatNumber = useCallback(
-    (targetId: string, value: number, type: 'damage' | 'heal' | 'block') => {
+    (
+      targetId: string,
+      value: number,
+      type: 'damage' | 'heal' | 'block',
+      options?: {
+        element?: Element
+        variant?: 'poison' | 'piercing' | 'combo' | 'chain' | 'execute'
+        comboName?: string
+      }
+    ) => {
       const targetEl = containerRef.current?.querySelector(
         `[data-target="${targetId}"], [data-target-type="${targetId}"]`
       )
@@ -399,6 +412,9 @@ export function GameScreen({ deckId, onReturnToMenu }: GameScreenProps) {
         targetId,
         x,
         y,
+        element: options?.element,
+        variant: options?.variant,
+        comboName: options?.comboName,
       }
 
       setCombatNumbers((prev) => [...prev, num])

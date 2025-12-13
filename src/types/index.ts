@@ -697,6 +697,9 @@ export interface CombatNumber {
   targetId: string
   x: number
   y: number
+  element?: Element
+  variant?: 'poison' | 'piercing' | 'combo' | 'chain' | 'execute'
+  comboName?: string
 }
 
 // ============================================

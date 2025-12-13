@@ -1,6 +1,6 @@
 import { useEffect, useRef } from 'react'
 import { gsap } from '../../lib/animations'
-import type { CombatNumber } from '../../types'
+import type { CombatNumber, Element } from '../../types'
 
 interface CombatNumbersProps {
   numbers: CombatNumber[]
@@ -22,6 +22,24 @@ interface FloatingNumberProps {
   onComplete: () => void
 }
 
+// Element-based colors for damage numbers
+const ELEMENT_COLORS: Record<Element, string> = {
+  physical: 'text-gray-200',
+  fire: 'text-orange-400',
+  ice: 'text-cyan-400',
+  lightning: 'text-yellow-300',
+  void: 'text-purple-400',
+}
+
+// Variant-based styles (combos, special effects)
+const VARIANT_STYLES: Record<string, string> = {
+  combo: 'CombatNumber--combo',
+  chain: 'CombatNumber--chain',
+  execute: 'CombatNumber--execute',
+  piercing: 'CombatNumber--piercing',
+  poison: 'CombatNumber--poison',
+}
+
 function FloatingNumber({ number, onComplete }: FloatingNumberProps) {
   const ref = useRef<HTMLDivElement>(null)
 
@@ -31,11 +49,22 @@ function FloatingNumber({ number, onComplete }: FloatingNumberProps) {
     gsap.effects.floatNumber(ref.current, { onComplete })
   }, [onComplete])
 
-  const colorClass = {
-    damage: 'CombatNumber--damage',
-    heal: 'CombatNumber--heal',
-    block: 'CombatNumber--block',
-  }[number.type]
+  // Determine color class based on type and element
+  let colorClass: string
+  if (number.type === 'damage') {
+    if (number.variant && VARIANT_STYLES[number.variant]) {
+      colorClass = VARIANT_STYLES[number.variant]
+    } else if (number.element) {
+      colorClass = ELEMENT_COLORS[number.element]
+    } else {
+      colorClass = 'CombatNumber--damage'
+    }
+  } else {
+    colorClass = {
+      heal: 'CombatNumber--heal',
+      block: 'CombatNumber--block',
+    }[number.type]
+  }
 
   const prefix = {
     damage: '-',
@@ -49,12 +78,18 @@ function FloatingNumber({ number, onComplete }: FloatingNumberProps) {
     block: '🛡️',
   }[number.type]
 
+  // Show combo name for elemental combos
+  const comboLabel = number.comboName ? (
+    <span className="CombatNumber__combo-label">{number.comboName}!</span>
+  ) : null
+
   return (
     <div
       ref={ref}
       className={`CombatNumber ${colorClass}`}
       style={{ left: number.x, top: number.y }}
     >
+      {comboLabel}
       {icon}
       {prefix}
       {number.value}

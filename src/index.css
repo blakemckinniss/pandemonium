@@ -180,6 +180,38 @@ body {
 .CombatNumber--heal { color: var(--color-heal); }
 .CombatNumber--block { color: var(--color-block); }
 
+/* Elemental combo variants */
+.CombatNumber--combo {
+  color: oklch(0.85 0.2 60);
+  font-size: 2.5rem;
+  text-shadow: 0 0 10px oklch(0.7 0.25 60), 2px 2px 6px oklch(0 0 0 / 0.9);
+}
+.CombatNumber--chain {
+  color: oklch(0.85 0.15 85);
+  font-size: 1.5rem;
+}
+.CombatNumber--execute {
+  color: oklch(0.65 0.25 25);
+  font-size: 3rem;
+  text-shadow: 0 0 15px oklch(0.5 0.3 25), 2px 2px 6px oklch(0 0 0 / 0.9);
+}
+.CombatNumber--piercing {
+  color: oklch(0.75 0.12 300);
+}
+.CombatNumber--poison {
+  color: oklch(0.6 0.2 140);
+}
+
+/* Combo label (shown above damage number) */
+.CombatNumber__combo-label {
+  display: block;
+  font-size: 0.875rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: oklch(0.9 0.15 60);
+  margin-bottom: 0.25rem;
+}
+
 /* Energy orb - embedded style */
 .EnergyOrb {
   width: 40px;
