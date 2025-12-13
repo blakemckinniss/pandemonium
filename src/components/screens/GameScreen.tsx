@@ -746,7 +746,7 @@ export function GameScreen({ deckId, onReturnToMenu }: GameScreenProps) {
     setPendingUnlocks([])
   }, [])
 
-  // Handle scry/tutor selection resolution
+  // Handle scry/tutor/discover selection resolution
   const handleSelectionConfirm = useCallback(
     (selectedUids: string[], discardedUids?: string[]) => {
       if (!state?.combat?.pendingSelection) return
@@ -768,6 +768,15 @@ export function GameScreen({ deckId, onReturnToMenu }: GameScreenProps) {
           return applyAction(prev, {
             type: 'resolveTutor',
             selectedUids,
+          })
+        })
+      } else if (pending.type === 'discover') {
+        // For discover, selectedUids are actually card definition IDs
+        setState((prev) => {
+          if (!prev) return prev
+          return applyAction(prev, {
+            type: 'resolveDiscover',
+            selectedCardIds: selectedUids,
           })
         })
       }
@@ -797,6 +806,15 @@ export function GameScreen({ deckId, onReturnToMenu }: GameScreenProps) {
         return applyAction(prev, {
           type: 'resolveTutor',
           selectedUids: [],
+        })
+      })
+    } else if (pending.type === 'discover') {
+      // Skip discover selection (add nothing)
+      setState((prev) => {
+        if (!prev) return prev
+        return applyAction(prev, {
+          type: 'resolveDiscover',
+          selectedCardIds: [],
         })
       })
     }
@@ -1011,7 +1029,7 @@ export function GameScreen({ deckId, onReturnToMenu }: GameScreenProps) {
         }
       />
 
-      {/* Card Selection Modal (for scry/tutor) */}
+      {/* Card Selection Modal (for scry/tutor/discover) */}
       {combat.pendingSelection && (
         <CardSelectionModal
           isOpen={true}
@@ -1019,18 +1037,28 @@ export function GameScreen({ deckId, onReturnToMenu }: GameScreenProps) {
           title={
             combat.pendingSelection.type === 'scry'
               ? `Scry ${combat.pendingSelection.cards.length}`
-              : `Search for a card`
+              : combat.pendingSelection.type === 'discover'
+              ? 'Discover'
+              : 'Search for a card'
           }
           cards={combat.pendingSelection.cards}
-          minSelect={combat.pendingSelection.type === 'tutor' ? 0 : 0}
+          minSelect={combat.pendingSelection.type === 'tutor' ? 0 : combat.pendingSelection.type === 'discover' ? 1 : 0}
           maxSelect={
             combat.pendingSelection.type === 'tutor'
               ? combat.pendingSelection.maxSelect
+              : combat.pendingSelection.type === 'discover'
+              ? combat.pendingSelection.maxSelect
               : combat.pendingSelection.cards.length
           }
-          mode={combat.pendingSelection.type === 'scry' ? 'scry' : 'pick'}
+          mode={
+            combat.pendingSelection.type === 'scry' ? 'scry' :
+            combat.pendingSelection.type === 'discover' ? 'discover' : 'pick'
+          }
           onConfirm={handleSelectionConfirm}
-          confirmText={combat.pendingSelection.type === 'scry' ? 'Confirm' : 'Add to Hand'}
+          confirmText={
+            combat.pendingSelection.type === 'scry' ? 'Confirm' :
+            combat.pendingSelection.type === 'discover' ? 'Choose' : 'Add to Hand'
+          }
           allowSkip={combat.pendingSelection.type === 'tutor'}
         />
       )}

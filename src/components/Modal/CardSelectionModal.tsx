@@ -3,19 +3,24 @@ import { Modal } from './Modal'
 import { Card } from '../Card/Card'
 import { getEffectiveCardDef } from '../../game/cards'
 import { getEnergyCost } from '../../lib/effects'
-import type { CardInstance } from '../../types'
+import type { CardInstance, CardDefinition } from '../../types'
 
-export type SelectionMode = 'pick' | 'scry' | 'discard'
+export type SelectionMode = 'pick' | 'scry' | 'discard' | 'discover'
+
+// Get unique identifier for a card (uid for instance, id for definition)
+function getCardKey(card: CardInstance | CardDefinition): string {
+  return 'uid' in card ? card.uid : card.id
+}
 
 interface CardSelectionModalProps {
   isOpen: boolean
   onClose: () => void
   title: string
-  cards: CardInstance[]
+  cards: CardInstance[] | CardDefinition[]
   minSelect?: number
   maxSelect?: number
   mode?: SelectionMode
-  onConfirm: (selectedUids: string[], discardedUids?: string[]) => void
+  onConfirm: (selectedIds: string[], discardedIds?: string[]) => void
   confirmText?: string
   allowSkip?: boolean
 }
@@ -42,25 +47,25 @@ export function CardSelectionModal({
     onClose()
   }, [onClose])
 
-  const toggleSelect = useCallback((uid: string) => {
+  const toggleSelect = useCallback((key: string) => {
     setSelected(prev => {
       const next = new Set(prev)
-      if (next.has(uid)) {
-        next.delete(uid)
+      if (next.has(key)) {
+        next.delete(key)
       } else if (next.size < maxSelect) {
-        next.add(uid)
+        next.add(key)
       }
       return next
     })
   }, [maxSelect])
 
-  const toggleScryDiscard = useCallback((uid: string) => {
+  const toggleScryDiscard = useCallback((key: string) => {
     setScryDiscard(prev => {
       const next = new Set(prev)
-      if (next.has(uid)) {
-        next.delete(uid)
+      if (next.has(key)) {
+        next.delete(key)
       } else {
-        next.add(uid)
+        next.add(key)
       }
       return next
     })
@@ -70,11 +75,12 @@ export function CardSelectionModal({
     if (mode === 'scry') {
       // For scry: selected = keep on top in order, discarded = move to bottom/discard
       const kept = cards
-        .filter(c => !scryDiscard.has(c.uid))
-        .map(c => c.uid)
+        .filter(c => !scryDiscard.has(getCardKey(c)))
+        .map(c => getCardKey(c))
       const discarded = Array.from(scryDiscard)
       onConfirm(kept, discarded)
     } else {
+      // For pick/discover: return selected card ids
       onConfirm(Array.from(selected))
     }
     handleClose()
@@ -86,9 +92,11 @@ export function CardSelectionModal({
 
   const selectionHint = mode === 'scry'
     ? 'Click cards to mark for discard'
-    : minSelect === maxSelect
-      ? `Select ${minSelect} card${minSelect > 1 ? 's' : ''}`
-      : `Select ${minSelect}-${maxSelect} cards`
+    : mode === 'discover'
+      ? 'Choose a card to add'
+      : minSelect === maxSelect
+        ? `Select ${minSelect} card${minSelect > 1 ? 's' : ''}`
+        : `Select ${minSelect}-${maxSelect} cards`
 
   return (
     <Modal
@@ -100,7 +108,7 @@ export function CardSelectionModal({
       {/* Selection hint */}
       <div className="text-center text-sm text-gray-400 mb-4">
         {selectionHint}
-        {mode === 'pick' && (
+        {(mode === 'pick' || mode === 'discover') && (
           <span className="ml-2 text-energy">
             ({selected.size}/{maxSelect})
           </span>
@@ -115,18 +123,21 @@ export function CardSelectionModal({
       {/* Card grid */}
       <div className="CardSelectionModal-grid">
         {cards.map((card, index) => {
-          const def = getEffectiveCardDef(card)
+          const key = getCardKey(card)
+          // For CardInstance, look up definition; for CardDefinition, use directly
+          const isDefinition = 'effects' in card
+          const def = isDefinition ? card as CardDefinition : getEffectiveCardDef(card as CardInstance)
           if (!def) return null
 
           const isSelected = mode === 'scry'
-            ? scryDiscard.has(card.uid)
-            : selected.has(card.uid)
+            ? scryDiscard.has(key)
+            : selected.has(key)
 
           return (
             <div
-              key={card.uid}
+              key={key}
               className={`CardSelectionModal-item ${isSelected ? 'is-selected' : ''}`}
-              onClick={() => mode === 'scry' ? toggleScryDiscard(card.uid) : toggleSelect(card.uid)}
+              onClick={() => mode === 'scry' ? toggleScryDiscard(key) : toggleSelect(key)}
             >
               {mode === 'scry' && (
                 <div className="CardSelectionModal-position">
@@ -140,7 +151,7 @@ export function CardSelectionModal({
                 description={def.description}
                 energy={getEnergyCost(def.energy)}
                 rarity={def.rarity}
-                upgraded={card.upgraded}
+                upgraded={isDefinition ? false : (card as CardInstance).upgraded}
                 element={def.element}
               />
               {isSelected && (

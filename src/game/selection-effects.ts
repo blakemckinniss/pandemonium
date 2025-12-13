@@ -1,6 +1,6 @@
 /**
  * Card Selection & Manipulation Effects
- * Scry/Tutor require async UI interaction, Upgrade is synchronous
+ * Scry/Tutor/Discover require async UI interaction, Upgrade is synchronous
  */
 
 import type {
@@ -13,6 +13,8 @@ import type {
   UpgradeEffect,
   TransformEffect,
 } from '../types'
+import { generateUid } from '../lib/utils'
+import { emitVisual } from './handlers/shared'
 import { getCardDefinition, getAllCards } from './cards'
 import { resolveValue, resolveCardTarget } from '../lib/effects'
 
@@ -301,6 +303,52 @@ export function handleResolveTutor(
   // Shuffle if requested
   if (pending.shuffle) {
     draft.combat.drawPile = shuffleArray([...draft.combat.drawPile])
+  }
+
+  // Clear pending selection
+  draft.combat.pendingSelection = undefined
+}
+
+/**
+ * Handle discover resolution from modal
+ */
+export function handleResolveDiscover(
+  draft: RunState,
+  selectedCardIds: string[]
+): void {
+  if (!draft.combat?.pendingSelection) return
+  if (draft.combat.pendingSelection.type !== 'discover') return
+
+  const pending = draft.combat.pendingSelection
+  const copies = pending.copies ?? 1
+
+  // Add selected cards to destination
+  for (const cardId of selectedCardIds) {
+    // Verify the card was in the choices
+    const cardDef = pending.cards.find(c => c.id === cardId)
+    if (!cardDef) continue
+
+    for (let i = 0; i < copies; i++) {
+      const instance: CardInstance = {
+        uid: generateUid(),
+        definitionId: cardId,
+        upgraded: false,
+      }
+
+      switch (pending.destination) {
+        case 'hand':
+          draft.combat.hand.push(instance)
+          break
+        case 'drawPile':
+          draft.combat.drawPile.push(instance)
+          break
+        case 'discardPile':
+          draft.combat.discardPile.push(instance)
+          break
+      }
+
+      emitVisual(draft, { type: 'addCard', cardId, destination: pending.destination, count: 1 })
+    }
   }
 
   // Clear pending selection

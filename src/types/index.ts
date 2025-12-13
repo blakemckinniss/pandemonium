@@ -712,7 +712,15 @@ export interface PendingTutor {
   shuffle?: boolean
 }
 
-export type PendingSelection = PendingScry | PendingTutor
+export interface PendingDiscover {
+  type: 'discover'
+  cards: CardDefinition[] // Generated card options to choose from
+  maxSelect: number // How many cards to pick (usually 1)
+  destination: 'hand' | 'drawPile' | 'discardPile'
+  copies?: number // How many copies of chosen card to add
+}
+
+export type PendingSelection = PendingScry | PendingTutor | PendingDiscover
 
 export interface CombatState {
   phase: TurnPhase
@@ -786,6 +794,7 @@ export type GameAction =
   | { type: 'clearVisualQueue' }
   | { type: 'resolveScry'; keptUids: string[]; discardedUids: string[] }
   | { type: 'resolveTutor'; selectedUids: string[] }
+  | { type: 'resolveDiscover'; selectedCardIds: string[] }
 
 // ============================================
 // VISUAL EVENTS (Animation Queue)

@@ -455,37 +455,48 @@ export function executeDiscover(
     candidates = candidates.filter((c) => themes.includes(c.theme))
   }
 
-  // Shuffle and pick N
+  // Shuffle and pick N choices to show
   const shuffled = shuffleArray(candidates)
   const choices = shuffled.slice(0, effect.count)
 
   if (choices.length === 0) return
 
-  // For now, auto-select the first choice (TODO: implement UI selection)
-  // In a full implementation, this would set a pendingSelection state
-  const chosenCard = choices[0]
-  const destination = effect.destination ?? 'hand'
-  const copies = effect.copies ?? 1
+  // If only 1 choice, auto-select it (no point showing modal)
+  if (choices.length === 1) {
+    const chosenCard = choices[0]
+    const destination = effect.destination ?? 'hand'
+    const copies = effect.copies ?? 1
 
-  for (let i = 0; i < copies; i++) {
-    const instance: CardInstance = {
-      uid: generateUid(),
-      definitionId: chosenCard.id,
-      upgraded: false,
+    for (let i = 0; i < copies; i++) {
+      const instance: CardInstance = {
+        uid: generateUid(),
+        definitionId: chosenCard.id,
+        upgraded: false,
+      }
+
+      switch (destination) {
+        case 'hand':
+          draft.combat.hand.push(instance)
+          break
+        case 'drawPile':
+          draft.combat.drawPile.push(instance)
+          break
+        case 'discardPile':
+          draft.combat.discardPile.push(instance)
+          break
+      }
+
+      emitVisual(draft, { type: 'addCard', cardId: chosenCard.id, destination, count: 1 })
     }
+    return
+  }
 
-    switch (destination) {
-      case 'hand':
-        draft.combat.hand.push(instance)
-        break
-      case 'drawPile':
-        draft.combat.drawPile.push(instance)
-        break
-      case 'discardPile':
-        draft.combat.discardPile.push(instance)
-        break
-    }
-
-    emitVisual(draft, { type: 'addCard', cardId: chosenCard.id, destination, count: 1 })
+  // Set pending selection - UI will show modal
+  draft.combat.pendingSelection = {
+    type: 'discover',
+    cards: choices,
+    maxSelect: 1,
+    destination: effect.destination ?? 'hand',
+    copies: effect.copies,
   }
 }
