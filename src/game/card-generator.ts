@@ -51,6 +51,11 @@ Powers (duration-based effects):
 - { "type": "applyPower", "powerId": "lifelink", "amount": N, "target": "self" } - When you attack, heal N HP
 - { "type": "applyPower", "powerId": "energizeOnKill", "amount": N, "target": "self" } - When you kill an enemy, gain N Energy
 - { "type": "applyPower", "powerId": "drawOnKill", "amount": N, "target": "self" } - When you kill an enemy, draw N cards
+- { "type": "applyPower", "powerId": "energizeNextTurn", "amount": N, "target": "self" } - At turn start, gain N Energy
+- { "type": "applyPower", "powerId": "drawPerTurn", "amount": N, "target": "self" } - At turn start, draw N cards
+- { "type": "applyPower", "powerId": "eternalFlames", "amount": N, "target": "self" } - At turn start, deal N damage to ALL enemies
+- { "type": "applyPower", "powerId": "noxiousFumes", "amount": N, "target": "self" } - At turn start, apply N Poison to ALL enemies
+- { "type": "applyPower", "powerId": "temporalAnchor", "amount": N, "target": "self" } - At turn start, gain N Energy and draw 1 card
 
 Card manipulation:
 - { "type": "discard", "target": "randomHand", "amount": N } - Discard N random cards

@@ -599,6 +599,8 @@ export type VisualEvent =
   | { type: 'energy'; delta: number }
   | { type: 'shuffle' }
   | { type: 'costModify'; cardUids: string[]; delta: number }
+  | { type: 'conditionalTrigger'; branch: 'then' | 'else' }
+  | { type: 'repeatEffect'; times: number; current: number }
 
 // ============================================
 // COMBAT NUMBERS (FCT)

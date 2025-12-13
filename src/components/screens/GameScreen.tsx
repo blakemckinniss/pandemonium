@@ -226,6 +226,31 @@ export function GameScreen({ deckId, onReturnToMenu }: GameScreenProps) {
           }
           break
         }
+        case 'conditionalTrigger': {
+          // Flash to indicate conditional branch triggered
+          const playerEl = containerRef.current?.querySelector('[data-entity="player"]')
+          if (playerEl) {
+            gsap.effects.pulse(playerEl, {
+              color: event.branch === 'then'
+                ? 'oklch(0.7 0.15 145)' // then = green (condition met)
+                : 'oklch(0.6 0.12 60)', // else = yellow (fallback)
+            })
+          }
+          console.log(`Conditional: ${event.branch} branch`)
+          break
+        }
+        case 'repeatEffect': {
+          // Show repeat indicator
+          const playerEl = containerRef.current?.querySelector('[data-entity="player"]')
+          if (playerEl && event.current === 1) {
+            // Only pulse on first iteration
+            gsap.effects.pulse(playerEl, {
+              color: 'oklch(0.65 0.15 280)', // purple for repeat
+            })
+          }
+          console.log(`Repeat: ${event.current}/${event.times}`)
+          break
+        }
       }
     }
 

@@ -743,10 +743,12 @@ function executeConditional(
   ctx: EffectContext
 ): void {
   if (evaluateCondition(effect.condition, draft, ctx)) {
+    emitVisual(draft, { type: 'conditionalTrigger', branch: 'then' })
     for (const e of effect.then) {
       executeEffect(draft, e, ctx)
     }
   } else if (effect.else) {
+    emitVisual(draft, { type: 'conditionalTrigger', branch: 'else' })
     for (const e of effect.else) {
       executeEffect(draft, e, ctx)
     }
@@ -761,6 +763,7 @@ function executeRepeat(
   const times = resolveValue(effect.times, draft, ctx)
 
   for (let i = 0; i < times; i++) {
+    emitVisual(draft, { type: 'repeatEffect', times, current: i + 1 })
     for (const e of effect.effects) {
       executeEffect(draft, e, ctx)
     }
