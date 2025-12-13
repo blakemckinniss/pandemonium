@@ -3,6 +3,26 @@ import { Icon } from '@iconify/react'
 import { getPowerDefinition } from '../../game/powers'
 import type { Power } from '../../types'
 
+// Elemental combo hints for status effects
+const ELEMENTAL_COMBO_HINTS: Record<string, { icon: string; hint: string }[]> = {
+  wet: [
+    { icon: 'game-icons:lightning-bolt', hint: 'Lightning → Conducted (1.5x damage, chains to all)' },
+    { icon: 'game-icons:snowflake-1', hint: 'Ice → Flash Freeze (permanent Frozen)' },
+  ],
+  oiled: [
+    { icon: 'game-icons:fire', hint: 'Fire → Explosion (2x damage)' },
+  ],
+  burning: [
+    { icon: 'game-icons:portal', hint: 'Void → Explosion (2x damage)' },
+  ],
+  frozen: [
+    { icon: 'game-icons:sword-wound', hint: 'Physical → Shatter (1.5x damage, execute at 15% HP)' },
+  ],
+  charged: [
+    { icon: 'game-icons:snowflake-1', hint: 'Ice → Conduct (+5 bonus damage)' },
+  ],
+}
+
 interface PowerTooltipProps {
   powerId: string
   power: Power
@@ -88,6 +108,22 @@ export function PowerTooltip({ powerId, power, children }: PowerTooltipProps) {
               {def.stackBehavior === 'intensity' && 'Stacks increase effect'}
               {def.stackBehavior === 'duration' && 'Stacks increase duration'}
               {def.stackBehavior === 'both' && 'Stacks increase effect and duration'}
+            </div>
+          )}
+
+          {/* Elemental combo hints */}
+          {ELEMENTAL_COMBO_HINTS[powerId] && (
+            <div className="PowerTooltip-combos">
+              <div className="PowerTooltip-combos-header">
+                <Icon icon="game-icons:chemical-bolt" className="w-3 h-3" />
+                <span>Combo Reactions</span>
+              </div>
+              {ELEMENTAL_COMBO_HINTS[powerId].map((combo, idx) => (
+                <div key={idx} className="PowerTooltip-combo-hint">
+                  <Icon icon={combo.icon} className="w-4 h-4" />
+                  <span>{combo.hint}</span>
+                </div>
+              ))}
             </div>
           )}
         </div>

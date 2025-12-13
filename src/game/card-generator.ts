@@ -24,12 +24,17 @@ CARD SCHEMA (respond with ONLY this JSON, no markdown):
   "theme": "attack" | "skill" | "power",
   "target": "enemy" | "self" | "allEnemies" | "randomEnemy",
   "rarity": "common" | "uncommon" | "rare",
+  "element": "physical" | "fire" | "ice" | "lightning" | "void" (optional, default "physical"),
   "effects": [AtomicEffect array]
 }
 
 AVAILABLE EFFECTS:
 Combat:
-- { "type": "damage", "amount": N } - Deal N damage to target
+- { "type": "damage", "amount": N } - Deal N physical damage to target
+- { "type": "damage", "amount": N, "element": "fire" } - Deal N fire damage (applies Burning)
+- { "type": "damage", "amount": N, "element": "ice" } - Deal N ice damage (applies Frozen)
+- { "type": "damage", "amount": N, "element": "lightning" } - Deal N lightning damage (applies Charged)
+- { "type": "damage", "amount": N, "element": "void" } - Deal N void damage (applies Oiled)
 - { "type": "damage", "amount": N, "target": "allEnemies" } - Hit all enemies
 - { "type": "damage", "amount": N, "piercing": true } - Deal N damage ignoring block/barrier
 - { "type": "block", "amount": N } - Gain N block (decays at turn start)
@@ -45,6 +50,13 @@ Powers (duration-based effects):
 - { "type": "applyPower", "powerId": "weak", "amount": N } - Target deals 25% less damage
 - { "type": "applyPower", "powerId": "frail", "amount": N } - Target gains 25% less block
 - { "type": "applyPower", "powerId": "poison", "amount": N } - Deal N damage at turn start, reduce by 1
+
+Elemental Status Powers:
+- { "type": "applyPower", "powerId": "burning", "amount": N } - Fire DoT: N damage/turn, enables Fire combos
+- { "type": "applyPower", "powerId": "wet", "amount": N } - Water status: enables Lightning/Ice combos
+- { "type": "applyPower", "powerId": "frozen", "amount": N } - Ice status: slowed, enables Physical shatter
+- { "type": "applyPower", "powerId": "charged", "amount": N } - Lightning status: enables chain lightning
+- { "type": "applyPower", "powerId": "oiled", "amount": N } - Void status: enables Fire explosion
 - { "type": "applyPower", "powerId": "strength", "amount": N, "target": "self" } - Deal N more damage
 - { "type": "applyPower", "powerId": "dexterity", "amount": N, "target": "self" } - Gain N more block
 - { "type": "applyPower", "powerId": "thorns", "amount": N, "target": "self" } - Deal N damage when hit
@@ -95,6 +107,17 @@ THEME GUIDELINES:
 - skill: Block, draw, or utility, blue border
 - power: Persistent effects that last the combat, purple border
 
+ELEMENTAL SYSTEM:
+Elements (fire/ice/lightning/void) add strategic depth through combos:
+- Fire attacks apply Burning, combo with Oiled for Explosion (2x damage)
+- Ice attacks apply Frozen, combo with Physical for Shatter (1.5x, execute at 15% HP)
+- Lightning attacks apply Charged, combo with Wet for Conducted (1.5x, chains to all)
+- Void attacks apply Oiled, combo with Burning for Explosion (2x damage)
+- Wet can be applied to enable Lightning/Ice combos
+
+Design elemental cards to synergize: apply a status with one card, trigger combo with another.
+Use "element" field on the card for thematic elemental cards.
+
 Respond with ONLY the JSON object. No explanation, no markdown code blocks.`
 
 // ============================================
@@ -104,6 +127,7 @@ Respond with ONLY the JSON object. No explanation, no markdown code blocks.`
 export interface GenerationOptions {
   theme?: CardTheme
   rarity?: 'common' | 'uncommon' | 'rare'
+  element?: 'physical' | 'fire' | 'ice' | 'lightning' | 'void'
   effectType?: string // Force specific effect type
   hint?: string // Creative direction hint
 }
@@ -120,8 +144,13 @@ export async function generateRandomCard(
 
   const rarity = options?.rarity ?? pickRandom(['common', 'uncommon', 'rare'])
   const theme = options?.theme ?? pickRandom(['attack', 'skill', 'power'] as CardTheme[])
+  const element = options?.element
 
-  parts.push(`Generate a ${rarity} ${theme} card.`)
+  if (element && element !== 'physical') {
+    parts.push(`Generate a ${rarity} ${element} ${theme} card.`)
+  } else {
+    parts.push(`Generate a ${rarity} ${theme} card.`)
+  }
 
   if (options?.effectType) {
     parts.push(`Must include a "${options.effectType}" effect.`)
@@ -211,6 +240,7 @@ function validateCard(card: Partial<CardDefinition>): Omit<CardDefinition, 'id'>
     target: validateTarget(card.target),
     effects: card.effects.map(validateEffect),
     rarity: validateRarity(card.rarity),
+    element: validateElement(card.element),
   }
 
   return validated
@@ -252,6 +282,14 @@ function validateRarity(rarity: unknown): CardDefinition['rarity'] {
     return rarity as CardDefinition['rarity']
   }
   return 'common'
+}
+
+function validateElement(element: unknown): CardDefinition['element'] {
+  const valid = ['physical', 'fire', 'ice', 'lightning', 'void']
+  if (typeof element === 'string' && valid.includes(element)) {
+    return element as CardDefinition['element']
+  }
+  return 'physical'
 }
 
 // ============================================
