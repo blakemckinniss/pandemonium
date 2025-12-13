@@ -95,7 +95,20 @@ export function GameScreen({ deckId, onReturnToMenu }: GameScreenProps) {
           spawnCombatNumber(event.targetId, event.amount, 'block')
           break
         case 'draw':
-          // Draw animation handled by turn change effect (lines 43-59)
+          // Animate mid-turn draws (turn-start draws handled by turn change effect)
+          if (lastTurnRef.current === state.combat?.turn) {
+            // Mid-turn draw - animate the newly drawn cards
+            setTimeout(() => {
+              const handCards = handRef.current?.querySelectorAll('.HandCard')
+              if (handCards && handCards.length > 0) {
+                // Animate just the last N cards (newly drawn)
+                const newCards = Array.from(handCards).slice(-event.count)
+                if (newCards.length > 0) {
+                  gsap.effects.dealCards(newCards, { stagger: 0.05 })
+                }
+              }
+            }, 50)
+          }
           break
         case 'discard': {
           // Create ghost animations using cached positions

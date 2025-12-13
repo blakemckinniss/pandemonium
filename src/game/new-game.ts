@@ -15,9 +15,26 @@ export const HEROES: Record<string, HeroDefinition> = {
     health: 80,
     energy: 3,
     starterDeck: [
+      // Core strikes (10)
       'strike', 'strike', 'strike', 'strike', 'strike',
+      'strike', 'strike', 'strike', 'strike', 'strike',
+      // Core defends (8)
       'defend', 'defend', 'defend', 'defend',
-      'bash',
+      'defend', 'defend', 'defend', 'defend',
+      // Special attacks (10)
+      'bash', 'bash',
+      'cleave', 'cleave',
+      'pommel_strike', 'pommel_strike',  // Draw cards
+      'twin_strike', 'twin_strike',
+      'uppercut', 'carnage',
+      // Skills (8)
+      'shrug_it_off', 'shrug_it_off',
+      'battle_trance', 'battle_trance',  // Draw cards
+      'armaments', 'armaments',
+      'true_grit', 'bloodletting',
+      // Powers (4)
+      'inflame', 'inflame',
+      'metallicize', 'demon_form',
     ],
   },
 }

@@ -17,6 +17,7 @@ export function Field({ player, enemies, onTargetClick }: FieldProps) {
         currentHealth={player.currentHealth}
         maxHealth={player.maxHealth}
         block={player.block}
+        powers={player.powers}
         energy={player.energy}
         maxEnergy={player.maxEnergy}
         image={player.image}
@@ -35,6 +36,7 @@ export function Field({ player, enemies, onTargetClick }: FieldProps) {
             currentHealth={enemy.currentHealth}
             maxHealth={enemy.maxHealth}
             block={enemy.block}
+            powers={enemy.powers}
             intent={enemy.intent}
             image={enemy.image}
             className="Target"
