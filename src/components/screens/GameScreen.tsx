@@ -58,27 +58,54 @@ export function GameScreen() {
     }, 50)
   }, [state?.combat?.turn, state?.combat?.hand.length])
 
-  // Track health changes for combat numbers
+  // Process visual event queue
   useEffect(() => {
-    if (!state?.combat) return
+    if (!state?.combat?.visualQueue?.length) return
 
-    const newHealthMap: Record<string, number> = {
-      player: state.combat.player.currentHealth,
-    }
-    state.combat.enemies.forEach((e) => {
-      newHealthMap[e.id] = e.currentHealth
-    })
+    const queue = state.combat.visualQueue
 
-    Object.entries(newHealthMap).forEach(([id, health]) => {
-      const prevHealth = prevHealthRef.current[id]
-      if (prevHealth !== undefined && prevHealth !== health) {
-        const diff = health - prevHealth
-        spawnCombatNumber(id, Math.abs(diff), diff < 0 ? 'damage' : 'heal')
+    // Process each visual event
+    for (const event of queue) {
+      switch (event.type) {
+        case 'damage':
+          spawnCombatNumber(event.targetId, event.amount, 'damage')
+          break
+        case 'heal':
+          spawnCombatNumber(event.targetId, event.amount, 'heal')
+          break
+        case 'block':
+          spawnCombatNumber(event.targetId, event.amount, 'block')
+          break
+        case 'draw':
+          // Draw animation is handled by turn change effect
+          break
+        case 'discard':
+          // Could add card fly animation here
+          break
+        case 'exhaust':
+          // Could add burn animation here
+          break
+        case 'powerApply':
+          // Power icon animation - handled by PowerIndicators component
+          break
+        case 'powerRemove':
+          // Power icon fade - handled by PowerIndicators component
+          break
+        case 'energy':
+          // Could add energy orb pulse here
+          break
+        case 'shuffle':
+          // Could add deck shuffle animation here
+          break
       }
-    })
+    }
 
-    prevHealthRef.current = newHealthMap
-  }, [state?.combat?.player.currentHealth, state?.combat?.enemies])
+    // Clear the queue after processing
+    setState((prev) => {
+      if (!prev) return prev
+      return applyAction(prev, { type: 'clearVisualQueue' })
+    })
+  }, [state?.combat?.visualQueue])
 
   // Setup drag-drop when in combat
   useEffect(() => {

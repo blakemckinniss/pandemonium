@@ -38,6 +38,7 @@ export function Card({
   currentHealth,
   maxHealth,
   block = 0,
+  powers,
   energy,
   maxEnergy,
   intent,
@@ -129,6 +130,11 @@ export function Card({
           />
         </div>
       )}
+
+      {/* Power indicators (player/enemy) */}
+      {(variant === 'player' || variant === 'enemy') && powers && Object.keys(powers).length > 0 && (
+        <PowerIndicators powers={powers} />
+      )}
     </div>
   )
 }
@@ -171,6 +177,51 @@ function HealthBar({ current, max, block = 0 }: HealthBarProps) {
         )}
         <span>{current}/{max}</span>
       </div>
+    </div>
+  )
+}
+
+// Power icon mapping
+const POWER_ICONS: Record<string, { icon: string; color: string; isDebuff?: boolean }> = {
+  // Debuffs (red)
+  vulnerable: { icon: 'game-icons:broken-shield', color: 'text-damage', isDebuff: true },
+  weak: { icon: 'game-icons:muscle-down', color: 'text-damage', isDebuff: true },
+  frail: { icon: 'game-icons:cracked-shield', color: 'text-damage', isDebuff: true },
+  poison: { icon: 'game-icons:poison-bottle', color: 'text-damage', isDebuff: true },
+  // Buffs (green/blue)
+  strength: { icon: 'game-icons:biceps', color: 'text-heal' },
+  dexterity: { icon: 'game-icons:sprint', color: 'text-heal' },
+  regen: { icon: 'game-icons:healing', color: 'text-heal' },
+  thorns: { icon: 'game-icons:thorns', color: 'text-block' },
+  metallicize: { icon: 'game-icons:metal-plate', color: 'text-block' },
+  platedArmor: { icon: 'game-icons:shoulder-armor', color: 'text-block' },
+  ritual: { icon: 'game-icons:pentagram-rose', color: 'text-heal' },
+  anger: { icon: 'game-icons:enrage', color: 'text-damage' },
+}
+
+interface PowerIndicatorsProps {
+  powers: Powers
+}
+
+function PowerIndicators({ powers }: PowerIndicatorsProps) {
+  const entries = Object.entries(powers)
+  if (entries.length === 0) return null
+
+  return (
+    <div className="flex flex-wrap gap-1 px-2 pb-2 justify-center">
+      {entries.map(([id, power]) => {
+        const config = POWER_ICONS[id] || { icon: 'game-icons:uncertainty', color: 'text-gray-400' }
+        return (
+          <div
+            key={id}
+            className={`PowerBadge ${config.isDebuff ? 'PowerBadge--debuff' : 'PowerBadge--buff'}`}
+            title={`${id}: ${power.amount}${power.duration ? ` (${power.duration} turns)` : ''}`}
+          >
+            <Icon icon={config.icon} className={`w-4 h-4 ${config.color}`} />
+            <span className="text-xs font-bold">{power.amount}</span>
+          </div>
+        )
+      })}
     </div>
   )
 }

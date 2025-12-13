@@ -523,6 +523,7 @@ export interface CombatState {
   discardPile: CardInstance[]
   exhaustPile: CardInstance[]
   cardsPlayedThisTurn: number
+  visualQueue: VisualEvent[]
 }
 
 export interface RunState {
@@ -578,6 +579,23 @@ export type GameAction =
   | { type: 'enemyAction'; enemyId: string }
   | { type: 'selectRoom'; roomUid: string }
   | { type: 'dealRoomChoices' }
+  | { type: 'clearVisualQueue' }
+
+// ============================================
+// VISUAL EVENTS (Animation Queue)
+// ============================================
+
+export type VisualEvent =
+  | { type: 'damage'; targetId: string; amount: number; variant?: 'poison' | 'piercing' }
+  | { type: 'heal'; targetId: string; amount: number }
+  | { type: 'block'; targetId: string; amount: number }
+  | { type: 'draw'; count: number }
+  | { type: 'discard'; cardUids: string[] }
+  | { type: 'exhaust'; cardUids: string[] }
+  | { type: 'powerApply'; targetId: string; powerId: string; amount: number }
+  | { type: 'powerRemove'; targetId: string; powerId: string }
+  | { type: 'energy'; delta: number }
+  | { type: 'shuffle' }
 
 // ============================================
 // COMBAT NUMBERS (FCT)

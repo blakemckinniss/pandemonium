@@ -12,6 +12,7 @@ import type {
   EntityTarget,
   CardTarget,
   FilteredCardTarget,
+  VisualEvent,
 } from '../types'
 import { getCardDefinition } from './cards'
 import { generateUid } from '../lib/utils'
@@ -90,6 +91,9 @@ export function applyAction(state: RunState, action: GameAction): RunState {
       case 'dealRoomChoices':
         handleDealRoomChoices(draft)
         break
+      case 'clearVisualQueue':
+        handleClearVisualQueue(draft)
+        break
     }
   })
 }
@@ -121,6 +125,7 @@ function handleStartCombat(draft: RunState, enemies: EnemyEntity[]): void {
     discardPile: [],
     exhaustPile: [],
     cardsPlayedThisTurn: 0,
+    visualQueue: [],
   }
 
   draft.gamePhase = 'combat'
@@ -134,6 +139,22 @@ function handleEndCombat(draft: RunState, victory: boolean): void {
     draft.gamePhase = 'gameOver'
   }
   draft.combat = null
+}
+
+function handleClearVisualQueue(draft: RunState): void {
+  if (draft.combat) {
+    draft.combat.visualQueue = []
+  }
+}
+
+// ============================================
+// VISUAL EVENT HELPER
+// ============================================
+
+function emitVisual(draft: RunState, event: VisualEvent): void {
+  if (draft.combat) {
+    draft.combat.visualQueue.push(event)
+  }
 }
 
 // ============================================
@@ -373,6 +394,16 @@ function executeDamage(
     // Apply damage
     const damageDealt = applyDamageInternal(draft, targetId, damage, effect.piercing)
 
+    // Emit visual event
+    if (damageDealt > 0) {
+      emitVisual(draft, {
+        type: 'damage',
+        targetId,
+        amount: damageDealt,
+        variant: effect.piercing ? 'piercing' : undefined,
+      })
+    }
+
     // Trigger onHit effects
     if (effect.triggerOnHit && damageDealt > 0) {
       const hitCtx = { ...ctx, currentTarget: targetId }
@@ -409,6 +440,11 @@ function executeBlock(
 
     entity.block += block
 
+    // Emit visual event
+    if (block > 0) {
+      emitVisual(draft, { type: 'block', targetId, amount: block })
+    }
+
     // Trigger onBlock
     executePowerTriggers(draft, entity, 'onBlock')
   }
@@ -429,10 +465,17 @@ function executeHeal(
     const entity = getEntityById(targetId, draft)
     if (!entity) continue
 
+    const prevHealth = entity.currentHealth
     if (effect.canOverheal) {
       entity.currentHealth += amount
     } else {
       entity.currentHealth = Math.min(entity.currentHealth + amount, entity.maxHealth)
+    }
+    const healed = entity.currentHealth - prevHealth
+
+    // Emit visual event
+    if (healed > 0) {
+      emitVisual(draft, { type: 'heal', targetId, amount: healed })
     }
   }
 }
@@ -464,6 +507,7 @@ function executeEnergy(
   if (!draft.combat) return
 
   const amount = resolveValue(effect.amount, draft, ctx)
+  const prevEnergy = draft.combat.player.energy
 
   switch (effect.operation) {
     case 'gain':
@@ -476,6 +520,11 @@ function executeEnergy(
       draft.combat.player.energy = amount
       break
   }
+
+  const delta = draft.combat.player.energy - prevEnergy
+  if (delta !== 0) {
+    emitVisual(draft, { type: 'energy', delta })
+  }
 }
 
 function executeDraw(
@@ -486,7 +535,13 @@ function executeDraw(
   if (!draft.combat) return
 
   const amount = resolveValue(effect.amount, draft, ctx)
+  const prevHandSize = draft.combat.hand.length
   drawCardsInternal(draft.combat, amount)
+  const drawn = draft.combat.hand.length - prevHandSize
+
+  if (drawn > 0) {
+    emitVisual(draft, { type: 'draw', count: drawn })
+  }
 }
 
 function executeDiscard(
@@ -503,12 +558,18 @@ function executeDiscard(
     cards = cards.slice(0, count)
   }
 
+  const discardedUids: string[] = []
   for (const card of cards) {
     const idx = draft.combat.hand.findIndex((c) => c.uid === card.uid)
     if (idx !== -1) {
       draft.combat.hand.splice(idx, 1)
       draft.combat.discardPile.push(card)
+      discardedUids.push(card.uid)
     }
+  }
+
+  if (discardedUids.length > 0) {
+    emitVisual(draft, { type: 'discard', cardUids: discardedUids })
   }
 }
 
@@ -526,12 +587,14 @@ function executeExhaust(
     cards = cards.slice(0, count)
   }
 
+  const exhaustedUids: string[] = []
   for (const card of cards) {
     // Check hand
     let idx = draft.combat.hand.findIndex((c) => c.uid === card.uid)
     if (idx !== -1) {
       draft.combat.hand.splice(idx, 1)
       draft.combat.exhaustPile.push(card)
+      exhaustedUids.push(card.uid)
       continue
     }
 
@@ -540,7 +603,12 @@ function executeExhaust(
     if (idx !== -1) {
       draft.combat.discardPile.splice(idx, 1)
       draft.combat.exhaustPile.push(card)
+      exhaustedUids.push(card.uid)
     }
+  }
+
+  if (exhaustedUids.length > 0) {
+    emitVisual(draft, { type: 'exhaust', cardUids: exhaustedUids })
   }
 }
 
@@ -596,6 +664,8 @@ function executeShuffle(
     // Just shuffle the pile
     draft.combat[effect.pile] = shuffleArray([...draft.combat[effect.pile]])
   }
+
+  emitVisual(draft, { type: 'shuffle' })
 }
 
 function executeApplyPower(
@@ -614,6 +684,13 @@ function executeApplyPower(
     if (!entity) continue
 
     applyPowerToEntity(entity, effect.powerId, amount, effect.duration)
+
+    emitVisual(draft, {
+      type: 'powerApply',
+      targetId,
+      powerId: effect.powerId,
+      amount,
+    })
   }
 }
 
@@ -632,7 +709,16 @@ function executeRemovePower(
     const entity = getEntityById(targetId, draft)
     if (!entity) continue
 
+    const hadPower = entity.powers[effect.powerId] !== undefined
     removePowerFromEntity(entity, effect.powerId, amount)
+
+    if (hadPower) {
+      emitVisual(draft, {
+        type: 'powerRemove',
+        targetId,
+        powerId: effect.powerId,
+      })
+    }
   }
 }
 
