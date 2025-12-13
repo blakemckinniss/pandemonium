@@ -1,6 +1,15 @@
 import { Icon } from '@iconify/react'
 import { PowerTooltip } from '../PowerTooltip/PowerTooltip'
-import type { CardVariant, CardTheme, Intent, Powers } from '../../types'
+import type { CardVariant, CardTheme, Intent, Powers, Element } from '../../types'
+
+// Element visual config
+const ELEMENT_CONFIG: Record<Element, { icon: string; color: string; bg: string }> = {
+  physical: { icon: 'game-icons:sword-wound', color: 'text-gray-300', bg: 'bg-gray-600' },
+  fire: { icon: 'game-icons:fire', color: 'text-orange-400', bg: 'bg-orange-900' },
+  ice: { icon: 'game-icons:snowflake-1', color: 'text-cyan-400', bg: 'bg-cyan-900' },
+  lightning: { icon: 'game-icons:lightning-bolt', color: 'text-yellow-300', bg: 'bg-yellow-900' },
+  void: { icon: 'game-icons:portal', color: 'text-purple-400', bg: 'bg-purple-900' },
+}
 
 interface CardProps {
   variant: CardVariant
@@ -9,6 +18,7 @@ interface CardProps {
   image?: string
   rarity?: 'starter' | 'common' | 'uncommon' | 'rare'
   upgraded?: boolean
+  element?: Element
 
   // player/enemy variants
   currentHealth?: number
@@ -40,6 +50,7 @@ export function Card({
   image,
   rarity,
   upgraded = false,
+  element,
   currentHealth,
   maxHealth,
   block = 0,
@@ -75,6 +86,13 @@ export function Card({
       {variant === 'hand' && energy !== undefined && (
         <div className="absolute top-2 left-2 w-8 h-8 rounded-full bg-energy text-black text-sm font-bold flex items-center justify-center shadow-md">
           {energy}
+        </div>
+      )}
+
+      {/* Element badge (hand cards with non-physical element) */}
+      {variant === 'hand' && element && element !== 'physical' && (
+        <div className={`absolute top-2 right-2 w-7 h-7 rounded-full ${ELEMENT_CONFIG[element].bg} flex items-center justify-center shadow-md border border-white/20`}>
+          <Icon icon={ELEMENT_CONFIG[element].icon} className={`w-4 h-4 ${ELEMENT_CONFIG[element].color}`} />
         </div>
       )}
 
@@ -197,6 +215,12 @@ const POWER_ICONS: Record<string, { icon: string; color: string; isDebuff?: bool
   weak: { icon: 'game-icons:muscle-down', color: 'text-damage', isDebuff: true },
   frail: { icon: 'game-icons:cracked-shield', color: 'text-damage', isDebuff: true },
   poison: { icon: 'game-icons:poison-bottle', color: 'text-damage', isDebuff: true },
+  // Elemental statuses (debuffs with element colors)
+  burning: { icon: 'game-icons:fire', color: 'text-orange-400', isDebuff: true },
+  wet: { icon: 'game-icons:water-drop', color: 'text-cyan-400', isDebuff: true },
+  frozen: { icon: 'game-icons:frozen-orb', color: 'text-cyan-300', isDebuff: true },
+  charged: { icon: 'game-icons:lightning-storm', color: 'text-yellow-300', isDebuff: true },
+  oiled: { icon: 'game-icons:oil-drum', color: 'text-purple-400', isDebuff: true },
   // Buffs (green/blue)
   strength: { icon: 'game-icons:biceps', color: 'text-heal' },
   dexterity: { icon: 'game-icons:sprint', color: 'text-heal' },

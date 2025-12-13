@@ -141,6 +141,7 @@ export function CardSelectionModal({
                 energy={getEnergyCost(def.energy)}
                 rarity={def.rarity}
                 upgraded={card.upgraded}
+                element={def.element}
               />
               {isSelected && (
                 <div className={`CardSelectionModal-check ${mode === 'scry' ? 'is-discard' : ''}`}>

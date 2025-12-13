@@ -88,6 +88,7 @@ export function CardPileModal({ isOpen, onClose, pileType, cards }: CardPileModa
                     energy={getEnergyCost(effectiveDef.energy)}
                     rarity={effectiveDef.rarity}
                     upgraded={upgraded}
+                    element={effectiveDef.element}
                   />
                 </div>
                 {count > 1 && (
