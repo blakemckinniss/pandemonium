@@ -77,26 +77,51 @@ export function GameScreen() {
           spawnCombatNumber(event.targetId, event.amount, 'block')
           break
         case 'draw':
-          // Draw animation is handled by turn change effect
+          // Draw animation handled by turn change effect (lines 43-59)
           break
         case 'discard':
-          // Could add card fly animation here
+          // Note: Cards already removed from DOM when queue processes
+          // TODO: Pre-mutation animation architecture needed
           break
         case 'exhaust':
-          // Could add burn animation here
+          // Note: Cards already removed from DOM when queue processes
+          // TODO: Pre-mutation animation architecture needed
           break
-        case 'powerApply':
-          // Power icon animation - handled by PowerIndicators component
+        case 'powerApply': {
+          // Pulse the target entity when power applied
+          const targetEl = containerRef.current?.querySelector(
+            `[data-target="${event.targetId}"]`
+          )
+          if (targetEl) {
+            gsap.effects.pulse(targetEl, {
+              color: event.powerId.match(/vulnerable|weak|frail|poison/)
+                ? 'oklch(0.55 0.18 20)'  // Debuff = red
+                : 'oklch(0.5 0.12 145)', // Buff = green
+            })
+          }
           break
+        }
         case 'powerRemove':
-          // Power icon fade - handled by PowerIndicators component
+          // PowerIndicators handles fade reactively
           break
-        case 'energy':
-          // Could add energy orb pulse here
+        case 'energy': {
+          const energyOrb = containerRef.current?.querySelector('[data-energy-orb]')
+          if (energyOrb) {
+            gsap.effects.energyPulse(energyOrb, {
+              color: event.delta > 0
+                ? 'oklch(0.7 0.15 70)'  // Gain = bright gold
+                : 'oklch(0.4 0.1 70)',  // Spend = dim
+            })
+          }
           break
-        case 'shuffle':
-          // Could add deck shuffle animation here
+        }
+        case 'shuffle': {
+          const deckPile = containerRef.current?.querySelector('[data-deck-pile]')
+          if (deckPile) {
+            gsap.effects.shuffleDeck(deckPile)
+          }
           break
+        }
       }
     }
 
@@ -529,11 +554,11 @@ export function GameScreen() {
           <span className="text-gray-500 ml-1">({deckRemaining} left)</span>
         </div>
         <div className="flex gap-2">
-          <div className="Chip">
+          <div className="Chip" data-deck-pile>
             <Icon icon="game-icons:card-pickup" className="text-gray-400" />
             <span>{combat.drawPile.length}</span>
           </div>
-          <div className="Chip">
+          <div className="Chip" data-discard-pile>
             <Icon icon="game-icons:card-discard" className="text-gray-400" />
             <span>{combat.discardPile.length}</span>
           </div>

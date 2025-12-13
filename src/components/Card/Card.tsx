@@ -91,7 +91,7 @@ export function Card({
 
       {/* Energy orb inside player card */}
       {variant === 'player' && energy !== undefined && (
-        <div className="absolute top-2 left-2 EnergyOrb text-xs">
+        <div className="absolute top-2 left-2 EnergyOrb text-xs" data-energy-orb>
           {energy}/{maxEnergy}
         </div>
       )}
