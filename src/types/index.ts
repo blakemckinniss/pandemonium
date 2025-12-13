@@ -499,6 +499,9 @@ export type PowerTrigger =
   | 'onDamaged'
   | 'onBlock'
   | 'onCardPlayed'
+  | 'onAttackPlayed'
+  | 'onSkillPlayed'
+  | 'onPowerPlayed'
   | 'onDeath'
   | 'onKill'
 

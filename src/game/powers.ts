@@ -452,6 +452,50 @@ registerPower({
   ],
 })
 
+registerPower({
+  id: 'doubleTap',
+  name: 'Double Tap',
+  description: 'Your next {amount} Attack(s) are played twice.',
+  stackBehavior: 'intensity',
+  triggers: [
+    {
+      event: 'onAttackPlayed',
+      effects: [
+        {
+          type: 'replayCard',
+          target: 'lastPlayed',
+        },
+        {
+          type: 'removePower',
+          powerId: 'doubleTap',
+          amount: 1,
+          target: 'self',
+        },
+      ],
+    },
+  ],
+  removeAtZero: true,
+})
+
+registerPower({
+  id: 'mayhem',
+  name: 'Mayhem',
+  description: 'At the start of your turn, play the top {amount} card(s) of your draw pile.',
+  stackBehavior: 'intensity',
+  triggers: [
+    {
+      event: 'onTurnStart',
+      effects: [
+        {
+          type: 'playTopCard',
+          pile: 'drawPile',
+          count: { type: 'scaled', base: 0, perUnit: 1, source: 'powerStacks' },
+        },
+      ],
+    },
+  ],
+})
+
 // ============================================
 // ELEMENTAL STATUS POWERS
 // ============================================

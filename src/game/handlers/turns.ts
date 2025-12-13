@@ -17,6 +17,7 @@ export function handleStartTurn(draft: RunState): void {
   combat.phase = 'playerTurn'
   combat.turn += 1
   combat.cardsPlayedThisTurn = 0
+  combat.lastPlayedCard = undefined
 
   // Reset energy
   combat.player.energy = combat.player.maxEnergy

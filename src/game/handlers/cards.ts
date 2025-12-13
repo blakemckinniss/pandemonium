@@ -77,6 +77,15 @@ export function handlePlayCard(
   // Execute onCardPlayed triggers
   if (executePowerTriggers) {
     executePowerTriggers(draft, combat.player, 'onCardPlayed')
+
+    // Fire type-specific triggers
+    if (cardDef.theme === 'attack') {
+      executePowerTriggers(draft, combat.player, 'onAttackPlayed')
+    } else if (cardDef.theme === 'skill') {
+      executePowerTriggers(draft, combat.player, 'onSkillPlayed')
+    } else if (cardDef.theme === 'power') {
+      executePowerTriggers(draft, combat.player, 'onPowerPlayed')
+    }
   }
 
   // Move to discard
