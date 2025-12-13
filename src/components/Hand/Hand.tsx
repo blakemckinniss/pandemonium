@@ -9,6 +9,10 @@ interface HandProps {
 }
 
 export function Hand({ cards, energy, onPlayCard }: HandProps) {
+  // Calculate fan rotation for each card position
+  const getFanRotation = (index: number, total: number) =>
+    (index - (total - 1) / 2) * 3
+
   return (
     <div className="Hand flex gap-2 justify-center items-end p-4">
       {cards.map((card, index) => {
@@ -16,14 +20,13 @@ export function Hand({ cards, energy, onPlayCard }: HandProps) {
         if (!def) return null
 
         const canPlay = energy >= def.energy
+        const fanRotation = getFanRotation(index, cards.length)
 
         return (
           <div
             key={card.uid}
-            className="transition-transform hover:-translate-y-4"
-            style={{
-              transform: `rotate(${(index - (cards.length - 1) / 2) * 3}deg)`,
-            }}
+            className="HandCard"
+            data-fan-rotation={fanRotation}
           >
             <Card
               variant="hand"

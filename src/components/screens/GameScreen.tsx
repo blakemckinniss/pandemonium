@@ -38,7 +38,7 @@ export function GameScreen() {
     setState(createNewRun('warrior'))
   }, [])
 
-  // Animate cards only when a new turn starts (not on every hand change)
+  // Animate cards when a new turn starts
   useEffect(() => {
     if (!handRef.current || !state?.combat) return
 
@@ -48,13 +48,13 @@ export function GameScreen() {
     // New turn started - animate dealing cards
     lastTurnRef.current = currentTurn
 
-    // Small delay to let React render the cards first
-    requestAnimationFrame(() => {
-      const cards = handRef.current?.querySelectorAll('.Card')
-      if (cards && cards.length > 0) {
-        gsap.effects.dealCards(cards, { stagger: 0.08 })
+    // Use setTimeout to ensure React has committed DOM changes
+    setTimeout(() => {
+      const handCards = handRef.current?.querySelectorAll('.HandCard')
+      if (handCards && handCards.length > 0) {
+        gsap.effects.dealCards(handCards, { stagger: 0.08 })
       }
-    })
+    }, 50)
   }, [state?.combat?.turn, state?.combat?.hand.length])
 
   // Track health changes for combat numbers

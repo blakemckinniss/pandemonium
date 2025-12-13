@@ -12,24 +12,47 @@ gsap.registerPlugin(Draggable, Flip)
 // Deal cards from draw pile to hand
 gsap.registerEffect({
   name: 'dealCards',
-  effect: (targets: gsap.TweenTarget, config: { stagger?: number }) => {
-    gsap.killTweensOf(targets)
-    gsap.set(targets, {
+  effect: (targets: gsap.TweenTarget, config: { stagger?: number; onComplete?: () => void }) => {
+    const elements = gsap.utils.toArray<HTMLElement>(targets)
+    gsap.killTweensOf(elements)
+
+    // Remove dealt class and set initial state
+    elements.forEach((el) => {
+      el.classList.remove('is-dealt')
+    })
+
+    gsap.set(elements, {
       rotation: -25,
       x: -window.innerWidth * 0.4,
       y: -100,
       scale: 0.5,
       opacity: 0,
     })
-    return gsap.to(targets, {
+
+    return gsap.to(elements, {
       duration: 0.5,
       scale: 1,
       x: 0,
       y: 0,
-      rotation: 0,
+      rotation: (i) => {
+        // Get fan rotation from data attribute
+        const el = elements[i]
+        return parseFloat(el?.dataset.fanRotation || '0')
+      },
       opacity: 1,
       stagger: config.stagger ?? 0.1,
       ease: 'back.out(0.5)',
+      onComplete: () => {
+        // Add dealt class and set CSS custom property for hover
+        elements.forEach((el) => {
+          const fanRotation = el.dataset.fanRotation || '0'
+          el.style.setProperty('--fan-rotation', `${fanRotation}deg`)
+          el.classList.add('is-dealt')
+          // Clear GSAP inline styles so CSS takes over
+          gsap.set(el, { clearProps: 'all' })
+        })
+        config.onComplete?.()
+      },
     })
   },
   defaults: { stagger: 0.1 },
