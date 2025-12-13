@@ -131,8 +131,8 @@ function handleStartCombat(draft: RunState, enemies: EnemyEntity[]): void {
     player: {
       id: 'player',
       name: draft.hero.name,
-      currentHealth: draft.hero.health,
-      maxHealth: draft.hero.health,
+      currentHealth: draft.hero.currentHealth,
+      maxHealth: draft.hero.maxHealth,
       block: 0,
       barrier: 0,
       powers: {},
@@ -147,6 +147,14 @@ function handleStartCombat(draft: RunState, enemies: EnemyEntity[]): void {
     exhaustPile: [],
     cardsPlayedThisTurn: 0,
     visualQueue: [],
+  }
+
+  // Apply innate statuses to enemies
+  for (const enemy of enemies) {
+    if (enemy.innateStatus) {
+      // Apply innate status with 3 stacks by default
+      enemy.powers[enemy.innateStatus] = { id: enemy.innateStatus, amount: 3 }
+    }
   }
 
   draft.gamePhase = 'combat'
@@ -439,6 +447,19 @@ function executeDamage(
     const defender = getEntityById(targetId, draft)
     if (defender) {
       damage = applyIncomingDamageModifiers(damage, defender)
+    }
+
+    // Apply elemental vulnerability/resistance (enemies only)
+    const enemy = draft.combat?.enemies.find((e) => e.id === targetId)
+    if (enemy) {
+      // Vulnerability: 1.5x damage from this element
+      if (enemy.vulnerabilities?.includes(element)) {
+        damage = Math.floor(damage * 1.5)
+      }
+      // Resistance: 0.5x damage from this element
+      if (enemy.resistances?.includes(element)) {
+        damage = Math.floor(damage * 0.5)
+      }
     }
 
     // Check for elemental combo
