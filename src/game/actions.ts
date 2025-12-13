@@ -644,6 +644,16 @@ function executeAddCard(
         break
     }
   }
+
+  // Emit visual for card creation
+  if (count > 0) {
+    emitVisual(draft, {
+      type: 'addCard',
+      cardId: effect.cardId,
+      destination: effect.destination,
+      count,
+    })
+  }
 }
 
 function executeShuffle(

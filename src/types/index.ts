@@ -593,10 +593,12 @@ export type VisualEvent =
   | { type: 'draw'; count: number }
   | { type: 'discard'; cardUids: string[] }
   | { type: 'exhaust'; cardUids: string[] }
+  | { type: 'addCard'; cardId: string; destination: 'hand' | 'drawPile' | 'discardPile'; count: number }
   | { type: 'powerApply'; targetId: string; powerId: string; amount: number }
   | { type: 'powerRemove'; targetId: string; powerId: string }
   | { type: 'energy'; delta: number }
   | { type: 'shuffle' }
+  | { type: 'costModify'; cardUids: string[]; delta: number }
 
 // ============================================
 // COMBAT NUMBERS (FCT)

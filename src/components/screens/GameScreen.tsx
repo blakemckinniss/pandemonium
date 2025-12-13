@@ -189,6 +189,43 @@ export function GameScreen({ deckId, onReturnToMenu }: GameScreenProps) {
           }
           break
         }
+        case 'addCard': {
+          // Show notification for card creation
+          const destName = event.destination === 'hand' ? 'hand'
+            : event.destination === 'drawPile' ? 'draw pile'
+            : 'discard pile'
+          const cardDef = getCardDefinition(event.cardId)
+          const cardName = cardDef?.name ?? event.cardId
+          // Spawn a status message (could be toast, for now use combat number on player)
+          if (event.destination === 'hand') {
+            // Animate new cards in hand
+            setTimeout(() => {
+              const handCards = handRef.current?.querySelectorAll('.HandCard')
+              if (handCards && handCards.length > 0) {
+                const newCards = Array.from(handCards).slice(-event.count)
+                if (newCards.length > 0) {
+                  gsap.effects.dealCards(newCards, { stagger: 0.05 })
+                }
+              }
+            }, 50)
+          }
+          console.log(`+${event.count} ${cardName} → ${destName}`)
+          break
+        }
+        case 'costModify': {
+          // Flash cards whose cost changed
+          for (const cardUid of event.cardUids) {
+            const cardEl = containerRef.current?.querySelector(`[data-card-uid="${cardUid}"]`)
+            if (cardEl) {
+              gsap.effects.pulse(cardEl, {
+                color: event.delta < 0
+                  ? 'oklch(0.7 0.15 145)' // Cost reduced = green
+                  : 'oklch(0.6 0.15 25)', // Cost increased = red
+              })
+            }
+          }
+          break
+        }
       }
     }
 
