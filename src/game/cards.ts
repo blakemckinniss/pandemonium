@@ -1,3 +1,4 @@
+// LARGE_FILE_OK: Card registry - data definitions, not logic
 import type { CardDefinition, CardInstance } from '../types'
 
 // ============================================
