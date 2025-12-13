@@ -234,6 +234,11 @@ const POWER_ICONS: Record<string, { icon: string; color: string; isDebuff?: bool
   platedArmor: { icon: 'game-icons:shoulder-armor', color: 'text-block' },
   ritual: { icon: 'game-icons:pentagram-rose', color: 'text-heal' },
   anger: { icon: 'game-icons:enrage', color: 'text-damage' },
+  // Replay powers
+  doubleTap: { icon: 'game-icons:double-shot', color: 'text-energy' },
+  mayhem: { icon: 'game-icons:chaos', color: 'text-energy' },
+  echoForm: { icon: 'game-icons:echo-ripples', color: 'text-energy' },
+  burst: { icon: 'game-icons:fast-forward-button', color: 'text-energy' },
 }
 
 interface PowerIndicatorsProps {

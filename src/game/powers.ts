@@ -496,6 +496,53 @@ registerPower({
   ],
 })
 
+registerPower({
+  id: 'echoForm',
+  name: 'Echo Form',
+  description: 'The first card you play each turn is played twice.',
+  stackBehavior: 'intensity',
+  // Note: Each stack grants one echo per turn. Simplified to check cardsPlayed <= stacks.
+  triggers: [
+    {
+      event: 'onCardPlayed',
+      effects: [
+        {
+          type: 'conditional',
+          condition: { type: 'cardsPlayed', op: '<=', value: 1 },
+          then: [
+            { type: 'replayCard', target: 'lastPlayed' },
+          ],
+        },
+      ],
+    },
+  ],
+})
+
+registerPower({
+  id: 'burst',
+  name: 'Burst',
+  description: 'Your next {amount} Skill(s) are played twice.',
+  stackBehavior: 'intensity',
+  triggers: [
+    {
+      event: 'onSkillPlayed',
+      effects: [
+        {
+          type: 'replayCard',
+          target: 'lastPlayed',
+        },
+        {
+          type: 'removePower',
+          powerId: 'burst',
+          amount: 1,
+          target: 'self',
+        },
+      ],
+    },
+  ],
+  removeAtZero: true,
+})
+
 // ============================================
 // ELEMENTAL STATUS POWERS
 // ============================================

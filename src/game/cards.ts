@@ -1594,3 +1594,42 @@ registerCard({
     ],
   },
 })
+
+registerCard({
+  id: 'echo_form',
+  name: 'Echo Form',
+  description: 'Ethereal. The first card you play each turn is played twice.',
+  energy: 3,
+  theme: 'power',
+  target: 'self',
+  rarity: 'rare',
+  tags: ['ethereal'],
+  effects: [
+    { type: 'applyPower', powerId: 'echoForm', amount: 1, target: 'self' },
+  ],
+  upgradesTo: {
+    name: 'Echo Form+',
+    description: 'The first card you play each turn is played twice.',
+    tags: [],
+  },
+})
+
+registerCard({
+  id: 'burst',
+  name: 'Burst',
+  description: 'This turn, your next Skill is played twice.',
+  energy: 1,
+  theme: 'skill',
+  target: 'self',
+  rarity: 'rare',
+  effects: [
+    { type: 'applyPower', powerId: 'burst', amount: 1, target: 'self' },
+  ],
+  upgradesTo: {
+    name: 'Burst+',
+    description: 'This turn, your next 2 Skills are played twice.',
+    effects: [
+      { type: 'applyPower', powerId: 'burst', amount: 2, target: 'self' },
+    ],
+  },
+})

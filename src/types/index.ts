@@ -183,6 +183,12 @@ export interface CombatCondition {
   value?: number
 }
 
+export interface CardsPlayedCondition {
+  type: 'cardsPlayed'
+  op: ComparisonOp
+  value: number
+}
+
 export interface AndCondition {
   type: 'and'
   conditions: Condition[]
@@ -205,6 +211,7 @@ export type Condition =
   | CardCountCondition
   | TurnCondition
   | CombatCondition
+  | CardsPlayedCondition
   | AndCondition
   | OrCondition
   | NotCondition

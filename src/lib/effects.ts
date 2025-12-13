@@ -188,6 +188,9 @@ export function evaluateCondition(
       return false
     }
 
+    case 'cardsPlayed':
+      return compareValues(combat.cardsPlayedThisTurn, condition.op, condition.value)
+
     case 'and':
       return condition.conditions.every((c) => evaluateCondition(c, state, ctx))
 
