@@ -519,6 +519,10 @@ export interface PlayerEntity extends Entity {
 export interface EnemyEntity extends Entity {
   intent: Intent
   patternIndex: number
+  // Elemental properties
+  vulnerabilities?: Element[] // Takes 1.5x damage from these elements
+  resistances?: Element[] // Takes 0.5x damage from these elements
+  innateStatus?: ElementalStatus // Starts combat with this status
 }
 
 // ============================================

@@ -1076,3 +1076,188 @@ registerCard({
     ],
   },
 })
+
+// ============================================
+// ELEMENTAL POWER CARDS
+// ============================================
+
+// --- FIRE POWERS ---
+registerCard({
+  id: 'combustion',
+  name: 'Combustion',
+  description: 'At the start of your turn, deal 3 fire damage to ALL enemies.',
+  energy: 1,
+  theme: 'power',
+  target: 'self',
+  rarity: 'uncommon',
+  element: 'fire',
+  effects: [{ type: 'applyPower', powerId: 'eternalFlames', amount: 3, target: 'self' }],
+  upgradesTo: {
+    name: 'Combustion+',
+    description: 'At the start of your turn, deal 5 fire damage to ALL enemies.',
+    effects: [{ type: 'applyPower', powerId: 'eternalFlames', amount: 5, target: 'self' }],
+  },
+})
+
+registerCard({
+  id: 'pyromaniac',
+  name: 'Pyromaniac',
+  description: 'Whenever you deal fire damage, apply 1 Burning.',
+  energy: 2,
+  theme: 'power',
+  target: 'self',
+  rarity: 'rare',
+  element: 'fire',
+  effects: [{ type: 'applyPower', powerId: 'pyromaniac', amount: 1, target: 'self' }],
+  upgradesTo: {
+    name: 'Pyromaniac+',
+    description: 'Whenever you deal fire damage, apply 2 Burning.',
+    effects: [{ type: 'applyPower', powerId: 'pyromaniac', amount: 2, target: 'self' }],
+  },
+})
+
+// --- ICE POWERS ---
+registerCard({
+  id: 'frost_aura',
+  name: 'Frost Aura',
+  description: 'Whenever you gain Block, apply 1 Frozen to a random enemy.',
+  energy: 1,
+  theme: 'power',
+  target: 'self',
+  rarity: 'uncommon',
+  element: 'ice',
+  effects: [{ type: 'applyPower', powerId: 'frostAura', amount: 1, target: 'self' }],
+  upgradesTo: {
+    name: 'Frost Aura+',
+    description: 'Whenever you gain Block, apply 2 Frozen to a random enemy.',
+    effects: [{ type: 'applyPower', powerId: 'frostAura', amount: 2, target: 'self' }],
+  },
+})
+
+registerCard({
+  id: 'permafrost',
+  name: 'Permafrost',
+  description: 'At the start of your turn, apply 2 Wet to ALL enemies.',
+  energy: 1,
+  theme: 'power',
+  target: 'self',
+  rarity: 'uncommon',
+  element: 'ice',
+  effects: [{ type: 'applyPower', powerId: 'permafrost', amount: 2, target: 'self' }],
+  upgradesTo: {
+    name: 'Permafrost+',
+    description: 'At the start of your turn, apply 3 Wet to ALL enemies.',
+    effects: [{ type: 'applyPower', powerId: 'permafrost', amount: 3, target: 'self' }],
+  },
+})
+
+// --- LIGHTNING POWERS ---
+registerCard({
+  id: 'static_charge',
+  name: 'Static Charge',
+  description: 'Whenever you play a card, apply 1 Charged to a random enemy.',
+  energy: 1,
+  theme: 'power',
+  target: 'self',
+  rarity: 'uncommon',
+  element: 'lightning',
+  effects: [{ type: 'applyPower', powerId: 'staticCharge', amount: 1, target: 'self' }],
+  upgradesTo: {
+    name: 'Static Charge+',
+    description: 'Whenever you play a card, apply 2 Charged to a random enemy.',
+    effects: [{ type: 'applyPower', powerId: 'staticCharge', amount: 2, target: 'self' }],
+  },
+})
+
+registerCard({
+  id: 'storm_conduit',
+  name: 'Storm Conduit',
+  description: 'Lightning damage chains to 1 additional enemy.',
+  energy: 2,
+  theme: 'power',
+  target: 'self',
+  rarity: 'rare',
+  element: 'lightning',
+  effects: [{ type: 'applyPower', powerId: 'stormConduit', amount: 1, target: 'self' }],
+  upgradesTo: {
+    name: 'Storm Conduit+',
+    description: 'Lightning damage chains to 2 additional enemies.',
+    effects: [{ type: 'applyPower', powerId: 'stormConduit', amount: 2, target: 'self' }],
+  },
+})
+
+// --- VOID POWERS ---
+registerCard({
+  id: 'entropy',
+  name: 'Entropy',
+  description: 'At the start of your turn, apply 2 Oiled to a random enemy.',
+  energy: 1,
+  theme: 'power',
+  target: 'self',
+  rarity: 'uncommon',
+  element: 'void',
+  effects: [{ type: 'applyPower', powerId: 'entropy', amount: 2, target: 'self' }],
+  upgradesTo: {
+    name: 'Entropy+',
+    description: 'At the start of your turn, apply 3 Oiled to a random enemy.',
+    effects: [{ type: 'applyPower', powerId: 'entropy', amount: 3, target: 'self' }],
+  },
+})
+
+registerCard({
+  id: 'void_embrace',
+  name: 'Void Embrace',
+  description: 'Whenever an enemy dies, gain 1 Energy and draw 1 card.',
+  energy: 2,
+  theme: 'power',
+  target: 'self',
+  rarity: 'rare',
+  element: 'void',
+  effects: [
+    { type: 'applyPower', powerId: 'energizeOnKill', amount: 1, target: 'self' },
+    { type: 'applyPower', powerId: 'drawOnKill', amount: 1, target: 'self' },
+  ],
+  upgradesTo: {
+    name: 'Void Embrace+',
+    description: 'Whenever an enemy dies, gain 2 Energy and draw 2 cards.',
+    effects: [
+      { type: 'applyPower', powerId: 'energizeOnKill', amount: 2, target: 'self' },
+      { type: 'applyPower', powerId: 'drawOnKill', amount: 2, target: 'self' },
+    ],
+  },
+})
+
+// --- COMBO ENABLER CARDS ---
+registerCard({
+  id: 'catalyst',
+  name: 'Catalyst',
+  description: 'Apply 5 Burning to target enemy.',
+  energy: 1,
+  theme: 'skill',
+  target: 'enemy',
+  rarity: 'uncommon',
+  element: 'fire',
+  effects: [{ type: 'applyPower', powerId: 'burning', amount: 5 }],
+  upgradesTo: {
+    name: 'Catalyst+',
+    description: 'Apply 8 Burning to target enemy.',
+    effects: [{ type: 'applyPower', powerId: 'burning', amount: 8 }],
+  },
+})
+
+registerCard({
+  id: 'elemental_mastery',
+  name: 'Elemental Mastery',
+  description: 'Your elemental combos deal 50% more damage this combat.',
+  energy: 3,
+  theme: 'power',
+  target: 'self',
+  rarity: 'rare',
+  element: 'physical',
+  effects: [{ type: 'applyPower', powerId: 'elementalMastery', amount: 50, target: 'self' }],
+  upgradesTo: {
+    name: 'Elemental Mastery+',
+    description: 'Your elemental combos deal 100% more damage this combat.',
+    effects: [{ type: 'applyPower', powerId: 'elementalMastery', amount: 100, target: 'self' }],
+  },
+})

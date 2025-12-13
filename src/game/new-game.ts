@@ -48,6 +48,10 @@ export interface MonsterTemplate {
   name: string
   healthRange: [number, number]
   damage: number
+  // Elemental properties
+  vulnerabilities?: import('../types').Element[]
+  resistances?: import('../types').Element[]
+  innateStatus?: import('../types').ElementalStatus
 }
 
 export const MONSTERS: Record<string, MonsterTemplate> = {
@@ -68,6 +72,54 @@ export const MONSTERS: Record<string, MonsterTemplate> = {
     name: 'Jaw Worm',
     healthRange: [40, 44],
     damage: 11,
+  },
+
+  // --- ELEMENTAL MONSTERS ---
+
+  fire_imp: {
+    id: 'fire_imp',
+    name: 'Fire Imp',
+    healthRange: [18, 24],
+    damage: 7,
+    resistances: ['fire'],
+    vulnerabilities: ['ice'],
+    innateStatus: 'burning', // Burns itself but deals fire damage
+  },
+  frost_elemental: {
+    id: 'frost_elemental',
+    name: 'Frost Elemental',
+    healthRange: [30, 36],
+    damage: 5,
+    resistances: ['ice'],
+    vulnerabilities: ['fire'],
+    innateStatus: 'frozen',
+  },
+  storm_sprite: {
+    id: 'storm_sprite',
+    name: 'Storm Sprite',
+    healthRange: [14, 18],
+    damage: 4,
+    resistances: ['lightning'],
+    vulnerabilities: ['physical'],
+    innateStatus: 'charged',
+  },
+  void_cultist: {
+    id: 'void_cultist',
+    name: 'Void Cultist',
+    healthRange: [35, 42],
+    damage: 8,
+    resistances: ['void'],
+    vulnerabilities: ['lightning'],
+    innateStatus: 'oiled',
+  },
+  water_slime: {
+    id: 'water_slime',
+    name: 'Water Slime',
+    healthRange: [20, 26],
+    damage: 4,
+    resistances: ['ice', 'physical'],
+    vulnerabilities: ['lightning', 'fire'],
+    innateStatus: 'wet',
   },
 }
 
@@ -93,6 +145,10 @@ export function createEnemy(templateId: string): EnemyEntity {
     powers: {},
     intent: { type: 'attack', value: template.damage },
     patternIndex: 0,
+    // Elemental properties
+    vulnerabilities: template.vulnerabilities,
+    resistances: template.resistances,
+    innateStatus: template.innateStatus,
   }
 }
 

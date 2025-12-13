@@ -36,6 +36,56 @@ export const ROOMS: Record<string, RoomDefinition> = {
     monsters: ['slime', 'cultist'],
   },
 
+  // Elemental combat rooms
+  infernal_pit: {
+    id: 'infernal_pit',
+    type: 'combat',
+    name: 'Infernal Pit',
+    description: 'Flames dance in the darkness.',
+    icon: '🔥',
+    monsters: ['fire_imp', 'fire_imp'],
+  },
+  frozen_cavern: {
+    id: 'frozen_cavern',
+    type: 'combat',
+    name: 'Frozen Cavern',
+    description: 'Ice crystals line the walls.',
+    icon: '❄️',
+    monsters: ['frost_elemental'],
+  },
+  storm_nexus: {
+    id: 'storm_nexus',
+    type: 'combat',
+    name: 'Storm Nexus',
+    description: 'Lightning crackles in the air.',
+    icon: '⚡',
+    monsters: ['storm_sprite', 'storm_sprite', 'storm_sprite'],
+  },
+  void_shrine: {
+    id: 'void_shrine',
+    type: 'combat',
+    name: 'Void Shrine',
+    description: 'Reality warps around you.',
+    icon: '🌀',
+    monsters: ['void_cultist'],
+  },
+  flooded_chamber: {
+    id: 'flooded_chamber',
+    type: 'combat',
+    name: 'Flooded Chamber',
+    description: 'Water drips from everywhere.',
+    icon: '💧',
+    monsters: ['water_slime', 'water_slime'],
+  },
+  elemental_convergence: {
+    id: 'elemental_convergence',
+    type: 'combat',
+    name: 'Elemental Convergence',
+    description: 'All elements clash here.',
+    icon: '🌈',
+    monsters: ['fire_imp', 'frost_elemental', 'storm_sprite'],
+  },
+
   // Elite rooms
   elite_guardian: {
     id: 'elite_guardian',
