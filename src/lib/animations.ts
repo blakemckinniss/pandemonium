@@ -37,31 +37,30 @@ gsap.registerEffect({
 })
 
 // Play card animation - fly up then to discard
+// Starts from current position (where card was dropped after drag)
 gsap.registerEffect({
   name: 'playCard',
   effect: (
     targets: gsap.TweenTarget,
-    config: { targetX?: number; targetY?: number; onComplete?: () => void }
+    config: { onComplete?: () => void }
   ) => {
     const tl = gsap.timeline()
 
-    // First: fly toward target
+    // First: scale up and flash at current position (where card was dropped)
     tl.to(targets, {
-      duration: 0.2,
-      y: config.targetY ?? -150,
-      x: config.targetX ?? 0,
-      scale: 1.2,
+      duration: 0.15,
+      scale: 1.3,
       zIndex: 100,
       ease: 'power2.out',
     })
 
-    // Then: shrink and fly to discard
+    // Then: shrink and fly to discard pile (top-left area)
     tl.to(targets, {
-      duration: 0.3,
-      x: window.innerWidth * 0.4,
-      y: window.innerHeight * 0.3,
+      duration: 0.35,
+      x: -window.innerWidth * 0.3,
+      y: -window.innerHeight * 0.2,
       scale: 0.3,
-      rotation: 25,
+      rotation: -15,
       opacity: 0,
       ease: 'power2.in',
       onComplete: config.onComplete,

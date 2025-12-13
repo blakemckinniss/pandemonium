@@ -150,25 +150,12 @@ function isValidDropTarget(
 
 function playCardAnimation(
   cardEl: HTMLElement,
-  targetEl: HTMLElement | null,
+  _targetEl: HTMLElement | null,
   onComplete: () => void
 ): void {
-  let targetX = 0
-  let targetY = -150
-
-  if (targetEl) {
-    const cardRect = cardEl.getBoundingClientRect()
-    const targetRect = targetEl.getBoundingClientRect()
-
-    targetX = targetRect.left + targetRect.width / 2 - (cardRect.left + cardRect.width / 2)
-    targetY = targetRect.top - cardRect.top - 50
-  }
-
-  gsap.effects.playCard(cardEl, {
-    targetX,
-    targetY,
-    onComplete,
-  })
+  // Animation starts from current position (where card was dropped)
+  // and flies to discard pile area
+  gsap.effects.playCard(cardEl, { onComplete })
 }
 
 function snapBack(cardEl: HTMLElement): void {
