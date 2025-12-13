@@ -281,6 +281,37 @@ export function GameScreen({ deckId, onReturnToMenu }: GameScreenProps) {
           console.log(`Repeat: ${event.current}/${event.times}`)
           break
         }
+        case 'replay': {
+          // Visual feedback when a card is replayed (Echo Form, Double Tap, etc.)
+          const playerEl = containerRef.current?.querySelector('[data-entity="player"]')
+          if (playerEl) {
+            gsap.effects.pulse(playerEl, {
+              color: 'oklch(0.7 0.18 220)', // cyan/blue for replay
+            })
+            emitParticle(playerEl, 'energy')
+          }
+          console.log(`Replay: card replayed ${event.times}x`)
+          break
+        }
+        case 'playTopCard': {
+          // Visual feedback when playing a card from draw/discard pile (Havoc, Mayhem, etc.)
+          const pileSelector = event.fromPile === 'drawPile' ? '[data-deck-pile]' : '[data-discard-pile]'
+          const pileEl = containerRef.current?.querySelector(pileSelector)
+          const playerEl = containerRef.current?.querySelector('[data-entity="player"]')
+
+          if (pileEl) {
+            gsap.effects.pulse(pileEl, {
+              color: 'oklch(0.7 0.15 70)', // gold for auto-play
+            })
+          }
+          if (playerEl) {
+            emitParticle(playerEl, 'spark')
+          }
+
+          const cardDef = getCardDefinition(event.cardId)
+          console.log(`Auto-play: ${cardDef?.name ?? event.cardId} from ${event.fromPile}`)
+          break
+        }
       }
     }
 
