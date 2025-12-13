@@ -12,6 +12,7 @@
   "dependencies": {
     "@iconify/react": "^6.0.2",
     "dexie": "^4.2.1",
+    "groq-sdk": "^0.37.0",
     "gsap": "^3.14.2",
     "immer": "^11.0.1",
     "react": "^19.2.0",

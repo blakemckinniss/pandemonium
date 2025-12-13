@@ -1,4 +1,5 @@
 import Dexie, { type EntityTable } from 'dexie'
+import type { CardDefinition } from '../types'
 
 // ============================================
 // RUN HISTORY SCHEMA
@@ -20,17 +21,37 @@ export interface RunRecord {
 }
 
 // ============================================
+// GENERATED CARDS SCHEMA
+// ============================================
+
+export interface GeneratedCardRecord {
+  id?: number
+  cardId: string // The card's unique ID (e.g., "generated_1234567890")
+  definition: CardDefinition
+  generatedAt: Date
+  model: string // Model used for generation
+  prompt?: string // Optional: store the prompt used
+}
+
+// ============================================
 // DATABASE
 // ============================================
 
 class PandemoniumDB extends Dexie {
   runs!: EntityTable<RunRecord, 'id'>
+  generatedCards!: EntityTable<GeneratedCardRecord, 'id'>
 
   constructor() {
     super('PandemoniumDB')
 
     this.version(1).stores({
       runs: '++id, startedAt, heroId, won, floor',
+    })
+
+    // Version 2: Add generated cards storage
+    this.version(2).stores({
+      runs: '++id, startedAt, heroId, won, floor',
+      generatedCards: '++id, cardId, generatedAt, model',
     })
   }
 }
@@ -89,4 +110,46 @@ export async function getRunStats(): Promise<{
 
 export async function clearRunHistory(): Promise<void> {
   await db.runs.clear()
+}
+
+// ============================================
+// GENERATED CARDS FUNCTIONS
+// ============================================
+
+export async function saveGeneratedCard(
+  definition: CardDefinition,
+  model: string,
+  prompt?: string
+): Promise<number> {
+  const record: Omit<GeneratedCardRecord, 'id'> = {
+    cardId: definition.id,
+    definition,
+    generatedAt: new Date(),
+    model,
+    prompt,
+  }
+  const id = await db.generatedCards.add(record)
+  return id as number
+}
+
+export async function getAllGeneratedCards(): Promise<GeneratedCardRecord[]> {
+  return db.generatedCards.orderBy('generatedAt').reverse().toArray()
+}
+
+export async function getGeneratedCardByCardId(
+  cardId: string
+): Promise<GeneratedCardRecord | undefined> {
+  return db.generatedCards.where('cardId').equals(cardId).first()
+}
+
+export async function deleteGeneratedCard(cardId: string): Promise<void> {
+  await db.generatedCards.where('cardId').equals(cardId).delete()
+}
+
+export async function clearGeneratedCards(): Promise<void> {
+  await db.generatedCards.clear()
+}
+
+export async function getGeneratedCardCount(): Promise<number> {
+  return db.generatedCards.count()
 }

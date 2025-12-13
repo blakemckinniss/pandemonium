@@ -4,6 +4,7 @@ import type { CardDefinition } from '../../types'
 import { getAllCards } from '../../game/cards'
 import { getEnergyCost } from '../../lib/effects'
 import { gsap } from '../../lib/animations'
+import { generateRandomCard } from '../../game/card-generator'
 
 interface RewardScreenProps {
   floor: number
@@ -16,6 +17,8 @@ export function RewardScreen({ floor, gold, onAddCard, onSkip }: RewardScreenPro
   const containerRef = useRef<HTMLDivElement>(null)
   const [cardChoices, setCardChoices] = useState<CardDefinition[]>([])
   const [goldReward] = useState(() => 15 + Math.floor(Math.random() * 10))
+  const [isGenerating, setIsGenerating] = useState(false)
+  const [generationError, setGenerationError] = useState<string | null>(null)
 
   // Generate card choices on mount
   useEffect(() => {
@@ -35,6 +38,20 @@ export function RewardScreen({ floor, gold, onAddCard, onSkip }: RewardScreenPro
 
     setCardChoices(choices)
   }, [])
+
+  // Handle generating a new card via LLM
+  async function handleGenerateCard() {
+    setIsGenerating(true)
+    setGenerationError(null)
+    try {
+      const newCard = await generateRandomCard()
+      setCardChoices((prev) => [...prev, newCard])
+    } catch (err) {
+      setGenerationError(err instanceof Error ? err.message : 'Failed to generate card')
+    } finally {
+      setIsGenerating(false)
+    }
+  }
 
   // Animate cards appearing
   useEffect(() => {
@@ -69,7 +86,7 @@ export function RewardScreen({ floor, gold, onAddCard, onSkip }: RewardScreenPro
       {/* Card choices */}
       <p className="text-gray-400 mb-4">Choose a card to add to your deck:</p>
 
-      <div ref={containerRef} className="flex gap-4 mb-8">
+      <div ref={containerRef} className="flex gap-4 mb-8 items-center">
         {cardChoices.map((cardDef) => (
           <button
             key={cardDef.id}
@@ -86,7 +103,29 @@ export function RewardScreen({ floor, gold, onAddCard, onSkip }: RewardScreenPro
             />
           </button>
         ))}
+
+        {/* Generate Card Button */}
+        <button
+          onClick={handleGenerateCard}
+          disabled={isGenerating}
+          className="RewardCard flex flex-col items-center justify-center w-32 h-44 rounded-lg border-2 border-dashed border-gray-600 hover:border-energy hover:bg-surface/50 transition-colors disabled:opacity-50 disabled:cursor-wait"
+        >
+          {isGenerating ? (
+            <div className="animate-spin w-8 h-8 border-2 border-energy border-t-transparent rounded-full" />
+          ) : (
+            <>
+              <span className="text-3xl mb-2">✨</span>
+              <span className="text-sm text-gray-400">Generate</span>
+              <span className="text-xs text-gray-500">New Card</span>
+            </>
+          )}
+        </button>
       </div>
+
+      {/* Generation error */}
+      {generationError && (
+        <p className="text-damage text-sm mb-4">{generationError}</p>
+      )}
 
       {/* Skip button */}
       <button
