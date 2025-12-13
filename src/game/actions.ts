@@ -1,3 +1,4 @@
+// LARGE_FILE_OK: Core game action handler - central state mutation logic
 import { produce } from 'immer'
 import type {
   RunState,
@@ -32,6 +33,11 @@ import {
   decayPowers,
   getPowerTriggers,
 } from './powers'
+import {
+  checkElementalCombo,
+  getElementStatus,
+} from './elements'
+import type { Element, ElementalCombo } from '../types'
 import {
   executeScry,
   executeTutor,
@@ -408,12 +414,13 @@ function executeEffect(
 
 function executeDamage(
   draft: RunState,
-  effect: { type: 'damage'; amount: EffectValue; target?: EntityTarget; piercing?: boolean; triggerOnHit?: AtomicEffect[] },
+  effect: { type: 'damage'; amount: EffectValue; target?: EntityTarget; element?: Element; piercing?: boolean; triggerOnHit?: AtomicEffect[] },
   ctx: EffectContext
 ): void {
   if (!draft.combat) return
 
   const baseDamage = resolveValue(effect.amount, draft, ctx)
+  const element: Element = effect.element ?? 'physical'
   const target = effect.target ?? (ctx.cardTarget ? 'enemy' : 'allEnemies')
   const targetIds = resolveEntityTargets(target, draft, ctx)
 
@@ -434,6 +441,34 @@ function executeDamage(
       damage = applyIncomingDamageModifiers(damage, defender)
     }
 
+    // Check for elemental combo
+    let combo: ElementalCombo | undefined
+    let comboTriggered = false
+    if (defender) {
+      const targetStatuses = Object.keys(defender.powers)
+      combo = checkElementalCombo(targetStatuses, element)
+
+      if (combo) {
+        comboTriggered = true
+
+        // Apply damage multiplier
+        if (combo.damageMultiplier) {
+          damage = Math.floor(damage * combo.damageMultiplier)
+        }
+
+        // Apply bonus damage
+        if (combo.bonusDamage) {
+          damage += combo.bonusDamage
+        }
+
+        // Remove triggering status
+        if (combo.removeStatus) {
+          const [statusToRemove] = combo.trigger
+          removePowerFromEntity(defender, statusToRemove)
+        }
+      }
+    }
+
     // Apply damage
     const damageDealt = applyDamageInternal(draft, targetId, damage, effect.piercing)
 
@@ -443,8 +478,68 @@ function executeDamage(
         type: 'damage',
         targetId,
         amount: damageDealt,
-        variant: effect.piercing ? 'piercing' : undefined,
+        variant: effect.piercing ? 'piercing' : (comboTriggered ? 'combo' : undefined),
+        element,
+        comboName: combo?.name,
       })
+    }
+
+    // Handle combo special effects
+    if (combo && defender && draft.combat) {
+      // Chain damage to all enemies
+      if (combo.chainToAll) {
+        const otherEnemies = draft.combat.enemies.filter(e => e.id !== targetId)
+        for (const enemy of otherEnemies) {
+          const chainDamage = Math.floor(damageDealt * 0.5)
+          applyDamageInternal(draft, enemy.id, chainDamage)
+          emitVisual(draft, {
+            type: 'damage',
+            targetId: enemy.id,
+            amount: chainDamage,
+            variant: 'chain',
+            element,
+          })
+        }
+      }
+
+      // Apply status from combo
+      if (combo.applyStatus) {
+        applyPowerToEntity(defender, combo.applyStatus, 2)
+        emitVisual(draft, {
+          type: 'powerApply',
+          targetId,
+          powerId: combo.applyStatus,
+          amount: 2,
+        })
+      }
+
+      // Execute threshold (kills if below X% HP)
+      if (combo.executeThreshold && defender.currentHealth > 0) {
+        const hpPercent = defender.currentHealth / defender.maxHealth
+        if (hpPercent <= combo.executeThreshold) {
+          applyDamageInternal(draft, targetId, defender.currentHealth)
+          emitVisual(draft, {
+            type: 'damage',
+            targetId,
+            amount: defender.currentHealth,
+            variant: 'execute',
+          })
+        }
+      }
+    }
+
+    // Apply elemental status if no combo triggered
+    if (!comboTriggered && damageDealt > 0 && defender) {
+      const statusToApply = getElementStatus(element)
+      if (statusToApply) {
+        applyPowerToEntity(defender, statusToApply, element === 'fire' ? damageDealt : 2)
+        emitVisual(draft, {
+          type: 'powerApply',
+          targetId,
+          powerId: statusToApply,
+          amount: element === 'fire' ? damageDealt : 2,
+        })
+      }
     }
 
     // Trigger onHit effects

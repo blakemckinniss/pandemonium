@@ -789,3 +789,290 @@ registerCard({
     ],
   },
 })
+
+// ============================================
+// ELEMENTAL CARDS
+// ============================================
+
+// --- FIRE ---
+registerCard({
+  id: 'ignite',
+  name: 'Ignite',
+  description: 'Deal 4 fire damage. Apply Burning equal to damage dealt.',
+  energy: 1,
+  theme: 'attack',
+  target: 'enemy',
+  rarity: 'common',
+  element: 'fire',
+  effects: [{ type: 'damage', amount: 4, element: 'fire' }],
+  upgradesTo: {
+    name: 'Ignite+',
+    description: 'Deal 6 fire damage. Apply Burning equal to damage dealt.',
+    effects: [{ type: 'damage', amount: 6, element: 'fire' }],
+  },
+})
+
+registerCard({
+  id: 'fireball',
+  name: 'Fireball',
+  description: 'Deal 12 fire damage. If target is Oiled: Explosion (2x damage).',
+  energy: 2,
+  theme: 'attack',
+  target: 'enemy',
+  rarity: 'uncommon',
+  element: 'fire',
+  effects: [{ type: 'damage', amount: 12, element: 'fire' }],
+  upgradesTo: {
+    name: 'Fireball+',
+    description: 'Deal 16 fire damage. If target is Oiled: Explosion (2x damage).',
+    effects: [{ type: 'damage', amount: 16, element: 'fire' }],
+  },
+})
+
+registerCard({
+  id: 'inferno',
+  name: 'Inferno',
+  description: 'Deal 8 fire damage to ALL enemies.',
+  energy: 2,
+  theme: 'attack',
+  target: 'allEnemies',
+  rarity: 'rare',
+  element: 'fire',
+  effects: [{ type: 'damage', amount: 8, element: 'fire', target: 'allEnemies' }],
+  upgradesTo: {
+    name: 'Inferno+',
+    description: 'Deal 12 fire damage to ALL enemies.',
+    effects: [{ type: 'damage', amount: 12, element: 'fire', target: 'allEnemies' }],
+  },
+})
+
+// --- ICE ---
+registerCard({
+  id: 'frost_bolt',
+  name: 'Frost Bolt',
+  description: 'Deal 5 ice damage. Apply 2 Frozen.',
+  energy: 1,
+  theme: 'attack',
+  target: 'enemy',
+  rarity: 'common',
+  element: 'ice',
+  effects: [{ type: 'damage', amount: 5, element: 'ice' }],
+  upgradesTo: {
+    name: 'Frost Bolt+',
+    description: 'Deal 7 ice damage. Apply 2 Frozen.',
+    effects: [{ type: 'damage', amount: 7, element: 'ice' }],
+  },
+})
+
+registerCard({
+  id: 'drench',
+  name: 'Drench',
+  description: 'Apply 3 Wet to an enemy. Wet enemies are vulnerable to lightning and ice combos.',
+  energy: 0,
+  theme: 'skill',
+  target: 'enemy',
+  rarity: 'common',
+  element: 'ice',
+  effects: [{ type: 'applyPower', powerId: 'wet', amount: 3 }],
+  upgradesTo: {
+    name: 'Drench+',
+    description: 'Apply 5 Wet to an enemy.',
+    effects: [{ type: 'applyPower', powerId: 'wet', amount: 5 }],
+  },
+})
+
+registerCard({
+  id: 'flash_freeze',
+  name: 'Flash Freeze',
+  description: 'Deal 3 ice damage. If target is Wet: Freeze them permanently.',
+  energy: 1,
+  theme: 'attack',
+  target: 'enemy',
+  rarity: 'uncommon',
+  element: 'ice',
+  effects: [{ type: 'damage', amount: 3, element: 'ice' }],
+  upgradesTo: {
+    name: 'Flash Freeze+',
+    description: 'Deal 5 ice damage. If target is Wet: Freeze them permanently.',
+    effects: [{ type: 'damage', amount: 5, element: 'ice' }],
+  },
+})
+
+registerCard({
+  id: 'blizzard',
+  name: 'Blizzard',
+  description: 'Deal 4 ice damage to ALL enemies. Apply 2 Wet.',
+  energy: 2,
+  theme: 'attack',
+  target: 'allEnemies',
+  rarity: 'rare',
+  element: 'ice',
+  effects: [
+    { type: 'damage', amount: 4, element: 'ice', target: 'allEnemies' },
+    { type: 'applyPower', powerId: 'wet', amount: 2, target: 'allEnemies' },
+  ],
+  upgradesTo: {
+    name: 'Blizzard+',
+    description: 'Deal 6 ice damage to ALL enemies. Apply 3 Wet.',
+    effects: [
+      { type: 'damage', amount: 6, element: 'ice', target: 'allEnemies' },
+      { type: 'applyPower', powerId: 'wet', amount: 3, target: 'allEnemies' },
+    ],
+  },
+})
+
+// --- LIGHTNING ---
+registerCard({
+  id: 'spark',
+  name: 'Spark',
+  description: 'Deal 4 lightning damage. Apply 2 Charged.',
+  energy: 1,
+  theme: 'attack',
+  target: 'enemy',
+  rarity: 'common',
+  element: 'lightning',
+  effects: [{ type: 'damage', amount: 4, element: 'lightning' }],
+  upgradesTo: {
+    name: 'Spark+',
+    description: 'Deal 6 lightning damage. Apply 2 Charged.',
+    effects: [{ type: 'damage', amount: 6, element: 'lightning' }],
+  },
+})
+
+registerCard({
+  id: 'thunderbolt',
+  name: 'Thunderbolt',
+  description: 'Deal 10 lightning damage. If Wet: Chain to all enemies (1.5x).',
+  energy: 2,
+  theme: 'attack',
+  target: 'enemy',
+  rarity: 'uncommon',
+  element: 'lightning',
+  effects: [{ type: 'damage', amount: 10, element: 'lightning' }],
+  upgradesTo: {
+    name: 'Thunderbolt+',
+    description: 'Deal 14 lightning damage. If Wet: Chain to all enemies (1.5x).',
+    effects: [{ type: 'damage', amount: 14, element: 'lightning' }],
+  },
+})
+
+registerCard({
+  id: 'chain_lightning',
+  name: 'Chain Lightning',
+  description: 'Deal 6 lightning damage to ALL enemies.',
+  energy: 2,
+  theme: 'attack',
+  target: 'allEnemies',
+  rarity: 'rare',
+  element: 'lightning',
+  effects: [{ type: 'damage', amount: 6, element: 'lightning', target: 'allEnemies' }],
+  upgradesTo: {
+    name: 'Chain Lightning+',
+    description: 'Deal 9 lightning damage to ALL enemies.',
+    effects: [{ type: 'damage', amount: 9, element: 'lightning', target: 'allEnemies' }],
+  },
+})
+
+// --- VOID ---
+registerCard({
+  id: 'oil_slick',
+  name: 'Oil Slick',
+  description: 'Apply 3 Oiled to an enemy. Oiled enemies explode when hit with fire.',
+  energy: 0,
+  theme: 'skill',
+  target: 'enemy',
+  rarity: 'common',
+  element: 'void',
+  effects: [{ type: 'applyPower', powerId: 'oiled', amount: 3 }],
+  upgradesTo: {
+    name: 'Oil Slick+',
+    description: 'Apply 5 Oiled to an enemy.',
+    effects: [{ type: 'applyPower', powerId: 'oiled', amount: 5 }],
+  },
+})
+
+registerCard({
+  id: 'void_touch',
+  name: 'Void Touch',
+  description: 'Deal 6 void damage. Apply 2 Oiled.',
+  energy: 1,
+  theme: 'attack',
+  target: 'enemy',
+  rarity: 'common',
+  element: 'void',
+  effects: [{ type: 'damage', amount: 6, element: 'void' }],
+  upgradesTo: {
+    name: 'Void Touch+',
+    description: 'Deal 9 void damage. Apply 2 Oiled.',
+    effects: [{ type: 'damage', amount: 9, element: 'void' }],
+  },
+})
+
+registerCard({
+  id: 'void_eruption',
+  name: 'Void Eruption',
+  description: 'Deal 5 void damage to ALL enemies. Apply 2 Oiled to all.',
+  energy: 2,
+  theme: 'attack',
+  target: 'allEnemies',
+  rarity: 'rare',
+  element: 'void',
+  effects: [
+    { type: 'damage', amount: 5, element: 'void', target: 'allEnemies' },
+    { type: 'applyPower', powerId: 'oiled', amount: 2, target: 'allEnemies' },
+  ],
+  upgradesTo: {
+    name: 'Void Eruption+',
+    description: 'Deal 8 void damage to ALL enemies. Apply 3 Oiled to all.',
+    effects: [
+      { type: 'damage', amount: 8, element: 'void', target: 'allEnemies' },
+      { type: 'applyPower', powerId: 'oiled', amount: 3, target: 'allEnemies' },
+    ],
+  },
+})
+
+// --- PHYSICAL COMBO ENABLERS ---
+registerCard({
+  id: 'shatter',
+  name: 'Shatter',
+  description: 'Deal 7 physical damage. If Frozen: 1.5x damage, execute below 15% HP.',
+  energy: 1,
+  theme: 'attack',
+  target: 'enemy',
+  rarity: 'uncommon',
+  element: 'physical',
+  effects: [{ type: 'damage', amount: 7, element: 'physical' }],
+  upgradesTo: {
+    name: 'Shatter+',
+    description: 'Deal 10 physical damage. If Frozen: 1.5x damage, execute below 15% HP.',
+    effects: [{ type: 'damage', amount: 10, element: 'physical' }],
+  },
+})
+
+registerCard({
+  id: 'elemental_fury',
+  name: 'Elemental Fury',
+  description: 'Deal 3 damage of each element (physical, fire, ice, lightning, void).',
+  energy: 2,
+  theme: 'attack',
+  target: 'enemy',
+  rarity: 'rare',
+  effects: [
+    { type: 'damage', amount: 3, element: 'physical' },
+    { type: 'damage', amount: 3, element: 'fire' },
+    { type: 'damage', amount: 3, element: 'ice' },
+    { type: 'damage', amount: 3, element: 'lightning' },
+    { type: 'damage', amount: 3, element: 'void' },
+  ],
+  upgradesTo: {
+    name: 'Elemental Fury+',
+    description: 'Deal 5 damage of each element (physical, fire, ice, lightning, void).',
+    effects: [
+      { type: 'damage', amount: 5, element: 'physical' },
+      { type: 'damage', amount: 5, element: 'fire' },
+      { type: 'damage', amount: 5, element: 'ice' },
+      { type: 'damage', amount: 5, element: 'lightning' },
+      { type: 'damage', amount: 5, element: 'void' },
+    ],
+  },
+})

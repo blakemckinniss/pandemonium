@@ -6,6 +6,28 @@
 export type CardVariant = 'player' | 'hand' | 'enemy' | 'room'
 export type CardTheme = 'attack' | 'skill' | 'power' | 'curse' | 'status'
 
+// ============================================
+// ELEMENTAL SYSTEM
+// ============================================
+
+export type Element = 'physical' | 'fire' | 'ice' | 'lightning' | 'void'
+
+// Elemental statuses that can be applied to entities
+export type ElementalStatus = 'burning' | 'wet' | 'frozen' | 'charged' | 'oiled'
+
+// Elemental combo definitions
+export interface ElementalCombo {
+  trigger: [ElementalStatus, Element] // Status on target + incoming element
+  name: string
+  effect: 'chainDamage' | 'explosion' | 'shatter' | 'conduct' | 'flashFreeze'
+  damageMultiplier?: number
+  bonusDamage?: number
+  removeStatus?: boolean
+  applyStatus?: ElementalStatus
+  chainToAll?: boolean // For chain lightning
+  executeThreshold?: number // For shatter (kills if below X% HP)
+}
+
 // Intent system for enemies
 export type IntentType = 'attack' | 'defend' | 'buff' | 'debuff' | 'unknown'
 
@@ -191,6 +213,7 @@ export interface DamageEffect {
   type: 'damage'
   amount: EffectValue
   target?: EntityTarget
+  element?: Element // Elemental damage type (defaults to 'physical')
   piercing?: boolean
   triggerOnHit?: AtomicEffect[]
 }
@@ -446,6 +469,7 @@ export interface CardDefinition {
   description: string
   energy: number | EffectValue
   theme: CardTheme
+  element?: Element // Card's elemental affinity (for deck-building synergies)
   target: EntityTarget
   effects: AtomicEffect[]
   tags?: string[]
@@ -647,7 +671,7 @@ export type GameAction =
 // ============================================
 
 export type VisualEvent =
-  | { type: 'damage'; targetId: string; amount: number; variant?: 'poison' | 'piercing' }
+  | { type: 'damage'; targetId: string; amount: number; variant?: 'poison' | 'piercing' | 'combo' | 'chain' | 'execute'; element?: Element; comboName?: string }
   | { type: 'heal'; targetId: string; amount: number }
   | { type: 'block'; targetId: string; amount: number; variant?: 'barrier' }
   | { type: 'draw'; count: number }

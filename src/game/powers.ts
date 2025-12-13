@@ -3,6 +3,7 @@
 // ============================================
 
 import type { PowerDefinition, Entity } from '../types'
+import { ELEMENTAL_STATUS_POWERS } from './elements'
 
 // ============================================
 // POWER REGISTRY
@@ -450,6 +451,15 @@ registerPower({
     },
   ],
 })
+
+// ============================================
+// ELEMENTAL STATUS POWERS
+// ============================================
+
+// Register all elemental status effects
+for (const power of Object.values(ELEMENTAL_STATUS_POWERS)) {
+  registerPower(power)
+}
 
 // ============================================
 // DAMAGE/BLOCK MODIFIERS
