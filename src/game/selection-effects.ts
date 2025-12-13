@@ -11,8 +11,9 @@ import type {
   ScryEffect,
   TutorEffect,
   UpgradeEffect,
+  TransformEffect,
 } from '../types'
-import { getCardDefinition } from './cards'
+import { getCardDefinition, getAllCards } from './cards'
 import { resolveValue, resolveCardTarget } from '../lib/effects'
 
 /**
@@ -115,6 +116,84 @@ export function executeUpgrade(
       }
     }
   }
+}
+
+/**
+ * Execute transform effect - changes a card to a different card
+ */
+export function executeTransform(
+  draft: RunState,
+  effect: TransformEffect,
+  ctx: EffectContext
+): void {
+  if (!draft.combat) return
+
+  const cards = resolveCardTarget(effect.target, draft, ctx)
+
+  for (const card of cards) {
+    // Find the card in its current location
+    const locations = [
+      draft.combat.hand,
+      draft.combat.drawPile,
+      draft.combat.discardPile,
+    ]
+
+    for (const pile of locations) {
+      const found = pile.find((c) => c.uid === card.uid)
+      if (found) {
+        // Determine the new card ID
+        let newCardId: string | undefined
+
+        if (effect.toCardId) {
+          // Transform to specific card
+          newCardId = effect.toCardId
+        } else if (effect.toRandom) {
+          // Transform to random card from pool
+          newCardId = pickRandomCard(effect.toRandom.filter, effect.toRandom.pool)
+        }
+
+        if (newCardId && getCardDefinition(newCardId)) {
+          found.definitionId = newCardId
+          found.upgraded = effect.upgraded ?? false
+        }
+        break
+      }
+    }
+  }
+}
+
+/**
+ * Pick a random card from the registry matching filter/pool
+ */
+function pickRandomCard(filter?: CardFilter, pool?: 'all' | 'common' | 'uncommon' | 'rare'): string | undefined {
+  let candidates = getAllCards()
+
+  // Filter by rarity pool
+  if (pool && pool !== 'all') {
+    candidates = candidates.filter(c => c.rarity === pool)
+  }
+
+  // Filter by card filter
+  if (filter) {
+    candidates = candidates.filter(def => {
+      // Theme filter
+      if (filter.theme) {
+        const themes = Array.isArray(filter.theme) ? filter.theme : [filter.theme]
+        if (!themes.includes(def.theme)) return false
+      }
+      // Cost filter
+      const cost = typeof def.energy === 'number' ? def.energy : 0
+      if (filter.costMin !== undefined && cost < filter.costMin) return false
+      if (filter.costMax !== undefined && cost > filter.costMax) return false
+      return true
+    })
+  }
+
+  // Exclude curses and status cards from random pool
+  candidates = candidates.filter(c => c.theme !== 'curse' && c.theme !== 'status')
+
+  if (candidates.length === 0) return undefined
+  return candidates[Math.floor(Math.random() * candidates.length)].id
 }
 
 /**

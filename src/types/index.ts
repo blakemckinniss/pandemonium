@@ -269,6 +269,17 @@ export interface RetainEffect {
   target: CardTarget | FilteredCardTarget
 }
 
+export interface TransformEffect {
+  type: 'transform'
+  target: CardTarget | FilteredCardTarget
+  toCardId?: string // Specific card to transform into
+  toRandom?: {
+    filter?: CardFilter // Filter for random card selection
+    pool?: 'all' | 'common' | 'uncommon' | 'rare' // Card pool to pick from
+  }
+  upgraded?: boolean // Whether the new card should be upgraded
+}
+
 export interface ScryEffect {
   type: 'scry'
   amount: EffectValue // How many cards to look at from top of draw pile
@@ -359,6 +370,7 @@ export type AtomicEffect =
   | ShuffleEffect
   | UpgradeEffect
   | RetainEffect
+  | TransformEffect
   | ScryEffect
   | TutorEffect
   // Power

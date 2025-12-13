@@ -36,6 +36,7 @@ import {
   executeScry,
   executeTutor,
   executeUpgrade,
+  executeTransform,
   handleResolveScry,
   handleResolveTutor as resolveTutorSelection,
 } from './selection-effects'
@@ -371,6 +372,9 @@ function executeEffect(
       break
     case 'retain':
       executeRetain(draft, effect, ctx)
+      break
+    case 'transform':
+      executeTransform(draft, effect, ctx)
       break
     case 'scry':
       executeScry(draft, effect, ctx)

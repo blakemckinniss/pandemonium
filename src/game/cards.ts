@@ -723,3 +723,69 @@ registerCard({
     energy: 1,
   },
 })
+
+// ============================================
+// TRANSFORM CARDS
+// ============================================
+
+registerCard({
+  id: 'transmutation',
+  name: 'Transmutation',
+  description: 'Transform a random card in your hand into a random card.',
+  energy: 0,
+  theme: 'skill',
+  target: 'self',
+  rarity: 'uncommon',
+  effects: [
+    { type: 'transform', target: 'randomHand', toRandom: { pool: 'all' } },
+  ],
+  upgradesTo: {
+    name: 'Transmutation+',
+    description: 'Transform a random card in your hand into a random rare card.',
+    effects: [
+      { type: 'transform', target: 'randomHand', toRandom: { pool: 'rare' } },
+    ],
+  },
+})
+
+registerCard({
+  id: 'chrysalis',
+  name: 'Chrysalis',
+  description: 'Transform all Skills in your hand into random cards.',
+  energy: 2,
+  theme: 'skill',
+  target: 'self',
+  rarity: 'rare',
+  effects: [
+    { type: 'transform', target: { location: 'hand', filter: { theme: 'skill' } }, toRandom: { pool: 'all' } },
+  ],
+  upgradesTo: {
+    name: 'Chrysalis+',
+    description: 'Transform all Skills in your hand into random rare cards.',
+    effects: [
+      { type: 'transform', target: { location: 'hand', filter: { theme: 'skill' } }, toRandom: { pool: 'rare' } },
+    ],
+  },
+})
+
+registerCard({
+  id: 'metamorphosis',
+  name: 'Metamorphosis',
+  description: 'Add 3 random Attack cards to your hand. They cost 0 this turn.',
+  energy: 2,
+  theme: 'skill',
+  target: 'self',
+  rarity: 'rare',
+  effects: [
+    { type: 'addCard', cardId: 'strike', destination: 'hand', count: 3 },
+    { type: 'transform', target: { location: 'hand', filter: { theme: 'attack' }, amount: 3 }, toRandom: { filter: { theme: 'attack' } } },
+  ],
+  upgradesTo: {
+    name: 'Metamorphosis+',
+    description: 'Add 5 random Attack cards to your hand. They cost 0 this turn.',
+    effects: [
+      { type: 'addCard', cardId: 'strike', destination: 'hand', count: 5 },
+      { type: 'transform', target: { location: 'hand', filter: { theme: 'attack' }, amount: 5 }, toRandom: { filter: { theme: 'attack' } } },
+    ],
+  },
+})

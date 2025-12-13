@@ -71,6 +71,9 @@ Card manipulation:
 - { "type": "tutor", "from": "discardPile", "destination": "hand", "shuffle": true } - Retrieve from discard, shuffle deck
 - { "type": "upgrade", "target": "randomHand" } - Upgrade a random card in hand
 - { "type": "upgrade", "target": "hand" } - Upgrade all cards in hand
+- { "type": "transform", "target": "randomHand", "toRandom": { "pool": "all" } } - Transform a random card to another card
+- { "type": "transform", "target": "randomHand", "toRandom": { "pool": "rare" } } - Transform to a random rare card
+- { "type": "transform", "target": "randomHand", "toCardId": "strike" } - Transform to a specific card
 
 Meta effects:
 - { "type": "repeat", "times": N, "effects": [...] } - Repeat effects N times
