@@ -312,6 +312,22 @@ export function GameScreen({ deckId, onReturnToMenu }: GameScreenProps) {
           console.log(`Auto-play: ${cardDef?.name ?? event.cardId} from ${event.fromPile}`)
           break
         }
+        case 'gold': {
+          // Visual feedback for gold gain/loss
+          const playerEl = containerRef.current?.querySelector('[data-entity="player"]')
+          if (playerEl) {
+            gsap.effects.pulse(playerEl, {
+              color: event.delta > 0
+                ? 'oklch(0.75 0.18 85)' // gold gain = bright gold
+                : 'oklch(0.5 0.1 25)',  // gold loss = dim red
+            })
+            if (event.delta > 0) {
+              emitParticle(playerEl, 'energy')
+            }
+          }
+          console.log(`Gold: ${event.delta > 0 ? '+' : ''}${event.delta}`)
+          break
+        }
       }
     }
 

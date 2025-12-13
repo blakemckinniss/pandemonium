@@ -1633,3 +1633,91 @@ registerCard({
     ],
   },
 })
+
+// ============================================
+// GOLD & DISCOVERY CARDS
+// ============================================
+
+registerCard({
+  id: 'hand_of_greed',
+  name: 'Hand of Greed',
+  description: 'Deal 20 damage. If this kills an enemy, gain 25 Gold.',
+  energy: 2,
+  theme: 'attack',
+  target: 'enemy',
+  rarity: 'rare',
+  effects: [
+    {
+      type: 'conditional',
+      condition: { type: 'health', target: 'enemy', compare: 'current', op: '<=', value: 20 },
+      then: [
+        { type: 'damage', amount: 20 },
+        { type: 'gold', amount: 25, operation: 'gain' },
+      ],
+      else: [
+        { type: 'damage', amount: 20 },
+      ],
+    },
+  ],
+  upgradesTo: {
+    name: 'Hand of Greed+',
+    description: 'Deal 25 damage. If this kills an enemy, gain 30 Gold.',
+    effects: [
+      {
+        type: 'conditional',
+        condition: { type: 'health', target: 'enemy', compare: 'current', op: '<=', value: 25 },
+        then: [
+          { type: 'damage', amount: 25 },
+          { type: 'gold', amount: 30, operation: 'gain' },
+        ],
+        else: [
+          { type: 'damage', amount: 25 },
+        ],
+      },
+    ],
+  },
+})
+
+registerCard({
+  id: 'discovery',
+  name: 'Discovery',
+  description: 'Add a random card to your hand. It costs 0 this turn. Exhaust.',
+  energy: 1,
+  theme: 'skill',
+  target: 'self',
+  rarity: 'uncommon',
+  effects: [
+    { type: 'discover', count: 3, destination: 'hand' },
+    { type: 'exhaust', target: 'thisCard' },
+  ],
+  upgradesTo: {
+    name: 'Discovery+',
+    description: 'Add 2 random cards to your hand. They cost 0 this turn. Exhaust.',
+    effects: [
+      { type: 'discover', count: 3, destination: 'hand', copies: 2 },
+      { type: 'exhaust', target: 'thisCard' },
+    ],
+  },
+})
+
+registerCard({
+  id: 'jack_of_all_trades',
+  name: 'Jack of All Trades',
+  description: 'Add a random Uncommon card to your hand. Exhaust.',
+  energy: 0,
+  theme: 'skill',
+  target: 'self',
+  rarity: 'uncommon',
+  effects: [
+    { type: 'discover', count: 1, pool: 'uncommon', destination: 'hand' },
+    { type: 'exhaust', target: 'thisCard' },
+  ],
+  upgradesTo: {
+    name: 'Jack of All Trades+',
+    description: 'Add a random Rare card to your hand. Exhaust.',
+    effects: [
+      { type: 'discover', count: 1, pool: 'rare', destination: 'hand' },
+      { type: 'exhaust', target: 'thisCard' },
+    ],
+  },
+})

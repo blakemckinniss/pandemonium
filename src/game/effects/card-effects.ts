@@ -3,7 +3,7 @@ import type { RunState, EffectContext, EffectValue, CardTarget, FilteredCardTarg
 import { resolveValue, resolveCardTarget } from '../../lib/effects'
 import { generateUid } from '../../lib/utils'
 import { emitVisual, drawCardsInternal, shuffleArray } from '../handlers/shared'
-import { getCardDefinition } from '../cards'
+import { getCardDefinition, getAllCards } from '../cards'
 
 // Forward declaration for recursive effect execution
 let executeEffect: (draft: RunState, effect: AtomicEffect, ctx: EffectContext) => void
@@ -378,5 +378,114 @@ export function executePlayTopCard(
     }
 
     emitVisual(draft, { type: 'playTopCard', cardId: card.definitionId, fromPile: effect.pile })
+  }
+}
+
+export function executeGold(
+  draft: RunState,
+  effect: { type: 'gold'; amount: EffectValue; operation: 'gain' | 'lose' | 'set' },
+  ctx: EffectContext
+): void {
+  const amount = resolveValue(effect.amount, draft, ctx)
+
+  switch (effect.operation) {
+    case 'gain':
+      draft.gold += amount
+      break
+    case 'lose':
+      draft.gold = Math.max(0, draft.gold - amount)
+      break
+    case 'set':
+      draft.gold = Math.max(0, amount)
+      break
+  }
+
+  emitVisual(draft, { type: 'gold', delta: effect.operation === 'lose' ? -amount : amount })
+}
+
+export function executeDiscover(
+  draft: RunState,
+  effect: {
+    type: 'discover'
+    count: number
+    filter?: import('../../types').CardFilter
+    pool?: 'all' | 'common' | 'uncommon' | 'rare' | 'attack' | 'skill' | 'power'
+    destination?: 'hand' | 'drawPile' | 'discardPile'
+    copies?: number
+    exhaust?: boolean
+  },
+  _ctx: EffectContext
+): void {
+  if (!draft.combat) return
+
+  // Get all card definitions that match the filter
+  const allCards = getAllCards()
+
+  // Filter by pool
+  let candidates = allCards.filter((card) => {
+    // Exclude status and curse cards by default
+    if (card.rarity === 'starter') return false
+
+    // Apply pool filter
+    if (effect.pool) {
+      switch (effect.pool) {
+        case 'common':
+          return card.rarity === 'common'
+        case 'uncommon':
+          return card.rarity === 'uncommon'
+        case 'rare':
+          return card.rarity === 'rare'
+        case 'attack':
+          return card.theme === 'attack'
+        case 'skill':
+          return card.theme === 'skill'
+        case 'power':
+          return card.theme === 'power'
+        case 'all':
+        default:
+          return true
+      }
+    }
+    return true
+  })
+
+  // Apply additional filter if provided
+  if (effect.filter?.theme) {
+    const themes = Array.isArray(effect.filter.theme) ? effect.filter.theme : [effect.filter.theme]
+    candidates = candidates.filter((c) => themes.includes(c.theme))
+  }
+
+  // Shuffle and pick N
+  const shuffled = shuffleArray(candidates)
+  const choices = shuffled.slice(0, effect.count)
+
+  if (choices.length === 0) return
+
+  // For now, auto-select the first choice (TODO: implement UI selection)
+  // In a full implementation, this would set a pendingSelection state
+  const chosenCard = choices[0]
+  const destination = effect.destination ?? 'hand'
+  const copies = effect.copies ?? 1
+
+  for (let i = 0; i < copies; i++) {
+    const instance: CardInstance = {
+      uid: generateUid(),
+      definitionId: chosenCard.id,
+      upgraded: false,
+    }
+
+    switch (destination) {
+      case 'hand':
+        draft.combat.hand.push(instance)
+        break
+      case 'drawPile':
+        draft.combat.drawPile.push(instance)
+        break
+      case 'discardPile':
+        draft.combat.discardPile.push(instance)
+        break
+    }
+
+    emitVisual(draft, { type: 'addCard', cardId: chosenCard.id, destination, count: 1 })
   }
 }

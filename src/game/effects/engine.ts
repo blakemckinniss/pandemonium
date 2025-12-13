@@ -27,6 +27,8 @@ import {
   executeModifyCost,
   executeReplayCard,
   executePlayTopCard,
+  executeGold,
+  executeDiscover,
   setCardEffectsExecuteEffect,
 } from './card-effects'
 import {
@@ -139,6 +141,12 @@ export function executeEffect(
       break
     case 'playTopCard':
       executePlayTopCard(draft, effect, ctx)
+      break
+    case 'gold':
+      executeGold(draft, effect, ctx)
+      break
+    case 'discover':
+      executeDiscover(draft, effect, ctx)
       break
     case 'conditional':
       executeConditional(draft, effect, ctx)

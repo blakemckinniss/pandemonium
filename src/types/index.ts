@@ -417,6 +417,26 @@ export interface PlayTopCardEffect {
   exhaust?: boolean // If true, exhaust instead of discard
 }
 
+// --- RESOURCE EFFECTS ---
+
+export interface GoldEffect {
+  type: 'gold'
+  amount: EffectValue
+  operation: 'gain' | 'lose' | 'set'
+}
+
+// --- DISCOVERY EFFECTS ---
+
+export interface DiscoverEffect {
+  type: 'discover'
+  count: number // How many cards to show (usually 3)
+  filter?: CardFilter // Filter for card pool
+  pool?: 'all' | 'common' | 'uncommon' | 'rare' | 'attack' | 'skill' | 'power'
+  destination?: 'hand' | 'drawPile' | 'discardPile' // Where chosen card goes (default hand)
+  copies?: number // How many to add (default 1)
+  exhaust?: boolean // If true, the added card exhausts when played
+}
+
 // --- META EFFECTS (Composition) ---
 
 export interface ConditionalEffect {
@@ -462,6 +482,7 @@ export type AtomicEffect =
   | SetHealthEffect
   // Resource
   | EnergyEffect
+  | GoldEffect
   // Card
   | DrawEffect
   | DiscardEffect
@@ -476,6 +497,7 @@ export type AtomicEffect =
   | CopyCardEffect
   | PutOnDeckEffect
   | ModifyCostEffect
+  | DiscoverEffect
   // Power
   | ApplyPowerEffect
   | RemovePowerEffect
@@ -780,6 +802,7 @@ export type VisualEvent =
   | { type: 'powerApply'; targetId: string; powerId: string; amount: number }
   | { type: 'powerRemove'; targetId: string; powerId: string }
   | { type: 'energy'; delta: number }
+  | { type: 'gold'; delta: number }
   | { type: 'shuffle' }
   | { type: 'costModify'; cardUids: string[]; delta: number }
   | { type: 'conditionalTrigger'; branch: 'then' | 'else' }
