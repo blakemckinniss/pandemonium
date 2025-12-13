@@ -232,6 +232,81 @@ registerPower({
   ],
 })
 
+registerPower({
+  id: 'blockRetaliation',
+  name: 'Block Retaliation',
+  description: 'When you gain Block, deal {amount} damage to a random enemy.',
+  stackBehavior: 'intensity',
+  triggers: [
+    {
+      event: 'onBlock',
+      effects: [
+        {
+          type: 'damage',
+          amount: { type: 'scaled', base: 0, perUnit: 1, source: 'powerStacks' },
+          target: 'randomEnemy',
+        },
+      ],
+    },
+  ],
+})
+
+registerPower({
+  id: 'lifelink',
+  name: 'Lifelink',
+  description: 'When you attack, heal {amount} HP.',
+  stackBehavior: 'intensity',
+  triggers: [
+    {
+      event: 'onAttack',
+      effects: [
+        {
+          type: 'heal',
+          amount: { type: 'scaled', base: 0, perUnit: 1, source: 'powerStacks' },
+          target: 'self',
+        },
+      ],
+    },
+  ],
+})
+
+registerPower({
+  id: 'energizeOnKill',
+  name: 'Energize on Kill',
+  description: 'When you kill an enemy, gain {amount} Energy.',
+  stackBehavior: 'intensity',
+  triggers: [
+    {
+      event: 'onKill',
+      effects: [
+        {
+          type: 'energy',
+          amount: { type: 'scaled', base: 0, perUnit: 1, source: 'powerStacks' },
+          operation: 'gain',
+        },
+      ],
+    },
+  ],
+})
+
+registerPower({
+  id: 'drawOnKill',
+  name: 'Draw on Kill',
+  description: 'When you kill an enemy, draw {amount} card(s).',
+  stackBehavior: 'intensity',
+  triggers: [
+    {
+      event: 'onKill',
+      effects: [
+        {
+          type: 'draw',
+          amount: { type: 'scaled', base: 0, perUnit: 1, source: 'powerStacks' },
+        },
+      ],
+    },
+  ],
+})
+
 // ============================================
 // DAMAGE/BLOCK MODIFIERS
 // ============================================

@@ -412,6 +412,11 @@ function executeDamage(
       }
     }
 
+    // Trigger onAttack for attacker
+    if (attacker && damageDealt > 0) {
+      executePowerTriggers(draft, attacker, 'onAttack', targetId)
+    }
+
     // Trigger onAttacked/onDamaged for defender
     if (defender && damageDealt > 0) {
       executePowerTriggers(draft, defender, 'onAttacked', ctx.source)
@@ -915,6 +920,9 @@ function applyDamageInternal(
     if (enemy.currentHealth <= 0) {
       combat.enemies = combat.enemies.filter((e) => e.id !== targetId)
       draft.stats.enemiesKilled++
+
+      // Trigger onKill for player
+      executePowerTriggers(draft, combat.player, 'onKill')
 
       if (combat.enemies.length === 0) {
         combat.phase = 'victory'

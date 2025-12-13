@@ -47,6 +47,10 @@ Powers (duration-based effects):
 - { "type": "applyPower", "powerId": "dexterity", "amount": N, "target": "self" } - Gain N more block
 - { "type": "applyPower", "powerId": "thorns", "amount": N, "target": "self" } - Deal N damage when hit
 - { "type": "applyPower", "powerId": "regen", "amount": N, "target": "self" } - Heal N at turn end
+- { "type": "applyPower", "powerId": "blockRetaliation", "amount": N, "target": "self" } - When you gain Block, deal N damage to random enemy
+- { "type": "applyPower", "powerId": "lifelink", "amount": N, "target": "self" } - When you attack, heal N HP
+- { "type": "applyPower", "powerId": "energizeOnKill", "amount": N, "target": "self" } - When you kill an enemy, gain N Energy
+- { "type": "applyPower", "powerId": "drawOnKill", "amount": N, "target": "self" } - When you kill an enemy, draw N cards
 
 Card manipulation:
 - { "type": "discard", "target": "randomHand", "amount": N } - Discard N random cards
