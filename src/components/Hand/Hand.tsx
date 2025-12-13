@@ -63,6 +63,7 @@ export function Hand({ cards, energy, onPlayCard, onPositionsUpdate }: HandProps
           <div
             key={card.uid}
             className="HandCard"
+            data-card-uid={card.uid}
             data-fan-rotation={fanRotation}
           >
             <Card
