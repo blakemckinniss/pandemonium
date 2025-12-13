@@ -1,6 +1,6 @@
 // Card manipulation effects: draw, discard, exhaust, addCard, shuffle, retain, energy, replay
 import type { RunState, EffectContext, EffectValue, CardTarget, FilteredCardTarget, CardInstance, AtomicEffect } from '../../types'
-import { resolveValue, resolveCardTarget, getEffectiveEnergyCostNumber } from '../../lib/effects'
+import { resolveValue, resolveCardTarget } from '../../lib/effects'
 import { generateUid } from '../../lib/utils'
 import { emitVisual, drawCardsInternal, shuffleArray } from '../handlers/shared'
 import { getCardDefinition } from '../cards'

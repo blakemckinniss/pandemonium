@@ -1,7 +1,7 @@
 // Card management handlers
 import type { RunState, Entity, EffectContext } from '../../types'
 import { getCardDefinition } from '../cards'
-import { resolveValue, getEffectiveEnergyCostNumber } from '../../lib/effects'
+import { getEffectiveEnergyCostNumber } from '../../lib/effects'
 import { drawCardsInternal } from './shared'
 
 // Forward declarations - will be injected to avoid circular deps
@@ -59,6 +59,7 @@ export function handlePlayCard(
   // Track stats
   draft.stats.cardsPlayed++
   combat.cardsPlayedThisTurn++
+  combat.lastPlayedCard = cardInstance
 
   // Build effect context
   const ctx: EffectContext = {

@@ -69,6 +69,7 @@ export type CardTarget =
   | 'rightmostHand'
   | 'topDraw'
   | 'thisCard'
+  | 'lastPlayed'
 
 export interface CardFilter {
   theme?: CardTheme | CardTheme[]
@@ -397,15 +398,16 @@ export interface TransferPowerEffect {
 export interface ReplayCardEffect {
   type: 'replayCard'
   target: CardTarget | FilteredCardTarget
+  times?: EffectValue // Number of times to replay (default 1)
   free?: boolean // If true, don't pay energy cost
   exhaustAfter?: boolean // If true, exhaust the card after playing
 }
 
 export interface PlayTopCardEffect {
   type: 'playTopCard'
-  from: 'drawPile' | 'discardPile'
-  free?: boolean
-  exhaustAfter?: boolean
+  pile: 'drawPile' | 'discardPile'
+  count?: EffectValue // Number of cards to play (default 1)
+  exhaust?: boolean // If true, exhaust instead of discard
 }
 
 // --- META EFFECTS (Composition) ---
@@ -690,6 +692,7 @@ export interface CombatState {
   discardPile: CardInstance[]
   exhaustPile: CardInstance[]
   cardsPlayedThisTurn: number
+  lastPlayedCard?: CardInstance // Most recently played card this turn
   visualQueue: VisualEvent[]
   pendingSelection?: PendingSelection
 }
@@ -719,6 +722,7 @@ export interface RunStats {
 
 export interface EffectContext {
   source: 'player' | string
+  cardUid?: string // The card being played/replayed
   cardTarget?: string
   currentTarget?: string
   powerId?: string
@@ -770,6 +774,8 @@ export type VisualEvent =
   | { type: 'costModify'; cardUids: string[]; delta: number }
   | { type: 'conditionalTrigger'; branch: 'then' | 'else' }
   | { type: 'repeatEffect'; times: number; current: number }
+  | { type: 'replay'; cardUid: string; times: number }
+  | { type: 'playTopCard'; cardId: string; fromPile: 'drawPile' | 'discardPile' }
 
 // ============================================
 // COMBAT NUMBERS (FCT)

@@ -417,6 +417,8 @@ export function resolveCardTarget(
     case 'thisCard':
       // Should be handled by caller with context
       return []
+    case 'lastPlayed':
+      return combat.lastPlayedCard ? [combat.lastPlayedCard] : []
     default:
       return []
   }
