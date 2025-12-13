@@ -1,0 +1,139 @@
+@import "tailwindcss";
+
+@theme {
+  --color-damage: oklch(0.6 0.25 25);
+  --color-heal: oklch(0.65 0.2 145);
+  --color-block: oklch(0.6 0.15 250);
+  --color-energy: oklch(0.75 0.15 85);
+
+  --color-card-attack: oklch(0.45 0.2 25);
+  --color-card-skill: oklch(0.45 0.15 250);
+  --color-card-power: oklch(0.45 0.2 290);
+
+  --color-surface: oklch(0.15 0.02 280);
+  --color-surface-alt: oklch(0.2 0.02 280);
+  --color-border: oklch(0.3 0.02 280);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: oklch(0.12 0.02 280);
+  color: oklch(0.9 0 0);
+  font-family: system-ui, -apple-system, sans-serif;
+  min-height: 100vh;
+  overflow: hidden;
+}
+
+#root {
+  min-height: 100vh;
+}
+
+/* Card base styles */
+.Card {
+  --card-width: 120px;
+  --card-height: 168px;
+
+  width: var(--card-width);
+  height: var(--card-height);
+  border-radius: 8px;
+  background: var(--color-surface);
+  border: 2px solid var(--color-border);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  cursor: pointer;
+  user-select: none;
+  position: relative;
+}
+
+.Card--attack { border-color: var(--color-card-attack); }
+.Card--skill { border-color: var(--color-card-skill); }
+.Card--power { border-color: var(--color-card-power); }
+
+.Card.is-playable {
+  box-shadow: 0 0 12px oklch(0.7 0.15 85 / 0.5);
+}
+
+.Card.is-dragging {
+  z-index: 100;
+  transform: scale(1.1);
+  box-shadow: 0 8px 32px oklch(0 0 0 / 0.5);
+}
+
+.Card.is-disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Field entity cards (larger) */
+.Card--player,
+.Card--enemy {
+  --card-width: 140px;
+  --card-height: 200px;
+}
+
+.Card--room {
+  --card-width: 160px;
+  --card-height: 100px;
+}
+
+/* Target highlighting */
+.Target.is-dragOver {
+  outline: 3px solid var(--color-energy);
+  outline-offset: 4px;
+}
+
+/* Health bar */
+.HealthBar {
+  height: 8px;
+  background: oklch(0.2 0 0);
+  border-radius: 4px;
+  overflow: hidden;
+  position: relative;
+}
+
+.HealthBar-fill {
+  height: 100%;
+  background: linear-gradient(to right, var(--color-damage), oklch(0.5 0.2 25));
+  transition: width 0.3s ease-out;
+}
+
+.HealthBar-block {
+  position: absolute;
+  top: 0;
+  right: 0;
+  height: 100%;
+  background: var(--color-block);
+}
+
+/* Combat numbers (FCT) */
+.CombatNumber {
+  position: absolute;
+  font-weight: bold;
+  font-size: 1.5rem;
+  pointer-events: none;
+  text-shadow: 2px 2px 4px oklch(0 0 0 / 0.8);
+}
+
+.CombatNumber--damage { color: var(--color-damage); }
+.CombatNumber--heal { color: var(--color-heal); }
+.CombatNumber--block { color: var(--color-block); }
+
+/* Energy display */
+.EnergyOrb {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 30% 30%, var(--color-energy), oklch(0.4 0.15 85));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  font-size: 1.25rem;
+  color: oklch(0.1 0 0);
+  box-shadow: 0 0 16px var(--color-energy);
+}
