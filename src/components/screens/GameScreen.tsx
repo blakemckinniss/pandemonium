@@ -28,6 +28,7 @@ export function GameScreen() {
   const prevHealthRef = useRef<Record<string, number>>({})
   const runStartRef = useRef<Date>(new Date())
   const runRecordedRef = useRef(false)
+  const lastTurnRef = useRef<number>(0)
 
   // Meta store for progression
   const metaStore = useMetaStore()
@@ -37,15 +38,24 @@ export function GameScreen() {
     setState(createNewRun('warrior'))
   }, [])
 
-  // Animate cards when hand changes
+  // Animate cards only when a new turn starts (not on every hand change)
   useEffect(() => {
     if (!handRef.current || !state?.combat) return
 
-    const cards = handRef.current.querySelectorAll('.Card')
-    if (cards.length > 0) {
-      gsap.effects.dealCards(cards, { stagger: 0.08 })
-    }
-  }, [state?.combat?.hand.length])
+    const currentTurn = state.combat.turn
+    if (currentTurn === lastTurnRef.current) return
+
+    // New turn started - animate dealing cards
+    lastTurnRef.current = currentTurn
+
+    // Small delay to let React render the cards first
+    requestAnimationFrame(() => {
+      const cards = handRef.current?.querySelectorAll('.Card')
+      if (cards && cards.length > 0) {
+        gsap.effects.dealCards(cards, { stagger: 0.08 })
+      }
+    })
+  }, [state?.combat?.turn, state?.combat?.hand.length])
 
   // Track health changes for combat numbers
   useEffect(() => {
@@ -219,8 +229,9 @@ export function GameScreen() {
       )
       newState = applyAction(newState, { type: 'startTurn' })
 
-      // Reset health tracking
+      // Reset tracking refs for new combat
       prevHealthRef.current = {}
+      lastTurnRef.current = 0
 
       return newState
     })
@@ -374,6 +385,7 @@ export function GameScreen() {
     prevHealthRef.current = {}
     runStartRef.current = new Date()
     runRecordedRef.current = false
+    lastTurnRef.current = 0
     setCombatNumbers([])
     setPendingUnlocks([])
     setCurrentRoomId(null)
@@ -482,11 +494,21 @@ export function GameScreen() {
       </div>
 
       {/* Top-left room info */}
-      <div className="absolute top-4 left-4 z-10">
+      <div className="absolute top-4 left-4 z-10 flex flex-col gap-2">
         <div className="Chip">
           <Icon icon="game-icons:dungeon-gate" className="text-gray-400" />
           <span>{currentRoom?.name ?? 'Unknown Room'}</span>
           <span className="text-gray-500 ml-1">({deckRemaining} left)</span>
+        </div>
+        <div className="flex gap-2">
+          <div className="Chip">
+            <Icon icon="game-icons:card-pickup" className="text-gray-400" />
+            <span>{combat.drawPile.length}</span>
+          </div>
+          <div className="Chip">
+            <Icon icon="game-icons:card-discard" className="text-gray-400" />
+            <span>{combat.discardPile.length}</span>
+          </div>
         </div>
       </div>
 
