@@ -757,13 +757,13 @@ registerCard({
   target: 'self',
   rarity: 'rare',
   effects: [
-    { type: 'transform', target: { location: 'hand', filter: { theme: 'skill' } }, toRandom: { pool: 'all' } },
+    { type: 'transform', target: { from: 'hand', filter: { theme: 'skill' } }, toRandom: { pool: 'all' } },
   ],
   upgradesTo: {
     name: 'Chrysalis+',
     description: 'Transform all Skills in your hand into random rare cards.',
     effects: [
-      { type: 'transform', target: { location: 'hand', filter: { theme: 'skill' } }, toRandom: { pool: 'rare' } },
+      { type: 'transform', target: { from: 'hand', filter: { theme: 'skill' } }, toRandom: { pool: 'rare' } },
     ],
   },
 })
@@ -778,14 +778,14 @@ registerCard({
   rarity: 'rare',
   effects: [
     { type: 'addCard', cardId: 'strike', destination: 'hand', count: 3 },
-    { type: 'transform', target: { location: 'hand', filter: { theme: 'attack' }, amount: 3 }, toRandom: { filter: { theme: 'attack' } } },
+    { type: 'transform', target: { from: 'hand', filter: { theme: 'attack' }, count: 3 }, toRandom: { filter: { theme: 'attack' } } },
   ],
   upgradesTo: {
     name: 'Metamorphosis+',
     description: 'Add 5 random Attack cards to your hand. They cost 0 this turn.',
     effects: [
       { type: 'addCard', cardId: 'strike', destination: 'hand', count: 5 },
-      { type: 'transform', target: { location: 'hand', filter: { theme: 'attack' }, amount: 5 }, toRandom: { filter: { theme: 'attack' } } },
+      { type: 'transform', target: { from: 'hand', filter: { theme: 'attack' }, count: 5 }, toRandom: { filter: { theme: 'attack' } } },
     ],
   },
 })

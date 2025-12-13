@@ -125,7 +125,12 @@ export interface GeneratedScaledValue {
   source: ScalingSource
 }
 
-export type EffectValue = number | FixedValue | RangeValue | ScaledValue | GeneratedScaledValue
+// For effects that use the power's stack amount as the value
+export interface PowerAmountValue {
+  type: 'powerAmount'
+}
+
+export type EffectValue = number | FixedValue | RangeValue | ScaledValue | GeneratedScaledValue | PowerAmountValue
 
 // ============================================
 // CONDITION SYSTEM (Nestable)
@@ -547,6 +552,12 @@ export interface HeroDefinition {
   starterDeck: string[]
 }
 
+// Runtime hero state during a run (extends definition with mutable properties)
+export interface HeroState extends HeroDefinition {
+  currentHealth: number
+  maxHealth: number
+}
+
 // ============================================
 // ROOM / DUNGEON
 // ============================================
@@ -612,7 +623,7 @@ export interface CombatState {
 export interface RunState {
   gamePhase: GamePhase
   floor: number
-  hero: HeroDefinition
+  hero: HeroState
   deck: CardInstance[]
   combat: CombatState | null
   dungeonDeck: RoomCard[]

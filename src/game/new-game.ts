@@ -116,7 +116,11 @@ export function createNewRun(
   return {
     gamePhase: 'roomSelect',
     floor: 1,
-    hero,
+    hero: {
+      ...hero,
+      currentHealth: hero.health,
+      maxHealth: hero.health,
+    },
     deck,
     combat: null,
     dungeonDeck: remaining,

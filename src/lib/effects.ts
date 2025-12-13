@@ -47,6 +47,10 @@ export function resolveValue(
       const sourceValue = getScalingSourceValue(value.source, state, ctx)
       return value.baseRange[0] + value.perUnit * sourceValue
     }
+
+    case 'powerAmount':
+      // Use the power's stack amount from context
+      return ctx.powerStacks ?? 0
   }
 }
 
@@ -441,6 +445,9 @@ export function resolveRangeValue(value: EffectValue, rng?: () => number): numbe
         value.baseRange[0] +
         Math.floor(random() * (value.baseRange[1] - value.baseRange[0] + 1))
       )
+    case 'powerAmount':
+      // PowerAmount is runtime-dependent, return 1 as fallback for generation
+      return 1
   }
 }
 

@@ -4,10 +4,10 @@ import { Card } from '../Card/Card'
 import { getEffectiveCardDef } from '../../game/cards'
 import { getEnergyCost } from '../../lib/effects'
 import { gsap } from '../../lib/animations'
-import type { CardInstance, HeroDefinition } from '../../types'
+import type { CardInstance, HeroState } from '../../types'
 
 interface CampfireScreenProps {
-  hero: HeroDefinition
+  hero: HeroState
   deck: CardInstance[]
   onRest: () => void
   onSmith: (cardUid: string) => void
