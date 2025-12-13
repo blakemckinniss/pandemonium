@@ -1,7 +1,7 @@
 // Card management handlers
 import type { RunState, Entity, EffectContext } from '../../types'
 import { getCardDefinition } from '../cards'
-import { resolveValue } from '../../lib/effects'
+import { resolveValue, getEffectiveEnergyCostNumber } from '../../lib/effects'
 import { drawCardsInternal } from './shared'
 
 // Forward declarations - will be injected to avoid circular deps
@@ -36,10 +36,16 @@ export function handlePlayCard(
   const cardDef = getCardDefinition(cardInstance.definitionId)
   if (!cardDef) return
 
-  // Resolve energy cost
-  const energyCost = typeof cardDef.energy === 'number'
-    ? cardDef.energy
-    : resolveValue(cardDef.energy, draft, { source: 'player', cardTarget: targetId })
+  // Resolve energy cost with instance modifiers
+  let energyCost = getEffectiveEnergyCostNumber(cardDef.energy, cardInstance)
+
+  // For X-cost cards, spend all energy
+  const isXCost = typeof cardDef.energy !== 'number' &&
+    cardDef.energy.type === 'scaled' &&
+    cardDef.energy.source === 'energy'
+  if (isXCost) {
+    energyCost = combat.player.energy
+  }
 
   // Check energy
   if (combat.player.energy < energyCost) return

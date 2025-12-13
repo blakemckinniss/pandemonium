@@ -452,7 +452,7 @@ export function resolveRangeValue(value: EffectValue, rng?: () => number): numbe
 }
 
 /**
- * Get a display-friendly energy cost (for UI).
+ * Get base energy cost from card definition (ignores instance modifiers).
  * Returns 'X' for scaled costs, otherwise the number.
  */
 export function getEnergyCost(energy: number | EffectValue): number | 'X' {
@@ -464,7 +464,7 @@ export function getEnergyCost(energy: number | EffectValue): number | 'X' {
 }
 
 /**
- * Get energy cost as a number for comparison.
+ * Get base energy cost as a number (ignores instance modifiers).
  * X-cost cards return 0 (can always be played).
  */
 export function getEnergyCostNumber(energy: number | EffectValue): number {
@@ -473,4 +473,36 @@ export function getEnergyCostNumber(energy: number | EffectValue): number {
   if (energy.type === 'fixed') return energy.value
   if (energy.type === 'range') return energy.min
   return 0
+}
+
+/**
+ * Get effective energy cost for a card instance (base + costModifier).
+ * Applies any temporary cost modifications from effects.
+ */
+export function getEffectiveEnergyCost(
+  baseCost: number | EffectValue,
+  cardInstance: CardInstance
+): number | 'X' {
+  const base = getEnergyCost(baseCost)
+  if (base === 'X') return 'X'
+
+  const modifier = cardInstance.costModifier ?? 0
+  return Math.max(0, base + modifier)
+}
+
+/**
+ * Get effective energy cost as a number for comparison.
+ */
+export function getEffectiveEnergyCostNumber(
+  baseCost: number | EffectValue,
+  cardInstance: CardInstance
+): number {
+  const base = getEnergyCostNumber(baseCost)
+  if (base === 0 && typeof baseCost !== 'number') {
+    // X-cost card - always playable
+    return 0
+  }
+
+  const modifier = cardInstance.costModifier ?? 0
+  return Math.max(0, base + modifier)
 }

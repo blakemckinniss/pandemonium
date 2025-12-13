@@ -1,8 +1,16 @@
-// Card manipulation effects: draw, discard, exhaust, addCard, shuffle, retain, energy
-import type { RunState, EffectContext, EffectValue, CardTarget, FilteredCardTarget, CardInstance } from '../../types'
-import { resolveValue, resolveCardTarget } from '../../lib/effects'
+// Card manipulation effects: draw, discard, exhaust, addCard, shuffle, retain, energy, replay
+import type { RunState, EffectContext, EffectValue, CardTarget, FilteredCardTarget, CardInstance, AtomicEffect } from '../../types'
+import { resolveValue, resolveCardTarget, getEffectiveEnergyCostNumber } from '../../lib/effects'
 import { generateUid } from '../../lib/utils'
 import { emitVisual, drawCardsInternal, shuffleArray } from '../handlers/shared'
+import { getCardDefinition } from '../cards'
+
+// Forward declaration for recursive effect execution
+let executeEffect: (draft: RunState, effect: AtomicEffect, ctx: EffectContext) => void
+
+export function setCardEffectsExecuteEffect(fn: typeof executeEffect): void {
+  executeEffect = fn
+}
 
 export function executeEnergy(
   draft: RunState,
@@ -296,5 +304,79 @@ export function executeModifyCost(
 
   if (modifiedUids.length > 0) {
     emitVisual(draft, { type: 'costModify', cardUids: modifiedUids, delta: amount })
+  }
+}
+
+export function executeReplayCard(
+  draft: RunState,
+  effect: { type: 'replayCard'; target: CardTarget | FilteredCardTarget; times?: EffectValue },
+  ctx: EffectContext
+): void {
+  if (!draft.combat || !executeEffect) return
+
+  const cards = resolveCardTarget(effect.target, draft, ctx)
+  const times = effect.times ? resolveValue(effect.times, draft, ctx) : 1
+
+  for (const card of cards) {
+    const def = getCardDefinition(card.definitionId)
+    if (!def) continue
+
+    // Execute the card's effects without paying energy
+    for (let i = 0; i < times; i++) {
+      const replayCtx: EffectContext = {
+        source: ctx.source,
+        cardUid: card.uid,
+        currentTarget: ctx.currentTarget,
+      }
+
+      for (const cardEffect of def.effects) {
+        executeEffect(draft, cardEffect, replayCtx)
+      }
+    }
+
+    emitVisual(draft, { type: 'replay', cardUid: card.uid, times })
+  }
+}
+
+export function executePlayTopCard(
+  draft: RunState,
+  effect: { type: 'playTopCard'; pile: 'drawPile' | 'discardPile'; count?: EffectValue; exhaust?: boolean },
+  ctx: EffectContext
+): void {
+  if (!draft.combat || !executeEffect) return
+
+  const count = effect.count ? resolveValue(effect.count, draft, ctx) : 1
+  const pile = draft.combat[effect.pile]
+
+  for (let i = 0; i < count && pile.length > 0; i++) {
+    const card = pile.pop()!
+    const def = getCardDefinition(card.definitionId)
+    if (!def) {
+      // Put it back if we can't play it
+      pile.push(card)
+      continue
+    }
+
+    // Execute the card's effects
+    const playCtx: EffectContext = {
+      source: ctx.source,
+      cardUid: card.uid,
+      currentTarget: ctx.currentTarget,
+    }
+
+    for (const cardEffect of def.effects) {
+      executeEffect(draft, cardEffect, playCtx)
+    }
+
+    // Exhaust or discard
+    if (effect.exhaust) {
+      draft.combat.exhaustPile.push(card)
+      emitVisual(draft, { type: 'exhaust', cardUids: [card.uid] })
+    } else {
+      draft.combat.discardPile.push(card)
+      emitVisual(draft, { type: 'discard', cardUids: [card.uid] })
+    }
+
+    emitVisual(draft, { type: 'playTopCard', cardId: card.definitionId, fromPile: effect.pile })
   }
 }

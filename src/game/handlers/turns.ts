@@ -49,6 +49,13 @@ export function handleEndTurn(draft: RunState): void {
   // Decay powers at turn end
   decayPowers(combat.player, 'turnEnd')
 
+  // Reset turn-based cost modifiers on all cards
+  for (const card of combat.hand) {
+    if (card.costModifier !== undefined) {
+      card.costModifier = undefined
+    }
+  }
+
   // Discard hand (except retained cards)
   const retained: typeof combat.hand = []
   const toDiscard: typeof combat.hand = []

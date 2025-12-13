@@ -1492,3 +1492,105 @@ registerCard({
     { type: 'transferPower', powerId: 'vulnerable', from: 'self', to: 'enemy', amount: 2 },
   ],
 })
+
+// ============================================
+// REPLAY / RECURSION CARDS
+// ============================================
+
+registerCard({
+  id: 'double_tap',
+  name: 'Double Tap',
+  description: 'This turn, your next Attack is played twice.',
+  energy: 1,
+  theme: 'skill',
+  target: 'self',
+  rarity: 'rare',
+  effects: [
+    { type: 'applyPower', powerId: 'doubleTap', amount: 1, target: 'self' },
+  ],
+  upgradesTo: {
+    name: 'Double Tap+',
+    description: 'This turn, your next 2 Attacks are played twice.',
+    effects: [
+      { type: 'applyPower', powerId: 'doubleTap', amount: 2, target: 'self' },
+    ],
+  },
+})
+
+registerCard({
+  id: 'havoc',
+  name: 'Havoc',
+  description: 'Play the top card of your draw pile and Exhaust it.',
+  energy: 1,
+  theme: 'skill',
+  target: 'self',
+  rarity: 'uncommon',
+  effects: [
+    { type: 'playTopCard', pile: 'drawPile', exhaust: true },
+  ],
+  upgradesTo: {
+    name: 'Havoc+',
+    description: 'Play the top card of your draw pile and Exhaust it.',
+    energy: 0,
+  },
+})
+
+registerCard({
+  id: 'mayhem',
+  name: 'Mayhem',
+  description: 'At the start of your turn, play the top card of your draw pile.',
+  energy: 2,
+  theme: 'power',
+  target: 'self',
+  rarity: 'rare',
+  effects: [
+    { type: 'applyPower', powerId: 'mayhem', amount: 1, target: 'self' },
+  ],
+  upgradesTo: {
+    name: 'Mayhem+',
+    description: 'At the start of your turn, play the top 2 cards of your draw pile.',
+    effects: [
+      { type: 'applyPower', powerId: 'mayhem', amount: 2, target: 'self' },
+    ],
+  },
+})
+
+registerCard({
+  id: 'encore',
+  name: 'Encore',
+  description: 'Replay the last card you played this turn.',
+  energy: 1,
+  theme: 'skill',
+  target: 'self',
+  rarity: 'rare',
+  effects: [
+    { type: 'replayCard', target: 'lastPlayed' },
+  ],
+  upgradesTo: {
+    name: 'Encore+',
+    description: 'Replay the last card you played this turn twice.',
+    effects: [
+      { type: 'replayCard', target: 'lastPlayed', times: 2 },
+    ],
+  },
+})
+
+registerCard({
+  id: 'flashback',
+  name: 'Flashback',
+  description: 'Play the top card of your discard pile. Exhaust it.',
+  energy: 1,
+  theme: 'skill',
+  target: 'self',
+  rarity: 'uncommon',
+  effects: [
+    { type: 'playTopCard', pile: 'discardPile', exhaust: true },
+  ],
+  upgradesTo: {
+    name: 'Flashback+',
+    description: 'Play the top 2 cards of your discard pile. Exhaust them.',
+    effects: [
+      { type: 'playTopCard', pile: 'discardPile', count: 2, exhaust: true },
+    ],
+  },
+})

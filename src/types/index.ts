@@ -392,6 +392,22 @@ export interface TransferPowerEffect {
   amount?: EffectValue
 }
 
+// --- CARD REPLAY EFFECTS ---
+
+export interface ReplayCardEffect {
+  type: 'replayCard'
+  target: CardTarget | FilteredCardTarget
+  free?: boolean // If true, don't pay energy cost
+  exhaustAfter?: boolean // If true, exhaust the card after playing
+}
+
+export interface PlayTopCardEffect {
+  type: 'playTopCard'
+  from: 'drawPile' | 'discardPile'
+  free?: boolean
+  exhaustAfter?: boolean
+}
+
 // --- META EFFECTS (Composition) ---
 
 export interface ConditionalEffect {
@@ -455,6 +471,9 @@ export type AtomicEffect =
   | ApplyPowerEffect
   | RemovePowerEffect
   | TransferPowerEffect
+  // Replay
+  | ReplayCardEffect
+  | PlayTopCardEffect
   // Meta
   | ConditionalEffect
   | RepeatEffect

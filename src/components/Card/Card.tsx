@@ -35,6 +35,7 @@ interface CardProps {
   description?: string
   playable?: boolean
   disabled?: boolean
+  costModified?: boolean // True if card cost has been modified
 
   // Interactions
   onClick?: () => void
@@ -61,6 +62,7 @@ export function Card({
   description,
   playable = false,
   disabled = false,
+  costModified = false,
   onClick,
   className = '',
   ...dataAttrs
@@ -84,7 +86,9 @@ export function Card({
     <div className={classes} onClick={onClick} {...dataAttrs}>
       {/* Energy badge (hand cards) */}
       {variant === 'hand' && energy !== undefined && (
-        <div className="absolute top-2 left-2 w-8 h-8 rounded-full bg-energy text-black text-sm font-bold flex items-center justify-center shadow-md">
+        <div className={`absolute top-2 left-2 w-8 h-8 rounded-full text-sm font-bold flex items-center justify-center shadow-md ${
+          costModified ? 'bg-green-500 text-white ring-2 ring-green-300' : 'bg-energy text-black'
+        }`}>
           {energy}
         </div>
       )}

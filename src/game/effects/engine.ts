@@ -25,6 +25,9 @@ import {
   executeCopyCard,
   executePutOnDeck,
   executeModifyCost,
+  executeReplayCard,
+  executePlayTopCard,
+  setCardEffectsExecuteEffect,
 } from './card-effects'
 import {
   executeApplyPower,
@@ -131,6 +134,12 @@ export function executeEffect(
     case 'modifyCost':
       executeModifyCost(draft, effect, ctx)
       break
+    case 'replayCard':
+      executeReplayCard(draft, effect, ctx)
+      break
+    case 'playTopCard':
+      executePlayTopCard(draft, effect, ctx)
+      break
     case 'conditional':
       executeConditional(draft, effect, ctx)
       break
@@ -178,3 +187,4 @@ export function executePowerTriggers(
 setCombatExecuteEffect(executeEffect)
 setCombatPowerTriggers(executePowerTriggers)
 setControlExecuteEffect(executeEffect)
+setCardEffectsExecuteEffect(executeEffect)

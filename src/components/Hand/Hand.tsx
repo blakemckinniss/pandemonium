@@ -2,7 +2,7 @@ import { useLayoutEffect, useRef } from 'react'
 import { Card } from '../Card/Card'
 import type { CardInstance } from '../../types'
 import { getEffectiveCardDef } from '../../game/cards'
-import { getEnergyCost, getEnergyCostNumber } from '../../lib/effects'
+import { getEffectiveEnergyCost, getEffectiveEnergyCostNumber } from '../../lib/effects'
 
 export interface CardPosition {
   x: number
@@ -55,9 +55,10 @@ export function Hand({ cards, energy, onPlayCard, onPositionsUpdate }: HandProps
         const def = getEffectiveCardDef(card)
         if (!def) return null
 
-        const energyCost = getEnergyCostNumber(def.energy)
-        const canPlay = energy >= energyCost
+        const effectiveCost = getEffectiveEnergyCostNumber(def.energy, card)
+        const canPlay = energy >= effectiveCost
         const fanRotation = getFanRotation(index, cards.length)
+        const displayCost = getEffectiveEnergyCost(def.energy, card)
 
         return (
           <div
@@ -71,10 +72,11 @@ export function Hand({ cards, energy, onPlayCard, onPositionsUpdate }: HandProps
               theme={def.theme}
               name={def.name}
               description={def.description}
-              energy={getEnergyCost(def.energy)}
+              energy={displayCost}
               rarity={def.rarity}
               upgraded={card.upgraded}
               element={def.element}
+              costModified={card.costModifier !== undefined && card.costModifier !== 0}
               playable={canPlay}
               disabled={!canPlay}
               onClick={() => canPlay && onPlayCard(card.uid)}
