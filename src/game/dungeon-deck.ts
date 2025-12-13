@@ -6,12 +6,14 @@ import { generateUid } from '../lib/utils'
 interface DungeonTemplate {
   combat: number
   elite: number
+  campfire: number
   boss: number
 }
 
 const ACT_1_TEMPLATE: DungeonTemplate = {
-  combat: 8,
+  combat: 7,
   elite: 2,
+  campfire: 2,
   boss: 1,
 }
 
@@ -36,6 +38,17 @@ export function createDungeonDeck(): RoomCard[] {
   const eliteRooms = getRoomsByType('elite')
   for (let i = 0; i < ACT_1_TEMPLATE.elite; i++) {
     const room = eliteRooms[i % eliteRooms.length]
+    deck.push({
+      uid: generateUid(),
+      definitionId: room.id,
+      revealed: false,
+    })
+  }
+
+  // Add campfire rooms
+  const campfireRooms = getRoomsByType('campfire')
+  for (let i = 0; i < ACT_1_TEMPLATE.campfire; i++) {
+    const room = campfireRooms[i % campfireRooms.length]
     deck.push({
       uid: generateUid(),
       definitionId: room.id,

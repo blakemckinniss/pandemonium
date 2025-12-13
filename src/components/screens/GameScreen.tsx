@@ -6,6 +6,7 @@ import { Field } from '../Field/Field'
 import { CombatNumbers } from '../CombatNumbers/CombatNumbers'
 import { RoomSelect } from '../DungeonDeck/RoomSelect'
 import { RewardScreen } from './RewardScreen'
+import { CampfireScreen } from './CampfireScreen'
 import { UnlockNotification } from '../UnlockNotification/UnlockNotification'
 import { ParticleEffects, emitParticle } from '../ParticleEffects/ParticleEffects'
 import { CardPileModal, type PileType } from '../Modal/CardPileModal'
@@ -434,6 +435,17 @@ export function GameScreen({ deckId, onReturnToMenu }: GameScreenProps) {
 
       setCurrentRoomId(room.definitionId)
 
+      const roomDef = getRoomDefinition(room.definitionId)
+
+      // Handle campfire rooms
+      if (roomDef?.type === 'campfire') {
+        return {
+          ...prev,
+          gamePhase: 'campfire',
+          roomChoices: [],
+        }
+      }
+
       // Create enemies from room
       const enemies = createEnemiesFromRoom(room.definitionId)
 
@@ -515,6 +527,62 @@ export function GameScreen({ deckId, onReturnToMenu }: GameScreenProps) {
       }
     })
   }, [])
+
+  // ============================================
+  // CAMPFIRE
+  // ============================================
+
+  const advanceFromCampfire = useCallback(() => {
+    setState((prev) => {
+      if (!prev) return prev
+
+      const { choices, remaining } = drawRoomChoices(prev.dungeonDeck, 3)
+
+      if (choices.length === 0) {
+        return { ...prev, gamePhase: 'gameOver' as const, floor: prev.floor + 1 }
+      }
+
+      return {
+        ...prev,
+        gamePhase: 'roomSelect',
+        dungeonDeck: remaining,
+        roomChoices: choices,
+        floor: prev.floor + 1,
+      }
+    })
+  }, [])
+
+  const handleCampfireRest = useCallback(() => {
+    setState((prev) => {
+      if (!prev) return prev
+      const healAmount = Math.floor(prev.hero.maxHealth * 0.3)
+      return {
+        ...prev,
+        hero: {
+          ...prev.hero,
+          currentHealth: Math.min(prev.hero.maxHealth, prev.hero.currentHealth + healAmount),
+        },
+      }
+    })
+    advanceFromCampfire()
+  }, [advanceFromCampfire])
+
+  const handleCampfireSmith = useCallback((cardUid: string) => {
+    setState((prev) => {
+      if (!prev) return prev
+      return {
+        ...prev,
+        deck: prev.deck.map(card =>
+          card.uid === cardUid ? { ...card, upgraded: true } : card
+        ),
+      }
+    })
+    advanceFromCampfire()
+  }, [advanceFromCampfire])
+
+  const handleCampfireSkip = useCallback(() => {
+    advanceFromCampfire()
+  }, [advanceFromCampfire])
 
   // ============================================
   // COMBAT
@@ -698,6 +766,19 @@ export function GameScreen({ deckId, onReturnToMenu }: GameScreenProps) {
         gold={state.gold}
         onAddCard={handleAddCard}
         onSkip={handleSkipReward}
+      />
+    )
+  }
+
+  // Campfire phase
+  if (state.gamePhase === 'campfire') {
+    return (
+      <CampfireScreen
+        hero={state.hero}
+        deck={state.deck}
+        onRest={handleCampfireRest}
+        onSmith={handleCampfireSmith}
+        onSkip={handleCampfireSkip}
       />
     )
   }
