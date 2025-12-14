@@ -791,6 +791,14 @@ export function GameScreen({ deckId, onReturnToMenu }: GameScreenProps) {
             selectedCardIds: selectedUids,
           })
         })
+      } else if (pending.type === 'banish') {
+        setState((prev) => {
+          if (!prev) return prev
+          return applyAction(prev, {
+            type: 'resolveBanish',
+            selectedUids,
+          })
+        })
       }
     },
     [state?.combat?.pendingSelection]
@@ -827,6 +835,15 @@ export function GameScreen({ deckId, onReturnToMenu }: GameScreenProps) {
         return applyAction(prev, {
           type: 'resolveDiscover',
           selectedCardIds: [],
+        })
+      })
+    } else if (pending.type === 'banish') {
+      // Skip banish selection (banish nothing)
+      setState((prev) => {
+        if (!prev) return prev
+        return applyAction(prev, {
+          type: 'resolveBanish',
+          selectedUids: [],
         })
       })
     }
@@ -1041,7 +1058,7 @@ export function GameScreen({ deckId, onReturnToMenu }: GameScreenProps) {
         }
       />
 
-      {/* Card Selection Modal (for scry/tutor/discover) */}
+      {/* Card Selection Modal (for scry/tutor/discover/banish) */}
       {combat.pendingSelection && (
         <CardSelectionModal
           isOpen={true}
@@ -1051,14 +1068,22 @@ export function GameScreen({ deckId, onReturnToMenu }: GameScreenProps) {
               ? `Scry ${combat.pendingSelection.cards.length}`
               : combat.pendingSelection.type === 'discover'
               ? 'Discover'
+              : combat.pendingSelection.type === 'banish'
+              ? 'Choose cards to banish'
               : 'Search for a card'
           }
           cards={combat.pendingSelection.cards}
-          minSelect={combat.pendingSelection.type === 'tutor' ? 0 : combat.pendingSelection.type === 'discover' ? 1 : 0}
+          minSelect={
+            combat.pendingSelection.type === 'tutor' ? 0 :
+            combat.pendingSelection.type === 'discover' ? 1 :
+            combat.pendingSelection.type === 'banish' ? 1 : 0
+          }
           maxSelect={
             combat.pendingSelection.type === 'tutor'
               ? combat.pendingSelection.maxSelect
               : combat.pendingSelection.type === 'discover'
+              ? combat.pendingSelection.maxSelect
+              : combat.pendingSelection.type === 'banish'
               ? combat.pendingSelection.maxSelect
               : combat.pendingSelection.cards.length
           }
@@ -1069,9 +1094,10 @@ export function GameScreen({ deckId, onReturnToMenu }: GameScreenProps) {
           onConfirm={handleSelectionConfirm}
           confirmText={
             combat.pendingSelection.type === 'scry' ? 'Confirm' :
-            combat.pendingSelection.type === 'discover' ? 'Choose' : 'Add to Hand'
+            combat.pendingSelection.type === 'discover' ? 'Choose' :
+            combat.pendingSelection.type === 'banish' ? 'Banish' : 'Add to Hand'
           }
-          allowSkip={combat.pendingSelection.type === 'tutor'}
+          allowSkip={combat.pendingSelection.type === 'tutor' || combat.pendingSelection.type === 'banish'}
         />
       )}
     </div>

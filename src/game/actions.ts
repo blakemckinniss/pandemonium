@@ -25,7 +25,7 @@ import { shuffleArray } from './handlers/shared'
 import { executeEffect, executePowerTriggers } from './effects'
 
 // Import selection effect handlers
-import { handleResolveScry, handleResolveTutor, handleResolveDiscover } from './selection-effects'
+import { handleResolveScry, handleResolveTutor, handleResolveDiscover, handleResolveBanish } from './selection-effects'
 
 // Wire up dependencies between handlers and effects
 setTurnsPowerTriggers(executePowerTriggers)
@@ -101,6 +101,9 @@ export function applyAction(state: RunState, action: GameAction): RunState {
         break
       case 'resolveDiscover':
         handleResolveDiscover(draft, action.selectedCardIds)
+        break
+      case 'resolveBanish':
+        handleResolveBanish(draft, action.selectedUids)
         break
     }
   })

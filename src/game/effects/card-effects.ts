@@ -127,20 +127,32 @@ export function executeExhaust(
 
 export function executeBanish(
   draft: RunState,
-  effect: { type: 'banish'; target: CardTarget | FilteredCardTarget; amount?: EffectValue },
+  effect: { type: 'banish'; target: CardTarget | FilteredCardTarget; amount?: EffectValue; playerChoice?: boolean },
   ctx: EffectContext
 ): void {
   if (!draft.combat) return
 
-  let cards = resolveCardTarget(effect.target, draft, ctx)
+  const cards = resolveCardTarget(effect.target, draft, ctx)
+  const maxSelect = effect.amount !== undefined ? resolveValue(effect.amount, draft, ctx) : cards.length
 
-  if (effect.amount !== undefined) {
-    const count = resolveValue(effect.amount, draft, ctx)
-    cards = cards.slice(0, count)
+  if (cards.length === 0) return
+
+  // Player choice mode - set up pending selection for UI
+  if (effect.playerChoice && cards.length > 0) {
+    draft.combat.pendingSelection = {
+      type: 'banish',
+      cards: cards.slice(), // Copy the array
+      from: effect.target,
+      maxSelect,
+    }
+    return
   }
 
+  // Auto-banish mode - immediately remove cards
+  const toRemove = cards.slice(0, maxSelect)
   const banishedUids: string[] = []
-  for (const card of cards) {
+
+  for (const card of toRemove) {
     // Check hand
     let idx = draft.combat.hand.findIndex((c) => c.uid === card.uid)
     if (idx !== -1) {

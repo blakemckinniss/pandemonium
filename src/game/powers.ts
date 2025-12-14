@@ -709,6 +709,7 @@ export function removePowerFromEntity(
 
 /**
  * Decay powers at turn start/end
+ * Handles both intensity decay (via decayOn) and duration decay
  */
 export function decayPowers(
   entity: Entity,
@@ -718,9 +719,19 @@ export function decayPowers(
     const def = getPowerDefinition(powerId)
     if (!def) continue
 
+    // Intensity decay (existing behavior)
     if (def.decayOn === event) {
       power.amount -= 1
       if (power.amount <= 0 && def.removeAtZero) {
+        delete entity.powers[powerId]
+        continue
+      }
+    }
+
+    // Duration decay - powers with limited duration expire at turn end
+    if (event === 'turnEnd' && power.duration !== undefined) {
+      power.duration -= 1
+      if (power.duration <= 0) {
         delete entity.powers[powerId]
       }
     }

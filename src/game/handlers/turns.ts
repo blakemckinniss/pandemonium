@@ -1,7 +1,8 @@
 // Turn management handlers
 import type { RunState, Entity } from '../../types'
 import { decayPowers } from '../powers'
-import { drawCardsInternal } from './shared'
+import { drawCardsInternal, emitVisual } from './shared'
+import { getCardDefinition } from '../cards'
 
 // Forward declaration - will be injected to avoid circular deps
 let executePowerTriggers: (draft: RunState, entity: Entity, event: string, sourceId?: string) => void
@@ -57,12 +58,20 @@ export function handleEndTurn(draft: RunState): void {
     }
   }
 
-  // Discard hand (except retained cards)
+  // Handle end-of-turn card effects
   const retained: typeof combat.hand = []
   const toDiscard: typeof combat.hand = []
+  const toExhaust: typeof combat.hand = []
 
   for (const card of combat.hand) {
-    if (card.retained) {
+    // Check both instance and definition for ethereal
+    const def = getCardDefinition(card.definitionId)
+    const isEthereal = card.ethereal || def?.ethereal
+
+    if (isEthereal) {
+      // Ethereal cards exhaust if not played
+      toExhaust.push(card)
+    } else if (card.retained) {
       // Keep in hand but clear retain flag (one-time effect)
       card.retained = false
       retained.push(card)
@@ -71,8 +80,14 @@ export function handleEndTurn(draft: RunState): void {
     }
   }
 
+  combat.exhaustPile.push(...toExhaust)
   combat.discardPile.push(...toDiscard)
   combat.hand = retained
+
+  // Emit exhaust visual for ethereal cards
+  if (toExhaust.length > 0) {
+    emitVisual(draft, { type: 'exhaust', cardUids: toExhaust.map(c => c.uid) })
+  }
 
   // Enemy turn
   combat.phase = 'enemyTurn'

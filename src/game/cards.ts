@@ -1767,3 +1767,85 @@ registerCard({
     ],
   },
 })
+
+// ============================================
+// ETHEREAL CARDS
+// ============================================
+
+registerCard({
+  id: 'apparition',
+  name: 'Apparition',
+  description: 'Gain 1 Intangible. Ethereal.',
+  energy: 1,
+  theme: 'skill',
+  target: 'self',
+  rarity: 'rare',
+  ethereal: true,
+  effects: [{ type: 'applyPower', powerId: 'intangible', amount: 1 }],
+  upgradesTo: {
+    name: 'Apparition+',
+    description: 'Gain 1 Intangible. (No longer Ethereal)',
+    ethereal: false,
+    effects: [{ type: 'applyPower', powerId: 'intangible', amount: 1 }],
+  },
+})
+
+registerCard({
+  id: 'ghostly_strike',
+  name: 'Ghostly Strike',
+  description: 'Deal 14 damage. Ethereal.',
+  energy: 1,
+  theme: 'attack',
+  target: 'enemy',
+  rarity: 'uncommon',
+  ethereal: true,
+  effects: [{ type: 'damage', amount: 14 }],
+  upgradesTo: {
+    name: 'Ghostly Strike+',
+    description: 'Deal 18 damage. Ethereal.',
+    ethereal: true,
+    effects: [{ type: 'damage', amount: 18 }],
+  },
+})
+
+registerCard({
+  id: 'fleeting_barrier',
+  name: 'Fleeting Barrier',
+  description: 'Gain 12 Block. Ethereal.',
+  energy: 1,
+  theme: 'skill',
+  target: 'self',
+  rarity: 'uncommon',
+  ethereal: true,
+  effects: [{ type: 'block', amount: 12 }],
+  upgradesTo: {
+    name: 'Fleeting Barrier+',
+    description: 'Gain 16 Block. Ethereal.',
+    ethereal: true,
+    effects: [{ type: 'block', amount: 16 }],
+  },
+})
+
+// ============================================
+// PLAYER-CHOICE BANISH
+// ============================================
+
+registerCard({
+  id: 'purge',
+  name: 'Purge',
+  description: 'Choose a card in your hand to Banish.',
+  energy: 0,
+  theme: 'skill',
+  target: 'self',
+  rarity: 'uncommon',
+  effects: [
+    { type: 'banish', target: 'hand', amount: 1, playerChoice: true },
+  ],
+  upgradesTo: {
+    name: 'Purge+',
+    description: 'Choose up to 2 cards in your hand to Banish.',
+    effects: [
+      { type: 'banish', target: 'hand', amount: 2, playerChoice: true },
+    ],
+  },
+})

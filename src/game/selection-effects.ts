@@ -354,3 +354,43 @@ export function handleResolveDiscover(
   // Clear pending selection
   draft.combat.pendingSelection = undefined
 }
+
+/**
+ * Handle banish resolution from modal
+ */
+export function handleResolveBanish(
+  draft: RunState,
+  selectedUids: string[]
+): void {
+  if (!draft.combat?.pendingSelection) return
+  if (draft.combat.pendingSelection.type !== 'banish') return
+
+  const banishedUids: string[] = []
+
+  // Remove selected cards from whichever pile they're in
+  for (const uid of selectedUids) {
+    const piles = [
+      draft.combat.hand,
+      draft.combat.drawPile,
+      draft.combat.discardPile,
+      draft.combat.exhaustPile,
+    ]
+
+    for (const pile of piles) {
+      const idx = pile.findIndex(c => c.uid === uid)
+      if (idx !== -1) {
+        pile.splice(idx, 1)
+        banishedUids.push(uid)
+        break
+      }
+    }
+  }
+
+  // Emit visual for banished cards
+  if (banishedUids.length > 0) {
+    emitVisual(draft, { type: 'banish', cardUids: banishedUids })
+  }
+
+  // Clear pending selection
+  draft.combat.pendingSelection = undefined
+}

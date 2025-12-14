@@ -284,6 +284,7 @@ export interface BanishEffect {
   type: 'banish'
   target: CardTarget | FilteredCardTarget
   amount?: EffectValue
+  playerChoice?: boolean // If true, show selection UI instead of auto-banishing
 }
 
 export interface AddCardEffect {
@@ -591,6 +592,7 @@ export interface CardDefinition {
   rarity?: 'starter' | 'common' | 'uncommon' | 'rare'
   image?: string
   upgraded?: boolean
+  ethereal?: boolean // Card exhausts if not played by end of turn
   upgradesTo?: Partial<CardDefinition>
   generatedFrom?: {
     template: string
@@ -604,6 +606,7 @@ export interface CardInstance {
   definitionId: string
   upgraded: boolean
   retained?: boolean // Card stays in hand at end of turn
+  ethereal?: boolean // Card exhausts if not played by end of turn
   costModifier?: number // Temporary cost adjustment (negative = cheaper)
 }
 
@@ -727,7 +730,14 @@ export interface PendingDiscover {
   copies?: number // How many copies of chosen card to add
 }
 
-export type PendingSelection = PendingScry | PendingTutor | PendingDiscover
+export interface PendingBanish {
+  type: 'banish'
+  cards: CardInstance[] // Cards available to banish
+  from: CardTarget | FilteredCardTarget // Source pile
+  maxSelect: number // How many to select
+}
+
+export type PendingSelection = PendingScry | PendingTutor | PendingDiscover | PendingBanish
 
 export interface CombatState {
   phase: TurnPhase
@@ -802,6 +812,7 @@ export type GameAction =
   | { type: 'resolveScry'; keptUids: string[]; discardedUids: string[] }
   | { type: 'resolveTutor'; selectedUids: string[] }
   | { type: 'resolveDiscover'; selectedCardIds: string[] }
+  | { type: 'resolveBanish'; selectedUids: string[] }
 
 // ============================================
 // VISUAL EVENTS (Animation Queue)
