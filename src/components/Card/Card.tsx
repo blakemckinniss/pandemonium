@@ -1,3 +1,4 @@
+import { memo } from 'react'
 import { Icon } from '@iconify/react'
 import { PowerTooltip } from '../PowerTooltip/PowerTooltip'
 import type { CardVariant, CardTheme, Intent, Powers, Element } from '../../types'
@@ -46,7 +47,7 @@ interface CardProps {
   'data-card-target'?: string
 }
 
-export function Card({
+export const Card = memo(function Card({
   variant,
   theme,
   name,
@@ -188,7 +189,7 @@ export function Card({
       )}
     </div>
   )
-}
+})
 
 function getCardIcon(variant: CardVariant, theme?: CardTheme): string {
   if (variant === 'player') return 'game-icons:wizard-staff'
@@ -269,7 +270,7 @@ interface PowerIndicatorsProps {
   powers: Powers
 }
 
-function PowerIndicators({ powers }: PowerIndicatorsProps) {
+const PowerIndicators = memo(function PowerIndicators({ powers }: PowerIndicatorsProps) {
   const entries = Object.entries(powers)
   if (entries.length === 0) return null
 
@@ -290,6 +291,6 @@ function PowerIndicators({ powers }: PowerIndicatorsProps) {
       })}
     </div>
   )
-}
+})
 
 export default Card

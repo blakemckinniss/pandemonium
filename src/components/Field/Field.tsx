@@ -1,3 +1,4 @@
+import { memo, useCallback } from 'react'
 import { Card } from '../Card/Card'
 import type { PlayerEntity, EnemyEntity } from '../../types'
 
@@ -7,7 +8,15 @@ interface FieldProps {
   onTargetClick?: (targetId: string) => void
 }
 
-export function Field({ player, enemies, onTargetClick }: FieldProps) {
+export const Field = memo(function Field({ player, enemies, onTargetClick }: FieldProps) {
+  const handlePlayerClick = useCallback(() => {
+    onTargetClick?.('player')
+  }, [onTargetClick])
+
+  const handleEnemyClick = useCallback((enemyId: string) => {
+    onTargetClick?.(enemyId)
+  }, [onTargetClick])
+
   return (
     <div className="Field flex justify-center items-center gap-16 px-8 py-6">
       {/* Player */}
@@ -23,31 +32,51 @@ export function Field({ player, enemies, onTargetClick }: FieldProps) {
         image={player.image}
         className="Target"
         data-target-type="player"
-        onClick={() => onTargetClick?.('player')}
+        onClick={handlePlayerClick}
       />
 
       {/* Enemies */}
       <div className="flex gap-6">
         {enemies.map((enemy) => (
-          <Card
+          <EnemyCard
             key={enemy.id}
-            variant="enemy"
-            name={enemy.name}
-            currentHealth={enemy.currentHealth}
-            maxHealth={enemy.maxHealth}
-            block={enemy.block}
-            powers={enemy.powers}
-            intent={enemy.intent}
-            image={enemy.image}
-            className="Target"
-            data-target-type="enemy"
-            data-target={enemy.id}
-            onClick={() => onTargetClick?.(enemy.id)}
+            enemy={enemy}
+            onTargetClick={handleEnemyClick}
           />
         ))}
       </div>
     </div>
   )
-}
+})
+
+// Memoized enemy card to prevent re-renders
+const EnemyCard = memo(function EnemyCard({
+  enemy,
+  onTargetClick,
+}: {
+  enemy: EnemyEntity
+  onTargetClick: (id: string) => void
+}) {
+  const handleClick = useCallback(() => {
+    onTargetClick(enemy.id)
+  }, [onTargetClick, enemy.id])
+
+  return (
+    <Card
+      variant="enemy"
+      name={enemy.name}
+      currentHealth={enemy.currentHealth}
+      maxHealth={enemy.maxHealth}
+      block={enemy.block}
+      powers={enemy.powers}
+      intent={enemy.intent}
+      image={enemy.image}
+      className="Target"
+      data-target-type="enemy"
+      data-target={enemy.id}
+      onClick={handleClick}
+    />
+  )
+})
 
 export default Field

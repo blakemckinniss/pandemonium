@@ -127,22 +127,33 @@ export function ParticleEffects({ containerRef }: ParticleEffectsProps) {
     const ctx = canvas.getContext('2d')
     if (!ctx) return
 
+    // Debounced resize handler to prevent layout thrashing
+    let resizeTimeout: ReturnType<typeof setTimeout> | null = null
     const updateCanvas = () => {
-      canvas.width = window.innerWidth
-      canvas.height = window.innerHeight
+      if (resizeTimeout) clearTimeout(resizeTimeout)
+      resizeTimeout = setTimeout(() => {
+        canvas.width = window.innerWidth
+        canvas.height = window.innerHeight
+      }, 150)
     }
-    updateCanvas()
+    // Initial size set immediately
+    canvas.width = window.innerWidth
+    canvas.height = window.innerHeight
     window.addEventListener('resize', updateCanvas)
 
     const animate = () => {
       ctx.clearRect(0, 0, canvas.width, canvas.height)
 
       const particles = particlesRef.current
-      const config = PARTICLE_CONFIG
 
-      for (let i = particles.length - 1; i >= 0; i--) {
+      // Batch by disabling shadows globally (expensive per-particle)
+      ctx.shadowBlur = 0
+
+      // Process particles in reverse for safe removal
+      let writeIndex = 0
+      for (let i = 0; i < particles.length; i++) {
         const p = particles[i]
-        const pConfig = config[p.type]
+        const pConfig = PARTICLE_CONFIG[p.type]
 
         // Update position
         p.x += p.vx
@@ -150,36 +161,36 @@ export function ParticleEffects({ containerRef }: ParticleEffectsProps) {
         p.vy += pConfig.gravity
         p.life--
 
+        // Skip dead particles
+        if (p.life <= 0) continue
+
+        // Keep alive particles
+        if (writeIndex !== i) {
+          particles[writeIndex] = p
+        }
+        writeIndex++
+
         // Fade out
         const alpha = p.life / p.maxLife
+        const radius = p.size * alpha
 
-        // Draw particle with glow
-        ctx.save()
+        // Draw outer particle (no shadow - GPU heavy)
         ctx.globalAlpha = alpha
-
-        // Outer glow
-        ctx.shadowColor = p.color
-        ctx.shadowBlur = p.size * 2
         ctx.fillStyle = p.color
         ctx.beginPath()
-        ctx.arc(p.x, p.y, p.size * alpha, 0, Math.PI * 2)
+        ctx.arc(p.x, p.y, radius, 0, Math.PI * 2)
         ctx.fill()
 
         // Inner bright core
-        ctx.shadowBlur = 0
-        ctx.fillStyle = '#fff'
         ctx.globalAlpha = alpha * 0.8
+        ctx.fillStyle = '#fff'
         ctx.beginPath()
-        ctx.arc(p.x, p.y, p.size * alpha * 0.4, 0, Math.PI * 2)
+        ctx.arc(p.x, p.y, radius * 0.4, 0, Math.PI * 2)
         ctx.fill()
-
-        ctx.restore()
-
-        // Remove dead particles
-        if (p.life <= 0) {
-          particles.splice(i, 1)
-        }
       }
+
+      // Trim dead particles (swap-remove pattern)
+      particles.length = writeIndex
 
       animationRef.current = requestAnimationFrame(animate)
     }
@@ -189,6 +200,7 @@ export function ParticleEffects({ containerRef }: ParticleEffectsProps) {
     return () => {
       cancelAnimationFrame(animationRef.current)
       window.removeEventListener('resize', updateCanvas)
+      if (resizeTimeout) clearTimeout(resizeTimeout)
     }
   }, [])
 

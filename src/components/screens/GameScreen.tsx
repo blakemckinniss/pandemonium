@@ -48,8 +48,7 @@ export function GameScreen({ deckId, onReturnToMenu }: GameScreenProps) {
   const lastTurnRef = useRef<number>(0)
   const cardPositionsRef = useRef<Map<string, CardPosition>>(new Map())
 
-  // Meta store for progression
-  const metaStore = useMetaStore()
+  // Meta store accessed via getState() to avoid full-store subscription
 
   // Initialize game
   useEffect(() => {
@@ -525,8 +524,9 @@ export function GameScreen({ deckId, onReturnToMenu }: GameScreenProps) {
     }
 
     // Record in meta store and check unlocks
-    const unlocks = checkUnlocks(runResult, metaStore)
-    metaStore.recordRun(runResult)
+    const store = useMetaStore.getState()
+    const unlocks = checkUnlocks(runResult, store)
+    store.recordRun(runResult)
 
     if (unlocks.length > 0) {
       setPendingUnlocks(unlocks)
@@ -546,7 +546,7 @@ export function GameScreen({ deckId, onReturnToMenu }: GameScreenProps) {
       damageTaken: state.stats.damageTaken,
       finalDeck: state.deck.map((c) => c.definitionId),
     })
-  }, [state?.gamePhase, state?.combat?.phase, metaStore])
+  }, [state?.gamePhase, state?.combat?.phase])
 
   const spawnCombatNumber = useCallback(
     (
