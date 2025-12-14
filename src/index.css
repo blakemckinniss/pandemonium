@@ -259,6 +259,16 @@ body {
   color: oklch(0.6 0.2 140);
 }
 
+/* Max health variants */
+.CombatNumber--maxHealth-gain {
+  color: oklch(0.7 0.18 145);
+  text-shadow: 0 0 8px oklch(0.6 0.2 145), 2px 2px 6px oklch(0 0 0 / 0.9);
+}
+.CombatNumber--maxHealth-lose {
+  color: oklch(0.65 0.22 25);
+  text-shadow: 0 0 8px oklch(0.5 0.25 25), 2px 2px 6px oklch(0 0 0 / 0.9);
+}
+
 /* Combo label (shown above damage number) */
 .CombatNumber__combo-label {
   display: block;

@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { Card } from '../Card/Card'
+import { CardPreviewModal } from '../Modal/CardPreviewModal'
 import type { CardDefinition } from '../../types'
 import { getAllCards } from '../../game/cards'
 import { getEnergyCost } from '../../lib/effects'
@@ -19,6 +20,7 @@ export function RewardScreen({ floor, gold, onAddCard, onSkip }: RewardScreenPro
   const [goldReward] = useState(() => 15 + Math.floor(Math.random() * 10))
   const [isGenerating, setIsGenerating] = useState(false)
   const [generationError, setGenerationError] = useState<string | null>(null)
+  const [previewCard, setPreviewCard] = useState<CardDefinition | null>(null)
 
   // Generate card choices on mount with rarity weighting
   useEffect(() => {
@@ -134,23 +136,35 @@ export function RewardScreen({ floor, gold, onAddCard, onSkip }: RewardScreenPro
 
       <div ref={containerRef} className="flex gap-4 mb-8 items-center">
         {cardChoices.map((cardDef) => (
-          <button
-            key={cardDef.id}
-            className="RewardCard group transition-transform hover:scale-110 hover:-translate-y-2"
-            onClick={() => onAddCard(cardDef.id)}
-          >
-            <Card
-              variant="hand"
-              theme={cardDef.theme}
-              name={cardDef.name}
-              description={cardDef.description}
-              energy={getEnergyCost(cardDef.energy)}
-              rarity={cardDef.rarity}
-              element={cardDef.element}
-              ethereal={cardDef.ethereal}
-              playable
-            />
-          </button>
+          <div key={cardDef.id} className="RewardCard group relative">
+            <button
+              className="transition-transform hover:scale-110 hover:-translate-y-2"
+              onClick={() => onAddCard(cardDef.id)}
+            >
+              <Card
+                variant="hand"
+                theme={cardDef.theme}
+                name={cardDef.name}
+                description={cardDef.description}
+                energy={getEnergyCost(cardDef.energy)}
+                rarity={cardDef.rarity}
+                element={cardDef.element}
+                ethereal={cardDef.ethereal}
+                playable
+              />
+            </button>
+            {/* Preview button */}
+            <button
+              onClick={(e) => {
+                e.stopPropagation()
+                setPreviewCard(cardDef)
+              }}
+              className="absolute bottom-2 right-2 w-6 h-6 rounded-full bg-surface-alt/90 text-gray-300 hover:bg-surface hover:text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+              title="Preview card"
+            >
+              ?
+            </button>
+          </div>
         ))}
 
         {/* Generate Card Button */}
@@ -183,6 +197,15 @@ export function RewardScreen({ floor, gold, onAddCard, onSkip }: RewardScreenPro
       >
         Skip reward
       </button>
+
+      {/* Card Preview Modal */}
+      <CardPreviewModal
+        card={previewCard}
+        isOpen={previewCard !== null}
+        onClose={() => setPreviewCard(null)}
+        onSelect={(card) => onAddCard(card.id)}
+        selectLabel="Add to Deck"
+      />
     </div>
   )
 }

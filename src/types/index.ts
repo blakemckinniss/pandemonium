@@ -850,13 +850,14 @@ export type VisualEvent =
 export interface CombatNumber {
   id: string
   value: number
-  type: 'damage' | 'heal' | 'block'
+  type: 'damage' | 'heal' | 'block' | 'maxHealth'
   targetId: string
   x: number
   y: number
   element?: Element
   variant?: 'poison' | 'piercing' | 'combo' | 'chain' | 'execute'
   comboName?: string
+  label?: string // Custom label like "Max HP"
 }
 
 // ============================================

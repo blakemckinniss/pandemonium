@@ -53,6 +53,9 @@ export function CardPreviewModal({
   const rarityConfig = RARITY_CONFIG[rarity]
   const themeConfig = THEME_CONFIG[theme]
 
+  // Check if card has exhaust effect
+  const hasExhaust = card.effects.some((e) => e.type === 'exhaust')
+
   return (
     <Modal isOpen={isOpen} onClose={onClose} title="" size="sm">
       <div className="flex flex-col items-center gap-6 p-4">
@@ -103,7 +106,7 @@ export function CardPreviewModal({
         </div>
 
         {/* Keywords */}
-        {(card.ethereal || card.exhaust) && (
+        {(card.ethereal || hasExhaust) && (
           <div className="flex gap-2">
             {card.ethereal && (
               <span className="px-3 py-1 rounded-full bg-purple-900/50 text-purple-300 text-xs font-medium flex items-center gap-1">
@@ -111,7 +114,7 @@ export function CardPreviewModal({
                 Ethereal
               </span>
             )}
-            {card.exhaust && (
+            {hasExhaust && (
               <span className="px-3 py-1 rounded-full bg-red-900/50 text-red-300 text-xs font-medium flex items-center gap-1">
                 <Icon icon="game-icons:fire" className="w-3 h-3" />
                 Exhaust
@@ -123,7 +126,7 @@ export function CardPreviewModal({
         {/* Keyword explanations */}
         <div className="text-xs text-gray-500 text-center space-y-1">
           {card.ethereal && <p><strong>Ethereal:</strong> If not played, exhausts at end of turn</p>}
-          {card.exhaust && <p><strong>Exhaust:</strong> Removed from deck for this combat</p>}
+          {hasExhaust && <p><strong>Exhaust:</strong> Removed from deck for this combat</p>}
           {card.target === 'enemy' && <p><strong>Targeted:</strong> Must select an enemy to play</p>}
           {theme === 'power' && <p><strong>Power:</strong> Permanent effect for this combat</p>}
         </div>

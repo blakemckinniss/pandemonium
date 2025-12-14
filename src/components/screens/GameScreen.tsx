@@ -353,8 +353,20 @@ export function GameScreen({ deckId, onReturnToMenu }: GameScreenProps) {
                 : 'oklch(0.6 0.2 25)',  // lose = red
             })
             emitParticle(targetEl, event.delta > 0 ? 'heal' : 'spark')
+
+            // Spawn floating text
+            const rect = targetEl.getBoundingClientRect()
+            const num: CombatNumber = {
+              id: generateUid(),
+              value: event.delta,
+              type: 'maxHealth',
+              targetId: event.targetId,
+              x: rect.left + rect.width / 2,
+              y: rect.top + rect.height / 3,
+              label: 'Max HP',
+            }
+            setCombatNumbers((prev) => [...prev, num])
           }
-          console.log(`Max HP: ${event.delta > 0 ? '+' : ''}${event.delta}`)
           break
         }
         case 'upgrade': {
