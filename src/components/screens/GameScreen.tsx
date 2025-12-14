@@ -175,6 +175,18 @@ export function GameScreen({ deckId, onReturnToMenu }: GameScreenProps) {
           }
           break
         }
+        case 'banish': {
+          // Banish visual - emit particles on player (card is removed from game)
+          const playerEl = containerRef.current?.querySelector('[data-target="player"]')
+          if (playerEl) {
+            emitParticle(playerEl, 'spark')
+            gsap.effects.pulse(playerEl, {
+              color: 'oklch(0.3 0.15 300)', // dark purple for void
+            })
+          }
+          console.log(`Banish: ${event.cardUids.length} card(s) removed from combat`)
+          break
+        }
         case 'powerApply': {
           // Pulse the target entity when power applied
           const targetEl = containerRef.current?.querySelector(

@@ -125,6 +125,59 @@ export function executeExhaust(
   }
 }
 
+export function executeBanish(
+  draft: RunState,
+  effect: { type: 'banish'; target: CardTarget | FilteredCardTarget; amount?: EffectValue },
+  ctx: EffectContext
+): void {
+  if (!draft.combat) return
+
+  let cards = resolveCardTarget(effect.target, draft, ctx)
+
+  if (effect.amount !== undefined) {
+    const count = resolveValue(effect.amount, draft, ctx)
+    cards = cards.slice(0, count)
+  }
+
+  const banishedUids: string[] = []
+  for (const card of cards) {
+    // Check hand
+    let idx = draft.combat.hand.findIndex((c) => c.uid === card.uid)
+    if (idx !== -1) {
+      draft.combat.hand.splice(idx, 1)
+      banishedUids.push(card.uid)
+      continue
+    }
+
+    // Check draw pile
+    idx = draft.combat.drawPile.findIndex((c) => c.uid === card.uid)
+    if (idx !== -1) {
+      draft.combat.drawPile.splice(idx, 1)
+      banishedUids.push(card.uid)
+      continue
+    }
+
+    // Check discard pile
+    idx = draft.combat.discardPile.findIndex((c) => c.uid === card.uid)
+    if (idx !== -1) {
+      draft.combat.discardPile.splice(idx, 1)
+      banishedUids.push(card.uid)
+      continue
+    }
+
+    // Check exhaust pile
+    idx = draft.combat.exhaustPile.findIndex((c) => c.uid === card.uid)
+    if (idx !== -1) {
+      draft.combat.exhaustPile.splice(idx, 1)
+      banishedUids.push(card.uid)
+    }
+  }
+
+  if (banishedUids.length > 0) {
+    emitVisual(draft, { type: 'banish', cardUids: banishedUids })
+  }
+}
+
 export function executeAddCard(
   draft: RunState,
   effect: { type: 'addCard'; cardId: string; destination: 'hand' | 'drawPile' | 'discardPile'; position?: 'top' | 'bottom' | 'random'; upgraded?: boolean; count?: EffectValue },

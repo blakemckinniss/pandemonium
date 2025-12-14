@@ -1721,3 +1721,49 @@ registerCard({
     ],
   },
 })
+
+// --- BANISH CARDS ---
+
+registerCard({
+  id: 'void_sacrifice',
+  name: 'Void Sacrifice',
+  description: 'Deal 30 damage. Banish (removed from combat entirely).',
+  energy: 2,
+  theme: 'attack',
+  target: 'enemy',
+  rarity: 'rare',
+  effects: [
+    { type: 'damage', amount: 30 },
+    { type: 'banish', target: 'thisCard' },
+  ],
+  upgradesTo: {
+    name: 'Void Sacrifice+',
+    description: 'Deal 45 damage. Banish.',
+    effects: [
+      { type: 'damage', amount: 45 },
+      { type: 'banish', target: 'thisCard' },
+    ],
+  },
+})
+
+registerCard({
+  id: 'dark_pact',
+  name: 'Dark Pact',
+  description: 'Gain 3 Energy. Banish a random card from your draw pile.',
+  energy: 0,
+  theme: 'skill',
+  target: 'self',
+  rarity: 'uncommon',
+  effects: [
+    { type: 'energy', amount: 3, operation: 'gain' },
+    { type: 'banish', target: { from: 'randomDraw', count: 1 } },
+  ],
+  upgradesTo: {
+    name: 'Dark Pact+',
+    description: 'Gain 4 Energy. Banish a random card from your draw pile.',
+    effects: [
+      { type: 'energy', amount: 4, operation: 'gain' },
+      { type: 'banish', target: { from: 'randomDraw', count: 1 } },
+    ],
+  },
+})

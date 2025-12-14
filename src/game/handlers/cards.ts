@@ -88,8 +88,13 @@ export function handlePlayCard(
     }
   }
 
-  // Move to discard
-  combat.discardPile.push(cardInstance)
+  // Power cards exhaust after play (persistent effect, removed from deck)
+  if (cardDef.theme === 'power') {
+    combat.exhaustPile.push(cardInstance)
+  } else {
+    // Other cards go to discard
+    combat.discardPile.push(cardInstance)
+  }
 }
 
 export function handleDiscardCard(draft: RunState, cardUid: string): void {

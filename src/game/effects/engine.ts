@@ -19,6 +19,7 @@ import {
   executeDraw,
   executeDiscard,
   executeExhaust,
+  executeBanish,
   executeAddCard,
   executeShuffle,
   executeRetain,
@@ -87,6 +88,9 @@ export function executeEffect(
       break
     case 'exhaust':
       executeExhaust(draft, effect, ctx)
+      break
+    case 'banish':
+      executeBanish(draft, effect, ctx)
       break
     case 'addCard':
       executeAddCard(draft, effect, ctx)
