@@ -543,6 +543,13 @@ export function useVisualEventProcessor({
     }
   }
 
+  const resetVisuals = useCallback(() => {
+    setCombatNumbers([])
+    setPendingAnimations([])
+    cardPositionsRef.current = new Map()
+    lastTurnRef.current = 0
+  }, [])
+
   return {
     combatNumbers,
     pendingAnimations,
@@ -550,5 +557,6 @@ export function useVisualEventProcessor({
     handleAnimationComplete,
     handleCardPositionsUpdate,
     lastTurnRef,
+    resetVisuals,
   }
 }
