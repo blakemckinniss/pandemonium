@@ -45,6 +45,8 @@ export function GameScreen({ deckId, onReturnToMenu }: GameScreenProps) {
   const [pileModalOpen, setPileModalOpen] = useState<PileType | null>(null)
   const [triggeredRelicId, setTriggeredRelicId] = useState<string | null>(null)
   const prevHealthRef = useRef<Record<string, number>>({})
+  const victoryRef = useRef<HTMLDivElement>(null)
+  const defeatRef = useRef<HTMLDivElement>(null)
 
   // Animation coordination (refs + isAnimating state)
   const { isAnimating, containerRef, handRef, animateDiscardHand, animateDealCards, queryContainer, queryHand } = useAnimationCoordinator()
@@ -212,7 +214,77 @@ export function GameScreen({ deckId, onReturnToMenu }: GameScreenProps) {
           if (!prev) return prev
           return { ...prev, gamePhase: 'reward', combat: null }
         })
-      }, 1000)
+      }, 1500)
+    }
+  }, [state?.combat?.phase])
+
+  // Victory animation
+  useEffect(() => {
+    if (state?.combat?.phase === 'victory' && victoryRef.current) {
+      const overlay = victoryRef.current
+      const title = overlay.querySelector('h2')
+      const subtitle = overlay.querySelector('p')
+
+      // Initial state
+      gsap.set(overlay, { opacity: 0 })
+      gsap.set(title, { scale: 0, opacity: 0 })
+      gsap.set(subtitle, { opacity: 0, y: 20 })
+
+      // Animate in
+      gsap.to(overlay, { opacity: 1, duration: 0.3 })
+      gsap.to(title, { scale: 1, opacity: 1, duration: 0.5, delay: 0.2, ease: 'back.out(1.7)' })
+      gsap.to(subtitle, { opacity: 1, y: 0, duration: 0.4, delay: 0.5 })
+
+      // Particle burst from center
+      const rect = overlay.getBoundingClientRect()
+      const centerX = rect.left + rect.width / 2
+      const centerY = rect.top + rect.height / 2
+      const win = window as unknown as { spawnParticles?: (x: number, y: number, type: string) => void }
+      if (win.spawnParticles) {
+        for (let i = 0; i < 5; i++) {
+          setTimeout(() => {
+            win.spawnParticles!(centerX + (Math.random() - 0.5) * 100, centerY + (Math.random() - 0.5) * 50, 'gold')
+            win.spawnParticles!(centerX + (Math.random() - 0.5) * 100, centerY + (Math.random() - 0.5) * 50, 'heal')
+          }, i * 100)
+        }
+      }
+    }
+  }, [state?.combat?.phase])
+
+  // Defeat animation
+  useEffect(() => {
+    if (state?.combat?.phase === 'defeat' && defeatRef.current) {
+      const overlay = defeatRef.current
+      const title = overlay.querySelector('h2')
+      const content = overlay.querySelector('.defeat-content')
+
+      // Initial state
+      gsap.set(overlay, { opacity: 0 })
+      gsap.set(title, { opacity: 0, y: -30 })
+      if (content) gsap.set(content, { opacity: 0, y: 20 })
+
+      // Animate in with shake
+      gsap.to(overlay, { opacity: 1, duration: 0.4 })
+      gsap.to(title, { opacity: 1, y: 0, duration: 0.6, delay: 0.2, ease: 'power2.out' })
+      if (content) gsap.to(content, { opacity: 1, y: 0, duration: 0.5, delay: 0.5 })
+
+      // Screen shake
+      if (containerRef.current) {
+        gsap.effects.shake(containerRef.current, { intensity: 12 })
+      }
+
+      // Dark particles
+      const rect = overlay.getBoundingClientRect()
+      const centerX = rect.left + rect.width / 2
+      const centerY = rect.top + rect.height / 2
+      const win = window as unknown as { spawnParticles?: (x: number, y: number, type: string) => void }
+      if (win.spawnParticles) {
+        for (let i = 0; i < 3; i++) {
+          setTimeout(() => {
+            win.spawnParticles!(centerX + (Math.random() - 0.5) * 80, centerY, 'banish')
+          }, i * 150)
+        }
+      }
     }
   }, [state?.combat?.phase])
 
@@ -451,7 +523,7 @@ export function GameScreen({ deckId, onReturnToMenu }: GameScreenProps) {
       />
 
       {isVictory && (
-        <div className="absolute inset-0 bg-black/80 flex items-center justify-center z-40">
+        <div ref={victoryRef} className="absolute inset-0 bg-black/80 flex items-center justify-center z-40">
           <div className="text-center">
             <h2 className="text-5xl font-bold mb-4 text-heal">Victory!</h2>
             <p className="text-gray-400">Proceeding to rewards...</p>
@@ -460,21 +532,23 @@ export function GameScreen({ deckId, onReturnToMenu }: GameScreenProps) {
       )}
 
       {isDefeat && (
-        <div className="absolute inset-0 bg-black/80 flex items-center justify-center z-40">
+        <div ref={defeatRef} className="absolute inset-0 bg-black/80 flex items-center justify-center z-40">
           <div className="text-center">
             <h2 className="text-5xl font-bold mb-6 text-damage">Defeat</h2>
-            <p className="text-gray-400 mb-2">You reached floor {state.floor}</p>
-            <div className="text-sm text-gray-500 mb-6 space-y-1">
-              <p>Enemies Slain: {state.stats.enemiesKilled}</p>
-              <p>Damage Dealt: {state.stats.damageDealt}</p>
-              <p>Cards Played: {state.stats.cardsPlayed}</p>
+            <div className="defeat-content">
+              <p className="text-gray-400 mb-2">You reached floor {state.floor}</p>
+              <div className="text-sm text-gray-500 mb-6 space-y-1">
+                <p>Enemies Slain: {state.stats.enemiesKilled}</p>
+                <p>Damage Dealt: {state.stats.damageDealt}</p>
+                <p>Cards Played: {state.stats.cardsPlayed}</p>
+              </div>
+              <button
+                onClick={handleRestart}
+                className="px-8 py-3 bg-energy text-black font-bold rounded-lg text-lg hover:brightness-110 transition"
+              >
+                Try Again
+              </button>
             </div>
-            <button
-              onClick={handleRestart}
-              className="px-8 py-3 bg-energy text-black font-bold rounded-lg text-lg hover:brightness-110 transition"
-            >
-              Try Again
-            </button>
           </div>
         </div>
       )}
