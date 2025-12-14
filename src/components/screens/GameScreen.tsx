@@ -47,7 +47,7 @@ export function GameScreen({ deckId, onReturnToMenu }: GameScreenProps) {
   const prevHealthRef = useRef<Record<string, number>>({})
 
   // Animation coordination (refs + isAnimating state)
-  const { isAnimating, containerRef, handRef, animateDiscardHand, animateDealCards } = useAnimationCoordinator()
+  const { isAnimating, containerRef, handRef, animateDiscardHand, animateDealCards, queryContainer } = useAnimationCoordinator()
   const runStartRef = useRef<Date>(new Date())
   const runRecordedRef = useRef(false)
   const lastTurnRef = useRef<number>(0)
@@ -106,7 +106,7 @@ export function GameScreen({ deckId, onReturnToMenu }: GameScreenProps) {
             comboName: event.comboName,
           })
           // Spawn spark particles on target
-          const damageTarget = containerRef.current?.querySelector(`[data-target="${event.targetId}"]`)
+          const damageTarget = queryContainer(`[data-target="${event.targetId}"]`)
           if (damageTarget) {
             emitParticle(damageTarget, 'spark')
             // Hit flash and shake for enemies
@@ -127,14 +127,14 @@ export function GameScreen({ deckId, onReturnToMenu }: GameScreenProps) {
         case 'heal': {
           spawnCombatNumber(event.targetId, event.amount, 'heal')
           // Spawn heal particles on target
-          const healTarget = containerRef.current?.querySelector(`[data-target="${event.targetId}"]`)
+          const healTarget = queryContainer(`[data-target="${event.targetId}"]`)
           if (healTarget) emitParticle(healTarget, 'heal')
           break
         }
         case 'block': {
           spawnCombatNumber(event.targetId, event.amount, 'block')
           // Spawn block particles on target
-          const blockTarget = containerRef.current?.querySelector(`[data-target="${event.targetId}"]`)
+          const blockTarget = queryContainer(`[data-target="${event.targetId}"]`)
           if (blockTarget) emitParticle(blockTarget, 'block')
           break
         }
@@ -203,7 +203,7 @@ export function GameScreen({ deckId, onReturnToMenu }: GameScreenProps) {
         }
         case 'banish': {
           // Banish visual - emit particles on player (card is removed from game)
-          const playerEl = containerRef.current?.querySelector('[data-target="player"]')
+          const playerEl = queryContainer('[data-target="player"]')
           if (playerEl) {
             emitParticle(playerEl, 'spark')
             gsap.effects.pulse(playerEl, {
@@ -215,7 +215,7 @@ export function GameScreen({ deckId, onReturnToMenu }: GameScreenProps) {
         }
         case 'powerApply': {
           // Pulse the target entity when power applied
-          const targetEl = containerRef.current?.querySelector(
+          const targetEl = queryContainer(
             `[data-target="${event.targetId}"]`
           )
           if (targetEl) {
@@ -236,7 +236,7 @@ export function GameScreen({ deckId, onReturnToMenu }: GameScreenProps) {
           // PowerIndicators handles fade reactively
           break
         case 'energy': {
-          const energyOrb = containerRef.current?.querySelector('[data-energy-orb]')
+          const energyOrb = queryContainer('[data-energy-orb]')
           if (energyOrb) {
             gsap.effects.energyPulse(energyOrb, {
               color: event.delta > 0
@@ -251,7 +251,7 @@ export function GameScreen({ deckId, onReturnToMenu }: GameScreenProps) {
           break
         }
         case 'shuffle': {
-          const deckPile = containerRef.current?.querySelector('[data-deck-pile]')
+          const deckPile = queryContainer('[data-deck-pile]')
           if (deckPile) {
             gsap.effects.shuffleDeck(deckPile)
           }
@@ -283,7 +283,7 @@ export function GameScreen({ deckId, onReturnToMenu }: GameScreenProps) {
         case 'costModify': {
           // Flash cards whose cost changed
           for (const cardUid of event.cardUids) {
-            const cardEl = containerRef.current?.querySelector(`[data-card-uid="${cardUid}"]`)
+            const cardEl = queryContainer(`[data-card-uid="${cardUid}"]`)
             if (cardEl) {
               gsap.effects.pulse(cardEl, {
                 color: event.delta < 0
@@ -296,7 +296,7 @@ export function GameScreen({ deckId, onReturnToMenu }: GameScreenProps) {
         }
         case 'conditionalTrigger': {
           // Flash to indicate conditional branch triggered
-          const playerEl = containerRef.current?.querySelector('[data-entity="player"]')
+          const playerEl = queryContainer('[data-entity="player"]')
           if (playerEl) {
             gsap.effects.pulse(playerEl, {
               color: event.branch === 'then'
@@ -309,7 +309,7 @@ export function GameScreen({ deckId, onReturnToMenu }: GameScreenProps) {
         }
         case 'repeatEffect': {
           // Show repeat indicator
-          const playerEl = containerRef.current?.querySelector('[data-entity="player"]')
+          const playerEl = queryContainer('[data-entity="player"]')
           if (playerEl && event.current === 1) {
             // Only pulse on first iteration
             gsap.effects.pulse(playerEl, {
@@ -321,7 +321,7 @@ export function GameScreen({ deckId, onReturnToMenu }: GameScreenProps) {
         }
         case 'replay': {
           // Visual feedback when a card is replayed (Echo Form, Double Tap, etc.)
-          const playerEl = containerRef.current?.querySelector('[data-entity="player"]')
+          const playerEl = queryContainer('[data-entity="player"]')
           if (playerEl) {
             gsap.effects.pulse(playerEl, {
               color: 'oklch(0.7 0.18 220)', // cyan/blue for replay
@@ -334,8 +334,8 @@ export function GameScreen({ deckId, onReturnToMenu }: GameScreenProps) {
         case 'playTopCard': {
           // Visual feedback when playing a card from draw/discard pile (Havoc, Mayhem, etc.)
           const pileSelector = event.fromPile === 'drawPile' ? '[data-deck-pile]' : '[data-discard-pile]'
-          const pileEl = containerRef.current?.querySelector(pileSelector)
-          const playerEl = containerRef.current?.querySelector('[data-entity="player"]')
+          const pileEl = queryContainer(pileSelector)
+          const playerEl = queryContainer('[data-entity="player"]')
 
           if (pileEl) {
             gsap.effects.pulse(pileEl, {
@@ -352,7 +352,7 @@ export function GameScreen({ deckId, onReturnToMenu }: GameScreenProps) {
         }
         case 'gold': {
           // Visual feedback for gold gain/loss
-          const playerEl = containerRef.current?.querySelector('[data-entity="player"]')
+          const playerEl = queryContainer('[data-entity="player"]')
           if (playerEl) {
             gsap.effects.pulse(playerEl, {
               color: event.delta > 0
@@ -368,7 +368,7 @@ export function GameScreen({ deckId, onReturnToMenu }: GameScreenProps) {
         }
         case 'maxHealth': {
           // Visual feedback for max health change
-          const targetEl = containerRef.current?.querySelector(`[data-target="${event.targetId}"]`)
+          const targetEl = queryContainer(`[data-target="${event.targetId}"]`)
           if (targetEl) {
             gsap.effects.maxHealthPulse(targetEl, {
               color: event.delta > 0
@@ -395,7 +395,7 @@ export function GameScreen({ deckId, onReturnToMenu }: GameScreenProps) {
         case 'upgrade': {
           // Golden sparkle on upgraded cards
           for (const cardUid of event.cardUids) {
-            const cardEl = containerRef.current?.querySelector(`[data-card-uid="${cardUid}"]`)
+            const cardEl = queryContainer(`[data-card-uid="${cardUid}"]`)
             if (cardEl) {
               gsap.effects.upgradeCard(cardEl)
               emitParticle(cardEl, 'upgrade')
@@ -407,7 +407,7 @@ export function GameScreen({ deckId, onReturnToMenu }: GameScreenProps) {
         case 'retain': {
           // Cyan glow on retained cards
           for (const cardUid of event.cardUids) {
-            const cardEl = containerRef.current?.querySelector(`[data-card-uid="${cardUid}"]`)
+            const cardEl = queryContainer(`[data-card-uid="${cardUid}"]`)
             if (cardEl) {
               gsap.effects.retainCard(cardEl)
               emitParticle(cardEl, 'retain')
@@ -418,7 +418,7 @@ export function GameScreen({ deckId, onReturnToMenu }: GameScreenProps) {
         }
         case 'transform': {
           // Morph effect on transformed card
-          const cardEl = containerRef.current?.querySelector(`[data-card-uid="${event.cardUid}"]`)
+          const cardEl = queryContainer(`[data-card-uid="${event.cardUid}"]`)
           if (cardEl) {
             gsap.effects.transformCard(cardEl)
             emitParticle(cardEl, 'transform')
@@ -457,7 +457,7 @@ export function GameScreen({ deckId, onReturnToMenu }: GameScreenProps) {
           setTimeout(() => setTriggeredRelicId(null), 600)
 
           // Pulse player when relic triggers
-          const playerEl = containerRef.current?.querySelector('[data-entity="player"]')
+          const playerEl = queryContainer('[data-entity="player"]')
           if (playerEl) {
             gsap.effects.pulse(playerEl, {
               color: 'oklch(0.6 0.15 300)', // purple for relic
@@ -470,8 +470,8 @@ export function GameScreen({ deckId, onReturnToMenu }: GameScreenProps) {
         case 'cardPlayed': {
           // Emit particles based on card theme
           const targetEl = event.targetId
-            ? containerRef.current?.querySelector(`[data-target="${event.targetId}"]`)
-            : containerRef.current?.querySelector('[data-entity="player"]')
+            ? queryContainer(`[data-target="${event.targetId}"]`)
+            : queryContainer('[data-entity="player"]')
           if (targetEl) {
             // Map theme to particle type (attack/skill/power are valid particle types)
             if (event.theme === 'attack' || event.theme === 'skill' || event.theme === 'power') {
@@ -594,7 +594,7 @@ export function GameScreen({ deckId, onReturnToMenu }: GameScreenProps) {
         comboName?: string
       }
     ) => {
-      const targetEl = containerRef.current?.querySelector(
+      const targetEl = queryContainer(
         `[data-target="${targetId}"], [data-target-type="${targetId}"]`
       )
 
