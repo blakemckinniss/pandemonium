@@ -23,7 +23,8 @@ export interface VisualEventProcessor {
   removeCombatNumber: (id: string) => void
   handleAnimationComplete: (id: string) => void
   handleCardPositionsUpdate: (positions: Map<string, CardPosition>) => void
-  lastTurnRef: React.RefObject<number>
+  lastTurnRef: React.MutableRefObject<number>
+  resetVisuals: () => void
 }
 
 export function useVisualEventProcessor({

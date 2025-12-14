@@ -273,7 +273,6 @@ export function GameScreen({ deckId, onReturnToMenu }: GameScreenProps) {
       runStartRef.current = new Date()
       runRecordedRef.current = false
       lastTurnRef.current = 0
-      setCombatNumbers([])
       setPendingUnlocks([])
       setCurrentRoomId(null)
       setState(createNewRun('warrior'))
