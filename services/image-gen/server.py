@@ -1,12 +1,11 @@
 """
-FastAPI server for card art generation.
+FastAPI server for card art generation via ComfyUI.
 
-Provides REST API endpoints for generating card art images on-demand
-and batch processing existing cards.
+Provides REST API endpoints for generating card art images.
+Connects to a ComfyUI instance for actual generation.
 """
 
 import logging
-from contextlib import asynccontextmanager
 from pathlib import Path
 from typing import Literal
 
@@ -15,7 +14,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse, Response
 from pydantic import BaseModel, Field
 
-from generator import get_generator
+from generator import COMFYUI_URL, get_generator
 from prompts import batch_prompt_from_card_def, card_to_prompt, card_to_xml_prompt
 
 logging.basicConfig(level=logging.INFO)
@@ -26,32 +25,10 @@ OUTPUT_DIR = Path(__file__).parent / "generated"
 OUTPUT_DIR.mkdir(exist_ok=True)
 
 
-@asynccontextmanager
-async def lifespan(app: FastAPI):
-    """Load model on startup, cleanup on shutdown."""
-    logger.info("Starting image generation server...")
-    generator = get_generator()
-
-    # Load model at startup (can take a minute)
-    try:
-        generator.load_model()
-        generator.output_dir = OUTPUT_DIR
-    except Exception as e:
-        logger.error(f"Failed to load model at startup: {e}")
-        # Continue without model - will fail on generation requests
-
-    yield
-
-    # Cleanup
-    logger.info("Shutting down...")
-    generator.unload_model()
-
-
 app = FastAPI(
     title="Pandemonium Card Art Generator",
-    description="Generate anime-style card art using NewBie image model",
-    version="0.1.0",
-    lifespan=lifespan,
+    description="Generate anime-style card art via ComfyUI",
+    version="0.2.0",
 )
 
 # CORS for local development
@@ -107,8 +84,8 @@ class StatusResponse(BaseModel):
     """Server status response."""
 
     status: str
-    model_loaded: bool
-    model_id: str
+    comfyui_connected: bool
+    comfyui_url: str
     output_dir: str
 
 
@@ -121,12 +98,13 @@ async def health_check() -> dict:
 
 @app.get("/status", response_model=StatusResponse)
 async def get_status() -> StatusResponse:
-    """Get server and model status."""
+    """Get server and ComfyUI connection status."""
     generator = get_generator()
+    connected = generator.check_connection()
     return StatusResponse(
-        status="ready" if generator.is_loaded else "model_not_loaded",
-        model_loaded=generator.is_loaded,
-        model_id=generator.model_id,
+        status="ready" if connected else "comfyui_not_connected",
+        comfyui_connected=connected,
+        comfyui_url=generator.comfyui_url,
         output_dir=str(generator.output_dir),
     )
 
@@ -139,9 +117,13 @@ async def generate_card_art(request: GenerateRequest) -> GenerateResponse:
     Returns the generated image metadata and URL.
     """
     generator = get_generator()
+    generator.output_dir = OUTPUT_DIR
 
-    if not generator.is_loaded:
-        raise HTTPException(status_code=503, detail="Model not loaded")
+    if not generator.check_connection():
+        raise HTTPException(
+            status_code=503,
+            detail=f"ComfyUI not connected at {generator.comfyui_url}. Start ComfyUI first.",
+        )
 
     # Build prompt
     if request.use_xml:
@@ -208,9 +190,10 @@ async def start_batch_generation(
     Returns immediately with a job ID to check progress.
     """
     generator = get_generator()
+    generator.output_dir = OUTPUT_DIR
 
-    if not generator.is_loaded:
-        raise HTTPException(status_code=503, detail="Model not loaded")
+    if not generator.check_connection():
+        raise HTTPException(status_code=503, detail="ComfyUI not connected")
 
     # Simple job tracking (in production, use Redis/DB)
     import uuid
@@ -271,30 +254,8 @@ async def get_batch_status(job_id: str) -> JSONResponse:
     )
 
 
-@app.post("/load-model")
-async def load_model() -> dict:
-    """Manually trigger model loading."""
-    generator = get_generator()
-
-    if generator.is_loaded:
-        return {"status": "already_loaded"}
-
-    try:
-        generator.load_model()
-        return {"status": "loaded"}
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
-
-
-@app.post("/unload-model")
-async def unload_model() -> dict:
-    """Unload model to free VRAM."""
-    generator = get_generator()
-    generator.unload_model()
-    return {"status": "unloaded"}
-
-
 if __name__ == "__main__":
     import uvicorn
 
+    logger.info(f"Starting server - will connect to ComfyUI at {COMFYUI_URL}")
     uvicorn.run(app, host="0.0.0.0", port=8420)

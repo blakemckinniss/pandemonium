@@ -1,177 +1,255 @@
 """
-NewBie image model wrapper for card art generation.
+ComfyUI API client for card art generation.
 
-Handles model loading, caching, and inference.
-Uses Disty0's diffusers-compatible conversion of NewBie-image-Exp0.1.
+Connects to local or remote ComfyUI instance for image generation.
+Supports any model configured in ComfyUI (NewBie, z-image, etc).
 
-Memory modes:
-- quantize="fp8": FP8 quantization (~13GB VRAM). Best speed/memory balance.
-- quantize=None + resident=True: Full BF16 in VRAM (~21GB). Fastest inference.
-- quantize=None + resident=False: CPU offload for 16GB systems. Slowest.
+Configuration:
+- COMFYUI_URL: ComfyUI server URL (default: http://127.0.0.1:8188)
+- Uses websocket for progress tracking
+- Retrieves images via /view endpoint
 """
 
 import io
+import json
 import logging
+import random
+import time
+import uuid
 from pathlib import Path
 from typing import Literal
+from urllib import request
 
-import torch
+import websocket
 from PIL import Image
 
 logger = logging.getLogger(__name__)
 
-# Model configuration - Disty0's diffusers-compatible conversion
-MODEL_ID = "Disty0/NewBie-image-Exp0.1-Diffusers"
+# ComfyUI configuration
+COMFYUI_URL = "http://127.0.0.1:8188"
+COMFYUI_WS = "ws://127.0.0.1:8188/ws"
+
+# Default generation settings
 DEFAULT_WIDTH = 768
 DEFAULT_HEIGHT = 1024  # Portrait for card art
-DEFAULT_STEPS = 30
-DEFAULT_GUIDANCE = 2.5  # NewBie works best with lower CFG
+DEFAULT_STEPS = 10  # z-image turbo is fast
+DEFAULT_CFG = 1.0  # Turbo models use low CFG
+
+
+def get_workflow(
+    prompt: str,
+    width: int = DEFAULT_WIDTH,
+    height: int = DEFAULT_HEIGHT,
+    steps: int = DEFAULT_STEPS,
+    cfg: float = DEFAULT_CFG,
+    seed: int | None = None,
+    negative_prompt: str = "",
+    model: str = "z_image_turbo_fp8_e4m3fn.safetensors",
+    clip: str = "qwen_3_4b.safetensors",
+    vae: str = "ae.safetensors",
+) -> dict:
+    """
+    Build a ComfyUI workflow for image generation.
+
+    Uses z-image turbo by default (fast, good quality).
+    """
+    if seed is None:
+        seed = random.randint(0, 2**32 - 1)
+
+    # ComfyUI API workflow format
+    workflow = {
+        "1": {
+            "class_type": "UNETLoader",
+            "inputs": {"unet_name": model, "weight_dtype": "default"},
+        },
+        "2": {
+            "class_type": "CLIPLoader",
+            "inputs": {"clip_name": clip, "type": "lumina2", "device": "default"},
+        },
+        "3": {"class_type": "VAELoader", "inputs": {"vae_name": vae}},
+        "4": {"class_type": "CLIPTextEncode", "inputs": {"clip": ["2", 0], "text": prompt}},
+        "5": {"class_type": "ConditioningZeroOut", "inputs": {"conditioning": ["4", 0]}},
+        "6": {"class_type": "ModelSamplingAuraFlow", "inputs": {"model": ["1", 0], "shift": 2.5}},
+        "7": {
+            "class_type": "EmptySD3LatentImage",
+            "inputs": {"width": width, "height": height, "batch_size": 1},
+        },
+        "8": {
+            "class_type": "KSampler",
+            "inputs": {
+                "model": ["6", 0],
+                "positive": ["4", 0],
+                "negative": ["5", 0],
+                "latent_image": ["7", 0],
+                "seed": seed,
+                "steps": steps,
+                "cfg": cfg,
+                "sampler_name": "euler",
+                "scheduler": "beta",
+                "denoise": 1.0,
+            },
+        },
+        "9": {"class_type": "VAEDecode", "inputs": {"samples": ["8", 0], "vae": ["3", 0]}},
+        "10": {
+            "class_type": "SaveImage",
+            "inputs": {"images": ["9", 0], "filename_prefix": "cardart"},
+        },
+    }
+
+    return workflow
 
 
 class CardArtGenerator:
-    """Manages NewBie model loading and image generation."""
+    """ComfyUI API client for card art generation."""
 
     def __init__(
         self,
-        model_id: str = MODEL_ID,
-        device: str = "cuda",
-        dtype: torch.dtype = torch.bfloat16,
+        comfyui_url: str = COMFYUI_URL,
         output_dir: Path | None = None,
-        resident: bool = True,
-        quantize: Literal["fp8"] | None = "fp8",
     ):
-        self.model_id = model_id
-        self.device = device
-        self.dtype = dtype
+        self.comfyui_url = comfyui_url.rstrip("/")
+        self.ws_url = comfyui_url.replace("http://", "ws://").replace("https://", "wss://") + "/ws"
         self.output_dir = output_dir or Path("generated")
         self.output_dir.mkdir(parents=True, exist_ok=True)
-        self.resident = resident  # True = keep in VRAM, False = CPU offload
-        self.quantize = quantize  # "fp8" for FP8 quantization, None for full precision
-        self.pipe = None
-        self._loaded = False
+        self.client_id = str(uuid.uuid4())
+        self._connected = False
 
-    def load_model(self) -> None:
-        """Load the NewBie pipeline. Call once at startup."""
-        if self._loaded:
-            logger.info("Model already loaded")
-            return
-
-        logger.info(f"Loading NewBie model from {self.model_id}...")
-
+    def check_connection(self) -> bool:
+        """Check if ComfyUI server is reachable."""
         try:
-            from diffusers import NewbiePipeline
-            from transformers import AutoModel
-
-            # Load text_encoder_2 (Jina CLIP) separately with trust_remote_code
-            logger.info("Loading text_encoder_2 (Jina CLIP)...")
-            text_encoder_2 = AutoModel.from_pretrained(
-                self.model_id,
-                subfolder="text_encoder_2",
-                trust_remote_code=True,
-                torch_dtype=self.dtype,
-            )
-
-            # Load the pipeline with the pre-loaded text_encoder_2
-            logger.info("Loading NewbiePipeline...")
-            self.pipe = NewbiePipeline.from_pretrained(
-                self.model_id,
-                text_encoder_2=text_encoder_2,
-                torch_dtype=self.dtype,
-            )
-            del text_encoder_2  # Free memory, pipeline holds reference
-
-            # Apply quantization if requested (before moving to GPU)
-            if self.quantize == "fp8":
-                logger.info("Applying FP8 quantization to transformer...")
-                from optimum.quanto import freeze, qfloat8, quantize
-
-                quantize(self.pipe.transformer, weights=qfloat8)
-                freeze(self.pipe.transformer)
-                logger.info("FP8 quantization applied (~13GB VRAM)")
-
-            if self.resident:
-                # Keep entire model in VRAM for faster inference
-                logger.info("Moving pipeline to GPU (resident mode)...")
-                self.pipe = self.pipe.to(self.device)
-            else:
-                # CPU offload for 16GB VRAM systems
-                logger.info("Enabling CPU offload (low-VRAM mode)...")
-                self.pipe.enable_model_cpu_offload(device=self.device)
-                self.pipe.text_encoder_2 = self.pipe.text_encoder_2.to(self.device)
-
-            self._loaded = True
-            mode = "FP8" if self.quantize == "fp8" else "BF16"
-            logger.info(f"Model loaded successfully ({mode}, resident={self.resident})")
-
+            req = request.Request(f"{self.comfyui_url}/system_stats")
+            with request.urlopen(req, timeout=5) as resp:
+                self._connected = resp.status == 200
+                return self._connected
         except Exception as e:
-            logger.error(f"Failed to load model: {e}")
-            raise
-
-    def unload_model(self) -> None:
-        """Unload model to free VRAM."""
-        if self.pipe is not None:
-            del self.pipe
-            self.pipe = None
-            self._loaded = False
-            torch.cuda.empty_cache()
-            logger.info("Model unloaded")
+            logger.warning(f"ComfyUI not reachable: {e}")
+            self._connected = False
+            return False
 
     @property
-    def is_loaded(self) -> bool:
-        return self._loaded
+    def is_connected(self) -> bool:
+        return self._connected
+
+    def queue_prompt(self, workflow: dict) -> str:
+        """Submit workflow to ComfyUI queue. Returns prompt_id."""
+        payload = {"prompt": workflow, "client_id": self.client_id}
+        data = json.dumps(payload).encode("utf-8")
+        req = request.Request(
+            f"{self.comfyui_url}/prompt", data=data, headers={"Content-Type": "application/json"}
+        )
+
+        with request.urlopen(req) as resp:
+            result = json.loads(resp.read().decode("utf-8"))
+            return result["prompt_id"]
+
+    def wait_for_completion(self, prompt_id: str, timeout: float = 120) -> dict:
+        """Wait for prompt completion via websocket. Returns execution info."""
+        ws = websocket.create_connection(f"{self.ws_url}?clientId={self.client_id}")
+
+        try:
+            start = time.time()
+            while time.time() - start < timeout:
+                ws.settimeout(5)
+                try:
+                    msg = ws.recv()
+                    if isinstance(msg, str):
+                        data = json.loads(msg)
+                        if data.get("type") == "executing":
+                            exec_data = data.get("data", {})
+                            if exec_data.get("prompt_id") == prompt_id:
+                                if exec_data.get("node") is None:
+                                    # Execution complete
+                                    return {"status": "complete", "prompt_id": prompt_id}
+                        elif data.get("type") == "execution_error":
+                            return {"status": "error", "error": data.get("data")}
+                except websocket.WebSocketTimeoutException:
+                    continue
+
+            return {"status": "timeout"}
+        finally:
+            ws.close()
+
+    def get_images(self, prompt_id: str) -> list[Image.Image]:
+        """Retrieve generated images from ComfyUI."""
+        req = request.Request(f"{self.comfyui_url}/history/{prompt_id}")
+
+        with request.urlopen(req) as resp:
+            history = json.loads(resp.read().decode("utf-8"))
+
+        images = []
+        if prompt_id in history:
+            outputs = history[prompt_id].get("outputs", {})
+            for node_id, node_output in outputs.items():
+                if "images" in node_output:
+                    for img_data in node_output["images"]:
+                        filename = img_data["filename"]
+                        subfolder = img_data.get("subfolder", "")
+                        img_type = img_data.get("type", "output")
+
+                        # Fetch image
+                        params = f"filename={filename}&subfolder={subfolder}&type={img_type}"
+                        img_req = request.Request(f"{self.comfyui_url}/view?{params}")
+
+                        with request.urlopen(img_req) as img_resp:
+                            img = Image.open(io.BytesIO(img_resp.read()))
+                            images.append(img.copy())
+
+        return images
 
     def generate(
         self,
         prompt: str,
         width: int = DEFAULT_WIDTH,
         height: int = DEFAULT_HEIGHT,
-        num_inference_steps: int = DEFAULT_STEPS,
-        guidance_scale: float = DEFAULT_GUIDANCE,
+        steps: int = DEFAULT_STEPS,
+        cfg: float = DEFAULT_CFG,
         seed: int | None = None,
-        negative_prompt: str | None = None,
+        negative_prompt: str = "",
     ) -> Image.Image:
         """
         Generate a single image from prompt.
 
         Args:
-            prompt: Text prompt (natural language or XML structured)
-            width: Output width (default 768 for card art)
+            prompt: Text prompt for generation
+            width: Output width (default 768)
             height: Output height (default 1024 for portrait cards)
-            num_inference_steps: Denoising steps (default 28)
-            guidance_scale: CFG scale (default 7.0)
+            steps: Sampling steps (default 10 for turbo)
+            cfg: CFG scale (default 1.0 for turbo)
             seed: Random seed for reproducibility
-            negative_prompt: Negative prompt for exclusions
+            negative_prompt: Negative prompt (unused for turbo)
 
         Returns:
             PIL Image object
         """
-        if not self._loaded:
-            raise RuntimeError("Model not loaded. Call load_model() first.")
+        if not self.check_connection():
+            raise RuntimeError(f"ComfyUI not reachable at {self.comfyui_url}")
 
-        generator = None
-        if seed is not None:
-            generator = torch.Generator(device=self.device).manual_seed(seed)
-
-        default_negative = (
-            "blurry, worst quality, low quality, deformed hands, bad anatomy, "
-            "extra limbs, poorly drawn face, mutated, extra eyes, bad proportions"
+        workflow = get_workflow(
+            prompt=prompt,
+            width=width,
+            height=height,
+            steps=steps,
+            cfg=cfg,
+            seed=seed,
+            negative_prompt=negative_prompt,
         )
-        neg = negative_prompt or default_negative
 
-        logger.info(f"Generating image: {width}x{height}, steps={num_inference_steps}")
+        logger.info(f"Generating image: {width}x{height}, steps={steps}")
 
-        with torch.inference_mode():
-            result = self.pipe(
-                prompt=prompt,
-                negative_prompt=neg,
-                width=width,
-                height=height,
-                num_inference_steps=num_inference_steps,
-                guidance_scale=guidance_scale,
-                generator=generator,
-            )
+        prompt_id = self.queue_prompt(workflow)
+        logger.info(f"Queued prompt: {prompt_id}")
 
-        return result.images[0]
+        result = self.wait_for_completion(prompt_id)
+
+        if result["status"] != "complete":
+            raise RuntimeError(f"Generation failed: {result}")
+
+        images = self.get_images(prompt_id)
+
+        if not images:
+            raise RuntimeError("No images returned from ComfyUI")
+
+        return images[0]
 
     def generate_card_art(
         self,
