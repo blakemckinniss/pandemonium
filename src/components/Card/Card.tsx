@@ -36,6 +36,8 @@ interface CardProps {
   playable?: boolean
   disabled?: boolean
   costModified?: boolean // True if card cost has been modified
+  ethereal?: boolean // Card exhausts if not played
+  retained?: boolean // Card stays in hand at turn end
 
   // Interactions
   onClick?: () => void
@@ -63,6 +65,8 @@ export function Card({
   playable = false,
   disabled = false,
   costModified = false,
+  ethereal = false,
+  retained = false,
   onClick,
   className = '',
   ...dataAttrs
@@ -97,6 +101,22 @@ export function Card({
       {variant === 'hand' && element && element !== 'physical' && (
         <div className={`absolute top-2 right-2 w-7 h-7 rounded-full ${ELEMENT_CONFIG[element].bg} flex items-center justify-center shadow-md border border-white/20`}>
           <Icon icon={ELEMENT_CONFIG[element].icon} className={`w-4 h-4 ${ELEMENT_CONFIG[element].color}`} />
+        </div>
+      )}
+
+      {/* Status keyword badges (ethereal/retained) */}
+      {variant === 'hand' && (ethereal || retained) && (
+        <div className="absolute top-11 right-2 flex flex-col gap-1">
+          {ethereal && (
+            <div className="w-6 h-6 rounded-full bg-purple-900/80 flex items-center justify-center shadow-md border border-purple-400/30" title="Ethereal - Exhausts if not played">
+              <Icon icon="game-icons:ghost" className="w-3.5 h-3.5 text-purple-300" />
+            </div>
+          )}
+          {retained && (
+            <div className="w-6 h-6 rounded-full bg-amber-900/80 flex items-center justify-center shadow-md border border-amber-400/30" title="Retained - Stays in hand">
+              <Icon icon="game-icons:hand" className="w-3.5 h-3.5 text-amber-300" />
+            </div>
+          )}
         </div>
       )}
 
@@ -239,6 +259,8 @@ const POWER_ICONS: Record<string, { icon: string; color: string; isDebuff?: bool
   mayhem: { icon: 'game-icons:chaos', color: 'text-energy' },
   echoForm: { icon: 'game-icons:echo-ripples', color: 'text-energy' },
   burst: { icon: 'game-icons:fast-forward-button', color: 'text-energy' },
+  // Defensive
+  intangible: { icon: 'game-icons:ghost', color: 'text-purple-300' },
 }
 
 interface PowerIndicatorsProps {

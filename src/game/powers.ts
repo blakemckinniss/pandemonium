@@ -453,6 +453,16 @@ registerPower({
 })
 
 registerPower({
+  id: 'intangible',
+  name: 'Intangible',
+  description: 'Reduce ALL damage taken to 1. {amount} turn(s).',
+  stackBehavior: 'duration',
+  // Note: Damage reduction handled specially in damage calc
+  decayOn: 'turnEnd',
+  removeAtZero: true,
+})
+
+registerPower({
   id: 'doubleTap',
   name: 'Double Tap',
   description: 'Your next {amount} Attack(s) are played twice.',
@@ -586,14 +596,21 @@ export function applyOutgoingDamageModifiers(
 }
 
 /**
- * Apply incoming damage modifiers (Vulnerable)
+ * Apply incoming damage modifiers (Vulnerable, Intangible)
  * Vulnerable: *1.5 multiplier
+ * Intangible: reduces all damage to 1
  */
 export function applyIncomingDamageModifiers(
   baseDamage: number,
   defender: Entity
 ): number {
   let damage = baseDamage
+
+  // Intangible: reduces all damage to 1 (checked first, overrides everything)
+  const intangible = defender.powers['intangible']
+  if (intangible && damage > 0) {
+    return 1
+  }
 
   // Vulnerable: multiplicative (round down)
   const vulnerable = defender.powers['vulnerable']

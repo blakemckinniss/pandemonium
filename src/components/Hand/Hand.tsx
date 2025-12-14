@@ -77,6 +77,8 @@ export function Hand({ cards, energy, onPlayCard, onPositionsUpdate }: HandProps
               upgraded={card.upgraded}
               element={def.element}
               costModified={card.costModifier !== undefined && card.costModifier !== 0}
+              ethereal={card.ethereal || def.ethereal}
+              retained={card.retained}
               playable={canPlay}
               disabled={!canPlay}
               onClick={() => canPlay && onPlayCard(card.uid)}
