@@ -992,10 +992,11 @@ describe('executeTransferPower', () => {
       // Act
       executeTransferPower(state, { type: 'transferPower', powerId: 'weak', from: 'allEnemies', to: 'player' }, ctx)
 
-      // Assert - both enemies lose weak, player gains it (stacked)
+      // Assert - both enemies lose weak, player gains from first only (weak uses max duration stacking)
       expect(state.combat?.enemies[0].powers['weak']).toBeUndefined()
       expect(state.combat?.enemies[1].powers['weak']).toBeUndefined()
-      expect(state.combat?.player.powers['weak'].amount).toBe(5) // 2 + 3
+      // Weak stacks with max duration, so player gets max(2, 3) = 3
+      expect(state.combat?.player.powers['weak'].amount).toBe(3)
     })
   })
 
