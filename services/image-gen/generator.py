@@ -1,8 +1,12 @@
 """
 NewBie image model wrapper for card art generation.
 
-Handles model loading, caching, and inference with optimizations for 16GB+ VRAM.
+Handles model loading, caching, and inference.
 Uses Disty0's diffusers-compatible conversion of NewBie-image-Exp0.1.
+
+Memory modes:
+- resident=True (default): Keep model in VRAM (~17GB). Faster inference.
+- resident=False: CPU offload for 16GB VRAM systems. Slower but works.
 """
 
 import io
@@ -32,12 +36,14 @@ class CardArtGenerator:
         device: str = "cuda",
         dtype: torch.dtype = torch.bfloat16,
         output_dir: Path | None = None,
+        resident: bool = True,
     ):
         self.model_id = model_id
         self.device = device
         self.dtype = dtype
         self.output_dir = output_dir or Path("generated")
         self.output_dir.mkdir(parents=True, exist_ok=True)
+        self.resident = resident  # True = keep in VRAM, False = CPU offload
         self.pipe = None
         self._loaded = False
 
@@ -71,12 +77,15 @@ class CardArtGenerator:
             )
             del text_encoder_2  # Free memory, pipeline holds reference
 
-            # Enable CPU offload for memory efficiency on 16GB+ VRAM
-            logger.info("Enabling model CPU offload...")
-            self.pipe.enable_model_cpu_offload(device=self.device)
-
-            # Move text_encoder_2 to GPU for inference
-            self.pipe.text_encoder_2 = self.pipe.text_encoder_2.to(self.device)
+            if self.resident:
+                # Keep entire model in VRAM for faster inference (~17GB)
+                logger.info("Moving pipeline to GPU (resident mode)...")
+                self.pipe = self.pipe.to(self.device)
+            else:
+                # CPU offload for 16GB VRAM systems
+                logger.info("Enabling CPU offload (low-VRAM mode)...")
+                self.pipe.enable_model_cpu_offload(device=self.device)
+                self.pipe.text_encoder_2 = self.pipe.text_encoder_2.to(self.device)
 
             self._loaded = True
             logger.info("Model loaded successfully")
