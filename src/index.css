@@ -57,7 +57,34 @@ body {
 
 .Card--attack { border-color: var(--color-card-attack); }
 .Card--skill { border-color: var(--color-card-skill); }
-.Card--power { border-color: var(--color-card-power); }
+.Card--power {
+  border-color: var(--color-card-power);
+  background: linear-gradient(
+    135deg,
+    oklch(0.22 0.03 280) 0%,
+    var(--color-surface) 50%,
+    oklch(0.20 0.02 280) 100%
+  );
+  box-shadow:
+    0 0 8px oklch(0.5 0.1 280 / 0.3),
+    inset 0 1px 0 oklch(0.6 0.08 280 / 0.2);
+}
+
+.Card--power::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    oklch(0.6 0.15 280) 50%,
+    transparent 100%
+  );
+  border-radius: 12px 12px 0 0;
+}
 
 .Card--upgraded {
   border-color: oklch(0.75 0.18 160);

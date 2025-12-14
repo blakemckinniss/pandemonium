@@ -373,6 +373,38 @@ gsap.registerEffect({
   extendTimeline: true,
 })
 
+// Ethereal exhaust - ghostly fade with purple tint
+gsap.registerEffect({
+  name: 'etherealExhaust',
+  effect: (targets: gsap.TweenTarget, config: { onComplete?: () => void }) => {
+    const tl = gsap.timeline()
+
+    // Flash purple and float up
+    tl.to(targets, {
+      filter: 'brightness(1.3) saturate(0.6) hue-rotate(260deg)',
+      y: '-=30',
+      scale: 1.15,
+      opacity: 0.9,
+      duration: 0.2,
+      ease: 'power2.out',
+    })
+
+    // Fade out with ghostly dissolve
+    tl.to(targets, {
+      y: '-=50',
+      scale: 0.8,
+      opacity: 0,
+      filter: 'brightness(0.5) saturate(0) blur(8px)',
+      duration: 0.5,
+      ease: 'power2.in',
+      onComplete: config.onComplete,
+    })
+
+    return tl
+  },
+  extendTimeline: true,
+})
+
 // ============================================
 // UTILITY FUNCTIONS
 // ============================================

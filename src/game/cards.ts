@@ -1849,3 +1849,51 @@ registerCard({
     ],
   },
 })
+
+// ============================================
+// RETAIN CARDS
+// ============================================
+
+registerCard({
+  id: 'well_laid_plans',
+  name: 'Well-Laid Plans',
+  description: 'Retain a random card in your hand. Draw 1 card.',
+  energy: 1,
+  theme: 'skill',
+  target: 'self',
+  rarity: 'uncommon',
+  effects: [
+    { type: 'retain', target: { from: 'hand', count: 1 } },
+    { type: 'draw', amount: 1 },
+  ],
+  upgradesTo: {
+    name: 'Well-Laid Plans+',
+    description: 'Retain 2 random cards in your hand. Draw 1 card.',
+    effects: [
+      { type: 'retain', target: { from: 'hand', count: 2 } },
+      { type: 'draw', amount: 1 },
+    ],
+  },
+})
+
+registerCard({
+  id: 'runic_pyramid',
+  name: 'Runic Pyramid',
+  description: 'Retain your entire hand. Exhaust.',
+  energy: 1,
+  theme: 'skill',
+  target: 'self',
+  rarity: 'rare',
+  effects: [
+    { type: 'retain', target: 'hand' },
+    { type: 'exhaust', target: 'thisCard' },
+  ],
+  upgradesTo: {
+    name: 'Runic Pyramid+',
+    description: 'Retain your entire hand.',
+    energy: 0,
+    effects: [
+      { type: 'retain', target: 'hand' },
+    ],
+  },
+})

@@ -163,11 +163,14 @@ export function GameScreen({ deckId, onReturnToMenu }: GameScreenProps) {
             const cardDef = getCardDefinition(cached.definitionId)
             if (!cardDef) continue
 
+            // Use ethereal exhaust animation for ethereal cards (ghostly purple fade)
+            const animType = cardDef.ethereal ? 'etherealExhaust' : 'exhaust'
+
             exhaustAnims.push({
               id: `exhaust-${cardUid}-${Date.now()}`,
               cardDef,
               position: { x: cached.x, y: cached.y },
-              type: 'exhaust',
+              type: animType,
             })
           }
           if (exhaustAnims.length > 0) {
