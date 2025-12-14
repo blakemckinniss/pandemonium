@@ -1,0 +1,29 @@
+[project]
+name = "pandemonium-image-gen"
+version = "0.1.0"
+description = "Card art generation service for Pandemonium using NewBie image model"
+requires-python = ">=3.10"
+dependencies = [
+    "fastapi>=0.115.0",
+    "uvicorn[standard]>=0.32.0",
+    "diffusers>=0.31.0",
+    "transformers>=4.47.0",
+    "accelerate>=1.2.0",
+    "safetensors>=0.4.0",
+    "torch>=2.4.0",
+    "pillow>=10.0.0",
+    "pydantic>=2.0.0",
+    "python-multipart>=0.0.9",
+]
+
+[project.optional-dependencies]
+dev = [
+    "ruff>=0.8.0",
+]
+
+[tool.ruff]
+line-length = 100
+target-version = "py310"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "W"]
