@@ -821,7 +821,7 @@ export interface RunStats {
 // ============================================
 
 export interface EffectContext {
-  source: 'player' | string
+  source: string
   cardUid?: string // The card being played/replayed
   cardTarget?: string
   currentTarget?: string

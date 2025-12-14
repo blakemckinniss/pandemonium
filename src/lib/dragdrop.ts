@@ -44,8 +44,10 @@ export function enableDragDrop(config: DragDropConfig): void {
         gsap.killTweensOf(cardEl)
         cardEl.classList.add(DRAG_CLASS)
 
-        // Store start position
+        // Store start position (Draggable tracks these internally)
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-explicit-any
         ;(this as any).startX = this.x
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-explicit-any
         ;(this as any).startY = this.y
       },
 
@@ -113,8 +115,9 @@ export function enableDragDrop(config: DragDropConfig): void {
 
         // Single target cards
         if (droppedTarget && droppedTargetId) {
+          const targetId = droppedTargetId
           playCardAnimation(cardEl, droppedTarget, () => {
-            onPlayCard(cardUid, droppedTargetId!, cardEl)
+            onPlayCard(cardUid, targetId, cardEl)
           })
         } else {
           // No valid target - snap back
@@ -148,6 +151,10 @@ function isValidDropTarget(
   return cardTarget === targetType
 }
 
+// Type wrapper for GSAP custom effects
+type GsapEffect = (target: Element, config?: object) => void
+const effects = gsap.effects as Record<string, GsapEffect>
+
 function playCardAnimation(
   cardEl: HTMLElement,
   _targetEl: HTMLElement | null,
@@ -155,11 +162,11 @@ function playCardAnimation(
 ): void {
   // Animation starts from current position (where card was dropped)
   // and flies to discard pile area
-  gsap.effects.playCard(cardEl, { onComplete })
+  effects.playCard(cardEl, { onComplete })
 }
 
 function snapBack(cardEl: HTMLElement): void {
-  gsap.effects.snapBack(cardEl)
+  effects.snapBack(cardEl)
 }
 
 // Re-export for convenience

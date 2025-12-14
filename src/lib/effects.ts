@@ -283,10 +283,11 @@ export function resolveEntityTarget(
     case 'allEntities':
       return combat.player
 
-    case 'otherEnemies':
+    case 'otherEnemies': {
       // All except current target
       const others = combat.enemies.filter((e) => e.id !== ctx.currentTarget)
       return others[0] ?? null
+    }
 
     default:
       return null
@@ -314,10 +315,11 @@ export function resolveEntityTargets(
       if (ctx.cardTarget) return [ctx.cardTarget]
       return combat.enemies[0] ? [combat.enemies[0].id] : []
 
-    case 'randomEnemy':
+    case 'randomEnemy': {
       if (combat.enemies.length === 0) return []
       const idx = Math.floor(Math.random() * combat.enemies.length)
       return [combat.enemies[idx].id]
+    }
 
     case 'weakestEnemy': {
       const weakest = resolveEntityTarget('weakestEnemy', state, ctx)

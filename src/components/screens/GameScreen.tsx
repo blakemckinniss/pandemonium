@@ -335,7 +335,6 @@ export function GameScreen({ deckId, onReturnToMenu }: GameScreenProps) {
     store.recordRun(runResult)
 
     if (unlocks.length > 0) {
-      // eslint-disable-next-line react-hooks/set-state-in-effect
       setPendingUnlocks(unlocks)
     }
 
