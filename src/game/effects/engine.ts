@@ -1,6 +1,7 @@
 // Effect execution engine - central dispatcher
 import type { RunState, AtomicEffect, EffectContext, Entity } from '../../types'
 import { getPowerTriggers } from '../powers'
+import { emitVisual } from '../handlers/shared'
 
 // Import all effect executors
 import {
@@ -182,6 +183,14 @@ export function executePowerTriggers(
   const triggers = getPowerTriggers(entity, event)
 
   for (const trigger of triggers) {
+    // Emit visual feedback for power trigger
+    emitVisual(draft, {
+      type: 'powerTrigger',
+      targetId: entity.id,
+      powerId: trigger.powerId,
+      triggerEvent: event,
+    })
+
     const ctx: EffectContext = {
       source: entity.id,
       powerId: trigger.powerId,

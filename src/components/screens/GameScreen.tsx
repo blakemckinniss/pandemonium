@@ -375,7 +375,7 @@ export function GameScreen({ deckId, onReturnToMenu }: GameScreenProps) {
             const cardEl = containerRef.current?.querySelector(`[data-card-uid="${cardUid}"]`)
             if (cardEl) {
               gsap.effects.upgradeCard(cardEl)
-              emitParticle(cardEl, 'energy')
+              emitParticle(cardEl, 'upgrade')
             }
           }
           console.log(`Upgraded ${event.cardUids.length} card(s)`)
@@ -397,7 +397,7 @@ export function GameScreen({ deckId, onReturnToMenu }: GameScreenProps) {
           const cardEl = containerRef.current?.querySelector(`[data-card-uid="${event.cardUid}"]`)
           if (cardEl) {
             gsap.effects.transformCard(cardEl)
-            emitParticle(cardEl, 'spark')
+            emitParticle(cardEl, 'transform')
           }
           const fromDef = getCardDefinition(event.fromCardId)
           const toDef = getCardDefinition(event.toCardId)
