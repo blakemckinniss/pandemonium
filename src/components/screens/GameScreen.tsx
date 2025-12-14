@@ -278,19 +278,27 @@ export function GameScreen({ deckId, onReturnToMenu }: GameScreenProps) {
 
       // Screen shake
       if (containerRef.current) {
-        gsap.effects.shake(containerRef.current, { intensity: 12 })
+        gsap.effects.shake(containerRef.current, { intensity: 15 })
       }
 
-      // Dark particles
+      // Red vignette flash
+      const vignette = document.createElement('div')
+      vignette.style.cssText = 'position:fixed;inset:0;pointer-events:none;z-index:99;box-shadow:inset 0 0 150px 50px rgba(180,0,0,0.8)'
+      document.body.appendChild(vignette)
+      gsap.fromTo(vignette, { opacity: 0.8 }, { opacity: 0, duration: 0.8, onComplete: () => vignette.remove() })
+
+      // Dark/explosion particles
       const rect = overlay.getBoundingClientRect()
       const centerX = rect.left + rect.width / 2
       const centerY = rect.top + rect.height / 2
       const win = window as unknown as { spawnParticles?: (x: number, y: number, type: string) => void }
       if (win.spawnParticles) {
-        for (let i = 0; i < 3; i++) {
+        // Explosion burst
+        for (let i = 0; i < 6; i++) {
           setTimeout(() => {
+            win.spawnParticles!(centerX + (Math.random() - 0.5) * 120, centerY + (Math.random() - 0.5) * 60, 'explosion')
             win.spawnParticles!(centerX + (Math.random() - 0.5) * 80, centerY, 'banish')
-          }, i * 150)
+          }, i * 100)
         }
       }
     }
