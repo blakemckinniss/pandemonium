@@ -7,6 +7,7 @@ import { CombatNumbers } from '../CombatNumbers/CombatNumbers'
 import { RoomSelect } from '../DungeonDeck/RoomSelect'
 import { RewardScreen } from './RewardScreen'
 import { CampfireScreen } from './CampfireScreen'
+import { TreasureScreen } from './TreasureScreen'
 import { UnlockNotification } from '../UnlockNotification/UnlockNotification'
 import { ParticleEffects } from '../ParticleEffects/ParticleEffects'
 import { emitParticle } from '../ParticleEffects/emitParticle'
@@ -628,6 +629,15 @@ export function GameScreen({ deckId, onReturnToMenu }: GameScreenProps) {
         }
       }
 
+      // Handle treasure rooms
+      if (roomDef?.type === 'treasure') {
+        return {
+          ...prev,
+          gamePhase: 'treasure',
+          roomChoices: [],
+        }
+      }
+
       // Create enemies from room
       const enemies = createEnemiesFromRoom(room.definitionId)
 
@@ -796,6 +806,46 @@ export function GameScreen({ deckId, onReturnToMenu }: GameScreenProps) {
   const handleCampfireSkip = useCallback(() => {
     advanceFromCampfire()
   }, [advanceFromCampfire])
+
+  // ============================================
+  // TREASURE
+  // ============================================
+
+  const advanceFromTreasure = useCallback(() => {
+    setState((prev) => {
+      if (!prev) return prev
+
+      const { choices, remaining } = drawRoomChoices(prev.dungeonDeck, 3)
+
+      if (choices.length === 0) {
+        return { ...prev, gamePhase: 'gameOver' as const, floor: prev.floor + 1 }
+      }
+
+      return {
+        ...prev,
+        gamePhase: 'roomSelect',
+        dungeonDeck: remaining,
+        roomChoices: choices,
+        floor: prev.floor + 1,
+      }
+    })
+  }, [])
+
+  const handleTreasureSelectRelic = useCallback((relicId: string) => {
+    setState((prev) => {
+      if (!prev) return prev
+      const newRelic = { id: generateUid(), definitionId: relicId }
+      return {
+        ...prev,
+        relics: [...prev.relics, newRelic],
+      }
+    })
+    advanceFromTreasure()
+  }, [advanceFromTreasure])
+
+  const handleTreasureSkip = useCallback(() => {
+    advanceFromTreasure()
+  }, [advanceFromTreasure])
 
   // ============================================
   // COMBAT
@@ -1029,6 +1079,20 @@ export function GameScreen({ deckId, onReturnToMenu }: GameScreenProps) {
         onRest={handleCampfireRest}
         onSmith={handleCampfireSmith}
         onSkip={handleCampfireSkip}
+      />
+    )
+  }
+
+  // Treasure phase
+  if (state.gamePhase === 'treasure') {
+    const isLargeTreasure = currentRoomId === 'treasure_large'
+    return (
+      <TreasureScreen
+        floor={state.floor}
+        isLargeTreasure={isLargeTreasure}
+        ownedRelicIds={state.relics.map((r) => r.definitionId)}
+        onSelectRelic={handleTreasureSelectRelic}
+        onSkip={handleTreasureSkip}
       />
     )
   }
