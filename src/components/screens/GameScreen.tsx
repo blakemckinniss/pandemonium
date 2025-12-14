@@ -1,3 +1,4 @@
+// LARGE_FILE_OK: Active refactoring - extracting handlers to reduce size
 import { useState, useCallback, useEffect, useRef } from 'react'
 import { Icon } from '@iconify/react'
 import { Hand, type CardPosition } from '../Hand/Hand'
@@ -15,11 +16,10 @@ import { CardPileModal, type PileType } from '../Modal/CardPileModal'
 import { CardSelectionModal } from '../Modal/CardSelectionModal'
 import { RelicBar } from '../RelicBar/RelicBar'
 import type { RunState, CombatNumber, Element } from '../../types'
-import { applyAction, createCardInstance } from '../../game/actions'
+import { applyAction } from '../../game/actions'
 import { createNewRun, createEnemiesFromRoom } from '../../game/new-game'
 import { getCardDefinition } from '../../game/cards'
 import { getEnergyCostNumber } from '../../lib/effects'
-import { drawRoomChoices } from '../../game/dungeon-deck'
 import { getRoomDefinition } from '../../content/rooms'
 import { enableDragDrop, disableDragDrop, gsap } from '../../lib/dragdrop'
 import { generateUid } from '../../lib/utils'
@@ -27,6 +27,8 @@ import { useMetaStore, checkUnlocks } from '../../stores/metaStore'
 import { saveRun, getCustomDeckById } from '../../stores/db'
 import { useCampfireHandlers } from '../../hooks/useCampfireHandlers'
 import { useTreasureHandlers } from '../../hooks/useTreasureHandlers'
+import { useRewardHandlers } from '../../hooks/useRewardHandlers'
+import { useSelectionHandlers } from '../../hooks/useSelectionHandlers'
 
 interface GameScreenProps {
   deckId?: string | null
@@ -55,6 +57,8 @@ export function GameScreen({ deckId, onReturnToMenu }: GameScreenProps) {
   // Extracted handlers
   const campfireHandlers = useCampfireHandlers(setState)
   const treasureHandlers = useTreasureHandlers(setState)
+  const rewardHandlers = useRewardHandlers(setState)
+  const selectionHandlers = useSelectionHandlers(setState, state?.combat?.pendingSelection)
 
   // Initialize game
   useEffect(() => {
@@ -467,6 +471,19 @@ export function GameScreen({ deckId, onReturnToMenu }: GameScreenProps) {
           console.log(`Relic triggered: ${event.relicDefId} (${event.trigger})`)
           break
         }
+        case 'cardPlayed': {
+          // Emit particles based on card theme
+          const targetEl = event.targetId
+            ? containerRef.current?.querySelector(`[data-target="${event.targetId}"]`)
+            : containerRef.current?.querySelector('[data-entity="player"]')
+          if (targetEl) {
+            // Map theme to particle type (attack/skill/power are valid particle types)
+            if (event.theme === 'attack' || event.theme === 'skill' || event.theme === 'power') {
+              emitParticle(targetEl, event.theme)
+            }
+          }
+          break
+        }
       }
     }
 
@@ -676,100 +693,6 @@ export function GameScreen({ deckId, onReturnToMenu }: GameScreenProps) {
     })
   }, [])
 
-  // ============================================
-  // REWARD SCREEN
-  // ============================================
-
-  const handleAddCard = useCallback((cardId: string) => {
-    setState((prev) => {
-      if (!prev) return prev
-
-      const newCard = createCardInstance(cardId)
-      const goldReward = 15 + Math.floor(Math.random() * 10)
-
-      // Draw new room choices
-      const { choices, remaining } = drawRoomChoices(prev.dungeonDeck, 3)
-
-      // Check if dungeon complete (no more rooms)
-      if (choices.length === 0) {
-        return {
-          ...prev,
-          gamePhase: 'gameOver' as const,
-          deck: [...prev.deck, newCard],
-          gold: prev.gold + goldReward,
-          floor: prev.floor + 1,
-        }
-      }
-
-      return {
-        ...prev,
-        gamePhase: 'roomSelect',
-        deck: [...prev.deck, newCard],
-        gold: prev.gold + goldReward,
-        dungeonDeck: remaining,
-        roomChoices: choices,
-        floor: prev.floor + 1,
-      }
-    })
-  }, [])
-
-  const handleSkipReward = useCallback(() => {
-    setState((prev) => {
-      if (!prev) return prev
-
-      const goldReward = 15 + Math.floor(Math.random() * 10)
-      const { choices, remaining } = drawRoomChoices(prev.dungeonDeck, 3)
-
-      if (choices.length === 0) {
-        return {
-          ...prev,
-          gamePhase: 'gameOver' as const,
-          gold: prev.gold + goldReward,
-          floor: prev.floor + 1,
-        }
-      }
-
-      return {
-        ...prev,
-        gamePhase: 'roomSelect',
-        gold: prev.gold + goldReward,
-        dungeonDeck: remaining,
-        roomChoices: choices,
-        floor: prev.floor + 1,
-      }
-    })
-  }, [])
-
-  const handleAddRelic = useCallback((relicId: string) => {
-    setState((prev) => {
-      if (!prev) return prev
-
-      const goldReward = 15 + Math.floor(Math.random() * 10)
-      const { choices, remaining } = drawRoomChoices(prev.dungeonDeck, 3)
-
-      const newRelic = { id: generateUid(), definitionId: relicId }
-
-      if (choices.length === 0) {
-        return {
-          ...prev,
-          gamePhase: 'gameOver' as const,
-          relics: [...prev.relics, newRelic],
-          gold: prev.gold + goldReward,
-          floor: prev.floor + 1,
-        }
-      }
-
-      return {
-        ...prev,
-        gamePhase: 'roomSelect',
-        relics: [...prev.relics, newRelic],
-        gold: prev.gold + goldReward,
-        dungeonDeck: remaining,
-        roomChoices: choices,
-        floor: prev.floor + 1,
-      }
-    })
-  }, [])
 
   // ============================================
   // COMBAT
@@ -870,96 +793,6 @@ export function GameScreen({ deckId, onReturnToMenu }: GameScreenProps) {
     setPendingUnlocks([])
   }, [])
 
-  // Handle scry/tutor/discover selection resolution
-  const handleSelectionConfirm = useCallback(
-    (selectedUids: string[], discardedUids?: string[]) => {
-      if (!state?.combat?.pendingSelection) return
-
-      const pending = state.combat.pendingSelection
-
-      if (pending.type === 'scry') {
-        setState((prev) => {
-          if (!prev) return prev
-          return applyAction(prev, {
-            type: 'resolveScry',
-            keptUids: selectedUids,
-            discardedUids: discardedUids ?? [],
-          })
-        })
-      } else if (pending.type === 'tutor') {
-        setState((prev) => {
-          if (!prev) return prev
-          return applyAction(prev, {
-            type: 'resolveTutor',
-            selectedUids,
-          })
-        })
-      } else if (pending.type === 'discover') {
-        // For discover, selectedUids are actually card definition IDs
-        setState((prev) => {
-          if (!prev) return prev
-          return applyAction(prev, {
-            type: 'resolveDiscover',
-            selectedCardIds: selectedUids,
-          })
-        })
-      } else if (pending.type === 'banish') {
-        setState((prev) => {
-          if (!prev) return prev
-          return applyAction(prev, {
-            type: 'resolveBanish',
-            selectedUids,
-          })
-        })
-      }
-    },
-    [state?.combat?.pendingSelection]
-  )
-
-  const handleSelectionClose = useCallback(() => {
-    // For now, closing without selection = empty selection
-    if (!state?.combat?.pendingSelection) return
-
-    const pending = state.combat.pendingSelection
-    if (pending.type === 'scry') {
-      // Put all cards back on top in original order
-      setState((prev) => {
-        if (!prev) return prev
-        return applyAction(prev, {
-          type: 'resolveScry',
-          keptUids: pending.cards.map((c) => c.uid),
-          discardedUids: [],
-        })
-      })
-    } else if (pending.type === 'tutor') {
-      // Skip tutor selection
-      setState((prev) => {
-        if (!prev) return prev
-        return applyAction(prev, {
-          type: 'resolveTutor',
-          selectedUids: [],
-        })
-      })
-    } else if (pending.type === 'discover') {
-      // Skip discover selection (add nothing)
-      setState((prev) => {
-        if (!prev) return prev
-        return applyAction(prev, {
-          type: 'resolveDiscover',
-          selectedCardIds: [],
-        })
-      })
-    } else if (pending.type === 'banish') {
-      // Skip banish selection (banish nothing)
-      setState((prev) => {
-        if (!prev) return prev
-        return applyAction(prev, {
-          type: 'resolveBanish',
-          selectedUids: [],
-        })
-      })
-    }
-  }, [state?.combat?.pendingSelection])
 
   // ============================================
   // RENDER
@@ -987,9 +820,9 @@ export function GameScreen({ deckId, onReturnToMenu }: GameScreenProps) {
         floor={state.floor}
         gold={state.gold}
         ownedRelicIds={state.relics.map((r) => r.definitionId)}
-        onAddCard={handleAddCard}
-        onAddRelic={handleAddRelic}
-        onSkip={handleSkipReward}
+        onAddCard={rewardHandlers.handleAddCard}
+        onAddRelic={rewardHandlers.handleAddRelic}
+        onSkip={rewardHandlers.handleSkipReward}
       />
     )
   }
@@ -1194,7 +1027,7 @@ export function GameScreen({ deckId, onReturnToMenu }: GameScreenProps) {
       {combat.pendingSelection && (
         <CardSelectionModal
           isOpen={true}
-          onClose={handleSelectionClose}
+          onClose={selectionHandlers.handleSelectionClose}
           title={
             combat.pendingSelection.type === 'scry'
               ? `Scry ${combat.pendingSelection.cards.length}`
@@ -1223,7 +1056,7 @@ export function GameScreen({ deckId, onReturnToMenu }: GameScreenProps) {
             combat.pendingSelection.type === 'scry' ? 'scry' :
             combat.pendingSelection.type === 'discover' ? 'discover' : 'pick'
           }
-          onConfirm={handleSelectionConfirm}
+          onConfirm={selectionHandlers.handleSelectionConfirm}
           confirmText={
             combat.pendingSelection.type === 'scry' ? 'Confirm' :
             combat.pendingSelection.type === 'discover' ? 'Choose' :

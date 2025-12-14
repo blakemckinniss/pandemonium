@@ -884,6 +884,7 @@ export type VisualEvent =
   | { type: 'upgrade'; cardUids: string[] }
   | { type: 'retain'; cardUids: string[] }
   | { type: 'transform'; cardUid: string; fromCardId: string; toCardId: string }
+  | { type: 'cardPlayed'; cardUid: string; theme: CardTheme; targetId?: string }
   | { type: 'putOnDeck'; cardUids: string[]; position: 'top' | 'bottom' | 'random' }
   | { type: 'powerTrigger'; targetId: string; powerId: string; triggerEvent: string }
   | { type: 'relicTrigger'; relicId: string; relicDefId: string; trigger: RelicTrigger }

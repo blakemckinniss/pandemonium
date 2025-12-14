@@ -61,6 +61,14 @@ export function handlePlayCard(
   combat.cardsPlayedThisTurn++
   combat.lastPlayedCard = cardInstance
 
+  // Emit visual event for card theme particles
+  combat.visualQueue.push({
+    type: 'cardPlayed',
+    cardUid: cardInstance.uid,
+    theme: cardDef.theme,
+    targetId,
+  })
+
   // Build effect context
   const ctx: EffectContext = {
     source: 'player',
