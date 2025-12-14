@@ -11,6 +11,7 @@ import { CampfireScreen } from './CampfireScreen'
 import { TreasureScreen } from './TreasureScreen'
 import { UnlockNotification } from '../UnlockNotification/UnlockNotification'
 import { ParticleEffects } from '../ParticleEffects/ParticleEffects'
+import { emitParticle } from '../ParticleEffects/emitParticle'
 import { CardPileModal, type PileType } from '../Modal/CardPileModal'
 import { CardSelectionModal } from '../Modal/CardSelectionModal'
 import { RelicBar } from '../RelicBar/RelicBar'
@@ -29,6 +30,7 @@ import { useRewardHandlers } from '../../hooks/useRewardHandlers'
 import { useSelectionHandlers } from '../../hooks/useSelectionHandlers'
 import { useAnimationCoordinator } from '../../hooks/useAnimationCoordinator'
 import { useVisualEventProcessor } from '../../hooks/useVisualEventProcessor'
+import { useCombatActions } from '../../hooks/useCombatActions'
 
 interface GameScreenProps {
   deckId?: string | null
@@ -65,6 +67,14 @@ export function GameScreen({ deckId, onReturnToMenu }: GameScreenProps) {
     setTriggeredRelicId,
   })
 
+  // Combat actions (play card, end turn)
+  const { handleDragPlayCard, handleClickPlayCard, handleEndTurn } = useCombatActions({
+    combat: state?.combat ?? null,
+    isAnimating,
+    setState,
+    animateDiscardHand,
+  })
+
   // Extracted handlers
   const campfireHandlers = useCampfireHandlers(setState)
   const treasureHandlers = useTreasureHandlers(setState)
@@ -86,19 +96,32 @@ export function GameScreen({ deckId, onReturnToMenu }: GameScreenProps) {
     init()
   }, [deckId])
 
-  // Animate cards when a new turn starts
+  // Animate cards and visual cues when a new turn starts
   useEffect(() => {
     if (!state?.combat) return
 
     const currentTurn = state.combat.turn
     if (currentTurn === lastTurnRef.current) return
 
-    // New turn started - animate dealing cards
+    // New turn started
     lastTurnRef.current = currentTurn
 
-    // Use setTimeout to ensure React has committed DOM changes
+    // Energy orb refill glow
+    const energyOrb = queryContainer('[data-energy-orb]')
+    if (energyOrb) {
+      gsap.effects.energyPulse(energyOrb, { color: 'oklch(0.8 0.2 70)' })
+      emitParticle(energyOrb as Element, 'energy')
+    }
+
+    // Player card glow on turn start
+    const playerCard = queryContainer('[data-entity="player"]')
+    if (playerCard && currentTurn > 1) {
+      gsap.effects.pulse(playerCard, { color: 'oklch(0.6 0.15 145)' })
+    }
+
+    // Use setTimeout to ensure React has committed DOM changes for card dealing
     setTimeout(() => animateDealCards(), 50)
-  }, [state?.combat?.turn, state?.combat?.hand.length, animateDealCards])
+  }, [state?.combat?.turn, state?.combat?.hand.length, animateDealCards, queryContainer])
 
   // Setup drag-drop when in combat
   useEffect(() => {
@@ -241,68 +264,6 @@ export function GameScreen({ deckId, onReturnToMenu }: GameScreenProps) {
       return newState
     })
   }, [])
-
-
-  // ============================================
-  // COMBAT
-  // ============================================
-
-  const handleDragPlayCard = useCallback(
-    (cardUid: string, targetId: string | null) => {
-      setState((prev) => {
-        if (!prev) return prev
-        return applyAction(prev, { type: 'playCard', cardUid, targetId: targetId ?? undefined })
-      })
-    },
-    []
-  )
-
-  const handleClickPlayCard = useCallback(
-    (cardUid: string) => {
-      if (!state?.combat) return
-
-      const card = state.combat.hand.find((c) => c.uid === cardUid)
-      if (!card) return
-
-      const def = getCardDefinition(card.definitionId)
-      if (!def) return
-
-      if (def.target === 'self' || def.target === 'allEnemies') {
-        setState((prev) => {
-          if (!prev) return prev
-          return applyAction(prev, { type: 'playCard', cardUid })
-        })
-      }
-    },
-    [state]
-  )
-
-  const handleEndTurn = useCallback(() => {
-    if (!state?.combat || isAnimating) return
-
-    const processEndTurn = () => {
-      setState((prev) => {
-        if (!prev?.combat) return prev
-        return applyAction(prev, { type: 'endTurn' })
-      })
-
-      setTimeout(() => {
-        setState((prev) => {
-          if (!prev?.combat) return prev
-
-          let newState = prev
-          for (const enemy of prev.combat.enemies) {
-            newState = applyAction(newState, { type: 'enemyAction', enemyId: enemy.id })
-          }
-
-          newState = applyAction(newState, { type: 'startTurn' })
-          return newState
-        })
-      }, 600)
-    }
-
-    animateDiscardHand(processEndTurn)
-  }, [state, isAnimating, animateDiscardHand])
 
   const handleRestart = useCallback(() => {
     if (onReturnToMenu) {

@@ -1,5 +1,5 @@
 import { useState, useCallback, useEffect, useRef } from 'react'
-import type { CombatState, CombatNumber, Element, RunState, VisualEvent } from '../types'
+import type { CombatState, CombatNumber, Element as GameElement, RunState, VisualEvent } from '../types'
 import type { PendingCardAnimation } from '../components/Hand/CardAnimationOverlay'
 import type { CardPosition } from '../components/Hand/Hand'
 import { getCardDefinition } from '../game/cards'
@@ -45,7 +45,7 @@ export function useVisualEventProcessor({
       value: number,
       type: 'damage' | 'heal' | 'block' | 'combo',
       options?: {
-        element?: Element
+        element?: GameElement
         variant?: 'poison' | 'piercing' | 'combo' | 'chain' | 'execute'
         comboName?: string
       }
@@ -116,15 +116,31 @@ export function useVisualEventProcessor({
   function processVisualEvent(event: VisualEvent) {
     switch (event.type) {
       case 'damage': {
+        // Use 'critical' variant for high damage hits (15+)
+        const isCritical = event.amount >= 15
+        const effectiveVariant = isCritical && !event.variant ? 'execute' : event.variant
+
         spawnCombatNumber(event.targetId, event.amount, 'damage', {
           element: event.element,
-          variant: event.variant,
-          comboName: event.comboName,
+          variant: effectiveVariant,
+          comboName: isCritical ? (event.comboName ?? 'CRITICAL') : event.comboName,
         })
-        // Spawn spark particles on target
+
+        // Spawn particles on target
         const damageTarget = queryContainer(`[data-target="${event.targetId}"]`)
         if (damageTarget) {
-          emitParticle(damageTarget, 'spark')
+          // Critical hits get extra particle burst
+          if (isCritical) {
+            emitParticle(damageTarget, 'critical')
+            emitParticle(damageTarget, 'spark')
+            // Screen shake for critical
+            if (containerRef.current) {
+              gsap.effects.shake(containerRef.current, { intensity: 8 })
+            }
+          } else {
+            emitParticle(damageTarget, 'spark')
+          }
+
           // Hit flash and shake for enemies
           if (event.targetId !== 'player') {
             const elementColors: Record<string, string> = {
@@ -135,7 +151,12 @@ export function useVisualEventProcessor({
               physical: '#ff4757',
             }
             gsap.effects.enemyHit(damageTarget, { color: elementColors[event.element ?? 'physical'] })
-            if (event.amount >= 5) gsap.effects.enemyShake(damageTarget)
+            // Stronger shake for higher damage
+            if (isCritical) {
+              gsap.effects.enemyShake(damageTarget, { intensity: 12 })
+            } else if (event.amount >= 5) {
+              gsap.effects.enemyShake(damageTarget)
+            }
           }
         }
         break
