@@ -8,6 +8,10 @@ import { emitParticle } from '../components/ParticleEffects/emitParticle'
 import { gsap } from '../lib/dragdrop'
 import { generateUid } from '../lib/utils'
 
+// Type wrapper for GSAP custom effects (plugin lacks proper types)
+type GsapEffect = (target: Element | Element[] | NodeListOf<Element> | null, config?: object) => void
+const effects = gsap.effects as Record<string, GsapEffect>
+
 interface VisualEventProcessorConfig {
   combat: CombatState | null
   queryContainer: (selector: string) => Element | null

@@ -160,6 +160,7 @@ export function GameScreen({ deckId, onReturnToMenu }: GameScreenProps) {
     if (endTurnBtn) {
       gsap.to(endTurnBtn, { opacity: 0.5, duration: 0.2 })
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [state?.combat?.phase])
 
   // Restore end turn button when player turn starts
@@ -171,6 +172,7 @@ export function GameScreen({ deckId, onReturnToMenu }: GameScreenProps) {
       gsap.to(endTurnBtn, { opacity: 1, duration: 0.2 })
       ;(gsap.effects as Record<string, (el: Element, opts: object) => void>).pulse(endTurnBtn, { color: 'oklch(0.7 0.15 145)' }) // Green ready pulse
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [state?.combat?.phase])
 
   // Setup drag-drop when in combat
@@ -205,6 +207,7 @@ export function GameScreen({ deckId, onReturnToMenu }: GameScreenProps) {
     })
 
     return () => disableDragDrop()
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [state, isAnimating])
 
   // Handle victory transition to reward
@@ -303,6 +306,7 @@ export function GameScreen({ deckId, onReturnToMenu }: GameScreenProps) {
         }
       }
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [state?.combat?.phase])
 
   // Record run on game over (win or loss)
@@ -331,6 +335,7 @@ export function GameScreen({ deckId, onReturnToMenu }: GameScreenProps) {
     store.recordRun(runResult)
 
     if (unlocks.length > 0) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setPendingUnlocks(unlocks)
     }
 
@@ -348,6 +353,7 @@ export function GameScreen({ deckId, onReturnToMenu }: GameScreenProps) {
       damageTaken: state.stats.damageTaken,
       finalDeck: state.deck.map((c) => c.definitionId),
     })
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [state?.gamePhase, state?.combat?.phase])
 
   // ============================================

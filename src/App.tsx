@@ -1,10 +1,12 @@
-import { useEffect, useState } from 'react'
+import { lazy, Suspense, useEffect, useState } from 'react'
 import type { AppScreen } from './types'
 import { GameScreen } from './components/screens/GameScreen'
 import { MenuScreen } from './components/screens/MenuScreen'
 import { DeckBuilderScreen } from './components/screens/DeckBuilderScreen'
-import { AmbientBackground } from './components/AmbientBackground/AmbientBackground'
 import { loadGeneratedCardsIntoRegistry } from './game/card-generator'
+
+// Lazy load Three.js background (484KB chunk)
+const AmbientBackground = lazy(() => import('./components/AmbientBackground/AmbientBackground'))
 
 function App() {
   const [ready, setReady] = useState(false)
@@ -50,7 +52,9 @@ function App() {
 
   return (
     <>
-      <AmbientBackground />
+      <Suspense fallback={null}>
+        <AmbientBackground />
+      </Suspense>
       {renderScreen()}
     </>
   )

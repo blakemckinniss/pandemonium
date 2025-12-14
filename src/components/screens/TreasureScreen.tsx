@@ -65,6 +65,7 @@ export function TreasureScreen({
     const usedIds = new Set<string>()
 
     if (allRelics.length === 0) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setRelicChoices(choices)
       return
     }
