@@ -1,8 +1,10 @@
 import { useEffect, useRef, useState } from 'react'
+import { Icon } from '@iconify/react'
 import { Card } from '../Card/Card'
 import { CardPreviewModal } from '../Modal/CardPreviewModal'
-import type { CardDefinition } from '../../types'
+import type { CardDefinition, RelicDefinition } from '../../types'
 import { getAllCards } from '../../game/cards'
+import { getAllRelics } from '../../game/relics'
 import { getEnergyCost } from '../../lib/effects'
 import { gsap } from '../../lib/animations'
 import { generateRandomCard } from '../../game/card-generator'
@@ -10,13 +12,16 @@ import { generateRandomCard } from '../../game/card-generator'
 interface RewardScreenProps {
   floor: number
   gold: number
+  ownedRelicIds: string[]
   onAddCard: (cardId: string) => void
+  onAddRelic: (relicId: string) => void
   onSkip: () => void
 }
 
-export function RewardScreen({ floor, gold, onAddCard, onSkip }: RewardScreenProps) {
+export function RewardScreen({ floor, gold, ownedRelicIds, onAddCard, onAddRelic, onSkip }: RewardScreenProps) {
   const containerRef = useRef<HTMLDivElement>(null)
   const [cardChoices, setCardChoices] = useState<CardDefinition[]>([])
+  const [relicChoice, setRelicChoice] = useState<RelicDefinition | null>(null)
   const [goldReward] = useState(() => 15 + Math.floor(Math.random() * 10))
   const [isGenerating, setIsGenerating] = useState(false)
   const [generationError, setGenerationError] = useState<string | null>(null)
@@ -87,6 +92,26 @@ export function RewardScreen({ floor, gold, onAddCard, onSkip }: RewardScreenPro
     setCardChoices(choices)
   }, [])
 
+  // Generate relic choice on mount (30% chance to offer a relic)
+  useEffect(() => {
+    if (Math.random() > 0.3) return // 30% chance for relic reward
+
+    const allRelics = getAllRelics().filter((r) => !ownedRelicIds.includes(r.id))
+    if (allRelics.length === 0) return
+
+    // Weight by rarity: common 60%, uncommon 30%, rare 10%
+    const roll = Math.random()
+    let targetRarity: 'common' | 'uncommon' | 'rare' = 'common'
+    if (roll > 0.9) targetRarity = 'rare'
+    else if (roll > 0.6) targetRarity = 'uncommon'
+
+    let pool = allRelics.filter((r) => r.rarity === targetRarity)
+    if (pool.length === 0) pool = allRelics
+
+    const relic = pool[Math.floor(Math.random() * pool.length)]
+    setRelicChoice(relic)
+  }, [ownedRelicIds])
+
   // Handle generating a new card via LLM
   async function handleGenerateCard() {
     setIsGenerating(true)
@@ -125,10 +150,32 @@ export function RewardScreen({ floor, gold, onAddCard, onSkip }: RewardScreenPro
       <h1 className="text-4xl font-bold mb-2 text-heal">Victory!</h1>
       <p className="text-gray-400 mb-8">Floor {floor} cleared</p>
 
-      {/* Gold reward */}
-      <div className="mb-8 px-6 py-3 bg-surface rounded-lg border border-energy">
-        <span className="text-energy text-xl">+{goldReward} Gold</span>
-        <span className="text-gray-500 ml-2">(Total: {gold + goldReward})</span>
+      {/* Rewards row */}
+      <div className="flex gap-4 mb-8">
+        {/* Gold reward */}
+        <div className="px-6 py-3 bg-surface rounded-lg border border-energy">
+          <span className="text-energy text-xl">+{goldReward} Gold</span>
+          <span className="text-gray-500 ml-2">(Total: {gold + goldReward})</span>
+        </div>
+
+        {/* Relic reward */}
+        {relicChoice && (
+          <button
+            onClick={() => onAddRelic(relicChoice.id)}
+            className="group px-4 py-3 bg-surface rounded-lg border border-purple-500 hover:bg-purple-900/30 transition-colors flex items-center gap-3"
+          >
+            <div className="w-10 h-10 rounded-lg bg-purple-900/50 flex items-center justify-center">
+              <Icon icon="game-icons:gem-pendant" className="w-6 h-6 text-purple-400" />
+            </div>
+            <div className="text-left">
+              <div className="text-purple-300 font-medium">{relicChoice.name}</div>
+              <div className="text-xs text-gray-400 max-w-48">{relicChoice.description}</div>
+            </div>
+            <div className="text-xs text-purple-400 opacity-0 group-hover:opacity-100 transition-opacity">
+              +Add
+            </div>
+          </button>
+        )}
       </div>
 
       {/* Card choices */}

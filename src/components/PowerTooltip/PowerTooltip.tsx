@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect, type ReactNode } from 'react'
+import { useState, useRef, type ReactNode } from 'react'
 import { Icon } from '@iconify/react'
 import { getPowerDefinition } from '../../game/powers'
 import type { Power } from '../../types'
@@ -31,20 +31,15 @@ interface PowerTooltipProps {
 
 export function PowerTooltip({ powerId, power, children }: PowerTooltipProps) {
   const [isVisible, setIsVisible] = useState(false)
-  const [position, setPosition] = useState<'top' | 'bottom'>('top')
   const triggerRef = useRef<HTMLDivElement>(null)
   const tooltipRef = useRef<HTMLDivElement>(null)
 
-  // Calculate tooltip position on show
-  useEffect(() => {
-    if (!isVisible || !triggerRef.current) return
-
+  // Calculate tooltip position during render (avoids effect setState)
+  const position = (() => {
+    if (!isVisible || !triggerRef.current) return 'top'
     const triggerRect = triggerRef.current.getBoundingClientRect()
-    const spaceAbove = triggerRect.top
-
-    // Prefer top, but use bottom if not enough space
-    setPosition(spaceAbove > 150 ? 'top' : 'bottom')
-  }, [isVisible])
+    return triggerRect.top > 150 ? 'top' : 'bottom'
+  })()
 
   const def = getPowerDefinition(powerId)
   const isDebuff = def?.isDebuff ?? false

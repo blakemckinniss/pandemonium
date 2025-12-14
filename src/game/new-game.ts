@@ -178,6 +178,7 @@ export function createNewRun(
       maxHealth: hero.health,
     },
     deck,
+    relics: [],
     combat: null,
     dungeonDeck: remaining,
     roomChoices: choices,

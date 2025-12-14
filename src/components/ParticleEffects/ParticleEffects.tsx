@@ -9,7 +9,7 @@ interface Particle {
   maxLife: number
   size: number
   color: string
-  type: 'spark' | 'heal' | 'block' | 'energy' | 'poison' | 'upgrade' | 'transform'
+  type: 'spark' | 'heal' | 'block' | 'energy' | 'poison' | 'upgrade' | 'transform' | 'retain'
 }
 
 interface ParticleEffectsProps {
@@ -73,6 +73,14 @@ const PARTICLE_CONFIG = {
     life: 40,
     size: 4,
     gravity: 0, // Swirl outward
+  },
+  retain: {
+    colors: ['#00d4ff', '#00b4d8', '#48dbfb', '#0abde3'],
+    count: 14,
+    speed: 2.5,
+    life: 45,
+    size: 4,
+    gravity: -0.08, // Gentle float upward
   },
 }
 

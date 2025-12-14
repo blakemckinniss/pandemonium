@@ -387,6 +387,7 @@ export function GameScreen({ deckId, onReturnToMenu }: GameScreenProps) {
             const cardEl = containerRef.current?.querySelector(`[data-card-uid="${cardUid}"]`)
             if (cardEl) {
               gsap.effects.retainCard(cardEl)
+              emitParticle(cardEl, 'retain')
             }
           }
           console.log(`Retained ${event.cardUids.length} card(s)`)
