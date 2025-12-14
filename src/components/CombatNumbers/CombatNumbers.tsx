@@ -46,7 +46,7 @@ function FloatingNumber({ number, onComplete }: FloatingNumberProps) {
   useEffect(() => {
     if (!ref.current) return
 
-    gsap.effects.floatNumber(ref.current, { onComplete })
+    ;(gsap.effects as Record<string, (el: Element, opts: object) => void>).floatNumber(ref.current, { onComplete })
   }, [onComplete])
 
   // Determine color class based on type and element

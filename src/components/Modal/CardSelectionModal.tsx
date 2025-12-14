@@ -126,7 +126,7 @@ export function CardSelectionModal({
           const key = getCardKey(card)
           // For CardInstance, look up definition; for CardDefinition, use directly
           const isDefinition = 'effects' in card
-          const def = isDefinition ? card as CardDefinition : getEffectiveCardDef(card as CardInstance)
+          const def = isDefinition ? card : getEffectiveCardDef(card)
           if (!def) return null
 
           const isSelected = mode === 'scry'
@@ -151,7 +151,7 @@ export function CardSelectionModal({
                 description={def.description}
                 energy={getEnergyCost(def.energy)}
                 rarity={def.rarity}
-                upgraded={isDefinition ? false : (card as CardInstance).upgraded}
+                upgraded={isDefinition ? false : card.upgraded}
                 element={def.element}
               />
               {isSelected && (

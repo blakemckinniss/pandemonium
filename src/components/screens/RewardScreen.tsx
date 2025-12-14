@@ -216,7 +216,7 @@ export function RewardScreen({ floor, gold, ownedRelicIds, onAddCard, onAddRelic
 
         {/* Generate Card Button */}
         <button
-          onClick={handleGenerateCard}
+          onClick={() => void handleGenerateCard()}
           disabled={isGenerating}
           className="RewardCard flex flex-col items-center justify-center w-32 h-44 rounded-lg border-2 border-dashed border-gray-600 hover:border-energy hover:bg-surface/50 transition-colors disabled:opacity-50 disabled:cursor-wait"
         >

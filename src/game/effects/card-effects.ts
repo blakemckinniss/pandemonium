@@ -216,10 +216,11 @@ export function executeAddCard(
       case 'bottom':
         pile.unshift(card)
         break
-      case 'random':
+      case 'random': {
         const idx = Math.floor(Math.random() * (pile.length + 1))
         pile.splice(idx, 0, card)
         break
+      }
     }
   }
 
@@ -304,10 +305,11 @@ export function executeCopyCard(
       case 'bottom':
         pile.unshift(copy)
         break
-      case 'random':
+      case 'random': {
         const idx = Math.floor(Math.random() * (pile.length + 1))
         pile.splice(idx, 0, copy)
         break
+      }
     }
   }
 
@@ -346,10 +348,11 @@ export function executePutOnDeck(
         case 'bottom':
           draft.combat.drawPile.unshift(card)
           break
-        case 'random':
+        case 'random': {
           const idx = Math.floor(Math.random() * (draft.combat.drawPile.length + 1))
           draft.combat.drawPile.splice(idx, 0, card)
           break
+        }
       }
     }
   }

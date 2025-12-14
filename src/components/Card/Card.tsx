@@ -78,11 +78,12 @@ export const Card = memo(function Card({
 
   // Playable card glow effect
   useEffect(() => {
-    if (!cardRef.current) return
+    const card = cardRef.current
+    if (!card) return
 
     // Only apply glow to playable hand cards
     if (variant === 'hand' && playable && !disabled) {
-      glowTweenRef.current = gsap.effects.cardGlow(cardRef.current, { theme: theme ?? 'attack' })
+      glowTweenRef.current = (gsap.effects as Record<string, (el: Element, opts: object) => gsap.core.Tween>).cardGlow(card, { theme: theme ?? 'attack' })
     }
 
     return () => {
@@ -92,8 +93,8 @@ export const Card = memo(function Card({
         glowTweenRef.current = null
       }
       // Reset any inline styles from the glow
-      if (cardRef.current) {
-        gsap.set(cardRef.current, { boxShadow: '', clearProps: 'boxShadow' })
+      if (card) {
+        gsap.set(card, { boxShadow: '', clearProps: 'boxShadow' })
       }
     }
   }, [variant, playable, disabled, theme])

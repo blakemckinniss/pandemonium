@@ -43,7 +43,7 @@ function AnimatedCard({ animation, onComplete }: AnimatedCardProps) {
       type === 'exhaust' ? 'exhaustCard' :
       type === 'putOnDeck' ? 'putOnDeck' : 'discardCard'
 
-    gsap.effects[effectName](cardRef.current, {
+    ;(gsap.effects as Record<string, (el: Element, opts: object) => void>)[effectName](cardRef.current, {
       onComplete: () => onComplete(id),
     })
   }, [id, type, onComplete])

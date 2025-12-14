@@ -207,12 +207,12 @@ function parseCardResponse(response: string): Partial<CardDefinition> {
   }
 
   try {
-    return JSON.parse(cleaned)
-  } catch (e) {
+    return JSON.parse(cleaned) as Partial<CardDefinition>
+  } catch {
     // Try to extract JSON from response
     const jsonMatch = cleaned.match(/\{[\s\S]*\}/)
     if (jsonMatch) {
-      return JSON.parse(jsonMatch[0])
+      return JSON.parse(jsonMatch[0]) as Partial<CardDefinition>
     }
     throw new Error(`Failed to parse card response: ${response}`)
   }

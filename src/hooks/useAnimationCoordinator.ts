@@ -25,7 +25,7 @@ export function useAnimationCoordinator(): AnimationCoordinator {
     const handCards = handRef.current?.querySelectorAll('.Card')
     if (handCards && handCards.length > 0) {
       setIsAnimating(true)
-      gsap.effects.discardHand(handCards, {
+      ;(gsap.effects as Record<string, (el: NodeListOf<Element>, opts: object) => void>).discardHand(handCards, {
         onComplete: () => {
           onComplete()
           setTimeout(() => setIsAnimating(false), 600)
@@ -39,7 +39,7 @@ export function useAnimationCoordinator(): AnimationCoordinator {
   const animateDealCards = useCallback(() => {
     const handCards = handRef.current?.querySelectorAll('.HandCard')
     if (handCards && handCards.length > 0) {
-      gsap.effects.dealCards(handCards, { stagger: 0.08 })
+      ;(gsap.effects as Record<string, (el: NodeListOf<Element>, opts: object) => void>).dealCards(handCards, { stagger: 0.08 })
     }
   }, [])
 

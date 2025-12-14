@@ -212,7 +212,7 @@ export function DeckBuilderScreen({ onBack }: DeckBuilderScreenProps) {
         {/* Actions */}
         <div className="p-4 border-t border-gray-800 space-y-2">
           <button
-            onClick={handleSaveDeck}
+            onClick={() => void handleSaveDeck()}
             disabled={currentDeck.length === 0}
             className="w-full px-4 py-2 bg-energy text-gray-900 font-medium rounded disabled:opacity-50 disabled:cursor-not-allowed"
           >

@@ -110,7 +110,7 @@ export function GameScreen({ deckId, onReturnToMenu }: GameScreenProps) {
 
       setState(createNewRun('warrior', customCardIds))
     }
-    init()
+    void init()
   }, [deckId])
 
   // Animate cards and visual cues when a new turn starts
@@ -126,14 +126,14 @@ export function GameScreen({ deckId, onReturnToMenu }: GameScreenProps) {
     // Energy orb refill glow
     const energyOrb = queryContainer('[data-energy-orb]')
     if (energyOrb) {
-      gsap.effects.energyPulse(energyOrb, { color: 'oklch(0.8 0.2 70)' })
+      ;(gsap.effects as Record<string, (el: Element, opts: object) => void>).energyPulse(energyOrb, { color: 'oklch(0.8 0.2 70)' })
       emitParticle(energyOrb as Element, 'energy')
     }
 
     // Player card glow on turn start
     const playerCard = queryContainer('[data-entity="player"]')
     if (playerCard && currentTurn > 1) {
-      gsap.effects.pulse(playerCard, { color: 'oklch(0.6 0.15 145)' })
+      ;(gsap.effects as Record<string, (el: Element, opts: object) => void>).pulse(playerCard, { color: 'oklch(0.6 0.15 145)' })
     }
 
     // Use setTimeout to ensure React has committed DOM changes for card dealing
@@ -149,7 +149,7 @@ export function GameScreen({ deckId, onReturnToMenu }: GameScreenProps) {
     enemyCards?.forEach((enemy, i) => {
       // Stagger the enemy pulses slightly
       setTimeout(() => {
-        gsap.effects.pulse(enemy, { color: 'oklch(0.6 0.2 25)' }) // Red/orange warning
+        ;(gsap.effects as Record<string, (el: Element, opts: object) => void>).pulse(enemy, { color: 'oklch(0.6 0.2 25)' }) // Red/orange warning
         emitParticle(enemy, 'attack')
       }, i * 100)
     })
@@ -168,7 +168,7 @@ export function GameScreen({ deckId, onReturnToMenu }: GameScreenProps) {
     const endTurnBtn = containerRef.current?.querySelector('[data-end-turn]')
     if (endTurnBtn) {
       gsap.to(endTurnBtn, { opacity: 1, duration: 0.2 })
-      gsap.effects.pulse(endTurnBtn, { color: 'oklch(0.7 0.15 145)' }) // Green ready pulse
+      ;(gsap.effects as Record<string, (el: Element, opts: object) => void>).pulse(endTurnBtn, { color: 'oklch(0.7 0.15 145)' }) // Green ready pulse
     }
   }, [state?.combat?.phase])
 
@@ -278,7 +278,7 @@ export function GameScreen({ deckId, onReturnToMenu }: GameScreenProps) {
 
       // Screen shake
       if (containerRef.current) {
-        gsap.effects.shake(containerRef.current, { intensity: 15 })
+        ;(gsap.effects as Record<string, (el: Element, opts: object) => void>).shake(containerRef.current, { intensity: 15 })
       }
 
       // Red vignette flash
@@ -334,7 +334,7 @@ export function GameScreen({ deckId, onReturnToMenu }: GameScreenProps) {
     }
 
     // Save to IndexedDB
-    saveRun({
+    void saveRun({
       startedAt: runStartRef.current,
       endedAt: new Date(),
       heroId: state.hero.id,

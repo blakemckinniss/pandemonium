@@ -56,10 +56,6 @@ export function TreasureScreen({
 
   useEffect(() => {
     const allRelics = getAllRelics().filter((r) => !ownedRelicIds.includes(r.id))
-    if (allRelics.length === 0) {
-      setRelicChoices([])
-      return
-    }
 
     // Large treasure: guaranteed rare, 3 choices
     // Small treasure: weighted rarity, 2 choices
@@ -67,6 +63,11 @@ export function TreasureScreen({
 
     const choices: RelicDefinition[] = []
     const usedIds = new Set<string>()
+
+    if (allRelics.length === 0) {
+      setRelicChoices(choices)
+      return
+    }
 
     for (let i = 0; i < numChoices; i++) {
       let targetRarity: 'common' | 'uncommon' | 'rare'
