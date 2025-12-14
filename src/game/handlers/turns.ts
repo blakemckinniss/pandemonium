@@ -1,14 +1,41 @@
 // Turn management handlers
-import type { RunState, Entity } from '../../types'
+import type { RunState, Entity, RelicTrigger } from '../../types'
 import { decayPowers } from '../powers'
 import { drawCardsInternal, emitVisual } from './shared'
 import { getCardDefinition } from '../cards'
+import { getRelicDefinition } from '../relics'
+import { dispatchEffect } from '../effects/engine'
 
 // Forward declaration - will be injected to avoid circular deps
 let executePowerTriggers: (draft: RunState, entity: Entity, event: string, sourceId?: string) => void
 
 export function setExecutePowerTriggers(fn: typeof executePowerTriggers): void {
   executePowerTriggers = fn
+}
+
+/**
+ * Execute relic effects for a given trigger event
+ */
+export function executeRelicTriggers(draft: RunState, trigger: RelicTrigger): void {
+  if (!draft.combat) return
+
+  for (const relic of draft.relics) {
+    const def = getRelicDefinition(relic.definitionId)
+    if (!def || def.trigger !== trigger || !def.effects) continue
+
+    // Emit visual for relic trigger
+    emitVisual(draft, {
+      type: 'relicTrigger',
+      relicId: relic.id,
+      relicDefId: relic.definitionId,
+      trigger,
+    })
+
+    // Execute each effect
+    for (const effect of def.effects) {
+      dispatchEffect(draft, effect, 'player', undefined, relic.id)
+    }
+  }
 }
 
 export function handleStartTurn(draft: RunState): void {
@@ -35,6 +62,9 @@ export function handleStartTurn(draft: RunState): void {
   if (executePowerTriggers) {
     executePowerTriggers(draft, combat.player, 'onTurnStart')
   }
+
+  // Execute relic triggers for turn start
+  executeRelicTriggers(draft, 'onTurnStart')
 
   // Draw 5 cards
   drawCardsInternal(combat, 5)

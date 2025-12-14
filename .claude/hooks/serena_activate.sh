@@ -1,10 +1,9 @@
 #!/bin/sh
-# Serena auto-activation hook for pandemonium project
-# Injects reminder to activate Serena MCP with this project
+# Serena auto-activation reminder for pandemonium project
 
 cat << 'EOF'
 {
   "result": "continue",
-  "message": "**Serena MCP**: Run `mcp__serena__activate_project(\"/home/jinx/projects/pandemonium\")` to enable symbolic code tools for this project."
+  "message": "🔮 **SERENA MCP REQUIRED**\n\nActivate now: `mcp__serena__activate_project(\"pandemonium\")`\n\nThis project has 14 Serena memories with architecture docs, patterns, and system documentation."
 }
 EOF
