@@ -5,8 +5,9 @@ Handles model loading, caching, and inference.
 Uses Disty0's diffusers-compatible conversion of NewBie-image-Exp0.1.
 
 Memory modes:
-- resident=True (default): Keep model in VRAM (~17GB). Faster inference.
-- resident=False: CPU offload for 16GB VRAM systems. Slower but works.
+- quantize="fp8": FP8 quantization (~13GB VRAM). Best speed/memory balance.
+- quantize=None + resident=True: Full BF16 in VRAM (~21GB). Fastest inference.
+- quantize=None + resident=False: CPU offload for 16GB systems. Slowest.
 """
 
 import io
@@ -37,6 +38,7 @@ class CardArtGenerator:
         dtype: torch.dtype = torch.bfloat16,
         output_dir: Path | None = None,
         resident: bool = True,
+        quantize: Literal["fp8"] | None = "fp8",
     ):
         self.model_id = model_id
         self.device = device
@@ -44,6 +46,7 @@ class CardArtGenerator:
         self.output_dir = output_dir or Path("generated")
         self.output_dir.mkdir(parents=True, exist_ok=True)
         self.resident = resident  # True = keep in VRAM, False = CPU offload
+        self.quantize = quantize  # "fp8" for FP8 quantization, None for full precision
         self.pipe = None
         self._loaded = False
 
@@ -77,8 +80,17 @@ class CardArtGenerator:
             )
             del text_encoder_2  # Free memory, pipeline holds reference
 
+            # Apply quantization if requested (before moving to GPU)
+            if self.quantize == "fp8":
+                logger.info("Applying FP8 quantization to transformer...")
+                from optimum.quanto import freeze, qfloat8, quantize
+
+                quantize(self.pipe.transformer, weights=qfloat8)
+                freeze(self.pipe.transformer)
+                logger.info("FP8 quantization applied (~13GB VRAM)")
+
             if self.resident:
-                # Keep entire model in VRAM for faster inference (~17GB)
+                # Keep entire model in VRAM for faster inference
                 logger.info("Moving pipeline to GPU (resident mode)...")
                 self.pipe = self.pipe.to(self.device)
             else:
@@ -88,7 +100,8 @@ class CardArtGenerator:
                 self.pipe.text_encoder_2 = self.pipe.text_encoder_2.to(self.device)
 
             self._loaded = True
-            logger.info("Model loaded successfully")
+            mode = "FP8" if self.quantize == "fp8" else "BF16"
+            logger.info(f"Model loaded successfully ({mode}, resident={self.resident})")
 
         except Exception as e:
             logger.error(f"Failed to load model: {e}")
