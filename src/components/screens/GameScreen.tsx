@@ -202,15 +202,15 @@ export function GameScreen({ deckId, onReturnToMenu }: GameScreenProps) {
           break
         }
         case 'banish': {
-          // Banish visual - emit particles on player (card is removed from game)
+          // Banish visual - dark void particles dissolving away
           const playerEl = queryContainer('[data-target="player"]')
           if (playerEl) {
-            emitParticle(playerEl, 'spark')
+            emitParticle(playerEl, 'banish') // dark void particles that drift slowly
             gsap.effects.pulse(playerEl, {
-              color: 'oklch(0.3 0.15 300)', // dark purple for void
+              color: 'oklch(0.25 0.12 300)', // deep void purple
+              scale: 0.95, // slight shrink for "removal" feel
             })
           }
-          console.log(`Banish: ${event.cardUids.length} card(s) removed from combat`)
           break
         }
         case 'powerApply': {
@@ -325,10 +325,10 @@ export function GameScreen({ deckId, onReturnToMenu }: GameScreenProps) {
           if (playerEl) {
             gsap.effects.pulse(playerEl, {
               color: 'oklch(0.7 0.18 220)', // cyan/blue for replay
+              scale: 1.08, // subtle scale for emphasis
             })
-            emitParticle(playerEl, 'energy')
+            emitParticle(playerEl, 'combo') // multi-color burst for replay
           }
-          console.log(`Replay: card replayed ${event.times}x`)
           break
         }
         case 'playTopCard': {
@@ -360,10 +360,20 @@ export function GameScreen({ deckId, onReturnToMenu }: GameScreenProps) {
                 : 'oklch(0.5 0.1 25)',  // gold loss = dim red
             })
             if (event.delta > 0) {
-              emitParticle(playerEl, 'energy')
+              emitParticle(playerEl, 'gold')
             }
+            // Floating gold number
+            const rect = playerEl.getBoundingClientRect()
+            const num: CombatNumber = {
+              id: generateUid(),
+              value: event.delta,
+              type: 'gold',
+              targetId: 'player',
+              x: rect.left + rect.width / 2,
+              y: rect.top + rect.height / 3,
+            }
+            setCombatNumbers((prev) => [...prev, num])
           }
-          console.log(`Gold: ${event.delta > 0 ? '+' : ''}${event.delta}`)
           break
         }
         case 'maxHealth': {

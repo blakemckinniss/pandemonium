@@ -236,6 +236,10 @@ body {
 .CombatNumber--damage { color: var(--color-damage); }
 .CombatNumber--heal { color: var(--color-heal); }
 .CombatNumber--block { color: var(--color-block); }
+.CombatNumber--gold {
+  color: oklch(0.8 0.18 85);
+  text-shadow: 0 0 8px oklch(0.7 0.2 85), 2px 2px 6px oklch(0 0 0 / 0.9);
+}
 
 /* Elemental combo variants */
 .CombatNumber--combo {

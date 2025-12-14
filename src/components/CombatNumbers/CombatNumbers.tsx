@@ -67,6 +67,7 @@ function FloatingNumber({ number, onComplete }: FloatingNumberProps) {
     colorClass = {
       heal: 'CombatNumber--heal',
       block: 'CombatNumber--block',
+      gold: 'CombatNumber--gold',
     }[number.type] ?? ''
   }
 
@@ -78,6 +79,7 @@ function FloatingNumber({ number, onComplete }: FloatingNumberProps) {
     block: '🛡️',
     maxHealth: '❤️',
     combo: '🔥',
+    gold: '🪙',
   }[number.type]
 
   // For combo type, show "COMBO x{count}"
