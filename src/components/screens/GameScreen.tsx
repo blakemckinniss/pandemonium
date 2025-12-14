@@ -8,7 +8,8 @@ import { RoomSelect } from '../DungeonDeck/RoomSelect'
 import { RewardScreen } from './RewardScreen'
 import { CampfireScreen } from './CampfireScreen'
 import { UnlockNotification } from '../UnlockNotification/UnlockNotification'
-import { ParticleEffects, emitParticle } from '../ParticleEffects/ParticleEffects'
+import { ParticleEffects } from '../ParticleEffects/ParticleEffects'
+import { emitParticle } from '../ParticleEffects/emitParticle'
 import { CardPileModal, type PileType } from '../Modal/CardPileModal'
 import { CardSelectionModal } from '../Modal/CardSelectionModal'
 import type { RunState, CombatNumber, Element } from '../../types'
@@ -691,6 +692,37 @@ export function GameScreen({ deckId, onReturnToMenu }: GameScreenProps) {
     })
   }, [])
 
+  const handleAddRelic = useCallback((relicId: string) => {
+    setState((prev) => {
+      if (!prev) return prev
+
+      const goldReward = 15 + Math.floor(Math.random() * 10)
+      const { choices, remaining } = drawRoomChoices(prev.dungeonDeck, 3)
+
+      const newRelic = { id: generateUid(), definitionId: relicId }
+
+      if (choices.length === 0) {
+        return {
+          ...prev,
+          gamePhase: 'gameOver' as const,
+          relics: [...prev.relics, newRelic],
+          gold: prev.gold + goldReward,
+          floor: prev.floor + 1,
+        }
+      }
+
+      return {
+        ...prev,
+        gamePhase: 'roomSelect',
+        relics: [...prev.relics, newRelic],
+        gold: prev.gold + goldReward,
+        dungeonDeck: remaining,
+        roomChoices: choices,
+        floor: prev.floor + 1,
+      }
+    })
+  }, [])
+
   // ============================================
   // CAMPFIRE
   // ============================================
@@ -962,7 +994,9 @@ export function GameScreen({ deckId, onReturnToMenu }: GameScreenProps) {
       <RewardScreen
         floor={state.floor}
         gold={state.gold}
+        ownedRelicIds={state.relics.map((r) => r.definitionId)}
         onAddCard={handleAddCard}
+        onAddRelic={handleAddRelic}
         onSkip={handleSkipReward}
       />
     )

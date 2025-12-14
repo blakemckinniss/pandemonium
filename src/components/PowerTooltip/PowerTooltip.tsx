@@ -1,4 +1,4 @@
-import { useState, useRef, type ReactNode } from 'react'
+import { useState, useRef, useLayoutEffect, type ReactNode } from 'react'
 import { Icon } from '@iconify/react'
 import { getPowerDefinition } from '../../game/powers'
 import type { Power } from '../../types'
@@ -31,15 +31,18 @@ interface PowerTooltipProps {
 
 export function PowerTooltip({ powerId, power, children }: PowerTooltipProps) {
   const [isVisible, setIsVisible] = useState(false)
+  const [position, setPosition] = useState<'top' | 'bottom'>('top')
   const triggerRef = useRef<HTMLDivElement>(null)
   const tooltipRef = useRef<HTMLDivElement>(null)
 
-  // Calculate tooltip position during render (avoids effect setState)
-  const position = (() => {
-    if (!isVisible || !triggerRef.current) return 'top'
+  // Calculate tooltip position synchronously before paint (avoids flicker)
+  // useLayoutEffect is synchronous so setState here is safe and intentional
+  useLayoutEffect(() => {
+    if (!isVisible || !triggerRef.current) return
     const triggerRect = triggerRef.current.getBoundingClientRect()
-    return triggerRect.top > 150 ? 'top' : 'bottom'
-  })()
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- intentional: useLayoutEffect is sync
+    setPosition(triggerRect.top > 150 ? 'top' : 'bottom')
+  }, [isVisible])
 
   const def = getPowerDefinition(powerId)
   const isDebuff = def?.isDebuff ?? false

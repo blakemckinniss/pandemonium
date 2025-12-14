@@ -1,5 +1,11 @@
 # Pandemonium - Project Instructions
 
+> **First Action:** Activate Serena MCP for this project:
+> ```
+> mcp__serena__activate_project("pandemonium")
+> ```
+> This enables symbolic code tools and project-specific memories.
+
 Slay the Spire inspired roguelike card game with drag-and-drop combat.
 
 ## Tech Stack

@@ -225,7 +225,4 @@ export function ParticleEffects({ containerRef }: ParticleEffectsProps) {
   )
 }
 
-// Re-export emitParticle from separate file (fixes react-refresh warning)
-export { emitParticle } from './emitParticle'
-
 export default ParticleEffects
