@@ -2,6 +2,7 @@
 NewBie image model wrapper for card art generation.
 
 Handles model loading, caching, and inference with optimizations for 16GB+ VRAM.
+Uses Disty0's diffusers-compatible conversion of NewBie-image-Exp0.1.
 """
 
 import io
@@ -14,12 +15,12 @@ from PIL import Image
 
 logger = logging.getLogger(__name__)
 
-# Model configuration
-MODEL_ID = "NewBieAi-lab/NewBie-image-Exp0.1"
+# Model configuration - Disty0's diffusers-compatible conversion
+MODEL_ID = "Disty0/NewBie-image-Exp0.1-Diffusers"
 DEFAULT_WIDTH = 768
 DEFAULT_HEIGHT = 1024  # Portrait for card art
-DEFAULT_STEPS = 28
-DEFAULT_GUIDANCE = 7.0
+DEFAULT_STEPS = 30
+DEFAULT_GUIDANCE = 2.5  # NewBie works best with lower CFG
 
 
 class CardArtGenerator:
@@ -49,30 +50,33 @@ class CardArtGenerator:
         logger.info(f"Loading NewBie model from {self.model_id}...")
 
         try:
-            # Try ModelScope first (Chinese users), fall back to HuggingFace
-            try:
-                from modelscope import NewbiePipeline
+            from diffusers import NewbiePipeline
+            from transformers import AutoModel
 
-                self.pipe = NewbiePipeline.from_pretrained(
-                    self.model_id,
-                    torch_dtype=self.dtype,
-                )
-            except ImportError:
-                # Fall back to diffusers if modelscope not available
-                from diffusers import DiffusionPipeline
+            # Load text_encoder_2 (Jina CLIP) separately with trust_remote_code
+            logger.info("Loading text_encoder_2 (Jina CLIP)...")
+            text_encoder_2 = AutoModel.from_pretrained(
+                self.model_id,
+                subfolder="text_encoder_2",
+                trust_remote_code=True,
+                torch_dtype=self.dtype,
+            )
 
-                logger.info("ModelScope not available, trying HuggingFace...")
-                self.pipe = DiffusionPipeline.from_pretrained(
-                    "NewBie-AI/NewBie-image-Exp0.1",
-                    torch_dtype=self.dtype,
-                    trust_remote_code=True,
-                )
+            # Load the pipeline with the pre-loaded text_encoder_2
+            logger.info("Loading NewbiePipeline...")
+            self.pipe = NewbiePipeline.from_pretrained(
+                self.model_id,
+                text_encoder_2=text_encoder_2,
+                torch_dtype=self.dtype,
+            )
+            del text_encoder_2  # Free memory, pipeline holds reference
 
-            self.pipe = self.pipe.to(self.device)
+            # Enable CPU offload for memory efficiency on 16GB+ VRAM
+            logger.info("Enabling model CPU offload...")
+            self.pipe.enable_model_cpu_offload(device=self.device)
 
-            # Enable memory optimizations
-            if hasattr(self.pipe, "enable_attention_slicing"):
-                self.pipe.enable_attention_slicing()
+            # Move text_encoder_2 to GPU for inference
+            self.pipe.text_encoder_2 = self.pipe.text_encoder_2.to(self.device)
 
             self._loaded = True
             logger.info("Model loaded successfully")
@@ -127,9 +131,8 @@ class CardArtGenerator:
             generator = torch.Generator(device=self.device).manual_seed(seed)
 
         default_negative = (
-            "worst quality, low quality, blurry, text, watermark, "
-            "signature, username, artist name, logo, banner, "
-            "multiple views, comic, manga panels"
+            "blurry, worst quality, low quality, deformed hands, bad anatomy, "
+            "extra limbs, poorly drawn face, mutated, extra eyes, bad proportions"
         )
         neg = negative_prompt or default_negative
 

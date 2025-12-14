@@ -141,6 +141,11 @@ def main():
     parser.add_argument("--output", type=str, help="Output directory")
     parser.add_argument("--dry-run", action="store_true", help="Preview prompts only")
     parser.add_argument("--list", action="store_true", help="List available cards")
+    parser.add_argument(
+        "--copy-to-public",
+        action="store_true",
+        help="Copy generated images to public/cards/ for static serving",
+    )
 
     args = parser.parse_args()
 
@@ -201,6 +206,24 @@ def main():
     success = sum(1 for r in results if r["status"] == "success")
     errors = sum(1 for r in results if r["status"] == "error")
     print(f"\nSummary: {success} success, {errors} errors")
+
+    # Copy to public directory for static serving
+    if args.copy_to_public and success > 0:
+        import shutil
+
+        public_dir = Path(__file__).parent.parent.parent / "public" / "cards"
+        public_dir.mkdir(parents=True, exist_ok=True)
+
+        copied = 0
+        for r in results:
+            if r["status"] == "success" and "path" in r:
+                src = Path(r["path"])
+                if src.exists():
+                    dst = public_dir / src.name
+                    shutil.copy2(src, dst)
+                    copied += 1
+
+        print(f"Copied {copied} images to {public_dir}")
 
 
 if __name__ == "__main__":

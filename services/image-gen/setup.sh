@@ -38,13 +38,23 @@ echo ""
 echo "Installing dependencies..."
 source .venv/bin/activate
 pip install --upgrade pip -q
-pip install -e . -q
 
-# Install PyTorch with CUDA (if not already)
+# Install PyTorch with CUDA first
 if ! python -c "import torch; assert torch.cuda.is_available()" 2>/dev/null; then
     echo "Installing PyTorch with CUDA support..."
     pip install torch --index-url https://download.pytorch.org/whl/cu121 -q
 fi
+
+# Install diffusers from Disty0's fork (includes NewbiePipeline)
+echo "Installing diffusers with NewbiePipeline support..."
+pip install git+https://github.com/Disty0/diffusers.git -q
+
+# Install additional dependencies
+echo "Installing model dependencies..."
+pip install einops timm torchvision transformers accelerate safetensors -q
+
+# Install project
+pip install -e . -q
 
 echo ""
 echo "=== Setup Complete ==="

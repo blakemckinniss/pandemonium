@@ -3,6 +3,12 @@ import { saveGeneratedCard } from '../stores/db'
 import { registerCard, getCardDefinition } from './cards'
 import type { CardDefinition, CardTheme, AtomicEffect } from '../types'
 import { generateUid } from '../lib/utils'
+import {
+  generateFromCardDef,
+  checkServiceHealth,
+  getImageUrl,
+  type GenerateResponse,
+} from '../lib/image-gen'
 
 // ============================================
 // SYSTEM PROMPT
@@ -130,6 +136,8 @@ export interface GenerationOptions {
   element?: 'physical' | 'fire' | 'ice' | 'lightning' | 'void'
   effectType?: string // Force specific effect type
   hint?: string // Creative direction hint
+  generateArt?: boolean // Generate card art via image service
+  artHint?: string // Custom hint for art generation
 }
 
 // ============================================
@@ -192,7 +200,40 @@ export async function generateRandomCard(
   // Register in card registry for immediate use
   registerCard(definition)
 
+  // Optionally generate card art
+  if (options?.generateArt) {
+    const artResult = await generateCardArtIfAvailable(definition, options.artHint)
+    if (artResult) {
+      definition.image = artResult.url
+    }
+  }
+
   return definition
+}
+
+/**
+ * Generate card art if the image service is available.
+ * Non-blocking - returns null if service unavailable.
+ */
+async function generateCardArtIfAvailable(
+  card: CardDefinition,
+  customHint?: string
+): Promise<GenerateResponse | null> {
+  try {
+    const serviceAvailable = await checkServiceHealth()
+    if (!serviceAvailable) {
+      console.warn('[card-generator] Image service unavailable, skipping art generation')
+      return null
+    }
+
+    const result = await generateFromCardDef(card, { customHint })
+    // Convert relative URL to full URL
+    result.url = getImageUrl(result.filename)
+    return result
+  } catch (error) {
+    console.error('[card-generator] Art generation failed:', error)
+    return null
+  }
 }
 
 // ============================================
