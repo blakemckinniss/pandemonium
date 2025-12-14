@@ -1,8 +1,8 @@
 // LARGE_FILE_OK: Active refactoring - extracting handlers to reduce size
 import { useState, useCallback, useEffect, useRef } from 'react'
 import { Icon } from '@iconify/react'
-import { Hand, type CardPosition } from '../Hand/Hand'
-import { CardAnimationOverlay, type PendingCardAnimation } from '../Hand/CardAnimationOverlay'
+import { Hand } from '../Hand/Hand'
+import { CardAnimationOverlay } from '../Hand/CardAnimationOverlay'
 import { Field } from '../Field/Field'
 import { CombatNumbers } from '../CombatNumbers/CombatNumbers'
 import { RoomSelect } from '../DungeonDeck/RoomSelect'
@@ -11,18 +11,16 @@ import { CampfireScreen } from './CampfireScreen'
 import { TreasureScreen } from './TreasureScreen'
 import { UnlockNotification } from '../UnlockNotification/UnlockNotification'
 import { ParticleEffects } from '../ParticleEffects/ParticleEffects'
-import { emitParticle } from '../ParticleEffects/emitParticle'
 import { CardPileModal, type PileType } from '../Modal/CardPileModal'
 import { CardSelectionModal } from '../Modal/CardSelectionModal'
 import { RelicBar } from '../RelicBar/RelicBar'
-import type { RunState, CombatNumber, Element } from '../../types'
+import type { RunState } from '../../types'
 import { applyAction } from '../../game/actions'
 import { createNewRun, createEnemiesFromRoom } from '../../game/new-game'
 import { getCardDefinition } from '../../game/cards'
 import { getEnergyCostNumber } from '../../lib/effects'
 import { getRoomDefinition } from '../../content/rooms'
-import { enableDragDrop, disableDragDrop, gsap } from '../../lib/dragdrop'
-import { generateUid } from '../../lib/utils'
+import { enableDragDrop, disableDragDrop } from '../../lib/dragdrop'
 import { useMetaStore, checkUnlocks } from '../../stores/metaStore'
 import { saveRun, getCustomDeckById } from '../../stores/db'
 import { useCampfireHandlers } from '../../hooks/useCampfireHandlers'
@@ -30,6 +28,7 @@ import { useTreasureHandlers } from '../../hooks/useTreasureHandlers'
 import { useRewardHandlers } from '../../hooks/useRewardHandlers'
 import { useSelectionHandlers } from '../../hooks/useSelectionHandlers'
 import { useAnimationCoordinator } from '../../hooks/useAnimationCoordinator'
+import { useVisualEventProcessor } from '../../hooks/useVisualEventProcessor'
 
 interface GameScreenProps {
   deckId?: string | null
@@ -38,22 +37,33 @@ interface GameScreenProps {
 
 export function GameScreen({ deckId, onReturnToMenu }: GameScreenProps) {
   const [state, setState] = useState<RunState | null>(null)
-  const [combatNumbers, setCombatNumbers] = useState<CombatNumber[]>([])
   const [pendingUnlocks, setPendingUnlocks] = useState<string[]>([])
   const [currentRoomId, setCurrentRoomId] = useState<string | null>(null)
-  const [pendingAnimations, setPendingAnimations] = useState<PendingCardAnimation[]>([])
   const [pileModalOpen, setPileModalOpen] = useState<PileType | null>(null)
   const [triggeredRelicId, setTriggeredRelicId] = useState<string | null>(null)
   const prevHealthRef = useRef<Record<string, number>>({})
 
   // Animation coordination (refs + isAnimating state)
-  const { isAnimating, containerRef, handRef, animateDiscardHand, animateDealCards, queryContainer } = useAnimationCoordinator()
+  const { isAnimating, containerRef, handRef, animateDiscardHand, animateDealCards, queryContainer, queryHand } = useAnimationCoordinator()
   const runStartRef = useRef<Date>(new Date())
   const runRecordedRef = useRef(false)
-  const lastTurnRef = useRef<number>(0)
-  const cardPositionsRef = useRef<Map<string, CardPosition>>(new Map())
 
-  // Meta store accessed via getState() to avoid full-store subscription
+  // Visual event processor (combat numbers, pending animations, visual queue handling)
+  const {
+    combatNumbers,
+    pendingAnimations,
+    removeCombatNumber,
+    handleAnimationComplete,
+    handleCardPositionsUpdate,
+    lastTurnRef,
+  } = useVisualEventProcessor({
+    combat: state?.combat ?? null,
+    queryContainer,
+    queryHand,
+    containerRef,
+    setState,
+    setTriggeredRelicId,
+  })
 
   // Extracted handlers
   const campfireHandlers = useCampfireHandlers(setState)
@@ -89,469 +99,6 @@ export function GameScreen({ deckId, onReturnToMenu }: GameScreenProps) {
     // Use setTimeout to ensure React has committed DOM changes
     setTimeout(() => animateDealCards(), 50)
   }, [state?.combat?.turn, state?.combat?.hand.length, animateDealCards])
-
-  // Process visual event queue
-  useEffect(() => {
-    if (!state?.combat?.visualQueue?.length) return
-
-    const queue = state.combat.visualQueue
-
-    // Process each visual event
-    for (const event of queue) {
-      switch (event.type) {
-        case 'damage': {
-          spawnCombatNumber(event.targetId, event.amount, 'damage', {
-            element: event.element,
-            variant: event.variant,
-            comboName: event.comboName,
-          })
-          // Spawn spark particles on target
-          const damageTarget = queryContainer(`[data-target="${event.targetId}"]`)
-          if (damageTarget) {
-            emitParticle(damageTarget, 'spark')
-            // Hit flash and shake for enemies
-            if (event.targetId !== 'player') {
-              const elementColors: Record<string, string> = {
-                fire: '#ff6348',
-                ice: '#00d4ff',
-                lightning: '#ffd700',
-                void: '#a55eea',
-                physical: '#ff4757',
-              }
-              gsap.effects.enemyHit(damageTarget, { color: elementColors[event.element ?? 'physical'] })
-              if (event.amount >= 5) gsap.effects.enemyShake(damageTarget)
-            }
-          }
-          break
-        }
-        case 'heal': {
-          spawnCombatNumber(event.targetId, event.amount, 'heal')
-          // Spawn heal particles on target
-          const healTarget = queryContainer(`[data-target="${event.targetId}"]`)
-          if (healTarget) emitParticle(healTarget, 'heal')
-          break
-        }
-        case 'block': {
-          spawnCombatNumber(event.targetId, event.amount, 'block')
-          // Spawn block particles on target
-          const blockTarget = queryContainer(`[data-target="${event.targetId}"]`)
-          if (blockTarget) emitParticle(blockTarget, 'block')
-          break
-        }
-        case 'draw':
-          // Animate mid-turn draws (turn-start draws handled by turn change effect)
-          if (lastTurnRef.current === state.combat?.turn) {
-            // Mid-turn draw - animate the newly drawn cards
-            setTimeout(() => {
-              const handCards = handRef.current?.querySelectorAll('.HandCard')
-              if (handCards && handCards.length > 0) {
-                // Animate just the last N cards (newly drawn)
-                const newCards = Array.from(handCards).slice(-event.count)
-                if (newCards.length > 0) {
-                  gsap.effects.dealCards(newCards, { stagger: 0.05 })
-                }
-              }
-            }, 50)
-          }
-          break
-        case 'discard': {
-          // Create ghost animations using cached positions
-          const discardAnims: PendingCardAnimation[] = []
-          for (const cardUid of event.cardUids) {
-            const cached = cardPositionsRef.current.get(cardUid)
-            if (!cached) continue
-
-            const cardDef = getCardDefinition(cached.definitionId)
-            if (!cardDef) continue
-
-            discardAnims.push({
-              id: `discard-${cardUid}-${Date.now()}`,
-              cardDef,
-              position: { x: cached.x, y: cached.y },
-              type: 'discard',
-            })
-          }
-          if (discardAnims.length > 0) {
-            setPendingAnimations((prev) => [...prev, ...discardAnims])
-          }
-          break
-        }
-        case 'exhaust': {
-          // Create ghost animations using cached positions
-          const exhaustAnims: PendingCardAnimation[] = []
-          for (const cardUid of event.cardUids) {
-            const cached = cardPositionsRef.current.get(cardUid)
-            if (!cached) continue
-
-            const cardDef = getCardDefinition(cached.definitionId)
-            if (!cardDef) continue
-
-            // Use ethereal exhaust animation for ethereal cards (ghostly purple fade)
-            const animType = cardDef.ethereal ? 'etherealExhaust' : 'exhaust'
-
-            exhaustAnims.push({
-              id: `exhaust-${cardUid}-${Date.now()}`,
-              cardDef,
-              position: { x: cached.x, y: cached.y },
-              type: animType,
-            })
-          }
-          if (exhaustAnims.length > 0) {
-            setPendingAnimations((prev) => [...prev, ...exhaustAnims])
-          }
-          break
-        }
-        case 'banish': {
-          // Banish visual - dark void particles dissolving away
-          const playerEl = queryContainer('[data-target="player"]')
-          if (playerEl) {
-            emitParticle(playerEl, 'banish') // dark void particles that drift slowly
-            gsap.effects.pulse(playerEl, {
-              color: 'oklch(0.25 0.12 300)', // deep void purple
-              scale: 0.95, // slight shrink for "removal" feel
-            })
-          }
-          break
-        }
-        case 'powerApply': {
-          // Pulse the target entity when power applied
-          const targetEl = queryContainer(
-            `[data-target="${event.targetId}"]`
-          )
-          if (targetEl) {
-            const isDebuff = event.powerId.match(/vulnerable|weak|frail|poison/)
-            gsap.effects.pulse(targetEl, {
-              color: isDebuff
-                ? 'oklch(0.55 0.18 20)'  // Debuff = red
-                : 'oklch(0.5 0.12 145)', // Buff = green
-            })
-            // Poison gets special particles
-            if (event.powerId === 'poison') {
-              emitParticle(targetEl, 'poison')
-            }
-          }
-          break
-        }
-        case 'powerRemove':
-          // PowerIndicators handles fade reactively
-          break
-        case 'energy': {
-          const energyOrb = queryContainer('[data-energy-orb]')
-          if (energyOrb) {
-            gsap.effects.energyPulse(energyOrb, {
-              color: event.delta > 0
-                ? 'oklch(0.7 0.15 70)'  // Gain = bright gold
-                : 'oklch(0.4 0.1 70)',  // Spend = dim
-            })
-            // Spawn energy particles on gain
-            if (event.delta > 0) {
-              emitParticle(energyOrb, 'energy')
-            }
-          }
-          break
-        }
-        case 'shuffle': {
-          const deckPile = queryContainer('[data-deck-pile]')
-          if (deckPile) {
-            gsap.effects.shuffleDeck(deckPile)
-          }
-          break
-        }
-        case 'addCard': {
-          // Show notification for card creation
-          const destName = event.destination === 'hand' ? 'hand'
-            : event.destination === 'drawPile' ? 'draw pile'
-            : 'discard pile'
-          const cardDef = getCardDefinition(event.cardId)
-          const cardName = cardDef?.name ?? event.cardId
-          // Spawn a status message (could be toast, for now use combat number on player)
-          if (event.destination === 'hand') {
-            // Animate new cards in hand
-            setTimeout(() => {
-              const handCards = handRef.current?.querySelectorAll('.HandCard')
-              if (handCards && handCards.length > 0) {
-                const newCards = Array.from(handCards).slice(-event.count)
-                if (newCards.length > 0) {
-                  gsap.effects.dealCards(newCards, { stagger: 0.05 })
-                }
-              }
-            }, 50)
-          }
-          console.log(`+${event.count} ${cardName} → ${destName}`)
-          break
-        }
-        case 'costModify': {
-          // Flash cards whose cost changed
-          for (const cardUid of event.cardUids) {
-            const cardEl = queryContainer(`[data-card-uid="${cardUid}"]`)
-            if (cardEl) {
-              gsap.effects.pulse(cardEl, {
-                color: event.delta < 0
-                  ? 'oklch(0.7 0.15 145)' // Cost reduced = green
-                  : 'oklch(0.6 0.15 25)', // Cost increased = red
-              })
-            }
-          }
-          break
-        }
-        case 'conditionalTrigger': {
-          // Flash to indicate conditional branch triggered
-          const playerEl = queryContainer('[data-entity="player"]')
-          if (playerEl) {
-            gsap.effects.pulse(playerEl, {
-              color: event.branch === 'then'
-                ? 'oklch(0.7 0.15 145)' // then = green (condition met)
-                : 'oklch(0.6 0.12 60)', // else = yellow (fallback)
-            })
-          }
-          console.log(`Conditional: ${event.branch} branch`)
-          break
-        }
-        case 'repeatEffect': {
-          // Show repeat indicator
-          const playerEl = queryContainer('[data-entity="player"]')
-          if (playerEl && event.current === 1) {
-            // Only pulse on first iteration
-            gsap.effects.pulse(playerEl, {
-              color: 'oklch(0.65 0.15 280)', // purple for repeat
-            })
-          }
-          console.log(`Repeat: ${event.current}/${event.times}`)
-          break
-        }
-        case 'replay': {
-          // Visual feedback when a card is replayed (Echo Form, Double Tap, etc.)
-          const playerEl = queryContainer('[data-entity="player"]')
-          if (playerEl) {
-            gsap.effects.pulse(playerEl, {
-              color: 'oklch(0.7 0.18 220)', // cyan/blue for replay
-              scale: 1.08, // subtle scale for emphasis
-            })
-            emitParticle(playerEl, 'combo') // multi-color burst for replay
-          }
-          break
-        }
-        case 'playTopCard': {
-          // Visual feedback when playing a card from draw/discard pile (Havoc, Mayhem, etc.)
-          const pileSelector = event.fromPile === 'drawPile' ? '[data-deck-pile]' : '[data-discard-pile]'
-          const pileEl = queryContainer(pileSelector)
-          const playerEl = queryContainer('[data-entity="player"]')
-
-          if (pileEl) {
-            gsap.effects.pulse(pileEl, {
-              color: 'oklch(0.7 0.15 70)', // gold for auto-play
-            })
-          }
-          if (playerEl) {
-            emitParticle(playerEl, 'spark')
-          }
-
-          const cardDef = getCardDefinition(event.cardId)
-          console.log(`Auto-play: ${cardDef?.name ?? event.cardId} from ${event.fromPile}`)
-          break
-        }
-        case 'gold': {
-          // Visual feedback for gold gain/loss
-          const playerEl = queryContainer('[data-entity="player"]')
-          if (playerEl) {
-            gsap.effects.pulse(playerEl, {
-              color: event.delta > 0
-                ? 'oklch(0.75 0.18 85)' // gold gain = bright gold
-                : 'oklch(0.5 0.1 25)',  // gold loss = dim red
-            })
-            if (event.delta > 0) {
-              emitParticle(playerEl, 'gold')
-            }
-            // Floating gold number
-            const rect = playerEl.getBoundingClientRect()
-            const num: CombatNumber = {
-              id: generateUid(),
-              value: event.delta,
-              type: 'gold',
-              targetId: 'player',
-              x: rect.left + rect.width / 2,
-              y: rect.top + rect.height / 3,
-            }
-            setCombatNumbers((prev) => [...prev, num])
-          }
-          break
-        }
-        case 'maxHealth': {
-          // Visual feedback for max health change
-          const targetEl = queryContainer(`[data-target="${event.targetId}"]`)
-          if (targetEl) {
-            gsap.effects.maxHealthPulse(targetEl, {
-              color: event.delta > 0
-                ? 'oklch(0.6 0.2 145)' // gain = green
-                : 'oklch(0.6 0.2 25)',  // lose = red
-            })
-            emitParticle(targetEl, event.delta > 0 ? 'heal' : 'spark')
-
-            // Spawn floating text
-            const rect = targetEl.getBoundingClientRect()
-            const num: CombatNumber = {
-              id: generateUid(),
-              value: event.delta,
-              type: 'maxHealth',
-              targetId: event.targetId,
-              x: rect.left + rect.width / 2,
-              y: rect.top + rect.height / 3,
-              label: 'Max HP',
-            }
-            setCombatNumbers((prev) => [...prev, num])
-          }
-          break
-        }
-        case 'upgrade': {
-          // Golden sparkle on upgraded cards
-          for (const cardUid of event.cardUids) {
-            const cardEl = queryContainer(`[data-card-uid="${cardUid}"]`)
-            if (cardEl) {
-              gsap.effects.upgradeCard(cardEl)
-              emitParticle(cardEl, 'upgrade')
-            }
-          }
-          console.log(`Upgraded ${event.cardUids.length} card(s)`)
-          break
-        }
-        case 'retain': {
-          // Cyan glow on retained cards
-          for (const cardUid of event.cardUids) {
-            const cardEl = queryContainer(`[data-card-uid="${cardUid}"]`)
-            if (cardEl) {
-              gsap.effects.retainCard(cardEl)
-              emitParticle(cardEl, 'retain')
-            }
-          }
-          console.log(`Retained ${event.cardUids.length} card(s)`)
-          break
-        }
-        case 'transform': {
-          // Morph effect on transformed card
-          const cardEl = queryContainer(`[data-card-uid="${event.cardUid}"]`)
-          if (cardEl) {
-            gsap.effects.transformCard(cardEl)
-            emitParticle(cardEl, 'transform')
-          }
-          const fromDef = getCardDefinition(event.fromCardId)
-          const toDef = getCardDefinition(event.toCardId)
-          console.log(`Transform: ${fromDef?.name ?? event.fromCardId} → ${toDef?.name ?? event.toCardId}`)
-          break
-        }
-        case 'putOnDeck': {
-          // Create ghost animations for cards going to deck
-          const deckAnims: PendingCardAnimation[] = []
-          for (const cardUid of event.cardUids) {
-            const cached = cardPositionsRef.current.get(cardUid)
-            if (!cached) continue
-
-            const cardDef = getCardDefinition(cached.definitionId)
-            if (!cardDef) continue
-
-            deckAnims.push({
-              id: `deck-${cardUid}-${Date.now()}`,
-              cardDef,
-              position: { x: cached.x, y: cached.y },
-              type: 'putOnDeck',
-            })
-          }
-          if (deckAnims.length > 0) {
-            setPendingAnimations((prev) => [...prev, ...deckAnims])
-          }
-          console.log(`Put ${event.cardUids.length} card(s) on ${event.position} of deck`)
-          break
-        }
-        case 'relicTrigger': {
-          // Flash the triggered relic
-          setTriggeredRelicId(event.relicId)
-          setTimeout(() => setTriggeredRelicId(null), 600)
-
-          // Pulse player when relic triggers
-          const playerEl = queryContainer('[data-entity="player"]')
-          if (playerEl) {
-            gsap.effects.pulse(playerEl, {
-              color: 'oklch(0.6 0.15 300)', // purple for relic
-            })
-            emitParticle(playerEl, 'energy')
-          }
-          console.log(`Relic triggered: ${event.relicDefId} (${event.trigger})`)
-          break
-        }
-        case 'powerTrigger': {
-          // Visual feedback when a power triggers (Thorns, Poison tick, etc.)
-          const targetEl = queryContainer(`[data-target="${event.targetId}"]`)
-          if (targetEl) {
-            // Different visuals based on power type
-            const powerColors: Record<string, string> = {
-              thorns: 'oklch(0.55 0.2 25)',     // red for thorns
-              poison: 'oklch(0.45 0.18 145)',   // dark green for poison
-              burn: 'oklch(0.6 0.2 40)',        // orange for burn
-              burning: 'oklch(0.6 0.2 40)',     // orange for burning
-              regen: 'oklch(0.6 0.18 145)',     // green for regen
-              metallicize: 'oklch(0.5 0.1 250)', // steel blue
-              platedArmor: 'oklch(0.5 0.1 250)', // steel blue
-            }
-            const particleTypes: Record<string, 'thorns' | 'poison' | 'spark' | 'heal' | 'block'> = {
-              thorns: 'thorns',
-              poison: 'poison',
-              burn: 'spark',
-              burning: 'spark',
-              regen: 'heal',
-              metallicize: 'block',
-              platedArmor: 'block',
-            }
-
-            const color = powerColors[event.powerId] ?? 'oklch(0.6 0.15 280)'
-            const particleType = particleTypes[event.powerId] ?? 'spark'
-
-            gsap.effects.pulse(targetEl, { color })
-            emitParticle(targetEl, particleType)
-          }
-          console.log(`Power triggered: ${event.powerId} on ${event.targetId} (${event.triggerEvent})`)
-          break
-        }
-        case 'cardPlayed': {
-          // Emit particles based on card theme
-          const targetEl = event.targetId
-            ? queryContainer(`[data-target="${event.targetId}"]`)
-            : queryContainer('[data-entity="player"]')
-          if (targetEl) {
-            // Map theme to particle type (attack/skill/power are valid particle types)
-            if (event.theme === 'attack' || event.theme === 'skill' || event.theme === 'power') {
-              emitParticle(targetEl, event.theme)
-              // Flash glow on target based on card theme
-              gsap.effects.cardPlayFlash(targetEl, { theme: event.theme })
-            }
-          }
-          break
-        }
-        case 'comboMilestone': {
-          // Burst of combo particles on player when hitting combo thresholds
-          const playerEl = queryContainer('[data-entity="player"]')
-          if (playerEl) {
-            // More particles for higher combos
-            const burstCount = event.count >= 7 ? 3 : event.count >= 5 ? 2 : 1
-            for (let i = 0; i < burstCount; i++) {
-              setTimeout(() => emitParticle(playerEl, 'combo'), i * 80)
-            }
-            // Show combo number as floating text
-            spawnCombatNumber('player', event.count, 'combo')
-            // Screen shake for big combos
-            if (event.count >= 5) {
-              gsap.effects.shake(containerRef.current, { intensity: event.count >= 7 ? 6 : 3 })
-            }
-          }
-          break
-        }
-      }
-    }
-
-    // Clear the queue after processing
-    setState((prev) => {
-      if (!prev) return prev
-      return applyAction(prev, { type: 'clearVisualQueue' })
-    })
-  }, [state?.combat?.visualQueue])
 
   // Setup drag-drop when in combat
   useEffect(() => {
@@ -643,63 +190,6 @@ export function GameScreen({ deckId, onReturnToMenu }: GameScreenProps) {
       finalDeck: state.deck.map((c) => c.definitionId),
     })
   }, [state?.gamePhase, state?.combat?.phase])
-
-  const spawnCombatNumber = useCallback(
-    (
-      targetId: string,
-      value: number,
-      type: 'damage' | 'heal' | 'block' | 'combo',
-      options?: {
-        element?: Element
-        variant?: 'poison' | 'piercing' | 'combo' | 'chain' | 'execute'
-        comboName?: string
-      }
-    ) => {
-      const targetEl = queryContainer(
-        `[data-target="${targetId}"], [data-target-type="${targetId}"]`
-      )
-
-      let x = window.innerWidth / 2
-      let y = window.innerHeight / 2
-
-      if (targetEl) {
-        const rect = targetEl.getBoundingClientRect()
-        x = rect.left + rect.width / 2
-        y = rect.top + rect.height / 3
-      }
-
-      const num: CombatNumber = {
-        id: generateUid(),
-        value,
-        type,
-        targetId,
-        x,
-        y,
-        element: options?.element,
-        variant: options?.variant,
-        comboName: options?.comboName,
-      }
-
-      setCombatNumbers((prev) => [...prev, num])
-
-      if (type === 'damage' && targetEl) {
-        gsap.effects.shake(targetEl)
-      }
-    },
-    []
-  )
-
-  const removeCombatNumber = useCallback((id: string) => {
-    setCombatNumbers((prev) => prev.filter((n) => n.id !== id))
-  }, [])
-
-  const handleCardPositionsUpdate = useCallback((positions: Map<string, CardPosition>) => {
-    cardPositionsRef.current = positions
-  }, [])
-
-  const handleAnimationComplete = useCallback((id: string) => {
-    setPendingAnimations((prev) => prev.filter((a) => a.id !== id))
-  }, [])
 
   // ============================================
   // ROOM SELECTION
