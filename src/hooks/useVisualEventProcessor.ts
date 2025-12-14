@@ -83,7 +83,7 @@ export function useVisualEventProcessor({
       setCombatNumbers((prev) => [...prev, num])
 
       if (type === 'damage' && targetEl) {
-        gsap.effects.shake(targetEl)
+        effects.shake(targetEl)
       }
     },
     [queryContainer]
@@ -124,7 +124,7 @@ export function useVisualEventProcessor({
             emitParticle(damageTarget, 'spark')
             // Screen shake for critical
             if (containerRef.current) {
-              gsap.effects.shake(containerRef.current, { intensity: 8 })
+              effects.shake(containerRef.current, { intensity: 8 })
             }
           } else {
             emitParticle(damageTarget, 'spark')
@@ -139,12 +139,12 @@ export function useVisualEventProcessor({
               void: '#a55eea',
               physical: '#ff4757',
             }
-            gsap.effects.enemyHit(damageTarget, { color: elementColors[event.element ?? 'physical'] })
+            effects.enemyHit(damageTarget, { color: elementColors[event.element ?? 'physical'] })
             // Stronger shake for higher damage
             if (isCritical) {
-              gsap.effects.enemyShake(damageTarget, { intensity: 12 })
+              effects.enemyShake(damageTarget, { intensity: 12 })
             } else if (event.amount >= 5) {
-              gsap.effects.enemyShake(damageTarget)
+              effects.enemyShake(damageTarget)
             }
           }
         }
@@ -170,7 +170,7 @@ export function useVisualEventProcessor({
             if (handCards && handCards.length > 0) {
               const newCards = Array.from(handCards).slice(-event.count)
               if (newCards.length > 0) {
-                gsap.effects.dealCards(newCards, { stagger: 0.05 })
+                effects.dealCards(newCards, { stagger: 0.05 })
               }
             }
           }, 50)
@@ -224,7 +224,7 @@ export function useVisualEventProcessor({
         const playerEl = queryContainer('[data-target="player"]')
         if (playerEl) {
           emitParticle(playerEl, 'banish')
-          gsap.effects.pulse(playerEl, {
+          effects.pulse(playerEl, {
             color: 'oklch(0.25 0.12 300)',
             scale: 0.95,
           })
@@ -235,7 +235,7 @@ export function useVisualEventProcessor({
         const targetEl = queryContainer(`[data-target="${event.targetId}"]`)
         if (targetEl) {
           const isDebuff = event.powerId.match(/vulnerable|weak|frail|poison/)
-          gsap.effects.pulse(targetEl, {
+          effects.pulse(targetEl, {
             color: isDebuff
               ? 'oklch(0.55 0.18 20)'
               : 'oklch(0.5 0.12 145)',
@@ -252,7 +252,7 @@ export function useVisualEventProcessor({
       case 'energy': {
         const energyOrb = queryContainer('[data-energy-orb]')
         if (energyOrb) {
-          gsap.effects.energyPulse(energyOrb, {
+          effects.energyPulse(energyOrb, {
             color: event.delta > 0
               ? 'oklch(0.7 0.15 70)'
               : 'oklch(0.4 0.1 70)',
@@ -266,7 +266,7 @@ export function useVisualEventProcessor({
       case 'shuffle': {
         const deckPile = queryContainer('[data-deck-pile]')
         if (deckPile) {
-          gsap.effects.shuffleDeck(deckPile)
+          effects.shuffleDeck(deckPile)
         }
         break
       }
@@ -282,7 +282,7 @@ export function useVisualEventProcessor({
             if (handCards && handCards.length > 0) {
               const newCards = Array.from(handCards).slice(-event.count)
               if (newCards.length > 0) {
-                gsap.effects.dealCards(newCards, { stagger: 0.05 })
+                effects.dealCards(newCards, { stagger: 0.05 })
               }
             }
           }, 50)
@@ -294,7 +294,7 @@ export function useVisualEventProcessor({
         for (const cardUid of event.cardUids) {
           const cardEl = queryContainer(`[data-card-uid="${cardUid}"]`)
           if (cardEl) {
-            gsap.effects.pulse(cardEl, {
+            effects.pulse(cardEl, {
               color: event.delta < 0
                 ? 'oklch(0.7 0.15 145)'
                 : 'oklch(0.6 0.15 25)',
@@ -306,7 +306,7 @@ export function useVisualEventProcessor({
       case 'conditionalTrigger': {
         const playerEl = queryContainer('[data-entity="player"]')
         if (playerEl) {
-          gsap.effects.pulse(playerEl, {
+          effects.pulse(playerEl, {
             color: event.branch === 'then'
               ? 'oklch(0.7 0.15 145)'
               : 'oklch(0.6 0.12 60)',
@@ -318,7 +318,7 @@ export function useVisualEventProcessor({
       case 'repeatEffect': {
         const playerEl = queryContainer('[data-entity="player"]')
         if (playerEl && event.current === 1) {
-          gsap.effects.pulse(playerEl, {
+          effects.pulse(playerEl, {
             color: 'oklch(0.65 0.15 280)',
           })
         }
@@ -328,7 +328,7 @@ export function useVisualEventProcessor({
       case 'replay': {
         const playerEl = queryContainer('[data-entity="player"]')
         if (playerEl) {
-          gsap.effects.pulse(playerEl, {
+          effects.pulse(playerEl, {
             color: 'oklch(0.7 0.18 220)',
             scale: 1.08,
           })
@@ -342,7 +342,7 @@ export function useVisualEventProcessor({
         const playerEl = queryContainer('[data-entity="player"]')
 
         if (pileEl) {
-          gsap.effects.pulse(pileEl, {
+          effects.pulse(pileEl, {
             color: 'oklch(0.7 0.15 70)',
           })
         }
@@ -357,7 +357,7 @@ export function useVisualEventProcessor({
       case 'gold': {
         const playerEl = queryContainer('[data-entity="player"]')
         if (playerEl) {
-          gsap.effects.pulse(playerEl, {
+          effects.pulse(playerEl, {
             color: event.delta > 0
               ? 'oklch(0.75 0.18 85)'
               : 'oklch(0.5 0.1 25)',
@@ -381,7 +381,7 @@ export function useVisualEventProcessor({
       case 'maxHealth': {
         const targetEl = queryContainer(`[data-target="${event.targetId}"]`)
         if (targetEl) {
-          gsap.effects.maxHealthPulse(targetEl, {
+          effects.maxHealthPulse(targetEl, {
             color: event.delta > 0
               ? 'oklch(0.6 0.2 145)'
               : 'oklch(0.6 0.2 25)',
@@ -406,7 +406,7 @@ export function useVisualEventProcessor({
         for (const cardUid of event.cardUids) {
           const cardEl = queryContainer(`[data-card-uid="${cardUid}"]`)
           if (cardEl) {
-            gsap.effects.upgradeCard(cardEl)
+            effects.upgradeCard(cardEl)
             emitParticle(cardEl, 'upgrade')
           }
         }
@@ -417,7 +417,7 @@ export function useVisualEventProcessor({
         for (const cardUid of event.cardUids) {
           const cardEl = queryContainer(`[data-card-uid="${cardUid}"]`)
           if (cardEl) {
-            gsap.effects.retainCard(cardEl)
+            effects.retainCard(cardEl)
             emitParticle(cardEl, 'retain')
           }
         }
@@ -427,7 +427,7 @@ export function useVisualEventProcessor({
       case 'transform': {
         const cardEl = queryContainer(`[data-card-uid="${event.cardUid}"]`)
         if (cardEl) {
-          gsap.effects.transformCard(cardEl)
+          effects.transformCard(cardEl)
           emitParticle(cardEl, 'transform')
         }
         const fromDef = getCardDefinition(event.fromCardId)
@@ -463,7 +463,7 @@ export function useVisualEventProcessor({
 
         const playerEl = queryContainer('[data-entity="player"]')
         if (playerEl) {
-          gsap.effects.pulse(playerEl, {
+          effects.pulse(playerEl, {
             color: 'oklch(0.6 0.15 300)',
           })
           emitParticle(playerEl, 'energy')
@@ -496,7 +496,7 @@ export function useVisualEventProcessor({
           const color = powerColors[event.powerId] ?? 'oklch(0.6 0.15 280)'
           const particleType = particleTypes[event.powerId] ?? 'spark'
 
-          gsap.effects.pulse(targetEl, { color })
+          effects.pulse(targetEl, { color })
           emitParticle(targetEl, particleType)
         }
         console.log(`Power triggered: ${event.powerId} on ${event.targetId} (${event.triggerEvent})`)
@@ -509,7 +509,7 @@ export function useVisualEventProcessor({
         if (targetEl) {
           if (event.theme === 'attack' || event.theme === 'skill' || event.theme === 'power') {
             emitParticle(targetEl, event.theme)
-            gsap.effects.cardPlayFlash(targetEl, { theme: event.theme })
+            effects.cardPlayFlash(targetEl, { theme: event.theme })
           }
         }
         break
@@ -523,7 +523,7 @@ export function useVisualEventProcessor({
           }
           spawnCombatNumber('player', event.count, 'combo')
           if (event.count >= 5) {
-            gsap.effects.shake(containerRef.current, { intensity: event.count >= 7 ? 6 : 3 })
+            effects.shake(containerRef.current, { intensity: event.count >= 7 ? 6 : 3 })
           }
         }
         break
@@ -539,7 +539,7 @@ export function useVisualEventProcessor({
 
           // Screen shake
           if (containerRef.current) {
-            gsap.effects.shake(containerRef.current, { intensity: 10 })
+            effects.shake(containerRef.current, { intensity: 10 })
           }
 
           // Fade out the enemy card

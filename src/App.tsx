@@ -1,11 +1,11 @@
 import { lazy, Suspense, useEffect, useState } from 'react'
 import type { AppScreen } from './types'
-import { GameScreen } from './components/screens/GameScreen'
 import { MenuScreen } from './components/screens/MenuScreen'
-import { DeckBuilderScreen } from './components/screens/DeckBuilderScreen'
 import { loadGeneratedCardsIntoRegistry } from './game/card-generator'
 
-// Lazy load Three.js background (484KB chunk)
+// Lazy load heavy components - only MenuScreen needed at startup
+const GameScreen = lazy(() => import('./components/screens/GameScreen'))
+const DeckBuilderScreen = lazy(() => import('./components/screens/DeckBuilderScreen'))
 const AmbientBackground = lazy(() => import('./components/AmbientBackground/AmbientBackground'))
 
 function App() {
@@ -55,7 +55,9 @@ function App() {
       <Suspense fallback={null}>
         <AmbientBackground />
       </Suspense>
-      {renderScreen()}
+      <Suspense fallback={<div className="min-h-screen" />}>
+        {renderScreen()}
+      </Suspense>
     </>
   )
 }
