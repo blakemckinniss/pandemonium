@@ -405,6 +405,147 @@ gsap.registerEffect({
   extendTimeline: true,
 })
 
+// Upgrade card - golden sparkle effect
+gsap.registerEffect({
+  name: 'upgradeCard',
+  effect: (targets: gsap.TweenTarget, config: { onComplete?: () => void }) => {
+    const tl = gsap.timeline()
+
+    // Golden glow pulse
+    tl.to(targets, {
+      boxShadow: '0 0 30px oklch(0.8 0.18 85), 0 0 60px oklch(0.7 0.15 85)',
+      scale: 1.08,
+      filter: 'brightness(1.3) saturate(1.2)',
+      duration: 0.25,
+      ease: 'power2.out',
+    })
+
+    // Settle back with lingering glow
+    tl.to(targets, {
+      boxShadow: '0 0 15px oklch(0.7 0.12 85)',
+      scale: 1,
+      filter: 'brightness(1) saturate(1)',
+      duration: 0.4,
+      ease: 'power2.out',
+      onComplete: config.onComplete,
+    })
+
+    return tl
+  },
+  extendTimeline: true,
+})
+
+// Retain card - subtle cyan glow indicating it stays
+gsap.registerEffect({
+  name: 'retainCard',
+  effect: (targets: gsap.TweenTarget, config: { onComplete?: () => void }) => {
+    const tl = gsap.timeline()
+
+    // Cyan pulse
+    tl.to(targets, {
+      boxShadow: '0 0 20px oklch(0.7 0.15 200)',
+      scale: 1.03,
+      duration: 0.2,
+      ease: 'power2.out',
+    })
+
+    // Fade to subtle persistent glow
+    tl.to(targets, {
+      boxShadow: '0 0 8px oklch(0.6 0.1 200)',
+      scale: 1,
+      duration: 0.3,
+      ease: 'power2.out',
+      onComplete: config.onComplete,
+    })
+
+    return tl
+  },
+  extendTimeline: true,
+})
+
+// Transform card - morph/shimmer effect
+gsap.registerEffect({
+  name: 'transformCard',
+  effect: (targets: gsap.TweenTarget, config: { onComplete?: () => void }) => {
+    const tl = gsap.timeline()
+
+    // Shimmer and distort
+    tl.to(targets, {
+      filter: 'brightness(1.5) hue-rotate(180deg) blur(2px)',
+      scale: 0.95,
+      rotation: 5,
+      duration: 0.2,
+      ease: 'power2.in',
+    })
+
+    // Flash white at peak
+    tl.to(targets, {
+      filter: 'brightness(2) hue-rotate(0deg) blur(4px)',
+      scale: 1.1,
+      rotation: -3,
+      duration: 0.1,
+    })
+
+    // Resolve to new card
+    tl.to(targets, {
+      filter: 'brightness(1) hue-rotate(0deg) blur(0px)',
+      scale: 1,
+      rotation: 0,
+      duration: 0.3,
+      ease: 'back.out(1.5)',
+      onComplete: config.onComplete,
+    })
+
+    return tl
+  },
+  extendTimeline: true,
+})
+
+// Put on deck - card flies to draw pile
+gsap.registerEffect({
+  name: 'putOnDeck',
+  effect: (targets: gsap.TweenTarget, config: { onComplete?: () => void }) => {
+    return gsap.to(targets, {
+      x: -window.innerWidth * 0.4,
+      y: -window.innerHeight * 0.3,
+      rotation: -20,
+      scale: 0.3,
+      opacity: 0,
+      duration: 0.4,
+      ease: 'power2.in',
+      onComplete: config.onComplete,
+    })
+  },
+  extendTimeline: true,
+})
+
+// Max health change - heart pulse effect
+gsap.registerEffect({
+  name: 'maxHealthPulse',
+  effect: (targets: gsap.TweenTarget, config: { color?: string; onComplete?: () => void }) => {
+    const tl = gsap.timeline()
+    const glowColor = config.color ?? 'oklch(0.6 0.2 25)'
+
+    tl.to(targets, {
+      scale: 1.1,
+      boxShadow: `0 0 25px ${glowColor}`,
+      duration: 0.15,
+      ease: 'power2.out',
+    })
+
+    tl.to(targets, {
+      scale: 1,
+      boxShadow: 'none',
+      duration: 0.3,
+      ease: 'power2.out',
+      onComplete: config.onComplete,
+    })
+
+    return tl
+  },
+  extendTimeline: true,
+})
+
 // ============================================
 // UTILITY FUNCTIONS
 // ============================================

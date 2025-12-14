@@ -837,6 +837,11 @@ export type VisualEvent =
   | { type: 'repeatEffect'; times: number; current: number }
   | { type: 'replay'; cardUid: string; times: number }
   | { type: 'playTopCard'; cardId: string; fromPile: 'drawPile' | 'discardPile' }
+  | { type: 'maxHealth'; targetId: string; delta: number }
+  | { type: 'upgrade'; cardUids: string[] }
+  | { type: 'retain'; cardUids: string[] }
+  | { type: 'transform'; cardUid: string; fromCardId: string; toCardId: string }
+  | { type: 'putOnDeck'; cardUids: string[]; position: 'top' | 'bottom' | 'random' }
 
 // ============================================
 // COMBAT NUMBERS (FCT)

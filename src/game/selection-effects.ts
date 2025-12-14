@@ -101,6 +101,7 @@ export function executeUpgrade(
   if (!draft.combat) return
 
   const cards = resolveCardTarget(effect.target, draft, ctx)
+  const upgradedUids: string[] = []
 
   for (const card of cards) {
     // Find and upgrade the card in its current location
@@ -114,9 +115,14 @@ export function executeUpgrade(
       const found = pile.find((c) => c.uid === card.uid)
       if (found && !found.upgraded) {
         found.upgraded = true
+        upgradedUids.push(card.uid)
         break
       }
     }
+  }
+
+  if (upgradedUids.length > 0) {
+    emitVisual(draft, { type: 'upgrade', cardUids: upgradedUids })
   }
 }
 
@@ -143,6 +149,8 @@ export function executeTransform(
     for (const pile of locations) {
       const found = pile.find((c) => c.uid === card.uid)
       if (found) {
+        const fromCardId = found.definitionId
+
         // Determine the new card ID
         let newCardId: string | undefined
 
@@ -157,6 +165,13 @@ export function executeTransform(
         if (newCardId && getCardDefinition(newCardId)) {
           found.definitionId = newCardId
           found.upgraded = effect.upgraded ?? false
+
+          emitVisual(draft, {
+            type: 'transform',
+            cardUid: found.uid,
+            fromCardId,
+            toCardId: newCardId,
+          })
         }
         break
       }

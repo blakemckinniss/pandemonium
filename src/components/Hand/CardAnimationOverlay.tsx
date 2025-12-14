@@ -8,7 +8,7 @@ export interface PendingCardAnimation {
   id: string
   cardDef: CardDefinition
   position: { x: number; y: number }
-  type: 'discard' | 'exhaust' | 'etherealExhaust'
+  type: 'discard' | 'exhaust' | 'etherealExhaust' | 'putOnDeck'
 }
 
 interface CardAnimationOverlayProps {
@@ -40,7 +40,8 @@ function AnimatedCard({ animation, onComplete }: AnimatedCardProps) {
 
     const effectName =
       type === 'etherealExhaust' ? 'etherealExhaust' :
-      type === 'exhaust' ? 'exhaustCard' : 'discardCard'
+      type === 'exhaust' ? 'exhaustCard' :
+      type === 'putOnDeck' ? 'putOnDeck' : 'discardCard'
 
     gsap.effects[effectName](cardRef.current, {
       onComplete: () => onComplete(id),

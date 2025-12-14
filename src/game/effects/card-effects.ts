@@ -261,12 +261,18 @@ export function executeRetain(
   if (!draft.combat) return
 
   const cards = resolveCardTarget(effect.target, draft, ctx)
+  const retainedUids: string[] = []
 
   for (const card of cards) {
     const handCard = draft.combat.hand.find((c) => c.uid === card.uid)
-    if (handCard) {
+    if (handCard && !handCard.retained) {
       handCard.retained = true
+      retainedUids.push(card.uid)
     }
+  }
+
+  if (retainedUids.length > 0) {
+    emitVisual(draft, { type: 'retain', cardUids: retainedUids })
   }
 }
 
@@ -324,12 +330,14 @@ export function executePutOnDeck(
 
   const cards = resolveCardTarget(effect.target, draft, ctx)
   const pos = effect.position ?? 'top'
+  const movedUids: string[] = []
 
   for (const card of cards) {
     // Remove from hand
     const handIdx = draft.combat.hand.findIndex((c) => c.uid === card.uid)
     if (handIdx !== -1) {
       draft.combat.hand.splice(handIdx, 1)
+      movedUids.push(card.uid)
 
       switch (pos) {
         case 'top':
@@ -344,6 +352,10 @@ export function executePutOnDeck(
           break
       }
     }
+  }
+
+  if (movedUids.length > 0) {
+    emitVisual(draft, { type: 'putOnDeck', cardUids: movedUids, position: pos })
   }
 }
 

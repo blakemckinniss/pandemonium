@@ -20,20 +20,66 @@ export function RewardScreen({ floor, gold, onAddCard, onSkip }: RewardScreenPro
   const [isGenerating, setIsGenerating] = useState(false)
   const [generationError, setGenerationError] = useState<string | null>(null)
 
-  // Generate card choices on mount
+  // Generate card choices on mount with rarity weighting
   useEffect(() => {
     const allCards = getAllCards().filter(
       (c) => !['strike', 'defend'].includes(c.id) // Exclude basic cards
     )
 
-    // Pick 3 random cards
-    const choices: CardDefinition[] = []
-    const available = [...allCards]
+    // Group cards by rarity
+    const byRarity: Record<string, CardDefinition[]> = {
+      common: [],
+      uncommon: [],
+      rare: [],
+    }
+    for (const card of allCards) {
+      const rarity = card.rarity ?? 'common'
+      if (byRarity[rarity]) {
+        byRarity[rarity].push(card)
+      } else {
+        byRarity.common.push(card)
+      }
+    }
 
-    for (let i = 0; i < 3 && available.length > 0; i++) {
-      const idx = Math.floor(Math.random() * available.length)
-      choices.push(available[idx])
-      available.splice(idx, 1)
+    // Rarity weights: common 60%, uncommon 30%, rare 10%
+    const rarityWeights = [
+      { rarity: 'common', weight: 0.6 },
+      { rarity: 'uncommon', weight: 0.3 },
+      { rarity: 'rare', weight: 0.1 },
+    ]
+
+    // Pick 3 cards with weighted rarity selection
+    const choices: CardDefinition[] = []
+    const usedIds = new Set<string>()
+
+    for (let i = 0; i < 3; i++) {
+      // Roll for rarity
+      const roll = Math.random()
+      let cumulative = 0
+      let selectedRarity = 'common'
+
+      for (const { rarity, weight } of rarityWeights) {
+        cumulative += weight
+        if (roll < cumulative) {
+          selectedRarity = rarity
+          break
+        }
+      }
+
+      // Get available cards of that rarity (not already chosen)
+      let pool = byRarity[selectedRarity].filter((c) => !usedIds.has(c.id))
+
+      // Fallback to any available card if pool empty
+      if (pool.length === 0) {
+        pool = allCards.filter((c) => !usedIds.has(c.id))
+      }
+
+      if (pool.length > 0) {
+        const idx = Math.floor(Math.random() * pool.length)
+        const card = pool[idx]
+        choices.push(card)
+        usedIds.add(card.id)
+      }
     }
 
     setCardChoices(choices)

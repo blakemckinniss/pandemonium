@@ -312,6 +312,8 @@ export function executeMaxHealth(
     const entity = getEntityById(targetId, draft)
     if (!entity) continue
 
+    const prevMax = entity.maxHealth
+
     switch (effect.operation) {
       case 'gain':
         entity.maxHealth += amount
@@ -325,6 +327,11 @@ export function executeMaxHealth(
         entity.maxHealth = Math.max(1, amount)
         entity.currentHealth = Math.min(entity.currentHealth, entity.maxHealth)
         break
+    }
+
+    const delta = entity.maxHealth - prevMax
+    if (delta !== 0) {
+      emitVisual(draft, { type: 'maxHealth', targetId, delta })
     }
   }
 }

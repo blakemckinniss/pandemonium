@@ -343,6 +343,78 @@ export function GameScreen({ deckId, onReturnToMenu }: GameScreenProps) {
           console.log(`Gold: ${event.delta > 0 ? '+' : ''}${event.delta}`)
           break
         }
+        case 'maxHealth': {
+          // Visual feedback for max health change
+          const targetEl = containerRef.current?.querySelector(`[data-target="${event.targetId}"]`)
+          if (targetEl) {
+            gsap.effects.maxHealthPulse(targetEl, {
+              color: event.delta > 0
+                ? 'oklch(0.6 0.2 145)' // gain = green
+                : 'oklch(0.6 0.2 25)',  // lose = red
+            })
+            emitParticle(targetEl, event.delta > 0 ? 'heal' : 'spark')
+          }
+          console.log(`Max HP: ${event.delta > 0 ? '+' : ''}${event.delta}`)
+          break
+        }
+        case 'upgrade': {
+          // Golden sparkle on upgraded cards
+          for (const cardUid of event.cardUids) {
+            const cardEl = containerRef.current?.querySelector(`[data-card-uid="${cardUid}"]`)
+            if (cardEl) {
+              gsap.effects.upgradeCard(cardEl)
+              emitParticle(cardEl, 'energy')
+            }
+          }
+          console.log(`Upgraded ${event.cardUids.length} card(s)`)
+          break
+        }
+        case 'retain': {
+          // Cyan glow on retained cards
+          for (const cardUid of event.cardUids) {
+            const cardEl = containerRef.current?.querySelector(`[data-card-uid="${cardUid}"]`)
+            if (cardEl) {
+              gsap.effects.retainCard(cardEl)
+            }
+          }
+          console.log(`Retained ${event.cardUids.length} card(s)`)
+          break
+        }
+        case 'transform': {
+          // Morph effect on transformed card
+          const cardEl = containerRef.current?.querySelector(`[data-card-uid="${event.cardUid}"]`)
+          if (cardEl) {
+            gsap.effects.transformCard(cardEl)
+            emitParticle(cardEl, 'spark')
+          }
+          const fromDef = getCardDefinition(event.fromCardId)
+          const toDef = getCardDefinition(event.toCardId)
+          console.log(`Transform: ${fromDef?.name ?? event.fromCardId} → ${toDef?.name ?? event.toCardId}`)
+          break
+        }
+        case 'putOnDeck': {
+          // Create ghost animations for cards going to deck
+          const deckAnims: PendingCardAnimation[] = []
+          for (const cardUid of event.cardUids) {
+            const cached = cardPositionsRef.current.get(cardUid)
+            if (!cached) continue
+
+            const cardDef = getCardDefinition(cached.definitionId)
+            if (!cardDef) continue
+
+            deckAnims.push({
+              id: `deck-${cardUid}-${Date.now()}`,
+              cardDef,
+              position: { x: cached.x, y: cached.y },
+              type: 'putOnDeck',
+            })
+          }
+          if (deckAnims.length > 0) {
+            setPendingAnimations((prev) => [...prev, ...deckAnims])
+          }
+          console.log(`Put ${event.cardUids.length} card(s) on ${event.position} of deck`)
+          break
+        }
       }
     }
 
