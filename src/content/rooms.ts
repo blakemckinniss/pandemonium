@@ -106,13 +106,29 @@ export const ROOMS: Record<string, RoomDefinition> = {
     monsters: ['cultist', 'cultist', 'jaw_worm'],
   },
 
-  // Campfire (future)
+  // Campfire
   campfire: {
     id: 'campfire',
     type: 'campfire',
     name: 'Campfire',
     description: 'Rest and recover.',
     icon: '🔥',
+  },
+
+  // Treasure rooms
+  treasure_small: {
+    id: 'treasure_small',
+    type: 'treasure',
+    name: 'Treasure Cache',
+    description: 'A small stash of valuables.',
+    icon: '💎',
+  },
+  treasure_large: {
+    id: 'treasure_large',
+    type: 'treasure',
+    name: 'Treasure Vault',
+    description: 'A vault filled with ancient relics.',
+    icon: '👑',
   },
 }
 

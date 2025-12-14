@@ -32,8 +32,9 @@ export function executeRelicTriggers(draft: RunState, trigger: RelicTrigger): vo
     })
 
     // Execute each effect
+    const ctx = { source: 'player' as const }
     for (const effect of def.effects) {
-      dispatchEffect(draft, effect, 'player', undefined, relic.id)
+      executeEffect(draft, effect, ctx)
     }
   }
 }

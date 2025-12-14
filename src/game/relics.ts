@@ -160,7 +160,7 @@ registerRelic({
   effects: [
     {
       type: 'conditional',
-      condition: { type: 'turn', op: '==', value: 3 },
+      condition: { type: 'turn', op: '=', value: 3 },
       then: [{ type: 'block', amount: 18, target: 'self' }],
     },
   ],

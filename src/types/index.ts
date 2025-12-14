@@ -680,7 +680,7 @@ export interface HeroState extends HeroDefinition {
 // ROOM / DUNGEON
 // ============================================
 
-export type RoomType = 'combat' | 'elite' | 'boss' | 'campfire' | 'event' | 'shop'
+export type RoomType = 'combat' | 'elite' | 'boss' | 'campfire' | 'event' | 'shop' | 'treasure'
 
 export interface RoomDefinition {
   id: string
