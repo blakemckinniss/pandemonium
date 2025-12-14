@@ -235,17 +235,25 @@ export function GameScreen({ deckId, onReturnToMenu }: GameScreenProps) {
       gsap.to(title, { scale: 1, opacity: 1, duration: 0.5, delay: 0.2, ease: 'back.out(1.7)' })
       gsap.to(subtitle, { opacity: 1, y: 0, duration: 0.4, delay: 0.5 })
 
+      // Screen flash effect
+      const flash = document.createElement('div')
+      flash.style.cssText = 'position:fixed;inset:0;background:white;pointer-events:none;z-index:100'
+      document.body.appendChild(flash)
+      gsap.fromTo(flash, { opacity: 0.6 }, { opacity: 0, duration: 0.4, onComplete: () => flash.remove() })
+
       // Particle burst from center
       const rect = overlay.getBoundingClientRect()
       const centerX = rect.left + rect.width / 2
       const centerY = rect.top + rect.height / 2
       const win = window as unknown as { spawnParticles?: (x: number, y: number, type: string) => void }
       if (win.spawnParticles) {
-        for (let i = 0; i < 5; i++) {
+        // Initial burst
+        for (let i = 0; i < 8; i++) {
           setTimeout(() => {
-            win.spawnParticles!(centerX + (Math.random() - 0.5) * 100, centerY + (Math.random() - 0.5) * 50, 'gold')
-            win.spawnParticles!(centerX + (Math.random() - 0.5) * 100, centerY + (Math.random() - 0.5) * 50, 'heal')
-          }, i * 100)
+            win.spawnParticles!(centerX + (Math.random() - 0.5) * 150, centerY + (Math.random() - 0.5) * 80, 'gold')
+            win.spawnParticles!(centerX + (Math.random() - 0.5) * 150, centerY + (Math.random() - 0.5) * 80, 'heal')
+            win.spawnParticles!(centerX + (Math.random() - 0.5) * 100, centerY + (Math.random() - 0.5) * 50, 'spark')
+          }, i * 80)
         }
       }
     }
