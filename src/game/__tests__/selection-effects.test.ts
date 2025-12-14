@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
+import { describe, it, expect } from 'vitest'
 import {
   executeScry,
   executeTutor,
@@ -17,7 +17,6 @@ import type {
   PlayerEntity,
   EnemyEntity,
   EffectContext,
-  CardDefinition,
 } from '../../types'
 import { generateUid } from '../../lib/utils'
 
@@ -823,8 +822,9 @@ describe('handleResolveScry', () => {
 
     // Assert
     expect(draft.combat!.drawPile).toHaveLength(2)
-    expect(draft.combat!.drawPile[0].uid).toBe(card1.uid)
-    expect(draft.combat!.drawPile[1].uid).toBe(card2.uid)
+    // Discarded cards are added to bottom via unshift, so last discarded is at index 0
+    expect(draft.combat!.drawPile[0].uid).toBe(card2.uid)
+    expect(draft.combat!.drawPile[1].uid).toBe(card1.uid)
   })
 
   it('handles_mixed_keep_and_discard', () => {
