@@ -31,6 +31,7 @@ import { useSelectionHandlers } from '../../hooks/useSelectionHandlers'
 import { useAnimationCoordinator } from '../../hooks/useAnimationCoordinator'
 import { useVisualEventProcessor } from '../../hooks/useVisualEventProcessor'
 import { useCombatActions } from '../../hooks/useCombatActions'
+import { useRoomHandlers } from '../../hooks/useRoomHandlers'
 
 interface GameScreenProps {
   deckId?: string | null
@@ -58,6 +59,7 @@ export function GameScreen({ deckId, onReturnToMenu }: GameScreenProps) {
     handleAnimationComplete,
     handleCardPositionsUpdate,
     lastTurnRef,
+    resetVisuals,
   } = useVisualEventProcessor({
     combat: state?.combat ?? null,
     queryContainer,
@@ -73,6 +75,19 @@ export function GameScreen({ deckId, onReturnToMenu }: GameScreenProps) {
     isAnimating,
     setState,
     animateDiscardHand,
+  })
+
+  // Room selection & restart
+  const { handleSelectRoom, handleRestart, handleUnlocksDismissed } = useRoomHandlers({
+    setState,
+    setCurrentRoomId,
+    setPendingUnlocks,
+    prevHealthRef,
+    runStartRef,
+    runRecordedRef,
+    lastTurnRef,
+    resetVisuals,
+    onReturnToMenu,
   })
 
   // Extracted handlers
@@ -213,76 +228,6 @@ export function GameScreen({ deckId, onReturnToMenu }: GameScreenProps) {
       finalDeck: state.deck.map((c) => c.definitionId),
     })
   }, [state?.gamePhase, state?.combat?.phase])
-
-  // ============================================
-  // ROOM SELECTION
-  // ============================================
-
-  const handleSelectRoom = useCallback((roomUid: string) => {
-    setState((prev) => {
-      if (!prev) return prev
-
-      const room = prev.roomChoices.find((r) => r.uid === roomUid)
-      if (!room) return prev
-
-      setCurrentRoomId(room.definitionId)
-
-      const roomDef = getRoomDefinition(room.definitionId)
-
-      // Handle campfire rooms
-      if (roomDef?.type === 'campfire') {
-        return {
-          ...prev,
-          gamePhase: 'campfire',
-          roomChoices: [],
-        }
-      }
-
-      // Handle treasure rooms
-      if (roomDef?.type === 'treasure') {
-        return {
-          ...prev,
-          gamePhase: 'treasure',
-          roomChoices: [],
-        }
-      }
-
-      // Create enemies from room
-      const enemies = createEnemiesFromRoom(room.definitionId)
-
-      // Start combat
-      let newState = applyAction(
-        { ...prev, roomChoices: [] },
-        { type: 'startCombat', enemies }
-      )
-      newState = applyAction(newState, { type: 'startTurn' })
-
-      // Reset tracking refs for new combat
-      prevHealthRef.current = {}
-      lastTurnRef.current = 0
-
-      return newState
-    })
-  }, [])
-
-  const handleRestart = useCallback(() => {
-    if (onReturnToMenu) {
-      onReturnToMenu()
-    } else {
-      prevHealthRef.current = {}
-      runStartRef.current = new Date()
-      runRecordedRef.current = false
-      lastTurnRef.current = 0
-      setPendingUnlocks([])
-      setCurrentRoomId(null)
-      setState(createNewRun('warrior'))
-    }
-  }, [onReturnToMenu])
-
-  const handleUnlocksDismissed = useCallback(() => {
-    setPendingUnlocks([])
-  }, [])
-
 
   // ============================================
   // RENDER
