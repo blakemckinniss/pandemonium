@@ -1,5 +1,5 @@
 // LARGE_FILE_OK: Active refactoring - extracting handlers to reduce size
-import { useState, useCallback, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { Icon } from '@iconify/react'
 import { Hand } from '../Hand/Hand'
 import { CardAnimationOverlay } from '../Hand/CardAnimationOverlay'
@@ -16,11 +16,10 @@ import { CardPileModal, type PileType } from '../Modal/CardPileModal'
 import { CardSelectionModal } from '../Modal/CardSelectionModal'
 import { RelicBar } from '../RelicBar/RelicBar'
 import type { RunState } from '../../types'
-import { applyAction } from '../../game/actions'
-import { createNewRun, createEnemiesFromRoom } from '../../game/new-game'
 import { getCardDefinition } from '../../game/cards'
-import { getEnergyCostNumber } from '../../lib/effects'
+import { createNewRun } from '../../game/new-game'
 import { getRoomDefinition } from '../../content/rooms'
+import { getEnergyCostNumber } from '../../lib/effects'
 import { enableDragDrop, disableDragDrop } from '../../lib/dragdrop'
 import { useMetaStore, checkUnlocks } from '../../stores/metaStore'
 import { saveRun, getCustomDeckById } from '../../stores/db'
@@ -341,6 +340,7 @@ export function GameScreen({ deckId, onReturnToMenu }: GameScreenProps) {
           onClick={handleEndTurn}
           disabled={!isPlayerTurn || isAnimating}
           className="EndTurnBtn"
+          data-end-turn
         >
           End Turn
         </button>

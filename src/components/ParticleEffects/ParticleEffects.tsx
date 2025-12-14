@@ -147,6 +147,14 @@ const PARTICLE_CONFIG = {
     size: 4,
     gravity: 0.1,
   },
+  explosion: {
+    colors: ['#ff4757', '#ff6348', '#ffa502', '#fffa65', '#ffffff'],
+    count: 35,
+    speed: 14,
+    life: 45,
+    size: 7,
+    gravity: 0.25,
+  },
 }
 
 export function ParticleEffects({ containerRef }: ParticleEffectsProps) {

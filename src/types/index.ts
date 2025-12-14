@@ -889,6 +889,7 @@ export type VisualEvent =
   | { type: 'putOnDeck'; cardUids: string[]; position: 'top' | 'bottom' | 'random' }
   | { type: 'powerTrigger'; targetId: string; powerId: string; triggerEvent: string }
   | { type: 'relicTrigger'; relicId: string; relicDefId: string; trigger: RelicTrigger }
+  | { type: 'enemyDeath'; enemyId: string }
 
 // ============================================
 // COMBAT NUMBERS (FCT)

@@ -540,6 +540,30 @@ export function useVisualEventProcessor({
         }
         break
       }
+      case 'enemyDeath': {
+        const enemyEl = queryContainer(`[data-target="${event.enemyId}"]`)
+        if (enemyEl) {
+          // Explosion particle burst
+          for (let i = 0; i < 3; i++) {
+            setTimeout(() => emitParticle(enemyEl, 'explosion'), i * 50)
+          }
+          emitParticle(enemyEl, 'critical')
+
+          // Screen shake
+          if (containerRef.current) {
+            gsap.effects.shake(containerRef.current, { intensity: 10 })
+          }
+
+          // Fade out the enemy card
+          gsap.to(enemyEl, {
+            opacity: 0,
+            scale: 1.2,
+            duration: 0.4,
+            ease: 'power2.out',
+          })
+        }
+        break
+      }
     }
   }
 
