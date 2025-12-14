@@ -1,13 +1,84 @@
-import { describe, it, expect } from 'vitest'
+import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { generateRandomCard, type GenerationOptions } from '../card-generator'
 
-// Real API tests - requires VITE_GROQ_API_KEY in environment
-// Vitest loads .env automatically via Vite
-describe('card-generator (real API)', () => {
+// Mock the groq module to avoid real API calls (partial mock preserves GROQ_MODEL)
+vi.mock('../../lib/groq', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('../../lib/groq')>()
+  return {
+    ...actual,
+    chatCompletion: vi.fn(),
+  }
+})
+
+// Import the mocked function for test control
+import { chatCompletion } from '../../lib/groq'
+const mockChatCompletion = vi.mocked(chatCompletion)
+
+// ============================================================================
+// Mock Response Factories
+// ============================================================================
+
+function createMockAttackCard() {
+  return JSON.stringify({
+    name: 'Flame Strike',
+    description: 'Deal 8 damage.',
+    energy: 1,
+    theme: 'attack',
+    rarity: 'common',
+    target: 'enemy',
+    effects: [{ type: 'damage', amount: 8 }],
+  })
+}
+
+function createMockSkillCard() {
+  return JSON.stringify({
+    name: 'Iron Defense',
+    description: 'Gain 5 block.',
+    energy: 1,
+    theme: 'skill',
+    rarity: 'uncommon',
+    target: 'self',
+    effects: [{ type: 'block', amount: 5 }],
+  })
+}
+
+function createMockPowerCard() {
+  return JSON.stringify({
+    name: 'Battle Fury',
+    description: 'Gain 2 Strength.',
+    energy: 2,
+    theme: 'power',
+    rarity: 'rare',
+    target: 'self',
+    effects: [{ type: 'applyPower', powerId: 'strength', amount: 2 }],
+  })
+}
+
+function createMockPoisonCard() {
+  return JSON.stringify({
+    name: 'Venom Spray',
+    description: 'Apply 3 Poison.',
+    energy: 1,
+    theme: 'skill',
+    rarity: 'common',
+    target: 'enemy',
+    effects: [{ type: 'applyPower', powerId: 'poison', amount: 3 }],
+  })
+}
+
+// ============================================================================
+// Tests
+// ============================================================================
+
+describe('card-generator', () => {
+  beforeEach(() => {
+    vi.clearAllMocks()
+  })
 
   describe('generateRandomCard', () => {
-    it('generates valid attack card', async () => {
+    it('generates_valid_attack_card_when_attack_theme_requested', async () => {
       // Arrange
+      mockChatCompletion.mockResolvedValue(createMockAttackCard())
       const options: GenerationOptions = {
         theme: 'attack',
         rarity: 'common',
@@ -19,16 +90,15 @@ describe('card-generator (real API)', () => {
       // Assert
       expect(card).toBeDefined()
       expect(card.id).toMatch(/^generated_/)
-      expect(card.name).toBeTruthy()
+      expect(card.name).toBe('Flame Strike')
       expect(card.theme).toBe('attack')
-      expect(card.effects.length).toBeGreaterThan(0)
-      expect(typeof card.energy).toBe('number')
-      expect(card.energy).toBeGreaterThanOrEqual(0)
-      expect(card.energy).toBeLessThanOrEqual(5)
+      expect(card.effects).toHaveLength(1)
+      expect(card.energy).toBe(1)
     })
 
-    it('generates valid skill card', async () => {
+    it('generates_valid_skill_card_when_skill_theme_requested', async () => {
       // Arrange
+      mockChatCompletion.mockResolvedValue(createMockSkillCard())
       const options: GenerationOptions = {
         theme: 'skill',
         rarity: 'uncommon',
@@ -43,8 +113,9 @@ describe('card-generator (real API)', () => {
       expect(card.effects).toBeDefined()
     })
 
-    it('generates valid power card', async () => {
+    it('generates_valid_power_card_when_power_theme_requested', async () => {
       // Arrange
+      mockChatCompletion.mockResolvedValue(createMockPowerCard())
       const options: GenerationOptions = {
         theme: 'power',
         rarity: 'rare',
@@ -58,8 +129,9 @@ describe('card-generator (real API)', () => {
       expect(card.rarity).toBe('rare')
     })
 
-    it('generates card with specific effect type hint', async () => {
+    it('generates_card_with_effect_when_effect_type_hinted', async () => {
       // Arrange
+      mockChatCompletion.mockResolvedValue(createMockPoisonCard())
       const options: GenerationOptions = {
         effectType: 'applyPower',
         hint: 'poison themed',
@@ -70,11 +142,13 @@ describe('card-generator (real API)', () => {
 
       // Assert
       expect(card.effects).toBeDefined()
-      // Should have at least one effect
       expect(card.effects.length).toBeGreaterThan(0)
     })
 
-    it('generates card with valid target', async () => {
+    it('generates_card_with_valid_target', async () => {
+      // Arrange
+      mockChatCompletion.mockResolvedValue(createMockAttackCard())
+
       // Act
       const card = await generateRandomCard()
 
@@ -83,7 +157,10 @@ describe('card-generator (real API)', () => {
       expect(validTargets).toContain(card.target)
     })
 
-    it('tracks generation metadata', async () => {
+    it('tracks_generation_metadata_with_llm_template', async () => {
+      // Arrange
+      mockChatCompletion.mockResolvedValue(createMockAttackCard())
+
       // Act
       const card = await generateRandomCard()
 
@@ -95,8 +172,9 @@ describe('card-generator (real API)', () => {
   })
 
   describe('effect validation', () => {
-    it('generates damage effect with numeric amount', async () => {
+    it('parses_damage_effect_with_numeric_amount', async () => {
       // Arrange
+      mockChatCompletion.mockResolvedValue(createMockAttackCard())
       const options: GenerationOptions = {
         theme: 'attack',
         effectType: 'damage',
@@ -107,13 +185,16 @@ describe('card-generator (real API)', () => {
 
       // Assert
       const damageEffect = card.effects.find((e) => e.type === 'damage')
+      expect(damageEffect).toBeDefined()
       if (damageEffect && 'amount' in damageEffect) {
         expect(typeof damageEffect.amount).toBe('number')
+        expect(damageEffect.amount).toBe(8)
       }
     })
 
-    it('generates block effect with numeric amount', async () => {
+    it('parses_block_effect_with_numeric_amount', async () => {
       // Arrange
+      mockChatCompletion.mockResolvedValue(createMockSkillCard())
       const options: GenerationOptions = {
         theme: 'skill',
         effectType: 'block',
@@ -124,9 +205,29 @@ describe('card-generator (real API)', () => {
 
       // Assert
       const blockEffect = card.effects.find((e) => e.type === 'block')
+      expect(blockEffect).toBeDefined()
       if (blockEffect && 'amount' in blockEffect) {
         expect(typeof blockEffect.amount).toBe('number')
+        expect(blockEffect.amount).toBe(5)
       }
+    })
+  })
+
+  describe('API integration', () => {
+    it('calls_chatCompletion_with_correct_options', async () => {
+      // Arrange
+      mockChatCompletion.mockResolvedValue(createMockAttackCard())
+
+      // Act
+      await generateRandomCard({ theme: 'attack', rarity: 'common' })
+
+      // Assert
+      expect(mockChatCompletion).toHaveBeenCalledTimes(1)
+      expect(mockChatCompletion).toHaveBeenCalledWith(
+        expect.any(String), // system prompt
+        expect.stringContaining('common'), // user prompt contains rarity
+        expect.objectContaining({ temperature: 0.8 })
+      )
     })
   })
 })
