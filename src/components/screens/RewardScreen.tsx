@@ -99,6 +99,9 @@ export function RewardScreen({ floor, gold, onAddCard, onSkip }: RewardScreenPro
               name={cardDef.name}
               description={cardDef.description}
               energy={getEnergyCost(cardDef.energy)}
+              rarity={cardDef.rarity}
+              element={cardDef.element}
+              ethereal={cardDef.ethereal}
               playable
             />
           </button>

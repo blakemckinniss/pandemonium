@@ -261,6 +261,8 @@ const POWER_ICONS: Record<string, { icon: string; color: string; isDebuff?: bool
   burst: { icon: 'game-icons:fast-forward-button', color: 'text-energy' },
   // Defensive
   intangible: { icon: 'game-icons:ghost', color: 'text-purple-300' },
+  barricade: { icon: 'game-icons:castle', color: 'text-block' },
+  noxiousFumes: { icon: 'game-icons:poison-gas', color: 'text-green-400' },
 }
 
 interface PowerIndicatorsProps {

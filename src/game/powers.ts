@@ -463,6 +463,14 @@ registerPower({
 })
 
 registerPower({
+  id: 'barricade',
+  name: 'Barricade',
+  description: 'Block is not removed at the start of your turn.',
+  stackBehavior: 'intensity',
+  // Note: Block preservation handled in turn start logic
+})
+
+registerPower({
   id: 'doubleTap',
   name: 'Double Tap',
   description: 'Your next {amount} Attack(s) are played twice.',

@@ -23,8 +23,10 @@ export function handleStartTurn(draft: RunState): void {
   // Reset energy
   combat.player.energy = combat.player.maxEnergy
 
-  // Clear block
-  combat.player.block = 0
+  // Clear block (unless player has Barricade)
+  if (!combat.player.powers['barricade']) {
+    combat.player.block = 0
+  }
 
   // Decay powers at turn start
   decayPowers(combat.player, 'turnStart')

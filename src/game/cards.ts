@@ -1851,6 +1851,74 @@ registerCard({
 })
 
 // ============================================
+// STATUS EFFECT POWER CARDS
+// ============================================
+
+registerCard({
+  id: 'noxious_fumes',
+  name: 'Noxious Fumes',
+  description: 'At the start of your turn, apply 2 Poison to ALL enemies.',
+  energy: 1,
+  theme: 'power',
+  target: 'self',
+  rarity: 'uncommon',
+  effects: [{ type: 'applyPower', powerId: 'noxiousFumes', amount: 2, target: 'self' }],
+  upgradesTo: {
+    name: 'Noxious Fumes+',
+    description: 'At the start of your turn, apply 3 Poison to ALL enemies.',
+    effects: [{ type: 'applyPower', powerId: 'noxiousFumes', amount: 3, target: 'self' }],
+  },
+})
+
+registerCard({
+  id: 'thorns_card',
+  name: 'Thorns',
+  description: 'Gain 3 Thorns. (When attacked, deal damage back.)',
+  energy: 1,
+  theme: 'power',
+  target: 'self',
+  rarity: 'uncommon',
+  effects: [{ type: 'applyPower', powerId: 'thorns', amount: 3, target: 'self' }],
+  upgradesTo: {
+    name: 'Thorns+',
+    description: 'Gain 5 Thorns.',
+    effects: [{ type: 'applyPower', powerId: 'thorns', amount: 5, target: 'self' }],
+  },
+})
+
+registerCard({
+  id: 'barricade',
+  name: 'Barricade',
+  description: 'Block is not removed at the start of your turn.',
+  energy: 3,
+  theme: 'power',
+  target: 'self',
+  rarity: 'rare',
+  effects: [{ type: 'applyPower', powerId: 'barricade', amount: 1, target: 'self' }],
+  upgradesTo: {
+    name: 'Barricade+',
+    description: 'Block is not removed at the start of your turn.',
+    energy: 2,
+  },
+})
+
+registerCard({
+  id: 'juggernaut',
+  name: 'Juggernaut',
+  description: 'Whenever you gain Block, deal 5 damage to a random enemy.',
+  energy: 2,
+  theme: 'power',
+  target: 'self',
+  rarity: 'rare',
+  effects: [{ type: 'applyPower', powerId: 'blockRetaliation', amount: 5, target: 'self' }],
+  upgradesTo: {
+    name: 'Juggernaut+',
+    description: 'Whenever you gain Block, deal 7 damage to a random enemy.',
+    effects: [{ type: 'applyPower', powerId: 'blockRetaliation', amount: 7, target: 'self' }],
+  },
+})
+
+// ============================================
 // RETAIN CARDS
 // ============================================
 

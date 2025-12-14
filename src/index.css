@@ -57,6 +57,36 @@ body {
 
 .Card--attack { border-color: var(--color-card-attack); }
 .Card--skill { border-color: var(--color-card-skill); }
+
+/* Retained card badge pulse animation */
+@keyframes retained-pulse {
+  0%, 100% {
+    box-shadow: 0 0 0 0 oklch(0.6 0.15 60 / 0.4);
+  }
+  50% {
+    box-shadow: 0 0 8px 2px oklch(0.6 0.15 60 / 0.6);
+  }
+}
+
+.Card [title*="Retained"] {
+  animation: retained-pulse 2s ease-in-out infinite;
+}
+
+/* Ethereal card badge shimmer */
+@keyframes ethereal-shimmer {
+  0%, 100% {
+    opacity: 0.8;
+  }
+  50% {
+    opacity: 1;
+    filter: brightness(1.2);
+  }
+}
+
+.Card [title*="Ethereal"] {
+  animation: ethereal-shimmer 2.5s ease-in-out infinite;
+}
+
 .Card--power {
   border-color: var(--color-card-power);
   background: linear-gradient(
