@@ -25,8 +25,10 @@ def load_cards_from_game() -> list[dict]:
     """
     Load card definitions from the game's cards.ts file.
 
-    This parses the TypeScript CARDS array to extract card definitions.
+    Parses registerCard({...}) calls to extract card definitions.
     """
+    import re
+
     cards_path = Path(__file__).parent.parent.parent / "src" / "game" / "cards.ts"
 
     if not cards_path.exists():
@@ -34,45 +36,28 @@ def load_cards_from_game() -> list[dict]:
         return []
 
     content = cards_path.read_text()
-
-    # Extract the CARDS array content
-    # Look for: export const CARDS: CardDefinition[] = [...]
-    import re
-
-    # Find array start
-    match = re.search(r"export\s+const\s+CARDS[^=]*=\s*\[", content)
-    if not match:
-        print("Could not find CARDS array in cards.ts")
-        return []
-
-    # Extract objects from the array
     cards = []
-    start = match.end()
 
-    # Simple state machine to extract object literals
-    depth = 1
-    obj_start = None
-    i = start
+    # Find all registerCard({ ... }) calls
+    # Match registerCard( then extract the object literal
+    pattern = r"registerCard\s*\(\s*\{"
+    for match in re.finditer(pattern, content):
+        start = match.end() - 1  # Start at the {
+        depth = 1
+        i = start + 1
 
-    while i < len(content) and depth > 0:
-        char = content[i]
+        while i < len(content) and depth > 0:
+            char = content[i]
+            if char == "{":
+                depth += 1
+            elif char == "}":
+                depth -= 1
+            i += 1
 
-        if char == "{":
-            if depth == 1:
-                obj_start = i
-            depth += 1
-        elif char == "}":
-            depth -= 1
-            if depth == 1 and obj_start is not None:
-                obj_str = content[obj_start : i + 1]
-                card = parse_card_object(obj_str)
-                if card:
-                    cards.append(card)
-                obj_start = None
-        elif char == "]" and depth == 1:
-            break
-
-        i += 1
+        obj_str = content[start:i]
+        card = parse_card_object(obj_str)
+        if card:
+            cards.append(card)
 
     return cards
 
