@@ -1,4 +1,4 @@
-export type ParticleType = 'spark' | 'heal' | 'block' | 'energy' | 'poison' | 'upgrade' | 'transform' | 'retain' | 'attack' | 'skill' | 'power' | 'combo' | 'critical'
+export type ParticleType = 'spark' | 'heal' | 'block' | 'energy' | 'poison' | 'upgrade' | 'transform' | 'retain' | 'attack' | 'skill' | 'power' | 'combo' | 'critical' | 'gold' | 'banish' | 'thorns'
 
 // Helper to dispatch particle events
 export function emitParticle(

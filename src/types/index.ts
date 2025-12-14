@@ -885,6 +885,7 @@ export type VisualEvent =
   | { type: 'retain'; cardUids: string[] }
   | { type: 'transform'; cardUid: string; fromCardId: string; toCardId: string }
   | { type: 'cardPlayed'; cardUid: string; theme: CardTheme; targetId?: string }
+  | { type: 'comboMilestone'; count: number }
   | { type: 'putOnDeck'; cardUids: string[]; position: 'top' | 'bottom' | 'random' }
   | { type: 'powerTrigger'; targetId: string; powerId: string; triggerEvent: string }
   | { type: 'relicTrigger'; relicId: string; relicDefId: string; trigger: RelicTrigger }
@@ -896,7 +897,7 @@ export type VisualEvent =
 export interface CombatNumber {
   id: string
   value: number
-  type: 'damage' | 'heal' | 'block' | 'maxHealth'
+  type: 'damage' | 'heal' | 'block' | 'maxHealth' | 'combo'
   targetId: string
   x: number
   y: number

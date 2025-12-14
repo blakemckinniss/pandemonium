@@ -69,6 +69,15 @@ export function handlePlayCard(
     targetId,
   })
 
+  // Emit combo milestone at thresholds (3, 5, 7, ...)
+  const comboCount = combat.cardsPlayedThisTurn
+  if (comboCount >= 3 && (comboCount === 3 || comboCount === 5 || comboCount >= 7)) {
+    combat.visualQueue.push({
+      type: 'comboMilestone',
+      count: comboCount,
+    })
+  }
+
   // Build effect context
   const ctx: EffectContext = {
     source: 'player',

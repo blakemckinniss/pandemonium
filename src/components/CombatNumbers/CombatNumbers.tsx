@@ -61,11 +61,13 @@ function FloatingNumber({ number, onComplete }: FloatingNumberProps) {
     }
   } else if (number.type === 'maxHealth') {
     colorClass = number.value > 0 ? 'CombatNumber--maxHealth-gain' : 'CombatNumber--maxHealth-lose'
+  } else if (number.type === 'combo') {
+    colorClass = 'CombatNumber--combo-counter'
   } else {
     colorClass = {
       heal: 'CombatNumber--heal',
       block: 'CombatNumber--block',
-    }[number.type]
+    }[number.type] ?? ''
   }
 
   const prefix = number.value > 0 ? '+' : ''
@@ -75,7 +77,13 @@ function FloatingNumber({ number, onComplete }: FloatingNumberProps) {
     heal: '',
     block: '🛡️',
     maxHealth: '❤️',
+    combo: '🔥',
   }[number.type]
+
+  // For combo type, show "COMBO x{count}"
+  const displayValue = number.type === 'combo'
+    ? `x${number.value}`
+    : `${prefix}${number.value}`
 
   // Show combo name for elemental combos, or custom label
   const displayLabel = number.comboName ? (
@@ -90,10 +98,10 @@ function FloatingNumber({ number, onComplete }: FloatingNumberProps) {
       className={`CombatNumber ${colorClass}`}
       style={{ left: number.x, top: number.y }}
     >
+      {number.type === 'combo' && <span className="CombatNumber__combo-prefix">COMBO </span>}
       {displayLabel}
       {icon}
-      {prefix}
-      {number.value}
+      {displayValue}
     </div>
   )
 }

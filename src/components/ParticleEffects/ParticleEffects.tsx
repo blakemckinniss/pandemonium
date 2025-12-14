@@ -123,6 +123,30 @@ const PARTICLE_CONFIG = {
     size: 6,
     gravity: 0.2,
   },
+  gold: {
+    colors: ['#ffd700', '#ffb347', '#f4d03f', '#f9ca24'],
+    count: 16,
+    speed: 5,
+    life: 40,
+    size: 5,
+    gravity: 0.15, // Fall like coins
+  },
+  banish: {
+    colors: ['#2c0a37', '#4a0e4e', '#6b2d5c', '#1a0a1f'],
+    count: 20,
+    speed: 2,
+    life: 60,
+    size: 4,
+    gravity: -0.02, // Slow drift into void
+  },
+  thorns: {
+    colors: ['#c0392b', '#e74c3c', '#ff6b6b', '#d63031'],
+    count: 10,
+    speed: 6,
+    life: 25,
+    size: 4,
+    gravity: 0.1,
+  },
 }
 
 export function ParticleEffects({ containerRef }: ParticleEffectsProps) {

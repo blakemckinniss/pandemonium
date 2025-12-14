@@ -467,6 +467,39 @@ export function GameScreen({ deckId, onReturnToMenu }: GameScreenProps) {
           console.log(`Relic triggered: ${event.relicDefId} (${event.trigger})`)
           break
         }
+        case 'powerTrigger': {
+          // Visual feedback when a power triggers (Thorns, Poison tick, etc.)
+          const targetEl = queryContainer(`[data-target="${event.targetId}"]`)
+          if (targetEl) {
+            // Different visuals based on power type
+            const powerColors: Record<string, string> = {
+              thorns: 'oklch(0.55 0.2 25)',     // red for thorns
+              poison: 'oklch(0.45 0.18 145)',   // dark green for poison
+              burn: 'oklch(0.6 0.2 40)',        // orange for burn
+              burning: 'oklch(0.6 0.2 40)',     // orange for burning
+              regen: 'oklch(0.6 0.18 145)',     // green for regen
+              metallicize: 'oklch(0.5 0.1 250)', // steel blue
+              platedArmor: 'oklch(0.5 0.1 250)', // steel blue
+            }
+            const particleTypes: Record<string, 'thorns' | 'poison' | 'spark' | 'heal' | 'block'> = {
+              thorns: 'thorns',
+              poison: 'poison',
+              burn: 'spark',
+              burning: 'spark',
+              regen: 'heal',
+              metallicize: 'block',
+              platedArmor: 'block',
+            }
+
+            const color = powerColors[event.powerId] ?? 'oklch(0.6 0.15 280)'
+            const particleType = particleTypes[event.powerId] ?? 'spark'
+
+            gsap.effects.pulse(targetEl, { color })
+            emitParticle(targetEl, particleType)
+          }
+          console.log(`Power triggered: ${event.powerId} on ${event.targetId} (${event.triggerEvent})`)
+          break
+        }
         case 'cardPlayed': {
           // Emit particles based on card theme
           const targetEl = event.targetId
@@ -478,6 +511,24 @@ export function GameScreen({ deckId, onReturnToMenu }: GameScreenProps) {
               emitParticle(targetEl, event.theme)
               // Flash glow on target based on card theme
               gsap.effects.cardPlayFlash(targetEl, { theme: event.theme })
+            }
+          }
+          break
+        }
+        case 'comboMilestone': {
+          // Burst of combo particles on player when hitting combo thresholds
+          const playerEl = queryContainer('[data-entity="player"]')
+          if (playerEl) {
+            // More particles for higher combos
+            const burstCount = event.count >= 7 ? 3 : event.count >= 5 ? 2 : 1
+            for (let i = 0; i < burstCount; i++) {
+              setTimeout(() => emitParticle(playerEl, 'combo'), i * 80)
+            }
+            // Show combo number as floating text
+            spawnCombatNumber('player', event.count, 'combo')
+            // Screen shake for big combos
+            if (event.count >= 5) {
+              gsap.effects.shake(containerRef.current, { intensity: event.count >= 7 ? 6 : 3 })
             }
           }
           break
@@ -587,7 +638,7 @@ export function GameScreen({ deckId, onReturnToMenu }: GameScreenProps) {
     (
       targetId: string,
       value: number,
-      type: 'damage' | 'heal' | 'block',
+      type: 'damage' | 'heal' | 'block' | 'combo',
       options?: {
         element?: Element
         variant?: 'poison' | 'piercing' | 'combo' | 'chain' | 'execute'
