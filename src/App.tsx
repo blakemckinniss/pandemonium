@@ -12,7 +12,7 @@ function App() {
   const [selectedDeckId, setSelectedDeckId] = useState<string | null>(null)
 
   useEffect(() => {
-    loadGeneratedCardsIntoRegistry()
+    void loadGeneratedCardsIntoRegistry()
       .then((count) => {
         if (count > 0) console.log(`Loaded ${count} generated cards into registry`)
       })

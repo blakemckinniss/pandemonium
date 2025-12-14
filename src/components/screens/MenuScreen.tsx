@@ -14,8 +14,8 @@ export function MenuScreen({ onStartRun, onDeckBuilder }: MenuScreenProps) {
 
   // Load custom decks and stats on mount
   useEffect(() => {
-    getCustomDecks().then(setCustomDecks)
-    getRunStats().then((s) =>
+    void getCustomDecks().then(setCustomDecks)
+    void getRunStats().then((s) =>
       setStats({ totalRuns: s.totalRuns, totalWins: s.totalWins, bestFloor: s.bestFloor })
     )
   }, [])
