@@ -29,6 +29,7 @@ import { useCampfireHandlers } from '../../hooks/useCampfireHandlers'
 import { useTreasureHandlers } from '../../hooks/useTreasureHandlers'
 import { useRewardHandlers } from '../../hooks/useRewardHandlers'
 import { useSelectionHandlers } from '../../hooks/useSelectionHandlers'
+import { useAnimationCoordinator } from '../../hooks/useAnimationCoordinator'
 
 interface GameScreenProps {
   deckId?: string | null
@@ -38,15 +39,15 @@ interface GameScreenProps {
 export function GameScreen({ deckId, onReturnToMenu }: GameScreenProps) {
   const [state, setState] = useState<RunState | null>(null)
   const [combatNumbers, setCombatNumbers] = useState<CombatNumber[]>([])
-  const [isAnimating, setIsAnimating] = useState(false)
   const [pendingUnlocks, setPendingUnlocks] = useState<string[]>([])
   const [currentRoomId, setCurrentRoomId] = useState<string | null>(null)
   const [pendingAnimations, setPendingAnimations] = useState<PendingCardAnimation[]>([])
   const [pileModalOpen, setPileModalOpen] = useState<PileType | null>(null)
   const [triggeredRelicId, setTriggeredRelicId] = useState<string | null>(null)
-  const containerRef = useRef<HTMLDivElement>(null)
-  const handRef = useRef<HTMLDivElement>(null)
   const prevHealthRef = useRef<Record<string, number>>({})
+
+  // Animation coordination (refs + isAnimating state)
+  const { isAnimating, containerRef, handRef, animateDiscardHand, animateDealCards } = useAnimationCoordinator()
   const runStartRef = useRef<Date>(new Date())
   const runRecordedRef = useRef(false)
   const lastTurnRef = useRef<number>(0)
@@ -77,7 +78,7 @@ export function GameScreen({ deckId, onReturnToMenu }: GameScreenProps) {
 
   // Animate cards when a new turn starts
   useEffect(() => {
-    if (!handRef.current || !state?.combat) return
+    if (!state?.combat) return
 
     const currentTurn = state.combat.turn
     if (currentTurn === lastTurnRef.current) return
@@ -86,13 +87,8 @@ export function GameScreen({ deckId, onReturnToMenu }: GameScreenProps) {
     lastTurnRef.current = currentTurn
 
     // Use setTimeout to ensure React has committed DOM changes
-    setTimeout(() => {
-      const handCards = handRef.current?.querySelectorAll('.HandCard')
-      if (handCards && handCards.length > 0) {
-        gsap.effects.dealCards(handCards, { stagger: 0.08 })
-      }
-    }, 50)
-  }, [state?.combat?.turn, state?.combat?.hand.length])
+    setTimeout(() => animateDealCards(), 50)
+  }, [state?.combat?.turn, state?.combat?.hand.length, animateDealCards])
 
   // Process visual event queue
   useEffect(() => {
@@ -733,48 +729,29 @@ export function GameScreen({ deckId, onReturnToMenu }: GameScreenProps) {
   const handleEndTurn = useCallback(() => {
     if (!state?.combat || isAnimating) return
 
-    setIsAnimating(true)
-
-    const handCards = handRef.current?.querySelectorAll('.Card')
-    if (handCards && handCards.length > 0) {
-      gsap.effects.discardHand(handCards, {
-        onComplete: () => {
-          setState((prev) => {
-            if (!prev?.combat) return prev
-            return applyAction(prev, { type: 'endTurn' })
-          })
-
-          setTimeout(() => {
-            setState((prev) => {
-              if (!prev?.combat) return prev
-
-              let newState = prev
-              for (const enemy of prev.combat.enemies) {
-                newState = applyAction(newState, { type: 'enemyAction', enemyId: enemy.id })
-              }
-
-              newState = applyAction(newState, { type: 'startTurn' })
-              return newState
-            })
-
-            setIsAnimating(false)
-          }, 600)
-        },
-      })
-    } else {
+    const processEndTurn = () => {
       setState((prev) => {
         if (!prev?.combat) return prev
-
-        let newState = applyAction(prev, { type: 'endTurn' })
-        for (const enemy of prev.combat.enemies) {
-          newState = applyAction(newState, { type: 'enemyAction', enemyId: enemy.id })
-        }
-        newState = applyAction(newState, { type: 'startTurn' })
-        return newState
+        return applyAction(prev, { type: 'endTurn' })
       })
-      setIsAnimating(false)
+
+      setTimeout(() => {
+        setState((prev) => {
+          if (!prev?.combat) return prev
+
+          let newState = prev
+          for (const enemy of prev.combat.enemies) {
+            newState = applyAction(newState, { type: 'enemyAction', enemyId: enemy.id })
+          }
+
+          newState = applyAction(newState, { type: 'startTurn' })
+          return newState
+        })
+      }, 600)
     }
-  }, [state, isAnimating])
+
+    animateDiscardHand(processEndTurn)
+  }, [state, isAnimating, animateDiscardHand])
 
   const handleRestart = useCallback(() => {
     if (onReturnToMenu) {

@@ -1,5 +1,6 @@
-import { memo } from 'react'
+import { memo, useRef, useEffect } from 'react'
 import { Icon } from '@iconify/react'
+import { gsap } from '../../lib/dragdrop'
 import { PowerTooltip } from '../PowerTooltip/PowerTooltip'
 import type { CardVariant, CardTheme, Intent, Powers, Element } from '../../types'
 
@@ -72,6 +73,31 @@ export const Card = memo(function Card({
   className = '',
   ...dataAttrs
 }: CardProps) {
+  const cardRef = useRef<HTMLDivElement>(null)
+  const glowTweenRef = useRef<gsap.core.Tween | null>(null)
+
+  // Playable card glow effect
+  useEffect(() => {
+    if (!cardRef.current) return
+
+    // Only apply glow to playable hand cards
+    if (variant === 'hand' && playable && !disabled) {
+      glowTweenRef.current = gsap.effects.cardGlow(cardRef.current, { theme: theme ?? 'attack' })
+    }
+
+    return () => {
+      // Kill the glow animation on cleanup
+      if (glowTweenRef.current) {
+        glowTweenRef.current.kill()
+        glowTweenRef.current = null
+      }
+      // Reset any inline styles from the glow
+      if (cardRef.current) {
+        gsap.set(cardRef.current, { boxShadow: '', clearProps: 'boxShadow' })
+      }
+    }
+  }, [variant, playable, disabled, theme])
+
   const displayName = upgraded ? `${name}+` : name
   const classes = [
     'Card',
@@ -88,7 +114,7 @@ export const Card = memo(function Card({
     .join(' ')
 
   return (
-    <div className={classes} onClick={onClick} {...dataAttrs}>
+    <div ref={cardRef} className={classes} onClick={onClick} {...dataAttrs}>
       {/* Energy badge (hand cards) */}
       {variant === 'hand' && energy !== undefined && (
         <div className={`absolute top-2 left-2 w-8 h-8 rounded-full text-sm font-bold flex items-center justify-center shadow-md ${

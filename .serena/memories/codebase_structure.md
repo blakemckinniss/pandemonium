@@ -8,26 +8,63 @@ src/
 ├── game/
 │   ├── actions.ts          # Immer state mutations (applyAction)
 │   ├── cards.ts            # Card registry (CARDS array)
+│   ├── card-generator.ts   # AI card generation via Groq
 │   ├── dungeon-deck.ts     # Room deck logic
+│   ├── elements.ts         # Elemental system & combos
 │   ├── new-game.ts         # Game/enemy factories (MONSTERS)
-│   └── powers.ts           # Power/buff definitions
+│   ├── powers.ts           # Power/buff definitions
+│   ├── relics.ts           # Relic definitions
+│   ├── selection-effects.ts # Player choice effects (scry, tutor, discover)
+│   ├── effects/            # Modular effect execution
+│   │   ├── index.ts        # Exports all handlers
+│   │   ├── engine.ts       # Core dispatcher
+│   │   ├── card-effects.ts # damage, block, draw, discard
+│   │   ├── combat-effects.ts # heal, energy, add cards
+│   │   ├── control-effects.ts # conditional, repeat, sequence
+│   │   └── power-effects.ts # apply/remove/transfer powers
+│   ├── handlers/           # Action handlers by domain
+│   │   ├── index.ts        # Combined export
+│   │   ├── shared.ts       # Utilities (getEntity, canPlayCard)
+│   │   ├── combat.ts       # start/end combat
+│   │   ├── cards.ts        # play/draw/discard/exhaust
+│   │   ├── turns.ts        # start/end turn
+│   │   ├── enemy.ts        # AI & intents
+│   │   ├── damage.ts       # damage calculation
+│   │   ├── energy.ts       # energy management
+│   │   └── rooms.ts        # room transitions
+│   └── __tests__/          # Game logic tests
 ├── content/
 │   └── rooms.ts            # Room definitions (ROOMS array)
 ├── components/
 │   ├── Card/               # Unified card (4 variants)
-│   ├── Hand/               # Player hand
+│   ├── Hand/               # Player hand + CardAnimationOverlay
 │   ├── Field/              # Combat field
-│   ├── DungeonDeck/        # Room selection
+│   ├── DungeonDeck/        # RoomSelect component
 │   ├── CombatNumbers/      # Floating damage numbers
 │   ├── UnlockNotification/ # Unlock popups
-│   ├── Modal/              # Modal dialogs
+│   ├── Modal/              # Modal, CardSelectionModal, CardPileModal, CardPreviewModal
 │   ├── PowerTooltip/       # Power/buff tooltips
-│   ├── ParticleEffects/    # Visual effects
+│   ├── ParticleEffects/    # Visual effects + emitParticle
 │   ├── AmbientBackground/  # Three.js background
-│   └── screens/            # GameScreen, RewardScreen, etc.
+│   ├── RelicBar/           # Relic display bar
+│   └── screens/            # All game screens
+│       ├── GameScreen.tsx      # Main combat screen
+│       ├── RewardScreen.tsx    # Post-combat rewards
+│       ├── CampfireScreen.tsx  # Rest site (heal/upgrade)
+│       ├── TreasureScreen.tsx  # Treasure rooms
+│       ├── MenuScreen.tsx      # Main menu
+│       └── DeckBuilderScreen.tsx # Deck viewing/building
+├── hooks/                  # Custom React hooks
+│   ├── useAnimationCoordinator.ts # GSAP animation orchestration
+│   ├── useSelectionHandlers.ts    # Card selection UI logic
+│   ├── useRewardHandlers.ts       # Reward screen logic
+│   ├── useCampfireHandlers.ts     # Campfire actions
+│   └── useTreasureHandlers.ts     # Treasure room logic
 ├── lib/
 │   ├── animations.ts       # GSAP registered effects
 │   ├── dragdrop.ts         # Draggable wrapper
+│   ├── effects.ts          # Target resolution, condition evaluation
+│   ├── groq.ts             # Groq SDK wrapper
 │   └── utils.ts            # generateUid, randomInt, etc.
 ├── stores/
 │   ├── metaStore.ts        # Zustand (unlocks, stats, localStorage)
@@ -45,24 +82,36 @@ src/
 | `src/game/actions.ts` | `applyAction()` - all combat state mutations |
 | `src/game/cards.ts` | Card definitions registry |
 | `src/game/new-game.ts` | `MONSTERS` definitions, game factories |
+| `src/game/powers.ts` | Power/buff definitions & registry |
+| `src/game/relics.ts` | Relic definitions & registry |
+| `src/game/elements.ts` | Elemental system, combos, affinities |
+| `src/game/effects/engine.ts` | Effect dispatcher & power triggers |
 | `src/content/rooms.ts` | Room/encounter definitions |
 | `src/stores/metaStore.ts` | Zustand store for meta-progression |
 | `src/lib/animations.ts` | GSAP effect definitions |
+| `src/lib/effects.ts` | Target resolution, condition evaluation |
+| `src/hooks/useAnimationCoordinator.ts` | Animation orchestration |
 
 ## Component Architecture
 
 ```
 App
 ├── AmbientBackground (Three.js)
+├── MenuScreen (main menu)
 ├── GameScreen (combat phase)
 │   ├── Field
 │   │   ├── Card (variant="player")
 │   │   └── Card (variant="enemy") × N
 │   ├── Hand
-│   │   └── Card (variant="hand") × N
-│   └── CombatNumbers
+│   │   ├── Card (variant="hand") × N
+│   │   └── CardAnimationOverlay
+│   ├── CombatNumbers
+│   ├── RelicBar
+│   └── ParticleEffects
 ├── RoomSelect (room selection phase)
-│   └── DungeonDeck
-│       └── Card (variant="room") × N
-└── RewardScreen (reward phase)
+│   └── Card (variant="room") × N
+├── RewardScreen (post-combat rewards)
+├── CampfireScreen (rest sites)
+├── TreasureScreen (treasure rooms)
+└── DeckBuilderScreen (deck viewing)
 ```
