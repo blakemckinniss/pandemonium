@@ -127,7 +127,7 @@ export function GameScreen({ deckId, onReturnToMenu }: GameScreenProps) {
     const energyOrb = queryContainer('[data-energy-orb]')
     if (energyOrb) {
       ;(gsap.effects as Record<string, (el: Element, opts: object) => void>).energyPulse(energyOrb, { color: 'oklch(0.8 0.2 70)' })
-      emitParticle(energyOrb as Element, 'energy')
+      emitParticle(energyOrb, 'energy')
     }
 
     // Player card glow on turn start
@@ -138,6 +138,7 @@ export function GameScreen({ deckId, onReturnToMenu }: GameScreenProps) {
 
     // Use setTimeout to ensure React has committed DOM changes for card dealing
     setTimeout(() => animateDealCards(), 50)
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [state?.combat?.turn, state?.combat?.hand.length, animateDealCards, queryContainer])
 
   // Visual cues when enemy turn starts

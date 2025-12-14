@@ -83,7 +83,7 @@ export const Card = memo(function Card({
 
     // Only apply glow to playable hand cards
     if (variant === 'hand' && playable && !disabled) {
-      glowTweenRef.current = (gsap.effects as Record<string, (el: Element, opts: object) => gsap.core.Tween>).cardGlow(card, { theme: theme ?? 'attack' })
+      glowTweenRef.current = (gsap.effects as Record<string, (el: Element, opts: object) => gsap.core.Tween>).cardGlow(card as unknown as Element, { theme: theme ?? 'attack' })
     }
 
     return () => {

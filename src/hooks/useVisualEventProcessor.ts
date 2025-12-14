@@ -97,24 +97,8 @@ export function useVisualEventProcessor({
     setPendingAnimations((prev) => prev.filter((a) => a.id !== id))
   }, [])
 
-  // Process visual event queue
-  useEffect(() => {
-    if (!combat?.visualQueue?.length) return
-
-    const queue = combat.visualQueue
-
-    for (const event of queue) {
-      processVisualEvent(event)
-    }
-
-    // Clear the queue after processing
-    setState((prev) => {
-      if (!prev) return prev
-      return applyAction(prev, { type: 'clearVisualQueue' })
-    })
-  }, [combat?.visualQueue])
-
-  function processVisualEvent(event: VisualEvent) {
+  // Process a single visual event
+  const processVisualEvent = useCallback((event: VisualEvent) => {
     switch (event.type) {
       case 'damage': {
         // Use 'critical' variant for high damage hits (15+)
@@ -565,7 +549,26 @@ export function useVisualEventProcessor({
         break
       }
     }
-  }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [spawnCombatNumber, queryContainer, queryHand, containerRef, setTriggeredRelicId])
+
+  // Process visual event queue
+  useEffect(() => {
+    if (!combat?.visualQueue?.length) return
+
+    const queue = combat.visualQueue
+
+    for (const event of queue) {
+      processVisualEvent(event)
+    }
+
+    // Clear the queue after processing
+    setState((prev) => {
+      if (!prev) return prev
+      return applyAction(prev, { type: 'clearVisualQueue' })
+    })
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [combat?.visualQueue, processVisualEvent])
 
   const resetVisuals = useCallback(() => {
     setCombatNumbers([])
