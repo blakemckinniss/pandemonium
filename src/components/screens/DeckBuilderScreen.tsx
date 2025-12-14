@@ -34,8 +34,8 @@ export function DeckBuilderScreen({ onBack }: DeckBuilderScreenProps) {
 
   // Load data on mount
   useEffect(() => {
-    getCustomDecks().then(setSavedDecks)
-    getAllGeneratedCards().then(setGeneratedCards)
+    void getCustomDecks().then(setSavedDecks)
+    void getAllGeneratedCards().then(setGeneratedCards)
   }, [])
 
   // Get card definitions for unlocked cards
@@ -87,15 +87,17 @@ export function DeckBuilderScreen({ onBack }: DeckBuilderScreenProps) {
   }
 
   // Delete a saved deck
-  const handleDeleteDeck = async (deckId: string) => {
-    await deleteCustomDeck(deckId)
-    const decks = await getCustomDecks()
-    setSavedDecks(decks)
-    if (editingDeckId === deckId) {
-      setEditingDeckId(null)
-      setCurrentDeck([])
-      setDeckName('Custom Deck')
-    }
+  const handleDeleteDeck = (deckId: string) => {
+    void (async () => {
+      await deleteCustomDeck(deckId)
+      const decks = await getCustomDecks()
+      setSavedDecks(decks)
+      if (editingDeckId === deckId) {
+        setEditingDeckId(null)
+        setCurrentDeck([])
+        setDeckName('Custom Deck')
+      }
+    })()
   }
 
   // Clear current deck
@@ -263,7 +265,7 @@ export function DeckBuilderScreen({ onBack }: DeckBuilderScreenProps) {
           {activeTab === 'dev' && (
             <DevModePanel
               onCardGenerated={(card) => {
-                getAllGeneratedCards().then(setGeneratedCards)
+                void getAllGeneratedCards().then(setGeneratedCards)
                 handleAddCard(card.id)
               }}
             />
@@ -422,7 +424,7 @@ function DevModePanel({ onCardGenerated }: { onCardGenerated: (card: CardDefinit
         </div>
 
         <button
-          onClick={handleGenerate}
+          onClick={() => void handleGenerate()}
           disabled={isGenerating}
           className="w-full px-4 py-3 bg-energy text-gray-900 font-medium rounded disabled:opacity-50 flex items-center justify-center gap-2"
         >
