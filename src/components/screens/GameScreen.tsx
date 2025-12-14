@@ -20,6 +20,7 @@ import { getCardDefinition } from '../../game/cards'
 import { createNewRun } from '../../game/new-game'
 import { getRoomDefinition } from '../../content/rooms'
 import { getEnergyCostNumber } from '../../lib/effects'
+import { gsap } from '../../lib/animations'
 import { enableDragDrop, disableDragDrop } from '../../lib/dragdrop'
 import { useMetaStore, checkUnlocks } from '../../stores/metaStore'
 import { saveRun, getCustomDeckById } from '../../stores/db'
@@ -136,6 +137,38 @@ export function GameScreen({ deckId, onReturnToMenu }: GameScreenProps) {
     // Use setTimeout to ensure React has committed DOM changes for card dealing
     setTimeout(() => animateDealCards(), 50)
   }, [state?.combat?.turn, state?.combat?.hand.length, animateDealCards, queryContainer])
+
+  // Visual cues when enemy turn starts
+  useEffect(() => {
+    if (!state?.combat || state.combat.phase !== 'enemyTurn') return
+
+    // Pulse all enemy cards to show they're about to act
+    const enemyCards = containerRef.current?.querySelectorAll('[data-entity="enemy"]')
+    enemyCards?.forEach((enemy, i) => {
+      // Stagger the enemy pulses slightly
+      setTimeout(() => {
+        gsap.effects.pulse(enemy, { color: 'oklch(0.6 0.2 25)' }) // Red/orange warning
+        emitParticle(enemy, 'attack')
+      }, i * 100)
+    })
+
+    // Dim the end turn button during enemy turn
+    const endTurnBtn = containerRef.current?.querySelector('[data-end-turn]')
+    if (endTurnBtn) {
+      gsap.to(endTurnBtn, { opacity: 0.5, duration: 0.2 })
+    }
+  }, [state?.combat?.phase])
+
+  // Restore end turn button when player turn starts
+  useEffect(() => {
+    if (!state?.combat || state.combat.phase !== 'playerTurn') return
+
+    const endTurnBtn = containerRef.current?.querySelector('[data-end-turn]')
+    if (endTurnBtn) {
+      gsap.to(endTurnBtn, { opacity: 1, duration: 0.2 })
+      gsap.effects.pulse(endTurnBtn, { color: 'oklch(0.7 0.15 145)' }) // Green ready pulse
+    }
+  }, [state?.combat?.phase])
 
   // Setup drag-drop when in combat
   useEffect(() => {
