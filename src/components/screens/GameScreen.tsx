@@ -480,6 +480,8 @@ export function GameScreen({ deckId, onReturnToMenu }: GameScreenProps) {
             // Map theme to particle type (attack/skill/power are valid particle types)
             if (event.theme === 'attack' || event.theme === 'skill' || event.theme === 'power') {
               emitParticle(targetEl, event.theme)
+              // Flash glow on target based on card theme
+              gsap.effects.cardPlayFlash(targetEl, { theme: event.theme })
             }
           }
           break

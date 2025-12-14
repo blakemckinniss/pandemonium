@@ -608,6 +608,34 @@ gsap.registerEffect({
   extendTimeline: true,
 })
 
+// One-shot flash when card is played (impact effect)
+gsap.registerEffect({
+  name: 'cardPlayFlash',
+  effect: (targets: gsap.TweenTarget, config: { theme?: string }) => {
+    const colors: Record<string, string> = {
+      attack: '#ff6b6b',
+      skill: '#00d4ff',
+      power: '#a55eea',
+    }
+    const glowColor = colors[config.theme ?? 'attack'] ?? '#ffa502'
+
+    return gsap.timeline()
+      .to(targets, {
+        boxShadow: `0 0 30px ${glowColor}, inset 0 0 12px ${glowColor}60`,
+        scale: 1.05,
+        duration: 0.15,
+        ease: 'power2.out',
+      })
+      .to(targets, {
+        boxShadow: 'none',
+        scale: 1,
+        duration: 0.3,
+        ease: 'power2.inOut',
+      })
+  },
+  extendTimeline: true,
+})
+
 // Status power icon pulse
 gsap.registerEffect({
   name: 'statusPulse',
