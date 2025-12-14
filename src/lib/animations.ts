@@ -547,6 +547,97 @@ gsap.registerEffect({
 })
 
 // ============================================
+// ENEMY FEEDBACK EFFECTS
+// ============================================
+
+// Flash enemy on damage impact
+gsap.registerEffect({
+  name: 'enemyHit',
+  effect: (targets: gsap.TweenTarget, config: { color?: string }) => {
+    const tl = gsap.timeline()
+    tl.to(targets, {
+      filter: `brightness(1.6) drop-shadow(0 0 10px ${config.color ?? '#ff4757'})`,
+      scale: 1.05,
+      duration: 0.1,
+    })
+    tl.to(targets, {
+      filter: 'brightness(1) drop-shadow(0 0 0px transparent)',
+      scale: 1,
+      duration: 0.15,
+      ease: 'power2.out',
+    })
+    return tl
+  },
+  extendTimeline: true,
+})
+
+// Knockback shake on damage
+gsap.registerEffect({
+  name: 'enemyShake',
+  effect: (targets: gsap.TweenTarget) => {
+    return gsap.to(targets, {
+      x: '+=12',
+      duration: 0.04,
+      repeat: 4,
+      yoyo: true,
+      ease: 'power2.inOut',
+    })
+  },
+  extendTimeline: true,
+})
+
+// Playable card glow pulse
+gsap.registerEffect({
+  name: 'cardGlow',
+  effect: (targets: gsap.TweenTarget, config: { theme?: string }) => {
+    const colors: Record<string, string> = {
+      attack: '#ff6b6b',
+      skill: '#00d4ff',
+      power: '#a55eea',
+    }
+    const glowColor = colors[config.theme ?? 'attack'] ?? '#ffa502'
+
+    return gsap.to(targets, {
+      boxShadow: `0 0 20px ${glowColor}, inset 0 0 8px ${glowColor}40`,
+      duration: 0.6,
+      repeat: -1,
+      yoyo: true,
+      ease: 'sine.inOut',
+    })
+  },
+  extendTimeline: true,
+})
+
+// Status power icon pulse
+gsap.registerEffect({
+  name: 'statusPulse',
+  effect: (targets: gsap.TweenTarget, config: { element?: string }) => {
+    const elementGlows: Record<string, string> = {
+      fire: '#ff6348',
+      ice: '#00d4ff',
+      lightning: '#ffd700',
+      void: '#a55eea',
+      physical: '#e8e8e8',
+    }
+    const glow = elementGlows[config.element ?? 'physical']
+
+    const tl = gsap.timeline({ repeat: 2 })
+    tl.to(targets, {
+      filter: `drop-shadow(0 0 6px ${glow})`,
+      scale: 1.15,
+      duration: 0.2,
+    })
+    tl.to(targets, {
+      filter: 'drop-shadow(0 0 0px transparent)',
+      scale: 1,
+      duration: 0.3,
+    })
+    return tl
+  },
+  extendTimeline: true,
+})
+
+// ============================================
 // UTILITY FUNCTIONS
 // ============================================
 

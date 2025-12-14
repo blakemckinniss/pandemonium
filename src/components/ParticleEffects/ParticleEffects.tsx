@@ -83,6 +83,46 @@ const PARTICLE_CONFIG = {
     size: 4,
     gravity: -0.08, // Gentle float upward
   },
+  attack: {
+    colors: ['#e8e8e8', '#a1a1a1', '#ffffff', '#d1d1d1'],
+    count: 16,
+    speed: 7,
+    life: 35,
+    size: 4,
+    gravity: 0.2, // Slight downward
+  },
+  skill: {
+    colors: ['#00d4ff', '#48dbfb', '#0abde3', '#3742fa'],
+    count: 14,
+    speed: 5,
+    life: 40,
+    size: 4,
+    gravity: 0, // Lateral spread
+  },
+  power: {
+    colors: ['#a55eea', '#ee5a6f', '#f368e0', '#b854d8'],
+    count: 18,
+    speed: 3,
+    life: 50,
+    size: 5,
+    gravity: -0.05, // Gentle float
+  },
+  combo: {
+    colors: ['#ff6348', '#00d4ff', '#ffa502', '#7bed9f'],
+    count: 20,
+    speed: 8,
+    life: 35,
+    size: 5,
+    gravity: 0, // Explosive spread
+  },
+  critical: {
+    colors: ['#ffff00', '#fff68f', '#ffffff', '#fffacd'],
+    count: 24,
+    speed: 10,
+    life: 30,
+    size: 6,
+    gravity: 0.2,
+  },
 }
 
 export function ParticleEffects({ containerRef }: ParticleEffectsProps) {

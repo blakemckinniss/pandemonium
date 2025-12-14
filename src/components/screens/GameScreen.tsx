@@ -25,6 +25,8 @@ import { enableDragDrop, disableDragDrop, gsap } from '../../lib/dragdrop'
 import { generateUid } from '../../lib/utils'
 import { useMetaStore, checkUnlocks } from '../../stores/metaStore'
 import { saveRun, getCustomDeckById } from '../../stores/db'
+import { useCampfireHandlers } from '../../hooks/useCampfireHandlers'
+import { useTreasureHandlers } from '../../hooks/useTreasureHandlers'
 
 interface GameScreenProps {
   deckId?: string | null
@@ -49,6 +51,10 @@ export function GameScreen({ deckId, onReturnToMenu }: GameScreenProps) {
   const cardPositionsRef = useRef<Map<string, CardPosition>>(new Map())
 
   // Meta store accessed via getState() to avoid full-store subscription
+
+  // Extracted handlers
+  const campfireHandlers = useCampfireHandlers(setState)
+  const treasureHandlers = useTreasureHandlers(setState)
 
   // Initialize game
   useEffect(() => {
@@ -101,7 +107,21 @@ export function GameScreen({ deckId, onReturnToMenu }: GameScreenProps) {
           })
           // Spawn spark particles on target
           const damageTarget = containerRef.current?.querySelector(`[data-target="${event.targetId}"]`)
-          if (damageTarget) emitParticle(damageTarget, 'spark')
+          if (damageTarget) {
+            emitParticle(damageTarget, 'spark')
+            // Hit flash and shake for enemies
+            if (event.targetId !== 'player') {
+              const elementColors: Record<string, string> = {
+                fire: '#ff6348',
+                ice: '#00d4ff',
+                lightning: '#ffd700',
+                void: '#a55eea',
+                physical: '#ff4757',
+              }
+              gsap.effects.enemyHit(damageTarget, { color: elementColors[event.element ?? 'physical'] })
+              if (event.amount >= 5) gsap.effects.enemyShake(damageTarget)
+            }
+          }
           break
         }
         case 'heal': {
@@ -752,102 +772,6 @@ export function GameScreen({ deckId, onReturnToMenu }: GameScreenProps) {
   }, [])
 
   // ============================================
-  // CAMPFIRE
-  // ============================================
-
-  const advanceFromCampfire = useCallback(() => {
-    setState((prev) => {
-      if (!prev) return prev
-
-      const { choices, remaining } = drawRoomChoices(prev.dungeonDeck, 3)
-
-      if (choices.length === 0) {
-        return { ...prev, gamePhase: 'gameOver' as const, floor: prev.floor + 1 }
-      }
-
-      return {
-        ...prev,
-        gamePhase: 'roomSelect',
-        dungeonDeck: remaining,
-        roomChoices: choices,
-        floor: prev.floor + 1,
-      }
-    })
-  }, [])
-
-  const handleCampfireRest = useCallback(() => {
-    setState((prev) => {
-      if (!prev) return prev
-      const healAmount = Math.floor(prev.hero.maxHealth * 0.3)
-      return {
-        ...prev,
-        hero: {
-          ...prev.hero,
-          currentHealth: Math.min(prev.hero.maxHealth, prev.hero.currentHealth + healAmount),
-        },
-      }
-    })
-    advanceFromCampfire()
-  }, [advanceFromCampfire])
-
-  const handleCampfireSmith = useCallback((cardUid: string) => {
-    setState((prev) => {
-      if (!prev) return prev
-      return {
-        ...prev,
-        deck: prev.deck.map(card =>
-          card.uid === cardUid ? { ...card, upgraded: true } : card
-        ),
-      }
-    })
-    advanceFromCampfire()
-  }, [advanceFromCampfire])
-
-  const handleCampfireSkip = useCallback(() => {
-    advanceFromCampfire()
-  }, [advanceFromCampfire])
-
-  // ============================================
-  // TREASURE
-  // ============================================
-
-  const advanceFromTreasure = useCallback(() => {
-    setState((prev) => {
-      if (!prev) return prev
-
-      const { choices, remaining } = drawRoomChoices(prev.dungeonDeck, 3)
-
-      if (choices.length === 0) {
-        return { ...prev, gamePhase: 'gameOver' as const, floor: prev.floor + 1 }
-      }
-
-      return {
-        ...prev,
-        gamePhase: 'roomSelect',
-        dungeonDeck: remaining,
-        roomChoices: choices,
-        floor: prev.floor + 1,
-      }
-    })
-  }, [])
-
-  const handleTreasureSelectRelic = useCallback((relicId: string) => {
-    setState((prev) => {
-      if (!prev) return prev
-      const newRelic = { id: generateUid(), definitionId: relicId }
-      return {
-        ...prev,
-        relics: [...prev.relics, newRelic],
-      }
-    })
-    advanceFromTreasure()
-  }, [advanceFromTreasure])
-
-  const handleTreasureSkip = useCallback(() => {
-    advanceFromTreasure()
-  }, [advanceFromTreasure])
-
-  // ============================================
   // COMBAT
   // ============================================
 
@@ -1076,9 +1000,9 @@ export function GameScreen({ deckId, onReturnToMenu }: GameScreenProps) {
       <CampfireScreen
         hero={state.hero}
         deck={state.deck}
-        onRest={handleCampfireRest}
-        onSmith={handleCampfireSmith}
-        onSkip={handleCampfireSkip}
+        onRest={campfireHandlers.handleCampfireRest}
+        onSmith={campfireHandlers.handleCampfireSmith}
+        onSkip={campfireHandlers.handleCampfireSkip}
       />
     )
   }
@@ -1091,8 +1015,8 @@ export function GameScreen({ deckId, onReturnToMenu }: GameScreenProps) {
         floor={state.floor}
         isLargeTreasure={isLargeTreasure}
         ownedRelicIds={state.relics.map((r) => r.definitionId)}
-        onSelectRelic={handleTreasureSelectRelic}
-        onSkip={handleTreasureSkip}
+        onSelectRelic={treasureHandlers.handleTreasureSelectRelic}
+        onSkip={treasureHandlers.handleTreasureSkip}
       />
     )
   }
