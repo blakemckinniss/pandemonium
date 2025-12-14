@@ -1,6 +1,7 @@
 // Combat setup and teardown handlers
 import type { RunState, EnemyEntity } from '../../types'
 import { shuffleArray } from './shared'
+import { executeRelicTriggers } from './turns'
 
 export function handleStartCombat(draft: RunState, enemies: EnemyEntity[]): void {
   const shuffledDeck = shuffleArray([...draft.deck])
@@ -37,9 +38,15 @@ export function handleStartCombat(draft: RunState, enemies: EnemyEntity[]): void
   }
 
   draft.gamePhase = 'combat'
+
+  // Execute relic triggers for combat start
+  executeRelicTriggers(draft, 'onCombatStart')
 }
 
 export function handleEndCombat(draft: RunState, victory: boolean): void {
+  // Execute relic triggers for combat end (before nullifying combat)
+  executeRelicTriggers(draft, 'onCombatEnd')
+
   if (victory) {
     draft.gamePhase = 'reward'
     draft.floor += 1

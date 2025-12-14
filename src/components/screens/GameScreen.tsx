@@ -12,6 +12,7 @@ import { ParticleEffects } from '../ParticleEffects/ParticleEffects'
 import { emitParticle } from '../ParticleEffects/emitParticle'
 import { CardPileModal, type PileType } from '../Modal/CardPileModal'
 import { CardSelectionModal } from '../Modal/CardSelectionModal'
+import { RelicBar } from '../RelicBar/RelicBar'
 import type { RunState, CombatNumber, Element } from '../../types'
 import { applyAction, createCardInstance } from '../../game/actions'
 import { createNewRun, createEnemiesFromRoom } from '../../game/new-game'
@@ -37,6 +38,7 @@ export function GameScreen({ deckId, onReturnToMenu }: GameScreenProps) {
   const [currentRoomId, setCurrentRoomId] = useState<string | null>(null)
   const [pendingAnimations, setPendingAnimations] = useState<PendingCardAnimation[]>([])
   const [pileModalOpen, setPileModalOpen] = useState<PileType | null>(null)
+  const [triggeredRelicId, setTriggeredRelicId] = useState<string | null>(null)
   const containerRef = useRef<HTMLDivElement>(null)
   const handRef = useRef<HTMLDivElement>(null)
   const prevHealthRef = useRef<Record<string, number>>({})
@@ -427,6 +429,22 @@ export function GameScreen({ deckId, onReturnToMenu }: GameScreenProps) {
             setPendingAnimations((prev) => [...prev, ...deckAnims])
           }
           console.log(`Put ${event.cardUids.length} card(s) on ${event.position} of deck`)
+          break
+        }
+        case 'relicTrigger': {
+          // Flash the triggered relic
+          setTriggeredRelicId(event.relicId)
+          setTimeout(() => setTriggeredRelicId(null), 600)
+
+          // Pulse player when relic triggers
+          const playerEl = containerRef.current?.querySelector('[data-entity="player"]')
+          if (playerEl) {
+            gsap.effects.pulse(playerEl, {
+              color: 'oklch(0.6 0.15 300)', // purple for relic
+            })
+            emitParticle(playerEl, 'energy')
+          }
+          console.log(`Relic triggered: ${event.relicDefId} (${event.trigger})`)
           break
         }
       }
@@ -1116,6 +1134,10 @@ export function GameScreen({ deckId, onReturnToMenu }: GameScreenProps) {
             </div>
           )}
         </div>
+        {/* Relic bar */}
+        {state.relics.length > 0 && (
+          <RelicBar relics={state.relics} triggeredRelicId={triggeredRelicId ?? undefined} />
+        )}
       </div>
 
       {/* Combat field - centered */}

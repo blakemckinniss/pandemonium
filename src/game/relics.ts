@@ -84,7 +84,7 @@ registerRelic({
   effects: [
     {
       type: 'conditional',
-      condition: { type: 'block', op: '==', value: 0 },
+      condition: { type: 'resource', resource: 'block', target: 'self', op: '=', value: 0 },
       then: [{ type: 'block', amount: 6, target: 'self' }],
     },
   ],
@@ -122,7 +122,7 @@ registerRelic({
   effects: [
     {
       type: 'conditional',
-      condition: { type: 'health', op: '<=', value: 0.5, percentage: true },
+      condition: { type: 'health', target: 'self', compare: 'percent', op: '<=', value: 50 },
       then: [{ type: 'heal', amount: 12, target: 'self' }],
     },
   ],

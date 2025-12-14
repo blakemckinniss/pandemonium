@@ -4,7 +4,7 @@ import { decayPowers } from '../powers'
 import { drawCardsInternal, emitVisual } from './shared'
 import { getCardDefinition } from '../cards'
 import { getRelicDefinition } from '../relics'
-import { dispatchEffect } from '../effects/engine'
+import { executeEffect } from '../effects/engine'
 
 // Forward declaration - will be injected to avoid circular deps
 let executePowerTriggers: (draft: RunState, entity: Entity, event: string, sourceId?: string) => void
@@ -79,6 +79,9 @@ export function handleEndTurn(draft: RunState): void {
   if (executePowerTriggers) {
     executePowerTriggers(draft, combat.player, 'onTurnEnd')
   }
+
+  // Execute relic triggers for turn end
+  executeRelicTriggers(draft, 'onTurnEnd')
 
   // Decay powers at turn end
   decayPowers(combat.player, 'turnEnd')
