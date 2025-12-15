@@ -1,7 +1,122 @@
 [
   {
+    "card_id": "strike",
+    "status": "success",
+    "path": "/home/jinx/projects/pandemonium/services/image-gen/generated/strike.webp"
+  },
+  {
+    "card_id": "defend",
+    "status": "success",
+    "path": "/home/jinx/projects/pandemonium/services/image-gen/generated/defend.webp"
+  },
+  {
+    "card_id": "bash",
+    "status": "success",
+    "path": "/home/jinx/projects/pandemonium/services/image-gen/generated/bash.webp"
+  },
+  {
+    "card_id": "hero_ironclad",
+    "status": "success",
+    "path": "/home/jinx/projects/pandemonium/services/image-gen/generated/hero_ironclad.webp"
+  },
+  {
+    "card_id": "hero_pyromancer",
+    "status": "success",
+    "path": "/home/jinx/projects/pandemonium/services/image-gen/generated/hero_pyromancer.webp"
+  },
+  {
+    "card_id": "inflame",
+    "status": "success",
+    "path": "/home/jinx/projects/pandemonium/services/image-gen/generated/inflame.webp"
+  },
+  {
+    "card_id": "demon_form",
+    "status": "success",
+    "path": "/home/jinx/projects/pandemonium/services/image-gen/generated/demon_form.webp"
+  },
+  {
+    "card_id": "metallicize",
+    "status": "success",
+    "path": "/home/jinx/projects/pandemonium/services/image-gen/generated/metallicize.webp"
+  },
+  {
+    "card_id": "noxious_fumes",
+    "status": "success",
+    "path": "/home/jinx/projects/pandemonium/services/image-gen/generated/noxious_fumes.webp"
+  },
+  {
+    "card_id": "pommel_strike",
+    "status": "success",
+    "path": "/home/jinx/projects/pandemonium/services/image-gen/generated/pommel_strike.webp"
+  },
+  {
+    "card_id": "cleave",
+    "status": "success",
+    "path": "/home/jinx/projects/pandemonium/services/image-gen/generated/cleave.webp"
+  },
+  {
+    "card_id": "twin_strike",
+    "status": "success",
+    "path": "/home/jinx/projects/pandemonium/services/image-gen/generated/twin_strike.webp"
+  },
+  {
+    "card_id": "heavy_blade",
+    "status": "success",
+    "path": "/home/jinx/projects/pandemonium/services/image-gen/generated/heavy_blade.webp"
+  },
+  {
     "card_id": "fireball",
-    "status": "dry_run",
-    "prompt": "fantasy card art depicting 'Fireball', visualizing: Deal 12 fire damage. If target is Oiled: Explosion (2x damage)., color palette: orange, red, yellow flames, visual effects: fire particles, embers, heat distortion, dynamic action pose, offensive stance, mood: aggressive, powerful, striking, high detail, interesting composition, elaborate effects, anime style, digital illustration, card game art, centered composition, suitable for card frame, dramatic lighting, vibrant colors, no text, no words, no letters"
+    "status": "success",
+    "path": "/home/jinx/projects/pandemonium/services/image-gen/generated/fireball.webp"
+  },
+  {
+    "card_id": "frost_bolt",
+    "status": "success",
+    "path": "/home/jinx/projects/pandemonium/services/image-gen/generated/frost_bolt.webp"
+  },
+  {
+    "card_id": "lightning_strike",
+    "status": "success",
+    "path": "/home/jinx/projects/pandemonium/services/image-gen/generated/lightning_strike.webp"
+  },
+  {
+    "card_id": "void_rend",
+    "status": "success",
+    "path": "/home/jinx/projects/pandemonium/services/image-gen/generated/void_rend.webp"
+  },
+  {
+    "card_id": "shrug_it_off",
+    "status": "success",
+    "path": "/home/jinx/projects/pandemonium/services/image-gen/generated/shrug_it_off.webp"
+  },
+  {
+    "card_id": "armaments",
+    "status": "success",
+    "path": "/home/jinx/projects/pandemonium/services/image-gen/generated/armaments.webp"
+  },
+  {
+    "card_id": "true_grit",
+    "status": "success",
+    "path": "/home/jinx/projects/pandemonium/services/image-gen/generated/true_grit.webp"
+  },
+  {
+    "card_id": "ice_barrier",
+    "status": "success",
+    "path": "/home/jinx/projects/pandemonium/services/image-gen/generated/ice_barrier.webp"
+  },
+  {
+    "card_id": "second_wind",
+    "status": "success",
+    "path": "/home/jinx/projects/pandemonium/services/image-gen/generated/second_wind.webp"
+  },
+  {
+    "card_id": "bloodletting",
+    "status": "success",
+    "path": "/home/jinx/projects/pandemonium/services/image-gen/generated/bloodletting.webp"
+  },
+  {
+    "card_id": "battle_trance",
+    "status": "success",
+    "path": "/home/jinx/projects/pandemonium/services/image-gen/generated/battle_trance.webp"
   }
 ]

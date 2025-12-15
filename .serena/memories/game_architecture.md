@@ -101,6 +101,35 @@ interface Power {
 
 With triggers: `onTurnStart`, `onTurnEnd`, `onAttack`, `onDefend`, etc.
 
+## Hero System
+
+Heroes are CardDefinitions with `theme: 'hero'` and three ability layers:
+
+```typescript
+interface HeroCardDefinition extends CardDefinition {
+  theme: 'hero'
+  heroStats: { health: number, energy: number, drawPerTurn: number }
+  passive: AtomicEffect[]       // Applied at combat start
+  activated: {                  // Once per turn, costs energy
+    description: string
+    energyCost: number
+    effects: AtomicEffect[]
+  }
+  ultimate: {                   // Charges over turns
+    description: string
+    chargesRequired: number
+    chargeOn: 'turnStart' | 'turnEnd' | 'cardPlayed' | 'damageTaken'
+    effects: AtomicEffect[]
+  }
+}
+```
+
+Handler functions in `src/game/handlers/hero.ts`:
+- `canUseActivatedAbility(state)` - Check if can use
+- `handleUseActivatedAbility(state)` - Execute activated ability
+- `canUseUltimateAbility(state)` - Check if ultimate ready
+- `handleUseUltimateAbility(state)` - Execute ultimate, reset charges
+
 ## Room System
 
 ```typescript

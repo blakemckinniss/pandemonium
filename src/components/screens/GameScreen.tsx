@@ -33,6 +33,7 @@ import { useAnimationCoordinator } from '../../hooks/useAnimationCoordinator'
 import { useVisualEventProcessor } from '../../hooks/useVisualEventProcessor'
 import { useCombatActions } from '../../hooks/useCombatActions'
 import { useRoomHandlers } from '../../hooks/useRoomHandlers'
+import { registerDebugAPI, unregisterDebugAPI } from '../../test/debug'
 
 interface GameScreenProps {
   deckId?: string | null
@@ -116,6 +117,12 @@ export function GameScreen({ deckId, heroId, dungeonDeckId, onReturnToMenu }: Ga
     }
     void init()
   }, [deckId, heroId, dungeonDeckId])
+
+  // Register debug API in development
+  useEffect(() => {
+    registerDebugAPI(() => state, setState)
+    return () => unregisterDebugAPI()
+  }, [state])
 
   // Animate cards and visual cues when a new turn starts
   useEffect(() => {

@@ -186,8 +186,12 @@ def main():
     generator = CardArtGenerator(output_dir=output_dir)
 
     if not args.dry_run:
-        print("Loading model (this may take a minute)...")
-        generator.load_model()
+        print("Checking ComfyUI connection...")
+        if not generator.check_connection():
+            print("ERROR: ComfyUI not running. Start it with:")
+            print("  ~/ai/comfyui/start_optimized.sh")
+            sys.exit(1)
+        print("ComfyUI connected!")
 
     # Generate
     results = generate_for_cards(

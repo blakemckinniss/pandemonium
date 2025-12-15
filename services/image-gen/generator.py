@@ -2,10 +2,11 @@
 ComfyUI API client for card art generation.
 
 Connects to local or remote ComfyUI instance for image generation.
-Supports any model configured in ComfyUI (NewBie, z-image, etc).
+Supports NewBie and z-image turbo models.
 
 Configuration:
 - COMFYUI_URL: ComfyUI server URL (default: http://127.0.0.1:8188)
+- MODEL_TYPE: "newbie" or "turbo" (default: newbie)
 - Uses websocket for progress tracking
 - Retrieves images via /view endpoint
 """
@@ -29,32 +30,129 @@ logger = logging.getLogger(__name__)
 COMFYUI_URL = "http://127.0.0.1:8188"
 COMFYUI_WS = "ws://127.0.0.1:8188/ws"
 
+# Model selection: "newbie" or "turbo"
+MODEL_TYPE = "turbo"
+
 # Default generation settings
 DEFAULT_WIDTH = 768
 DEFAULT_HEIGHT = 1024  # Portrait for card art
-DEFAULT_STEPS = 10  # z-image turbo is fast
-DEFAULT_CFG = 1.0  # Turbo models use low CFG
+
+# Model-specific settings
+NEWBIE_STEPS = 25  # NewBie uses more steps
+NEWBIE_CFG = 4.0  # NewBie uses standard CFG
+TURBO_STEPS = 10  # z-image turbo is fast
+TURBO_CFG = 1.0  # Turbo models use low CFG
+
+# NewBie model paths (FP8 transformer, original text encoders)
+NEWBIE_FP8_BASE = "/home/jinx/ai/comfyui/models/diffusers/NewBie-image-Exp0.1-fp8-e4m3fn"
+NEWBIE_ORIG_BASE = "/home/jinx/ai/comfyui/models/diffusers/newbie-text-encoder"
+NEWBIE_UNET_PATH = f"{NEWBIE_FP8_BASE}/transformer/diffusion_pytorch_model.safetensors"
+NEWBIE_GEMMA_PATH = f"{NEWBIE_ORIG_BASE}/text_encoder"
+NEWBIE_CLIP_PATH = f"{NEWBIE_ORIG_BASE}/clip_model"
+
+# LoRA settings
+DEFAULT_LORA = "Anime_Art_Zit_E10.safetensors"  # Anime style LoRA
+DEFAULT_LORA_STRENGTH = 0.8
+
+# Defaults based on model type
+DEFAULT_STEPS = NEWBIE_STEPS if MODEL_TYPE == "newbie" else TURBO_STEPS
+DEFAULT_CFG = NEWBIE_CFG if MODEL_TYPE == "newbie" else TURBO_CFG
 
 
-def get_workflow(
+def get_newbie_workflow(
     prompt: str,
     width: int = DEFAULT_WIDTH,
     height: int = DEFAULT_HEIGHT,
-    steps: int = DEFAULT_STEPS,
-    cfg: float = DEFAULT_CFG,
+    steps: int = NEWBIE_STEPS,
+    cfg: float = NEWBIE_CFG,
     seed: int | None = None,
-    negative_prompt: str = "",
+    vae: str = "ae.safetensors",
+) -> dict:
+    """Build a ComfyUI workflow for NewBie model generation."""
+    if seed is None:
+        seed = random.randint(0, 2**32 - 1)
+
+    workflow = {
+        # Load NewBie UNet (transformer)
+        "1": {
+            "class_type": "NewBieUNetLoader",
+            "inputs": {"unet_path": NEWBIE_UNET_PATH},
+        },
+        # Load NewBie CLIP (Gemma3 + Jina CLIP v2)
+        "2": {
+            "class_type": "NewBieCLIPLoader",
+            "inputs": {
+                "gemma_model_path": NEWBIE_GEMMA_PATH,
+                "jina_clip_path": NEWBIE_CLIP_PATH,
+            },
+        },
+        # VAE loader (FLUX VAE)
+        "3": {"class_type": "VAELoader", "inputs": {"vae_name": vae}},
+        # Text encoding
+        "4": {
+            "class_type": "NewBieCLIPTextEncode",
+            "inputs": {"clip": ["2", 0], "user_prompt": prompt},
+        },
+        # Empty conditioning for negative
+        "5": {"class_type": "ConditioningZeroOut", "inputs": {"conditioning": ["4", 0]}},
+        # Model sampling for NewBie
+        "6": {
+            "class_type": "ModelSamplingNewbie",
+            "inputs": {"model": ["1", 0], "shift": 6.0},
+        },
+        # Latent image
+        "7": {
+            "class_type": "EmptySD3LatentImage",
+            "inputs": {"width": width, "height": height, "batch_size": 1},
+        },
+        # Sampler
+        "8": {
+            "class_type": "KSampler",
+            "inputs": {
+                "model": ["6", 0],
+                "positive": ["4", 0],
+                "negative": ["5", 0],
+                "latent_image": ["7", 0],
+                "seed": seed,
+                "steps": steps,
+                "cfg": cfg,
+                "sampler_name": "euler",
+                "scheduler": "normal",
+                "denoise": 1.0,
+            },
+        },
+        # Decode
+        "9": {"class_type": "VAEDecode", "inputs": {"samples": ["8", 0], "vae": ["3", 0]}},
+        # Save
+        "10": {
+            "class_type": "SaveImage",
+            "inputs": {"images": ["9", 0], "filename_prefix": "newbie_cardart"},
+        },
+    }
+
+    return workflow
+
+
+def get_turbo_workflow(
+    prompt: str,
+    width: int = DEFAULT_WIDTH,
+    height: int = DEFAULT_HEIGHT,
+    steps: int = TURBO_STEPS,
+    cfg: float = TURBO_CFG,
+    seed: int | None = None,
     model: str = "z_image_turbo_fp8_e4m3fn.safetensors",
     clip: str = "qwen_3_4b.safetensors",
     vae: str = "ae.safetensors",
+    lora: str | None = None,
+    lora_strength: float = 0.8,
 ) -> dict:
-    """
-    Build a ComfyUI workflow for image generation.
-
-    Uses z-image turbo by default (fast, good quality).
-    """
+    """Build a ComfyUI workflow for z-image turbo (fast generation)."""
     if seed is None:
         seed = random.randint(0, 2**32 - 1)
+
+    # Determine model/clip sources (direct or through LoRA)
+    model_source = ["1", 0]
+    clip_source = ["2", 0]
 
     # ComfyUI API workflow format
     workflow = {
@@ -67,36 +165,103 @@ def get_workflow(
             "inputs": {"clip_name": clip, "type": "lumina2", "device": "default"},
         },
         "3": {"class_type": "VAELoader", "inputs": {"vae_name": vae}},
-        "4": {"class_type": "CLIPTextEncode", "inputs": {"clip": ["2", 0], "text": prompt}},
-        "5": {"class_type": "ConditioningZeroOut", "inputs": {"conditioning": ["4", 0]}},
-        "6": {"class_type": "ModelSamplingAuraFlow", "inputs": {"model": ["1", 0], "shift": 2.5}},
-        "7": {
-            "class_type": "EmptySD3LatentImage",
-            "inputs": {"width": width, "height": height, "batch_size": 1},
-        },
-        "8": {
-            "class_type": "KSampler",
+    }
+
+    # Add LoRA loader if specified
+    if lora:
+        workflow["11"] = {
+            "class_type": "LoraLoader",
             "inputs": {
-                "model": ["6", 0],
-                "positive": ["4", 0],
-                "negative": ["5", 0],
-                "latent_image": ["7", 0],
-                "seed": seed,
-                "steps": steps,
-                "cfg": cfg,
-                "sampler_name": "euler",
-                "scheduler": "beta",
-                "denoise": 1.0,
+                "model": ["1", 0],
+                "clip": ["2", 0],
+                "lora_name": lora,
+                "strength_model": lora_strength,
+                "strength_clip": lora_strength,
             },
+        }
+        model_source = ["11", 0]
+        clip_source = ["11", 1]
+
+    # Text encoding (uses LoRA-modified clip if applicable)
+    workflow["4"] = {
+        "class_type": "CLIPTextEncode",
+        "inputs": {"clip": clip_source, "text": prompt},
+    }
+    workflow["5"] = {
+        "class_type": "ConditioningZeroOut",
+        "inputs": {"conditioning": ["4", 0]},
+    }
+
+    # Model sampling (uses LoRA-modified model if applicable)
+    workflow["6"] = {
+        "class_type": "ModelSamplingAuraFlow",
+        "inputs": {"model": model_source, "shift": 2.5},
+    }
+
+    workflow["7"] = {
+        "class_type": "EmptySD3LatentImage",
+        "inputs": {"width": width, "height": height, "batch_size": 1},
+    }
+    workflow["8"] = {
+        "class_type": "KSampler",
+        "inputs": {
+            "model": ["6", 0],
+            "positive": ["4", 0],
+            "negative": ["5", 0],
+            "latent_image": ["7", 0],
+            "seed": seed,
+            "steps": steps,
+            "cfg": cfg,
+            "sampler_name": "euler",
+            "scheduler": "beta",
+            "denoise": 1.0,
         },
-        "9": {"class_type": "VAEDecode", "inputs": {"samples": ["8", 0], "vae": ["3", 0]}},
-        "10": {
-            "class_type": "SaveImage",
-            "inputs": {"images": ["9", 0], "filename_prefix": "cardart"},
-        },
+    }
+    workflow["9"] = {"class_type": "VAEDecode", "inputs": {"samples": ["8", 0], "vae": ["3", 0]}}
+    workflow["10"] = {
+        "class_type": "SaveImage",
+        "inputs": {"images": ["9", 0], "filename_prefix": "cardart"},
     }
 
     return workflow
+
+
+def get_workflow(
+    prompt: str,
+    width: int = DEFAULT_WIDTH,
+    height: int = DEFAULT_HEIGHT,
+    steps: int | None = None,
+    cfg: float | None = None,
+    seed: int | None = None,
+    negative_prompt: str = "",
+    lora: str | None = DEFAULT_LORA,
+    lora_strength: float = DEFAULT_LORA_STRENGTH,
+) -> dict:
+    """
+    Get workflow for current model type.
+
+    Automatically selects NewBie or turbo workflow based on MODEL_TYPE.
+    """
+    if MODEL_TYPE == "newbie":
+        return get_newbie_workflow(
+            prompt=prompt,
+            width=width,
+            height=height,
+            steps=steps or NEWBIE_STEPS,
+            cfg=cfg or NEWBIE_CFG,
+            seed=seed,
+        )
+    else:
+        return get_turbo_workflow(
+            prompt=prompt,
+            width=width,
+            height=height,
+            steps=steps or TURBO_STEPS,
+            cfg=cfg or TURBO_CFG,
+            seed=seed,
+            lora=lora,
+            lora_strength=lora_strength,
+        )
 
 
 class CardArtGenerator:

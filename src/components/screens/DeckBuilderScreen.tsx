@@ -1,49 +1,69 @@
 import { useEffect, useState } from 'react'
 import { Icon } from '@iconify/react'
 import { Card } from '../Card/Card'
-import { getCardDefinition, getAllCards } from '../../game/cards'
+import { getCardDefinition, getAllCards, getStarterCardIds } from '../../game/cards'
 import { getEnergyCost } from '../../lib/effects'
-import { generateRandomCard, type GenerationOptions } from '../../game/card-generator'
+import { generatePack, type PackConfig } from '../../game/card-generator'
 import {
   getCustomDecks,
   saveCustomDeck,
   updateCustomDeck,
   deleteCustomDeck,
   getAllGeneratedCards,
+  getCollection,
+  addToCollection,
+  initializeStarterCollection,
   type CustomDeckRecord,
   type GeneratedCardRecord,
+  type CollectionCard,
 } from '../../stores/db'
-import { useMetaStore } from '../../stores/metaStore'
 import { generateUid } from '../../lib/utils'
-import type { CardDefinition, CardTheme } from '../../types'
+import { THEMES, getTheme } from '../../config/themes'
+import type { CardDefinition } from '../../types'
 
-type Tab = 'unlocked' | 'generated' | 'dev'
+type Tab = 'collection' | 'packs' | 'all'
 
 interface DeckBuilderScreenProps {
   onBack: () => void
 }
 
 export function DeckBuilderScreen({ onBack }: DeckBuilderScreenProps) {
-  const [activeTab, setActiveTab] = useState<Tab>('unlocked')
+  const [activeTab, setActiveTab] = useState<Tab>('collection')
   const [currentDeck, setCurrentDeck] = useState<string[]>([])
   const [deckName, setDeckName] = useState('Custom Deck')
   const [editingDeckId, setEditingDeckId] = useState<string | null>(null)
   const [savedDecks, setSavedDecks] = useState<CustomDeckRecord[]>([])
-  const [generatedCards, setGeneratedCards] = useState<GeneratedCardRecord[]>([])
-  const { unlockedCards } = useMetaStore()
+  const [_generatedCards, setGeneratedCards] = useState<GeneratedCardRecord[]>([])
+  const [collection, setCollection] = useState<CollectionCard[]>([])
 
   // Load data on mount
   useEffect(() => {
-    void getCustomDecks().then(setSavedDecks)
-    void getAllGeneratedCards().then(setGeneratedCards)
+    void loadData()
   }, [])
 
-  // Get card definitions for unlocked cards
-  const unlockedCardDefs = unlockedCards
-    .map((id) => getCardDefinition(id))
-    .filter((c): c is CardDefinition => c !== undefined)
+  async function loadData() {
+    // Initialize starter collection if needed
+    await initializeStarterCollection(getStarterCardIds())
 
-  // Get all cards for full pool
+    const [decks, cards, owned] = await Promise.all([
+      getCustomDecks(),
+      getAllGeneratedCards(),
+      getCollection(),
+    ])
+    setSavedDecks(decks)
+    setGeneratedCards(cards)
+    setCollection(owned)
+  }
+
+  // Get card definitions for collection (owned cards)
+  const collectionCardDefs = collection
+    .map((c) => {
+      const def = getCardDefinition(c.cardId)
+      return def ? { def, quantity: c.quantity } : null
+    })
+    .filter((c): c is { def: CardDefinition; quantity: number } => c !== null)
+
+  // Get all cards (starters + generated)
   const allCards = getAllCards()
 
   // Add card to current deck
@@ -105,6 +125,17 @@ export function DeckBuilderScreen({ onBack }: DeckBuilderScreenProps) {
     setCurrentDeck([])
     setDeckName('Custom Deck')
     setEditingDeckId(null)
+  }
+
+  // Handle new cards from pack opening
+  const handleCardsObtained = async (cards: CardDefinition[]) => {
+    for (const card of cards) {
+      await addToCollection(card.id, 1, 'pack')
+    }
+    // Refresh collection and generated cards
+    const [owned, generated] = await Promise.all([getCollection(), getAllGeneratedCards()])
+    setCollection(owned)
+    setGeneratedCards(generated)
   }
 
   // Group current deck cards by ID for display
@@ -233,7 +264,7 @@ export function DeckBuilderScreen({ onBack }: DeckBuilderScreenProps) {
       <main className="flex-1 flex flex-col">
         {/* Tabs */}
         <div className="flex border-b border-gray-800">
-          {(['unlocked', 'generated', 'dev'] as Tab[]).map((tab) => (
+          {(['collection', 'packs', 'all'] as Tab[]).map((tab) => (
             <button
               key={tab}
               onClick={() => setActiveTab(tab)}
@@ -243,33 +274,23 @@ export function DeckBuilderScreen({ onBack }: DeckBuilderScreenProps) {
                   : 'text-gray-500 hover:text-gray-300'
               }`}
             >
-              {tab === 'unlocked' && <Icon icon="mdi:lock-open" className="inline mr-2" />}
-              {tab === 'generated' && <Icon icon="mdi:auto-fix" className="inline mr-2" />}
-              {tab === 'dev' && <Icon icon="mdi:flask" className="inline mr-2" />}
-              {tab.charAt(0).toUpperCase() + tab.slice(1)}
+              {tab === 'collection' && <Icon icon="mdi:cards" className="inline mr-2" />}
+              {tab === 'packs' && <Icon icon="mdi:package-variant" className="inline mr-2" />}
+              {tab === 'all' && <Icon icon="mdi:view-grid" className="inline mr-2" />}
+              {tab === 'collection' && `Collection (${collection.length})`}
+              {tab === 'packs' && 'Open Packs'}
+              {tab === 'all' && 'All Cards'}
             </button>
           ))}
         </div>
 
         {/* Card Grid */}
         <div className="flex-1 overflow-auto p-6">
-          {activeTab === 'unlocked' && (
-            <CardGrid
-              cards={unlockedCardDefs.length > 0 ? unlockedCardDefs : allCards}
-              onAddCard={handleAddCard}
-            />
+          {activeTab === 'collection' && (
+            <CollectionGrid cards={collectionCardDefs} onAddCard={handleAddCard} />
           )}
-          {activeTab === 'generated' && (
-            <GeneratedCardsGrid records={generatedCards} onAddCard={handleAddCard} />
-          )}
-          {activeTab === 'dev' && (
-            <DevModePanel
-              onCardGenerated={(card) => {
-                void getAllGeneratedCards().then(setGeneratedCards)
-                handleAddCard(card.id)
-              }}
-            />
-          )}
+          {activeTab === 'packs' && <PackOpeningPanel onCardsObtained={handleCardsObtained} />}
+          {activeTab === 'all' && <CardGrid cards={allCards} onAddCard={handleAddCard} />}
         </div>
       </main>
     </div>
@@ -287,6 +308,15 @@ function CardGrid({
   cards: CardDefinition[]
   onAddCard: (id: string) => void
 }) {
+  if (cards.length === 0) {
+    return (
+      <div className="text-center text-gray-500 py-12">
+        <Icon icon="mdi:cards-outline" className="text-4xl mb-2 opacity-50" />
+        <p>No cards available</p>
+      </div>
+    )
+  }
+
   return (
     <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
       {cards.map((card) => (
@@ -296,6 +326,7 @@ function CardGrid({
           className="group transition-transform hover:scale-105"
         >
           <Card
+            cardId={card.id}
             variant="hand"
             theme={card.theme}
             name={card.name}
@@ -309,124 +340,131 @@ function CardGrid({
   )
 }
 
-function GeneratedCardsGrid({
-  records,
+function CollectionGrid({
+  cards,
   onAddCard,
 }: {
-  records: GeneratedCardRecord[]
+  cards: { def: CardDefinition; quantity: number }[]
   onAddCard: (id: string) => void
 }) {
-  if (records.length === 0) {
+  if (cards.length === 0) {
     return (
       <div className="text-center text-gray-500 py-12">
-        <Icon icon="mdi:auto-fix" className="text-4xl mb-2 opacity-50" />
-        <p>No generated cards yet</p>
-        <p className="text-sm">Use Dev Mode to generate cards with AI</p>
+        <Icon icon="mdi:cards-outline" className="text-4xl mb-2 opacity-50" />
+        <p>Your collection is empty</p>
+        <p className="text-sm mt-2">Open some packs to get cards!</p>
       </div>
     )
   }
 
   return (
     <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
-      {records.map((record) => (
+      {cards.map(({ def, quantity }) => (
         <button
-          key={record.cardId}
-          onClick={() => onAddCard(record.cardId)}
-          className="group transition-transform hover:scale-105"
+          key={def.id}
+          onClick={() => onAddCard(def.id)}
+          className="group transition-transform hover:scale-105 relative"
         >
           <Card
+            cardId={def.id}
             variant="hand"
-            theme={record.definition.theme}
-            name={record.definition.name}
-            description={record.definition.description}
-            energy={getEnergyCost(record.definition.energy)}
+            theme={def.theme}
+            name={def.name}
+            description={def.description}
+            energy={getEnergyCost(def.energy)}
             playable
           />
+          {quantity > 1 && (
+            <span className="absolute top-2 right-2 bg-energy text-gray-900 text-xs font-bold px-2 py-1 rounded-full">
+              x{quantity}
+            </span>
+          )}
         </button>
       ))}
     </div>
   )
 }
 
-function DevModePanel({ onCardGenerated }: { onCardGenerated: (card: CardDefinition) => void }) {
+function PackOpeningPanel({
+  onCardsObtained,
+}: {
+  onCardsObtained: (cards: CardDefinition[]) => Promise<void>
+}) {
   const [isGenerating, setIsGenerating] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const [options, setOptions] = useState<GenerationOptions>({})
-  const [previewCard, setPreviewCard] = useState<CardDefinition | null>(null)
+  const [selectedTheme, setSelectedTheme] = useState<string>('standard')
+  const [packSize, setPackSize] = useState(6)
+  const [revealedCards, setRevealedCards] = useState<CardDefinition[]>([])
+  const [_isRevealing, setIsRevealing] = useState(false)
 
-  async function handleGenerate() {
+  async function handleOpenPack() {
     setIsGenerating(true)
     setError(null)
+    setRevealedCards([])
+
     try {
-      const card = await generateRandomCard(options)
-      setPreviewCard(card)
-      onCardGenerated(card)
+      const theme = getTheme(selectedTheme)
+      const config: Partial<PackConfig> = {
+        size: packSize,
+        theme: theme?.hints[Math.floor(Math.random() * theme.hints.length)],
+        guaranteedRare: packSize >= 5,
+      }
+
+      const cards = await generatePack(config)
+
+      // Reveal cards one by one
+      setIsRevealing(true)
+      for (let i = 0; i < cards.length; i++) {
+        await new Promise((r) => setTimeout(r, 300))
+        setRevealedCards((prev) => [...prev, cards[i]])
+      }
+      setIsRevealing(false)
+
+      // Add to collection
+      await onCardsObtained(cards)
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Generation failed')
+      setError(err instanceof Error ? err.message : 'Pack generation failed')
     } finally {
       setIsGenerating(false)
     }
   }
 
   return (
-    <div className="flex gap-8">
-      {/* Generation Controls */}
-      <div className="w-64 space-y-4">
-        <h3 className="text-sm font-medium text-gray-300 flex items-center gap-2">
-          <Icon icon="mdi:flask" className="text-energy" />
-          AI Card Generator
-        </h3>
-
-        <div>
+    <div className="space-y-6">
+      {/* Pack Controls */}
+      <div className="flex items-end gap-4 p-4 bg-gray-800/50 rounded-lg">
+        <div className="flex-1">
           <label className="block text-xs text-gray-500 mb-1">Theme</label>
           <select
-            value={options.theme || ''}
-            onChange={(e) =>
-              setOptions({ ...options, theme: (e.target.value as CardTheme) || undefined })
-            }
+            value={selectedTheme}
+            onChange={(e) => setSelectedTheme(e.target.value)}
             className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded text-sm text-gray-200"
           >
-            <option value="">Any Theme</option>
-            <option value="attack">Attack</option>
-            <option value="skill">Skill</option>
-            <option value="power">Power</option>
+            {THEMES.map((theme) => (
+              <option key={theme.id} value={theme.id}>
+                {theme.name} - {theme.description}
+              </option>
+            ))}
           </select>
         </div>
 
-        <div>
-          <label className="block text-xs text-gray-500 mb-1">Rarity</label>
+        <div className="w-24">
+          <label className="block text-xs text-gray-500 mb-1">Pack Size</label>
           <select
-            value={options.rarity || ''}
-            onChange={(e) =>
-              setOptions({
-                ...options,
-                rarity: (e.target.value as 'common' | 'uncommon' | 'rare') || undefined,
-              })
-            }
+            value={packSize}
+            onChange={(e) => setPackSize(Number(e.target.value))}
             className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded text-sm text-gray-200"
           >
-            <option value="">Any Rarity</option>
-            <option value="common">Common</option>
-            <option value="uncommon">Uncommon</option>
-            <option value="rare">Rare</option>
+            <option value={3}>3 cards</option>
+            <option value={6}>6 cards</option>
+            <option value={10}>10 cards</option>
           </select>
-        </div>
-
-        <div>
-          <label className="block text-xs text-gray-500 mb-1">Theme Hint</label>
-          <input
-            type="text"
-            value={options.hint || ''}
-            onChange={(e) => setOptions({ ...options, hint: e.target.value || undefined })}
-            placeholder="e.g., fire magic, poison, defense"
-            className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded text-sm text-gray-200"
-          />
         </div>
 
         <button
-          onClick={() => void handleGenerate()}
+          onClick={() => void handleOpenPack()}
           disabled={isGenerating}
-          className="w-full px-4 py-3 bg-energy text-gray-900 font-medium rounded disabled:opacity-50 flex items-center justify-center gap-2"
+          className="px-6 py-2 bg-energy text-gray-900 font-medium rounded disabled:opacity-50 flex items-center gap-2"
         >
           {isGenerating ? (
             <>
@@ -435,38 +473,73 @@ function DevModePanel({ onCardGenerated }: { onCardGenerated: (card: CardDefinit
             </>
           ) : (
             <>
-              <Icon icon="mdi:auto-fix" />
-              Generate Card
+              <Icon icon="mdi:package-variant" />
+              Open Pack
             </>
           )}
         </button>
-
-        {error && <p className="text-damage text-sm">{error}</p>}
       </div>
 
-      {/* Preview */}
-      <div className="flex-1 flex items-start justify-center">
-        {previewCard ? (
-          <div className="text-center">
-            <p className="text-gray-500 text-sm mb-4">Last Generated (added to deck)</p>
-            <div className="transform scale-125 origin-top">
-              <Card
-                variant="hand"
-                theme={previewCard.theme}
-                name={previewCard.name}
-                description={previewCard.description}
-                energy={getEnergyCost(previewCard.energy)}
-                playable
-              />
-            </div>
+      {error && (
+        <div className="p-4 bg-damage/20 border border-damage/50 rounded-lg text-damage">
+          {error}
+        </div>
+      )}
+
+      {/* Revealed Cards */}
+      {revealedCards.length > 0 && (
+        <div>
+          <h3 className="text-sm font-medium text-gray-400 mb-4 flex items-center gap-2">
+            <Icon icon="mdi:star" className="text-energy" />
+            Pack Contents ({revealedCards.length} cards)
+          </h3>
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-4">
+            {revealedCards.map((card, idx) => (
+              <div
+                key={`${card.id}-${idx}`}
+                className="transform transition-all duration-300"
+                style={{
+                  animation: 'fadeInUp 0.3s ease-out',
+                  animationFillMode: 'backwards',
+                  animationDelay: `${idx * 0.1}s`,
+                }}
+              >
+                <Card
+                  cardId={card.id}
+                  variant="hand"
+                  theme={card.theme}
+                  name={card.name}
+                  description={card.description}
+                  energy={getEnergyCost(card.energy)}
+                  playable
+                />
+                <div className="text-center mt-1">
+                  <span
+                    className={`text-xs font-medium ${
+                      card.rarity === 'rare'
+                        ? 'text-yellow-400'
+                        : card.rarity === 'uncommon'
+                          ? 'text-blue-400'
+                          : 'text-gray-400'
+                    }`}
+                  >
+                    {card.rarity}
+                  </span>
+                </div>
+              </div>
+            ))}
           </div>
-        ) : (
-          <div className="text-center text-gray-600 py-12">
-            <Icon icon="mdi:card-plus" className="text-6xl mb-4 opacity-30" />
-            <p>Generate a card to preview</p>
-          </div>
-        )}
-      </div>
+        </div>
+      )}
+
+      {/* Empty State */}
+      {revealedCards.length === 0 && !isGenerating && (
+        <div className="text-center text-gray-500 py-12">
+          <Icon icon="mdi:package-variant-closed" className="text-6xl mb-4 opacity-30" />
+          <p className="text-lg">Ready to open a pack?</p>
+          <p className="text-sm mt-2">Choose a theme and click Open Pack to generate new cards!</p>
+        </div>
+      )}
     </div>
   )
 }

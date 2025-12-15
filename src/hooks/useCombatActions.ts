@@ -14,6 +14,8 @@ export interface CombatActions {
   handleDragPlayCard: (cardUid: string, targetId: string | null) => void
   handleClickPlayCard: (cardUid: string) => void
   handleEndTurn: () => void
+  handleUseActivated: () => void
+  handleUseUltimate: () => void
 }
 
 export function useCombatActions({
@@ -81,9 +83,27 @@ export function useCombatActions({
     animateDiscardHand(processEndTurn)
   }, [combat, isAnimating, setState, animateDiscardHand])
 
+  const handleUseActivated = useCallback(() => {
+    if (!combat || isAnimating) return
+    setState((prev) => {
+      if (!prev) return prev
+      return applyAction(prev, { type: 'useActivatedAbility' })
+    })
+  }, [combat, isAnimating, setState])
+
+  const handleUseUltimate = useCallback(() => {
+    if (!combat || isAnimating) return
+    setState((prev) => {
+      if (!prev) return prev
+      return applyAction(prev, { type: 'useUltimateAbility' })
+    })
+  }, [combat, isAnimating, setState])
+
   return {
     handleDragPlayCard,
     handleClickPlayCard,
     handleEndTurn,
+    handleUseActivated,
+    handleUseUltimate,
   }
 }

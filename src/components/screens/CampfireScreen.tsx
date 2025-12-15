@@ -90,6 +90,7 @@ export function CampfireScreen({ hero, deck, onRest, onSmith, onSkip }: Campfire
                     variant="hand"
                     theme={def.theme}
                     name={def.name}
+                cardId={def.id}
                     description={def.description}
                     energy={getEnergyCost(def.energy)}
                     rarity={def.rarity}

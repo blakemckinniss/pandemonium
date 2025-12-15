@@ -90,13 +90,20 @@ Defined in `PARTICLE_CONFIG`:
 | `upgrade` | Gold | Card upgraded |
 | `transform` | Cyan | Card transformed |
 | `retain` | Soft blue | Card retained |
+| `gold` | Gold | Gold/currency effects |
+| `banish` | Dark purple | Card banished |
+| `thorns` | Brown/orange | Thorns damage |
+| `explosion` | Orange/red | Explosion effects |
+| `heroActivated` | Blue | Hero activated ability |
+| `heroUltimate` | Golden burst | Hero ultimate ability |
 
 ### emitParticle API
 
 ```typescript
-type ParticleType = 'attack' | 'skill' | 'power' | 'block' | 'heal' | 
-                    'poison' | 'energy' | 'spark' | 'critical' | 
-                    'combo' | 'upgrade' | 'transform' | 'retain'
+type ParticleType = 'spark' | 'heal' | 'block' | 'energy' | 'poison' |
+                    'upgrade' | 'transform' | 'retain' | 'attack' | 'skill' |
+                    'power' | 'combo' | 'critical' | 'gold' | 'banish' |
+                    'thorns' | 'explosion' | 'heroActivated' | 'heroUltimate'
 
 emitParticle(
   type: ParticleType,

@@ -10,7 +10,14 @@ import {
   ELEMENT_COLORS,
   ELEMENT_ICONS,
 } from '../elements'
-import type { Element, ElementalStatus, ElementalAffinity } from '../../types'
+import type { Element, ElementalStatus } from '../../types'
+
+// Local type for tests - matches getElementalDamageMultiplier parameter
+interface ElementalAffinity {
+  immunities?: Element[]
+  resistances?: Element[]
+  weaknesses?: Element[]
+}
 
 // ============================================================================
 // Element Status Mapping Tests

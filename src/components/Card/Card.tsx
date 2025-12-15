@@ -1,4 +1,4 @@
-import { memo, useRef, useEffect } from 'react'
+import { memo, useRef, useEffect, useState } from 'react'
 import { Icon } from '@iconify/react'
 import { gsap } from '../../lib/dragdrop'
 import { PowerTooltip } from '../PowerTooltip/PowerTooltip'
@@ -17,7 +17,8 @@ interface CardProps {
   variant: CardVariant
   theme?: CardTheme
   name: string
-  image?: string
+  cardId?: string // Definition ID for auto-resolving image from /cards/{id}.webp
+  image?: string // Explicit image URL (overrides cardId)
   rarity?: 'starter' | 'common' | 'uncommon' | 'rare'
   upgraded?: boolean
   element?: Element
@@ -52,6 +53,7 @@ export const Card = memo(function Card({
   variant,
   theme,
   name,
+  cardId,
   image,
   rarity,
   upgraded = false,
@@ -75,6 +77,15 @@ export const Card = memo(function Card({
 }: CardProps) {
   const cardRef = useRef<HTMLDivElement>(null)
   const glowTweenRef = useRef<gsap.core.Tween | null>(null)
+
+  // Auto-resolve image from cardId, with fallback on error
+  const resolvedImage = image || (cardId ? `/cards/${cardId}.webp` : undefined)
+  const [imageError, setImageError] = useState(false)
+
+  // Reset error state when image source changes
+  useEffect(() => {
+    setImageError(false)
+  }, [resolvedImage])
 
   // Playable card glow effect
   useEffect(() => {
@@ -177,8 +188,13 @@ export const Card = memo(function Card({
 
       {/* Portrait/Art area */}
       <div className="flex-1 flex items-center justify-center p-3 overflow-hidden">
-        {image ? (
-          <img src={image} alt={name} className="max-w-full max-h-full object-contain" />
+        {resolvedImage && !imageError ? (
+          <img
+            src={resolvedImage}
+            alt={name}
+            className="max-w-full max-h-full object-contain rounded"
+            onError={() => setImageError(true)}
+          />
         ) : (
           <Icon
             icon={getCardIcon(variant, theme)}

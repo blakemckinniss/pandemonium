@@ -56,12 +56,12 @@ interface ErrorResponse {
 
 // Error class
 export class ImageGenError extends Error {
-  constructor(
-    message: string,
-    public statusCode?: number
-  ) {
+  statusCode?: number
+
+  constructor(message: string, statusCode?: number) {
     super(message)
     this.name = 'ImageGenError'
+    this.statusCode = statusCode
   }
 }
 

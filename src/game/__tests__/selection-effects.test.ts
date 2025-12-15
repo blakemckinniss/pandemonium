@@ -82,25 +82,31 @@ function createRunState(overrides: Partial<RunState> = {}): RunState {
   return {
     gamePhase: 'combat',
     floor: 1,
+    hero: {
+      id: 'warrior',
+      name: 'Ironclad',
+      health: 80,
+      energy: 3,
+      starterDeck: ['strike', 'defend', 'bash'],
+      currentHealth: 80,
+      maxHealth: 80,
+    },
     deck: [],
     relics: [],
     gold: 0,
-    maxHealth: 80,
     combat: createCombatState(),
-    dungeon: {
-      path: [],
-      currentRoomIndex: 0,
-      act: 1,
-    },
+    dungeonDeck: [],
+    roomChoices: [],
+    stats: { enemiesKilled: 0, cardsPlayed: 0, damageDealt: 0, damageTaken: 0 },
     ...overrides,
   }
 }
 
 function createEffectContext(overrides: Partial<EffectContext> = {}): EffectContext {
   return {
-    sourceCard: createCard('strike'),
-    sourceEntity: 'player',
-    targetEntity: 'enemy_1',
+    source: 'player',
+    cardUid: 'card_strike_001',
+    cardTarget: 'enemy_1',
     ...overrides,
   }
 }
@@ -317,14 +323,14 @@ describe('executeScry', () => {
   it('does_nothing_when_no_combat', () => {
     // Arrange
     const draft = createRunState()
-    draft.combat = undefined
+    draft.combat = null
     const ctx = createEffectContext()
 
     // Act
     executeScry(draft, { type: 'scry', amount: 3 }, ctx)
 
-    // Assert - should not throw
-    expect(draft.combat).toBeUndefined()
+    // Assert - should not throw (combat is null when not in combat)
+    expect(draft.combat).toBeNull()
   })
 })
 
@@ -492,7 +498,7 @@ describe('executeTutor', () => {
   it('does_nothing_when_no_combat', () => {
     // Arrange
     const draft = createRunState()
-    draft.combat = undefined
+    draft.combat = null
     const ctx = createEffectContext()
 
     // Act
@@ -502,8 +508,8 @@ describe('executeTutor', () => {
       destination: 'hand',
     }, ctx)
 
-    // Assert
-    expect(draft.combat).toBeUndefined()
+    // Assert (combat is null when not in combat)
+    expect(draft.combat).toBeNull()
   })
 })
 
@@ -590,14 +596,14 @@ describe('executeUpgrade', () => {
   it('does_nothing_when_no_combat', () => {
     // Arrange
     const draft = createRunState()
-    draft.combat = undefined
+    draft.combat = null
     const ctx = createEffectContext()
 
     // Act
     executeUpgrade(draft, { type: 'upgrade', target: 'hand' }, ctx)
 
-    // Assert
-    expect(draft.combat).toBeUndefined()
+    // Assert (combat is null when not in combat)
+    expect(draft.combat).toBeNull()
   })
 })
 
@@ -765,7 +771,7 @@ describe('executeTransform', () => {
   it('does_nothing_when_no_combat', () => {
     // Arrange
     const draft = createRunState()
-    draft.combat = undefined
+    draft.combat = null
     const ctx = createEffectContext()
 
     // Act
@@ -775,8 +781,8 @@ describe('executeTransform', () => {
       toCardId: 'defend',
     }, ctx)
 
-    // Assert
-    expect(draft.combat).toBeUndefined()
+    // Assert (combat is null when not in combat)
+    expect(draft.combat).toBeNull()
   })
 })
 
@@ -1097,8 +1103,8 @@ describe('handleResolveDiscover', () => {
     draft.combat!.pendingSelection = {
       type: 'discover',
       cards: [
-        { id: 'strike', name: 'Strike', energy: 1, theme: 'attack', target: 'enemy', effects: [] },
-        { id: 'defend', name: 'Defend', energy: 1, theme: 'skill', target: 'self', effects: [] },
+        { id: 'strike', name: 'Strike', description: 'Deal 6 damage.', energy: 1, theme: 'attack', target: 'enemy', effects: [] },
+        { id: 'defend', name: 'Defend', description: 'Gain 5 Block.', energy: 1, theme: 'skill', target: 'self', effects: [] },
       ],
       maxSelect: 1,
       destination: 'hand',
@@ -1119,7 +1125,7 @@ describe('handleResolveDiscover', () => {
     draft.combat!.pendingSelection = {
       type: 'discover',
       cards: [
-        { id: 'bash', name: 'Bash', energy: 2, theme: 'attack', target: 'enemy', effects: [] },
+        { id: 'bash', name: 'Bash', description: 'Deal 8 damage. Apply 2 Vulnerable.', energy: 2, theme: 'attack', target: 'enemy', effects: [] },
       ],
       maxSelect: 1,
       destination: 'drawPile',
@@ -1139,7 +1145,7 @@ describe('handleResolveDiscover', () => {
     draft.combat!.pendingSelection = {
       type: 'discover',
       cards: [
-        { id: 'strike', name: 'Strike', energy: 1, theme: 'attack', target: 'enemy', effects: [] },
+        { id: 'strike', name: 'Strike', description: 'Deal 6 damage.', energy: 1, theme: 'attack', target: 'enemy', effects: [] },
       ],
       maxSelect: 1,
       destination: 'discardPile',
@@ -1159,7 +1165,7 @@ describe('handleResolveDiscover', () => {
     draft.combat!.pendingSelection = {
       type: 'discover',
       cards: [
-        { id: 'strike', name: 'Strike', energy: 1, theme: 'attack', target: 'enemy', effects: [] },
+        { id: 'strike', name: 'Strike', description: 'Deal 6 damage.', energy: 1, theme: 'attack', target: 'enemy', effects: [] },
       ],
       maxSelect: 1,
       destination: 'hand',
@@ -1180,7 +1186,7 @@ describe('handleResolveDiscover', () => {
     draft.combat!.pendingSelection = {
       type: 'discover',
       cards: [
-        { id: 'strike', name: 'Strike', energy: 1, theme: 'attack', target: 'enemy', effects: [] },
+        { id: 'strike', name: 'Strike', description: 'Deal 6 damage.', energy: 1, theme: 'attack', target: 'enemy', effects: [] },
       ],
       maxSelect: 1,
       destination: 'hand',
@@ -1201,7 +1207,7 @@ describe('handleResolveDiscover', () => {
     draft.combat!.pendingSelection = {
       type: 'discover',
       cards: [
-        { id: 'strike', name: 'Strike', energy: 1, theme: 'attack', target: 'enemy', effects: [] },
+        { id: 'strike', name: 'Strike', description: 'Deal 6 damage.', energy: 1, theme: 'attack', target: 'enemy', effects: [] },
       ],
       maxSelect: 1,
       destination: 'hand',
@@ -1220,7 +1226,7 @@ describe('handleResolveDiscover', () => {
     draft.combat!.pendingSelection = {
       type: 'discover',
       cards: [
-        { id: 'strike', name: 'Strike', energy: 1, theme: 'attack', target: 'enemy', effects: [] },
+        { id: 'strike', name: 'Strike', description: 'Deal 6 damage.', energy: 1, theme: 'attack', target: 'enemy', effects: [] },
       ],
       maxSelect: 1,
       destination: 'hand',
@@ -1239,7 +1245,7 @@ describe('handleResolveDiscover', () => {
     draft.combat!.pendingSelection = {
       type: 'discover',
       cards: [
-        { id: 'strike', name: 'Strike', energy: 1, theme: 'attack', target: 'enemy', effects: [] },
+        { id: 'strike', name: 'Strike', description: 'Deal 6 damage.', energy: 1, theme: 'attack', target: 'enemy', effects: [] },
       ],
       maxSelect: 1,
       destination: 'hand',

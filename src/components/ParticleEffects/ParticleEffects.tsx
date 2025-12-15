@@ -155,6 +155,22 @@ const PARTICLE_CONFIG = {
     size: 7,
     gravity: 0.25,
   },
+  heroActivated: {
+    colors: ['#3742fa', '#5352ed', '#70a1ff', '#00d4ff'],
+    count: 18,
+    speed: 6,
+    life: 40,
+    size: 5,
+    gravity: -0.08, // Float upward
+  },
+  heroUltimate: {
+    colors: ['#ffd700', '#ffb347', '#ff6348', '#ffffff', '#fff68f'],
+    count: 30,
+    speed: 10,
+    life: 50,
+    size: 6,
+    gravity: 0.1, // Explosive burst
+  },
 }
 
 export function ParticleEffects({ containerRef }: ParticleEffectsProps) {

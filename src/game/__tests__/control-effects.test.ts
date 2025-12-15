@@ -29,8 +29,8 @@ function createStats(overrides: Partial<RunStats> = {}): RunStats {
     damageTaken: 0,
     cardsPlayed: 0,
     enemiesKilled: 0,
-    floorsCleared: 0,
-    goldEarned: 0,
+    
+    
     ...overrides,
   }
 }
@@ -59,7 +59,7 @@ function createEnemy(overrides: Partial<EnemyEntity> = {}): EnemyEntity {
     block: 0,
     barrier: 0,
     powers: {},
-    intent: { type: 'attack', damage: 10 },
+    intent: { type: 'attack', value: 10 },
     patternIndex: 0,
     ...overrides,
   }
@@ -92,6 +92,11 @@ function createCombat(overrides: Partial<CombatState> = {}): CombatState {
 
 function createHero(overrides: Partial<HeroState> = {}): HeroState {
   return {
+    id: 'warrior',
+    name: 'Ironclad',
+    health: 80,
+    energy: 3,
+    starterDeck: ['strike', 'defend', 'bash'],
     currentHealth: 80,
     maxHealth: 80,
     ...overrides,
@@ -130,7 +135,7 @@ describe('executeConditional', () => {
 
   beforeEach(() => {
     executeEffectMock = vi.fn()
-    setExecuteEffect(executeEffectMock)
+    setExecuteEffect(executeEffectMock as never)
   })
 
   it('executes_then_branch_when_condition_is_true', () => {
@@ -283,7 +288,7 @@ describe('executeRepeat', () => {
 
   beforeEach(() => {
     executeEffectMock = vi.fn()
-    setExecuteEffect(executeEffectMock)
+    setExecuteEffect(executeEffectMock as never)
   })
 
   it('executes_effects_specified_number_of_times', () => {
@@ -419,7 +424,7 @@ describe('executeRandom', () => {
 
   beforeEach(() => {
     executeEffectMock = vi.fn()
-    setExecuteEffect(executeEffectMock)
+    setExecuteEffect(executeEffectMock as never)
   })
 
   it('executes_one_random_choice_uniformly', () => {
@@ -555,7 +560,7 @@ describe('executeSequence', () => {
 
   beforeEach(() => {
     executeEffectMock = vi.fn()
-    setExecuteEffect(executeEffectMock)
+    setExecuteEffect(executeEffectMock as never)
   })
 
   it('executes_effects_in_order', () => {
@@ -624,7 +629,7 @@ describe('executeForEach', () => {
 
   beforeEach(() => {
     executeEffectMock = vi.fn()
-    setExecuteEffect(executeEffectMock)
+    setExecuteEffect(executeEffectMock as never)
   })
 
   it('iterates_over_all_enemies', () => {
@@ -813,7 +818,7 @@ describe('Control Effects Integration', () => {
 
   beforeEach(() => {
     executeEffectMock = vi.fn()
-    setExecuteEffect(executeEffectMock)
+    setExecuteEffect(executeEffectMock as never)
   })
 
   it('nested_conditional_in_repeat', () => {

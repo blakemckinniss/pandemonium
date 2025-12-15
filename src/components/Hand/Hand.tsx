@@ -109,6 +109,7 @@ const HandCard = memo(function HandCard({
         variant="hand"
         theme={def.theme}
         name={def.name}
+        cardId={def.id}
         description={def.description}
         energy={displayCost}
         rarity={def.rarity}

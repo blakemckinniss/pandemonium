@@ -68,6 +68,36 @@ Logic for TreasureScreen (treasure rooms).
 - Handle relic/gold/card acquisition
 - Transition to next room selection
 
+### useVisualEventProcessor
+
+Processes visual events from game state and triggers appropriate animations/particles.
+
+**Responsibilities:**
+- Listen for visual events (damage, heal, card played, etc.)
+- Trigger GSAP animations on DOM elements
+- Emit particles via `emitParticle()`
+- Handle hero ability visual feedback (`heroActivated`, `heroUltimate`)
+- Coordinate screen shake for impactful effects
+
+### useCombatActions
+
+Provides combat action handlers to GameScreen.
+
+**Responsibilities:**
+- Handle card plays (drag-drop resolution)
+- Process end turn actions
+- Manage hero ability activation
+- Coordinate with animation system
+
+### useRoomHandlers
+
+Room navigation and dungeon progression logic.
+
+**Responsibilities:**
+- Handle room selection from dungeon deck
+- Trigger room-specific phases (combat, campfire, treasure)
+- Track floor progression
+
 ## Pattern
 
 All hooks follow the same pattern:

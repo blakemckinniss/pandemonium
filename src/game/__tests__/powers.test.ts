@@ -40,7 +40,7 @@ function createEnemy(overrides: Partial<EnemyEntity> = {}): EnemyEntity {
     block: 0,
     barrier: 0,
     powers: {},
-    intent: { type: 'attack', damage: 10 },
+    intent: { type: 'attack', value: 10 },
     patternIndex: 0,
     ...overrides,
   }

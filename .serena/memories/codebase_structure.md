@@ -31,7 +31,8 @@ src/
 │   │   ├── enemy.ts        # AI & intents
 │   │   ├── damage.ts       # damage calculation
 │   │   ├── energy.ts       # energy management
-│   │   └── rooms.ts        # room transitions
+│   │   ├── rooms.ts        # room transitions
+│   │   └── hero.ts         # Hero ability handlers
 │   └── __tests__/          # Game logic tests
 ├── content/
 │   └── rooms.ts            # Room definitions (ROOMS array)
@@ -54,17 +55,23 @@ src/
 │       ├── TreasureScreen.tsx  # Treasure rooms
 │       ├── MenuScreen.tsx      # Main menu
 │       └── DeckBuilderScreen.tsx # Deck viewing/building
-├── hooks/                  # Custom React hooks
+├── hooks/                  # Custom React hooks (8 files)
 │   ├── useAnimationCoordinator.ts # GSAP animation orchestration
+│   ├── useCombatActions.ts        # Combat action handlers
+│   ├── useRoomHandlers.ts         # Room navigation logic
 │   ├── useSelectionHandlers.ts    # Card selection UI logic
+│   ├── useVisualEventProcessor.ts # Visual event processing
 │   ├── useRewardHandlers.ts       # Reward screen logic
 │   ├── useCampfireHandlers.ts     # Campfire actions
 │   └── useTreasureHandlers.ts     # Treasure room logic
+├── config/
+│   └── themes.ts           # Card theme configs for image generation
 ├── lib/
 │   ├── animations.ts       # GSAP registered effects
 │   ├── dragdrop.ts         # Draggable wrapper
 │   ├── effects.ts          # Target resolution, condition evaluation
 │   ├── groq.ts             # Groq SDK wrapper
+│   ├── image-gen.ts        # ComfyUI image generation client
 │   └── utils.ts            # generateUid, randomInt, etc.
 ├── stores/
 │   ├── metaStore.ts        # Zustand (unlocks, stats, localStorage)
@@ -91,6 +98,9 @@ src/
 | `src/lib/animations.ts` | GSAP effect definitions |
 | `src/lib/effects.ts` | Target resolution, condition evaluation |
 | `src/hooks/useAnimationCoordinator.ts` | Animation orchestration |
+| `src/lib/image-gen.ts` | ComfyUI image generation client |
+| `src/game/handlers/hero.ts` | Hero ability handlers |
+| `src/config/themes.ts` | Card theme configs for generation |
 
 ## Component Architecture
 

@@ -618,7 +618,9 @@ describe('Relics with Conditional Effects', () => {
     if (effect?.type === 'conditional') {
       expect(effect.condition).toBeDefined()
       expect(effect.condition.type).toBe('turn')
-      expect(effect.condition.value).toBe(3)
+      if (effect.condition.type === 'turn') {
+        expect(effect.condition.value).toBe(3)
+      }
       expect(effect.then[0].type).toBe('block')
     }
   })

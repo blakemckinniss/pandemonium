@@ -1,3 +1,10 @@
+# Dependencies
+node_modules
+
+# Build output
+dist
+dist-ssr
+
 # Logs
 logs
 *.log
@@ -7,19 +14,57 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
-node_modules
-dist
-dist-ssr
-*.local
+# Environment variables (contains API keys)
+.env
+.env.local
+.env.*.local
 
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json
 .idea
-.DS_Store
 *.suo
 *.ntvs*
 *.njsproj
 *.sln
 *.sw?
-.env
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Python (services/image-gen)
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+.eggs/
+*.egg
+.venv/
+venv/
+ENV/
+.ruff_cache/
+
+# Image generation service - generated outputs
+services/image-gen/generated/
+services/image-gen/newbie-repo/
+
+# Claude Code local files
+.claude/tmp/
+.claude/plan.md
+
+# Serena MCP memories (project-specific analysis)
+.serena/memories/
+
+# Playwright MCP browser data
+.playwright-mcp/
+
+# Test coverage
+coverage/
+*.lcov
+
+# Local Vite config
+*.local
+
+# TypeScript cache
+*.tsbuildinfo

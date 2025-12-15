@@ -50,7 +50,7 @@ export function CardPileModal({ isOpen, onClose, pileType, cards }: CardPileModa
 
   const sortedGroups = Object.values(groupedCards).sort((a, b) => {
     // Sort by theme, then name
-    const themeOrder = { attack: 0, skill: 1, power: 2, curse: 3, status: 4 }
+    const themeOrder: Record<string, number> = { attack: 0, skill: 1, power: 2, curse: 3, status: 4, hero: 5, enemy: 6 }
     const aOrder = themeOrder[a.def?.theme ?? 'status'] ?? 5
     const bOrder = themeOrder[b.def?.theme ?? 'status'] ?? 5
     if (aOrder !== bOrder) return aOrder - bOrder

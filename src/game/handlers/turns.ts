@@ -6,6 +6,32 @@ import { getCardDefinition } from '../cards'
 import { getRelicDefinition } from '../relics'
 import { executeEffect } from '../effects/engine'
 
+/**
+ * Charge hero ultimate based on chargeOn event
+ */
+export function chargeHeroUltimate(draft: RunState, event: 'turnStart' | 'turnEnd' | 'cardPlayed' | 'damage'): void {
+  if (!draft.combat) return
+  const player = draft.combat.player
+  if (!player.heroCardId) return
+
+  const heroCard = getCardDefinition(player.heroCardId)
+  if (!heroCard?.ultimate || heroCard.ultimate.chargeOn !== event) return
+
+  // Already at max charges or ready
+  if (player.ultimateReady) return
+
+  player.ultimateCharges = (player.ultimateCharges ?? 0) + 1
+
+  // Check if ultimate is now ready
+  if (player.ultimateCharges >= heroCard.ultimate.chargesRequired) {
+    player.ultimateReady = true
+    emitVisual(draft, {
+      type: 'heroUltimateReady',
+      heroCardId: player.heroCardId,
+    })
+  }
+}
+
 // Forward declaration - will be injected to avoid circular deps
 let executePowerTriggers: (draft: RunState, entity: Entity, event: string, sourceId?: string) => void
 
@@ -51,6 +77,9 @@ export function handleStartTurn(draft: RunState): void {
   // Reset energy
   combat.player.energy = combat.player.maxEnergy
 
+  // Reset hero activated ability for new turn
+  combat.player.activatedUsedThisTurn = false
+
   // Clear block (unless player has Barricade)
   if (!combat.player.powers['barricade']) {
     combat.player.block = 0
@@ -67,8 +96,13 @@ export function handleStartTurn(draft: RunState): void {
   // Execute relic triggers for turn start
   executeRelicTriggers(draft, 'onTurnStart')
 
-  // Draw 5 cards
-  drawCardsInternal(combat, 5)
+  // Charge hero ultimate if chargeOn is 'turnStart'
+  chargeHeroUltimate(draft, 'turnStart')
+
+  // Draw cards (use hero's drawPerTurn if available)
+  const heroCard = combat.player.heroCardId ? getCardDefinition(combat.player.heroCardId) : null
+  const drawAmount = heroCard?.heroStats?.drawPerTurn ?? 5
+  drawCardsInternal(combat, drawAmount)
 }
 
 export function handleEndTurn(draft: RunState): void {
@@ -83,6 +117,9 @@ export function handleEndTurn(draft: RunState): void {
 
   // Execute relic triggers for turn end
   executeRelicTriggers(draft, 'onTurnEnd')
+
+  // Charge hero ultimate if chargeOn is 'turnEnd'
+  chargeHeroUltimate(draft, 'turnEnd')
 
   // Decay powers at turn end
   decayPowers(combat.player, 'turnEnd')

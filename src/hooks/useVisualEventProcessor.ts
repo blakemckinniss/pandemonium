@@ -552,6 +552,68 @@ export function useVisualEventProcessor({
         }
         break
       }
+      case 'heroActivated': {
+        const playerEl = queryContainer('[data-target="player"]')
+        if (playerEl) {
+          // Blue energy burst for activated ability
+          emitParticle(playerEl, 'heroActivated')
+          emitParticle(playerEl, 'energy')
+          effects.pulse(playerEl, {
+            color: 'oklch(0.6 0.2 250)',
+            scale: 1.05,
+          })
+        }
+        break
+      }
+      case 'heroUltimate': {
+        const playerEl = queryContainer('[data-target="player"]')
+        if (playerEl) {
+          // Golden explosion for ultimate ability
+          for (let i = 0; i < 3; i++) {
+            setTimeout(() => emitParticle(playerEl, 'heroUltimate'), i * 60)
+          }
+          emitParticle(playerEl, 'critical')
+          emitParticle(playerEl, 'combo')
+          effects.pulse(playerEl, {
+            color: 'oklch(0.75 0.2 85)',
+            scale: 1.1,
+          })
+          // Screen shake for ultimate
+          if (containerRef.current) {
+            effects.shake(containerRef.current, { intensity: 6 })
+          }
+        }
+        break
+      }
+      case 'heroUltimateReady': {
+        const playerEl = queryContainer('[data-target="player"]')
+        if (playerEl) {
+          // Pulsing golden glow when ultimate becomes ready
+          emitParticle(playerEl, 'heroUltimate')
+          emitParticle(playerEl, 'gold')
+          effects.pulse(playerEl, {
+            color: 'oklch(0.8 0.22 85)',
+            scale: 1.08,
+          })
+          // Subtle screen effect
+          if (containerRef.current) {
+            effects.shake(containerRef.current, { intensity: 3 })
+          }
+        }
+        break
+      }
+      case 'heroUltimateCharge': {
+        const playerEl = queryContainer('[data-target="player"]')
+        if (playerEl) {
+          // Subtle energy accumulation effect
+          emitParticle(playerEl, 'energy')
+          effects.pulse(playerEl, {
+            color: 'oklch(0.65 0.15 70)',
+            scale: 1.02,
+          })
+        }
+        break
+      }
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [spawnCombatNumber, queryContainer, queryHand, containerRef, setTriggeredRelicId])

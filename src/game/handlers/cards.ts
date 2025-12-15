@@ -3,6 +3,7 @@ import type { RunState, Entity, EffectContext } from '../../types'
 import { getCardDefinition } from '../cards'
 import { getEffectiveEnergyCostNumber } from '../../lib/effects'
 import { drawCardsInternal } from './shared'
+import { chargeHeroUltimate } from './turns'
 
 // Forward declarations - will be injected to avoid circular deps
 let executeEffect: (draft: RunState, effect: import('../../types').AtomicEffect, ctx: EffectContext) => void
@@ -104,6 +105,9 @@ export function handlePlayCard(
       executePowerTriggers(draft, combat.player, 'onPowerPlayed')
     }
   }
+
+  // Charge hero ultimate if chargeOn is 'cardPlayed'
+  chargeHeroUltimate(draft, 'cardPlayed')
 
   // Power cards exhaust after play (persistent effect, removed from deck)
   if (cardDef.theme === 'power') {

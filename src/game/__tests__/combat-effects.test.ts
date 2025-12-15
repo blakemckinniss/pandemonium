@@ -17,7 +17,7 @@ import type {
   EnemyEntity,
   EffectContext,
   AtomicEffect,
-  Entity,
+
 } from '../../types'
 
 // ============================================================================
@@ -48,7 +48,7 @@ function createEnemy(overrides: Partial<EnemyEntity> = {}): EnemyEntity {
     block: 0,
     barrier: 0,
     powers: {},
-    intent: { type: 'attack', damage: 10 },
+    intent: { type: 'attack', value: 10 },
     patternIndex: 0,
     ...overrides,
   }
@@ -489,7 +489,7 @@ describe('executeDamage', () => {
       const ctx = createEffectContext({ cardTarget: 'enemy_1' })
 
       let hitEffectExecuted = false
-      setExecuteEffect((draft, eff, context) => {
+      setExecuteEffect((_draft, eff, context) => {
         if (eff.type === 'draw') {
           hitEffectExecuted = true
           expect(context.currentTarget).toBe('enemy_1')
@@ -539,7 +539,7 @@ describe('executeDamage', () => {
       const ctx = createEffectContext({ cardTarget: 'enemy_1' })
 
       let attackTriggered = false
-      setExecutePowerTriggers((draft, entity, event) => {
+      setExecutePowerTriggers((_draft, entity, event) => {
         if (entity.id === 'player' && event === 'onAttack') {
           attackTriggered = true
         }
@@ -560,7 +560,7 @@ describe('executeDamage', () => {
 
       let attackedTriggered = false
       let damagedTriggered = false
-      setExecutePowerTriggers((draft, entity, event) => {
+      setExecutePowerTriggers((_draft, entity, event) => {
         if (entity.id === 'enemy_1' && event === 'onAttacked') {
           attackedTriggered = true
         }
@@ -588,7 +588,7 @@ describe('executeDamage', () => {
       const ctx = createEffectContext({ cardTarget: 'enemy_1' })
 
       let killTriggered = false
-      setExecutePowerTriggers((draft, entity, event) => {
+      setExecutePowerTriggers((_draft, entity, event) => {
         if (entity.id === 'player' && event === 'onKill') {
           killTriggered = true
         }
@@ -809,7 +809,7 @@ describe('executeBlock', () => {
       const ctx = createEffectContext()
 
       let blockTriggered = false
-      setExecutePowerTriggers((draft, entity, event) => {
+      setExecutePowerTriggers((_draft, entity, event) => {
         if (entity.id === 'player' && event === 'onBlock') {
           blockTriggered = true
         }

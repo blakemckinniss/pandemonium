@@ -68,7 +68,7 @@ function createEnemy(overrides: Partial<EnemyEntity> = {}): EnemyEntity {
     block: 0,
     barrier: 0,
     powers: {},
-    intent: { type: 'attack', damage: 10 },
+    intent: { type: 'attack', value: 10 },
     patternIndex: 0,
     ...overrides,
   }
@@ -1390,7 +1390,7 @@ describe('executeModifyCost', () => {
 describe('executeReplayCard', () => {
   beforeEach(() => {
     // Set up the executeEffect function for recursive calls
-    const mockExecuteEffect = vi.fn((draft: RunState, effect: AtomicEffect) => {
+    const mockExecuteEffect = vi.fn((_draft: RunState, effect: AtomicEffect) => {
       // Simple mock that just tracks calls
       if (effect.type === 'damage') {
         // For testing purposes, just verify it's called

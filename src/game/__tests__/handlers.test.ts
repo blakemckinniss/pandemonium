@@ -5,10 +5,16 @@ import type {
   CombatState,
   PlayerEntity,
   EnemyEntity,
-  RoomInstance,
   RunStats,
   HeroState,
 } from '../../types'
+
+// Local type for tests - room instances
+interface RoomInstance {
+  uid: string
+  definitionId: string
+  revealed: boolean
+}
 
 // ============================================================================
 // Test Factories
@@ -20,8 +26,8 @@ function createStats(overrides: Partial<RunStats> = {}): RunStats {
     damageTaken: 0,
     cardsPlayed: 0,
     enemiesKilled: 0,
-    floorsCleared: 0,
-    goldEarned: 0,
+    
+    
     ...overrides,
   }
 }
@@ -50,7 +56,7 @@ function createEnemy(overrides: Partial<EnemyEntity> = {}): EnemyEntity {
     block: 0,
     barrier: 0,
     powers: {},
-    intent: { type: 'attack', damage: 10 },
+    intent: { type: 'attack', value: 10 },
     patternIndex: 0,
     ...overrides,
   }
@@ -83,6 +89,11 @@ function createCombat(overrides: Partial<CombatState> = {}): CombatState {
 
 function createHero(overrides: Partial<HeroState> = {}): HeroState {
   return {
+    id: 'warrior',
+    name: 'Ironclad',
+    health: 80,
+    energy: 3,
+    starterDeck: ['strike', 'defend', 'bash'],
     currentHealth: 80,
     maxHealth: 80,
     ...overrides,

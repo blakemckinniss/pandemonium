@@ -8,6 +8,16 @@
 
 Slay the Spire inspired roguelike card game with drag-and-drop combat.
 
+## MVP Policy: Scorched Earth
+
+**NO backwards compatibility.** This is MVP - move fast, break things:
+- Breaking schema changes? Wipe the database, don't migrate
+- Breaking game logic? Delete old code, don't support both paths
+- No version detection, no graceful degradation, no legacy support
+- If IndexedDB needs reset: `indexedDB.deleteDatabase('PandemoniumDB')`
+
+This policy applies until explicit transition to stable release.
+
 ## Tech Stack
 
 | Layer | Technology |

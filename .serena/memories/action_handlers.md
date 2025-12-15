@@ -17,6 +17,7 @@ src/game/handlers/
 ├── damage.ts    # Damage calculation
 ├── energy.ts    # Energy management
 ├── rooms.ts     # Room transitions
+├── hero.ts      # Hero ability handlers
 ```
 
 ## Handler Pattern
