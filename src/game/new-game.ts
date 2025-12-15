@@ -252,14 +252,45 @@ export async function createNewRun(
   }
 }
 
+// Monster tiers for dungeon generation - lower tiers are weaker
+const MONSTER_TIERS: Record<string, string[]> = {
+  tier_1: ['slime', 'storm_sprite', 'fire_imp', 'water_slime'],
+  tier_2: ['cultist', 'jaw_worm', 'frost_elemental', 'void_cultist'],
+  tier_3: ['jaw_worm', 'cultist', 'frost_elemental', 'void_cultist'], // Harder versions, same pool for now
+}
+
+/**
+ * Resolve a monster ID or tier hint to actual monster IDs.
+ * Tier hints like "tier_1" get resolved to random monsters from that tier.
+ */
+function resolveMonsterIds(ids: string[]): string[] {
+  return ids.flatMap((id) => {
+    if (id.startsWith('tier_')) {
+      const tier = MONSTER_TIERS[id]
+      if (tier && tier.length > 0) {
+        // Pick 1-2 random monsters from the tier
+        const count = Math.random() > 0.5 ? 2 : 1
+        const result: string[] = []
+        for (let i = 0; i < count; i++) {
+          result.push(tier[Math.floor(Math.random() * tier.length)])
+        }
+        return result
+      }
+    }
+    return [id] // Return as-is if not a tier hint
+  })
+}
+
 /**
  * Create enemies from a room definition.
  * If enemyCardIds is provided, use those instead of room definition's monsters.
+ * Supports tier hints (tier_1, tier_2, tier_3) that resolve to actual monsters.
  */
 export function createEnemiesFromRoom(roomId: string, enemyCardIds?: string[]): EnemyEntity[] {
   // Use override enemies if provided
   if (enemyCardIds && enemyCardIds.length > 0) {
-    return enemyCardIds.map((id) => createEnemy(id))
+    const resolvedIds = resolveMonsterIds(enemyCardIds)
+    return resolvedIds.map((id) => createEnemy(id))
   }
 
   // Fall back to room definition monsters

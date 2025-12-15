@@ -1,4 +1,4 @@
-import type { RoomCard, RoomType, DungeonDeckDefinition } from '../types'
+import type { RoomCard, RoomType, DungeonDeckDefinition, DungeonRoom } from '../types'
 import { getRoomsByType } from '../content/rooms'
 import { generateUid } from '../lib/utils'
 
@@ -142,6 +142,26 @@ function shuffleArray<T>(array: T[]): T[] {
   return result
 }
 
+// Room definition IDs by type - must match ROOMS in content/rooms.ts
+const ROOM_DEFINITIONS_BY_TYPE: Record<string, string[]> = {
+  combat: ['slime_pit', 'cultist_lair', 'jaw_worm_nest', 'mixed_combat', 'infernal_pit', 'frozen_cavern', 'storm_nexus', 'void_shrine', 'flooded_chamber'],
+  elite: ['elite_guardian'],
+  boss: ['boss_heart'],
+  campfire: ['campfire'],
+  treasure: ['treasure_small', 'treasure_large'],
+  event: ['campfire'], // Fallback to campfire for events
+  shop: ['treasure_small'], // Fallback to treasure for shops
+}
+
+/**
+ * Map a DungeonRoom type to a valid room definition ID.
+ * Uses randomization within type for variety.
+ */
+function getDefinitionIdForRoom(room: DungeonRoom): string {
+  const options = ROOM_DEFINITIONS_BY_TYPE[room.type] ?? ROOM_DEFINITIONS_BY_TYPE.combat
+  return options[Math.floor(Math.random() * options.length)]
+}
+
 /**
  * Convert a DungeonDeckDefinition into playable RoomCard array.
  * Maps DungeonRoom entries to RoomCard format, preserving enemyCardIds for combat override.
@@ -149,7 +169,7 @@ function shuffleArray<T>(array: T[]): T[] {
 export function createDungeonDeckFromDefinition(definition: DungeonDeckDefinition): RoomCard[] {
   return definition.rooms.map((room) => ({
     uid: generateUid(),
-    definitionId: room.id,
+    definitionId: getDefinitionIdForRoom(room),
     revealed: false,
     enemyCardIds: room.enemyCardIds,
   }))
