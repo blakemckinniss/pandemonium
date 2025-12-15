@@ -852,7 +852,7 @@ export interface OwnedDungeonDeck {
 // ============================================
 
 export type TurnPhase = 'playerTurn' | 'enemyTurn' | 'victory' | 'defeat'
-export type GamePhase = 'menu' | 'roomSelect' | 'combat' | 'reward' | 'campfire' | 'treasure' | 'gameOver'
+export type GamePhase = 'menu' | 'roomSelect' | 'combat' | 'reward' | 'campfire' | 'treasure' | 'dungeonComplete' | 'gameOver'
 export type AppScreen = 'menu' | 'deckBuilder' | 'game'
 
 // Pending player selections (for scry, tutor, etc.)
@@ -913,6 +913,7 @@ export interface RunState {
   combat: CombatState | null
   dungeonDeck: RoomCard[]
   roomChoices: RoomCard[]
+  currentRoomId?: string // The room definition ID of current/just-completed room
   gold: number
   stats: RunStats
   // Dungeon deck tracking (for roguelike ownership)

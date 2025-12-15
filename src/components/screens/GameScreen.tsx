@@ -19,6 +19,7 @@ import type { RunState } from '../../types'
 import { getCardDefinition } from '../../game/cards'
 import { createNewRun } from '../../game/new-game'
 import { getRoomDefinition } from '../../content/rooms'
+import { handleDungeonBeaten } from '../../game/handlers/rooms'
 import { getEnergyCostNumber } from '../../lib/effects'
 import { gsap } from '../../lib/animations'
 import { enableDragDrop, disableDragDrop } from '../../lib/dragdrop'
@@ -46,6 +47,7 @@ export function GameScreen({ deckId, heroId, dungeonDeckId, onReturnToMenu }: Ga
   const [currentRoomId, setCurrentRoomId] = useState<string | null>(null)
   const [pileModalOpen, setPileModalOpen] = useState<PileType | null>(null)
   const [triggeredRelicId, setTriggeredRelicId] = useState<string | null>(null)
+  const [dungeonReward, setDungeonReward] = useState<number | null>(null)
   const prevHealthRef = useRef<Record<string, number>>({})
   const victoryRef = useRef<HTMLDivElement>(null)
   const defeatRef = useRef<HTMLDivElement>(null)
@@ -212,17 +214,31 @@ export function GameScreen({ deckId, heroId, dungeonDeckId, onReturnToMenu }: Ga
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [state, isAnimating])
 
-  // Handle victory transition to reward
+  // Handle victory transition to reward or dungeon complete
   useEffect(() => {
     if (state?.combat?.phase === 'victory') {
-      setTimeout(() => {
-        setState((prev) => {
-          if (!prev) return prev
-          return { ...prev, gamePhase: 'reward', combat: null }
-        })
+      // Check if this was a boss room (dungeon complete)
+      const isBoss = currentRoomId?.includes('boss') ?? false
+
+      setTimeout(async () => {
+        if (isBoss && state) {
+          // Boss defeated - dungeon complete!
+          const { goldReward } = await handleDungeonBeaten(state, 3) // TODO: Get actual difficulty
+          setDungeonReward(goldReward)
+          setState((prev) => {
+            if (!prev) return prev
+            return { ...prev, gamePhase: 'dungeonComplete', combat: null, gold: prev.gold + goldReward }
+          })
+        } else {
+          // Normal combat - go to reward screen
+          setState((prev) => {
+            if (!prev) return prev
+            return { ...prev, gamePhase: 'reward', combat: null }
+          })
+        }
       }, 1500)
     }
-  }, [state?.combat?.phase])
+  }, [state?.combat?.phase, currentRoomId, state])
 
   // Victory animation
   useEffect(() => {
@@ -414,6 +430,42 @@ export function GameScreen({ deckId, heroId, dungeonDeckId, onReturnToMenu }: Ga
         onSelectRelic={treasureHandlers.handleTreasureSelectRelic}
         onSkip={treasureHandlers.handleTreasureSkip}
       />
+    )
+  }
+
+  // Dungeon complete (boss defeated)
+  if (state.gamePhase === 'dungeonComplete') {
+    return (
+      <div className="h-screen flex flex-col items-center justify-center bg-gradient-to-b from-amber-900/20 to-gray-950">
+        <UnlockNotification unlocks={pendingUnlocks} onComplete={handleUnlocksDismissed} />
+        <div className="text-center">
+          <div className="text-6xl mb-4">👑</div>
+          <h1 className="text-5xl font-bold text-energy mb-4">Dungeon Conquered!</h1>
+          <p className="text-xl text-gray-300 mb-6">You have defeated the dungeon boss!</p>
+
+          <div className="bg-gray-800/50 rounded-xl p-6 mb-8 border border-energy/30">
+            <h2 className="text-2xl font-bold text-energy mb-4">Rewards</h2>
+            <div className="flex items-center justify-center gap-2 text-3xl">
+              <Icon icon="mdi:gold" className="text-energy" />
+              <span className="text-energy font-bold">+{dungeonReward ?? 0}</span>
+            </div>
+            <p className="text-gray-400 mt-2">Total Gold: {state.gold}</p>
+          </div>
+
+          <div className="text-sm text-gray-500 mb-8 space-y-1">
+            <p>Floors Cleared: {state.floor}</p>
+            <p>Enemies Slain: {state.stats.enemiesKilled}</p>
+            <p>Damage Dealt: {state.stats.damageDealt}</p>
+          </div>
+
+          <button
+            onClick={handleRestart}
+            className="px-8 py-3 bg-energy text-black font-bold rounded-lg text-lg hover:brightness-110 transition"
+          >
+            Return to Menu
+          </button>
+        </div>
+      </div>
     )
   }
 
