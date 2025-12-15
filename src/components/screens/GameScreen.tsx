@@ -35,10 +35,12 @@ import { useRoomHandlers } from '../../hooks/useRoomHandlers'
 
 interface GameScreenProps {
   deckId?: string | null
+  heroId?: string
+  dungeonDeckId?: string
   onReturnToMenu?: () => void
 }
 
-export function GameScreen({ deckId, onReturnToMenu }: GameScreenProps) {
+export function GameScreen({ deckId, heroId, dungeonDeckId, onReturnToMenu }: GameScreenProps) {
   const [state, setState] = useState<RunState | null>(null)
   const [pendingUnlocks, setPendingUnlocks] = useState<string[]>([])
   const [currentRoomId, setCurrentRoomId] = useState<string | null>(null)
@@ -71,8 +73,8 @@ export function GameScreen({ deckId, onReturnToMenu }: GameScreenProps) {
     setTriggeredRelicId,
   })
 
-  // Combat actions (play card, end turn)
-  const { handleDragPlayCard, handleClickPlayCard, handleEndTurn } = useCombatActions({
+  // Combat actions (play card, end turn, hero abilities)
+  const { handleDragPlayCard, handleClickPlayCard, handleEndTurn, handleUseActivated, handleUseUltimate } = useCombatActions({
     combat: state?.combat ?? null,
     isAnimating,
     setState,
@@ -108,10 +110,10 @@ export function GameScreen({ deckId, onReturnToMenu }: GameScreenProps) {
         if (deck) customCardIds = deck.cardIds
       }
 
-      setState(createNewRun('warrior', customCardIds))
+      setState(createNewRun(heroId ?? 'hero_ironclad', customCardIds, dungeonDeckId))
     }
     void init()
-  }, [deckId])
+  }, [deckId, heroId, dungeonDeckId])
 
   // Animate cards and visual cues when a new turn starts
   useEffect(() => {
@@ -326,7 +328,7 @@ export function GameScreen({ deckId, onReturnToMenu }: GameScreenProps) {
       floor: state.floor,
       gold: state.gold,
       enemiesKilled: state.stats.enemiesKilled,
-      heroId: state.hero.id,
+      heroId: state.hero.heroCardId ?? state.hero.id ?? 'unknown',
     }
 
     // Record in meta store and check unlocks
@@ -342,7 +344,7 @@ export function GameScreen({ deckId, onReturnToMenu }: GameScreenProps) {
     void saveRun({
       startedAt: runStartRef.current,
       endedAt: new Date(),
-      heroId: state.hero.id,
+      heroId: state.hero.heroCardId ?? state.hero.id ?? 'unknown',
       won: isWin,
       floor: state.floor,
       gold: state.gold,
@@ -525,7 +527,12 @@ export function GameScreen({ deckId, onReturnToMenu }: GameScreenProps) {
 
       {/* Combat field - centered */}
       <div className="flex-1 flex flex-col justify-center">
-        <Field player={combat.player} enemies={combat.enemies} />
+        <Field
+          player={combat.player}
+          enemies={combat.enemies}
+          onUseActivated={handleUseActivated}
+          onUseUltimate={handleUseUltimate}
+        />
       </div>
 
       {/* Hand area - no border/divider */}

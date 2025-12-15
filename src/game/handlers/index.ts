@@ -5,5 +5,15 @@ export { handleStartTurn, handleEndTurn, setExecutePowerTriggers as setTurnsPowe
 export { handleDrawCards, handlePlayCard, handleDiscardCard, handleDiscardHand, setExecuteEffect as setCardsExecuteEffect, setExecutePowerTriggers as setCardsPowerTriggers } from './cards'
 export { handleDamage, handleHeal, handleAddBlock } from './damage'
 export { handleSpendEnergy, handleGainEnergy, handleApplyPower } from './energy'
-export { handleEnemyAction, setExecutePowerTriggers as setEnemyPowerTriggers } from './enemy'
-export { handleSelectRoom, handleDealRoomChoices } from './rooms'
+export { handleEnemyAction, setExecutePowerTriggers as setEnemyPowerTriggers, setExecuteEffect as setEnemyExecuteEffect } from './enemy'
+export {
+  handleSelectRoom,
+  handleDealRoomChoices,
+  handleDungeonBeaten,
+  handleDungeonAbandoned,
+  handlePlayerDeath,
+  handleStartDungeonRun,
+  getAbandonCostPreview,
+} from './rooms'
+export { handleUseActivatedAbility, handleUseUltimateAbility, canUseActivatedAbility, canUseUltimateAbility } from './hero'
+export { chargeHeroUltimate } from './turns'

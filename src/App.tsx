@@ -12,6 +12,8 @@ function App() {
   const [ready, setReady] = useState(false)
   const [currentScreen, setCurrentScreen] = useState<AppScreen>('menu')
   const [selectedDeckId, setSelectedDeckId] = useState<string | null>(null)
+  const [selectedHeroId, setSelectedHeroId] = useState<string>('hero_ironclad')
+  const [selectedDungeonId, setSelectedDungeonId] = useState<string | undefined>(undefined)
 
   useEffect(() => {
     void loadGeneratedCardsIntoRegistry()
@@ -23,13 +25,17 @@ function App() {
 
   if (!ready) return null
 
-  const handleStartRun = (deckId: string | null) => {
+  const handleStartRun = (deckId: string | null, heroId: string, dungeonDeckId?: string) => {
     setSelectedDeckId(deckId)
+    setSelectedHeroId(heroId)
+    setSelectedDungeonId(dungeonDeckId)
     setCurrentScreen('game')
   }
 
   const handleReturnToMenu = () => {
     setSelectedDeckId(null)
+    setSelectedHeroId('hero_ironclad')
+    setSelectedDungeonId(undefined)
     setCurrentScreen('menu')
   }
 
@@ -46,7 +52,7 @@ function App() {
       case 'deckBuilder':
         return <DeckBuilderScreen onBack={() => setCurrentScreen('menu')} />
       case 'game':
-        return <GameScreen deckId={selectedDeckId} onReturnToMenu={handleReturnToMenu} />
+        return <GameScreen deckId={selectedDeckId} heroId={selectedHeroId} dungeonDeckId={selectedDungeonId} onReturnToMenu={handleReturnToMenu} />
     }
   }
 

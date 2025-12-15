@@ -3,6 +3,7 @@ import { createCardInstance } from './actions'
 import { generateUid, randomInt } from '../lib/utils'
 import { createDungeonDeck, drawRoomChoices } from './dungeon-deck'
 import { getRoomDefinition } from '../content/rooms'
+import { getCardDefinition, getEnemyCardById } from './cards'
 
 // ============================================
 // HERO DEFINITIONS
@@ -14,27 +15,11 @@ export const HEROES: Record<string, HeroDefinition> = {
     name: 'Ironclad',
     health: 80,
     energy: 3,
+    // Minimal starter deck - player builds better decks from collection
     starterDeck: [
-      // Core strikes (10)
-      'strike', 'strike', 'strike', 'strike', 'strike',
-      'strike', 'strike', 'strike', 'strike', 'strike',
-      // Core defends (8)
+      'strike', 'strike', 'strike', 'strike',
       'defend', 'defend', 'defend', 'defend',
-      'defend', 'defend', 'defend', 'defend',
-      // Special attacks (10)
       'bash', 'bash',
-      'cleave', 'cleave',
-      'pommel_strike', 'pommel_strike',  // Draw cards
-      'twin_strike', 'twin_strike',
-      'uppercut', 'carnage',
-      // Skills (8)
-      'shrug_it_off', 'shrug_it_off',
-      'battle_trance', 'battle_trance',  // Draw cards
-      'armaments', 'armaments',
-      'true_grit', 'bloodletting',
-      // Powers (4)
-      'inflame', 'inflame',
-      'metallicize', 'demon_form',
     ],
   },
 }
@@ -128,6 +113,38 @@ export const MONSTERS: Record<string, MonsterTemplate> = {
 // ============================================
 
 export function createEnemy(templateId: string): EnemyEntity {
+  // First, check if templateId is an enemy card
+  const enemyCard = getEnemyCardById(templateId)
+  if (enemyCard?.enemyStats) {
+    const { healthRange, baseDamage, energy, element, vulnerabilities, resistances, innateStatus } = enemyCard.enemyStats
+    const health = randomInt(healthRange[0], healthRange[1])
+
+    return {
+      id: generateUid(),
+      cardId: enemyCard.id, // Reference to card definition for abilities
+      name: enemyCard.name,
+      currentHealth: health,
+      maxHealth: health,
+      block: 0,
+      barrier: 0,
+      powers: {},
+      intent: { type: 'attack', value: baseDamage },
+      patternIndex: 0,
+      // Energy pool (like heroes)
+      energy: energy,
+      maxEnergy: energy,
+      // Ability state
+      abilityCooldown: 0,
+      ultimateTriggered: false,
+      // Elemental properties
+      element,
+      vulnerabilities,
+      resistances,
+      innateStatus,
+    }
+  }
+
+  // Fall back to legacy MONSTERS lookup
   const template = MONSTERS[templateId]
   if (!template) {
     throw new Error(`Unknown monster: ${templateId}`)
@@ -152,14 +169,43 @@ export function createEnemy(templateId: string): EnemyEntity {
   }
 }
 
-export function createNewRun(
-  heroId: string = 'warrior',
-  customCardIds?: string[]
-): RunState {
-  const hero = HEROES[heroId]
-  if (!hero) {
-    throw new Error(`Unknown hero: ${heroId}`)
+/**
+ * Resolve hero definition from either a hero card ID or legacy HEROES lookup
+ */
+function resolveHero(heroId: string): { def: HeroDefinition; heroCardId?: string } {
+  // First, check if heroId is a hero card (theme: 'hero')
+  const heroCard = getCardDefinition(heroId)
+  if (heroCard?.theme === 'hero' && heroCard.heroStats) {
+    // Convert hero card to HeroDefinition
+    return {
+      def: {
+        id: heroCard.id,
+        name: heroCard.name,
+        health: heroCard.heroStats.health,
+        energy: heroCard.heroStats.energy,
+        // Hero cards use TCG collection - no preset starter deck
+        starterDeck: ['strike', 'strike', 'strike', 'strike', 'defend', 'defend', 'defend', 'defend', 'bash', 'bash'],
+      },
+      heroCardId: heroCard.id,
+    }
   }
+
+  // Fall back to legacy HEROES lookup
+  const legacyHero = HEROES[heroId]
+  if (legacyHero) {
+    return { def: legacyHero }
+  }
+
+  // Default to warrior if not found
+  return { def: HEROES['warrior'] }
+}
+
+export function createNewRun(
+  heroId: string = 'hero_ironclad',
+  customCardIds?: string[],
+  dungeonDeckId?: string
+): RunState {
+  const { def: hero, heroCardId } = resolveHero(heroId)
 
   // Build deck from custom cards or hero starter deck
   const cardIds = customCardIds ?? hero.starterDeck
@@ -176,12 +222,14 @@ export function createNewRun(
       ...hero,
       currentHealth: hero.health,
       maxHealth: hero.health,
+      heroCardId, // Reference to hero card for abilities
     },
     deck,
     relics: [],
     combat: null,
     dungeonDeck: remaining,
     roomChoices: choices,
+    dungeonDeckId, // Track which dungeon deck is being played
     gold: 99,
     stats: {
       enemiesKilled: 0,

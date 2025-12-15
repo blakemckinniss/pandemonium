@@ -12,6 +12,7 @@ import {
   setCardsExecuteEffect,
   setCardsPowerTriggers,
   setEnemyPowerTriggers,
+  setEnemyExecuteEffect,
 } from './handlers'
 import { handleStartTurn, handleEndTurn } from './handlers/turns'
 import { handleDrawCards, handlePlayCard, handleDiscardCard, handleDiscardHand } from './handlers/cards'
@@ -19,6 +20,7 @@ import { handleDamage, handleHeal, handleAddBlock } from './handlers/damage'
 import { handleSpendEnergy, handleGainEnergy, handleApplyPower } from './handlers/energy'
 import { handleEnemyAction } from './handlers/enemy'
 import { handleSelectRoom, handleDealRoomChoices } from './handlers/rooms'
+import { handleUseActivatedAbility, handleUseUltimateAbility } from './handlers/hero'
 import { shuffleArray } from './handlers/shared'
 
 // Import effects engine
@@ -32,6 +34,7 @@ setTurnsPowerTriggers(executePowerTriggers)
 setCardsExecuteEffect(executeEffect)
 setCardsPowerTriggers(executePowerTriggers)
 setEnemyPowerTriggers(executePowerTriggers)
+setEnemyExecuteEffect(executeEffect)
 
 /**
  * Main action dispatcher - applies game actions to state via Immer
@@ -104,6 +107,12 @@ export function applyAction(state: RunState, action: GameAction): RunState {
         break
       case 'resolveBanish':
         handleResolveBanish(draft, action.selectedUids)
+        break
+      case 'useActivatedAbility':
+        handleUseActivatedAbility(draft)
+        break
+      case 'useUltimateAbility':
+        handleUseUltimateAbility(draft)
         break
     }
   })

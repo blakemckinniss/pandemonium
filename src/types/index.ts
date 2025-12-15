@@ -4,7 +4,7 @@
 
 // Card Variants
 export type CardVariant = 'player' | 'hand' | 'enemy' | 'room'
-export type CardTheme = 'attack' | 'skill' | 'power' | 'curse' | 'status'
+export type CardTheme = 'attack' | 'skill' | 'power' | 'curse' | 'status' | 'hero' | 'enemy'
 
 // ============================================
 // ELEMENTAL SYSTEM
@@ -45,6 +45,7 @@ export type EntityTarget =
   | 'self'
   | 'player'
   | 'source' // Who caused this effect (for triggers)
+  | 'none' // No target (for hero cards and other non-targeted effects)
   // Single enemy
   | 'enemy' // Requires player selection
   | 'randomEnemy'
@@ -579,6 +580,69 @@ export type Powers = Record<string, Power>
 // CARDS
 // ============================================
 
+// Hero-specific stats (only for theme: 'hero')
+export interface HeroStats {
+  health: number // Starting/max health
+  energy: number // Energy per turn
+  drawPerTurn: number // Cards drawn per turn (default: 5)
+}
+
+// Hero activated ability (usable once per turn)
+export interface HeroActivated {
+  effects: AtomicEffect[]
+  energyCost: number
+  description?: string
+}
+
+// Hero ultimate ability (charges over turns)
+export interface HeroUltimate {
+  effects: AtomicEffect[]
+  chargesRequired: number // Turns to fully charge
+  chargeOn: 'turnStart' | 'turnEnd' | 'cardPlayed' | 'damage'
+  description?: string
+}
+
+// ============================================
+// ENEMY CARD SYSTEM (parallel to Hero cards)
+// ============================================
+
+// Enemy-specific stats (only for theme: 'enemy')
+export interface EnemyStats {
+  healthRange: [number, number] // Min/max HP (randomized at spawn)
+  baseDamage: number // Default attack damage
+  energy: number // Energy pool per turn (like heroes)
+
+  // Elemental properties
+  element?: Element
+  vulnerabilities?: Element[]
+  resistances?: Element[]
+  innateStatus?: ElementalStatus
+
+  // Intent pattern (cycle through these)
+  intentPattern?: IntentType[]
+}
+
+// Enemy ability (activated on their turn based on AI/energy)
+export interface EnemyAbility {
+  id: string
+  name: string
+  description: string
+  effects: AtomicEffect[]
+  energyCost: number // Energy required to use
+  cooldown?: number // Turns between uses (0 = no cooldown)
+  condition?: Condition // When AI should use this (health threshold, etc.)
+}
+
+// Enemy ultimate (triggers at low health or special conditions)
+export interface EnemyUltimate {
+  id: string
+  name: string
+  description: string
+  effects: AtomicEffect[]
+  trigger: 'lowHealth' | 'enraged' | 'turnCount' | 'custom'
+  triggerValue?: number // HP% threshold or turn count
+}
+
 export interface CardDefinition {
   id: string
   name: string
@@ -597,8 +661,19 @@ export interface CardDefinition {
   generatedFrom?: {
     template: string
     seed: number
-    parameters: Record<string, number>
+    parameters: Record<string, number | string>
   }
+  // Hero-specific fields (only for theme: 'hero')
+  heroStats?: HeroStats
+  archetype?: string // AI-generated class (e.g., "Pyromancer", "Guardian")
+  passive?: AtomicEffect[] // Effects applied at combat start
+  activated?: HeroActivated // Ability usable once per turn
+  ultimate?: HeroUltimate // Powerful ability that charges over time
+
+  // Enemy-specific fields (only for theme: 'enemy')
+  enemyStats?: EnemyStats
+  enemyAbility?: EnemyAbility // Ability enemy can use (costs energy)
+  enemyUltimate?: EnemyUltimate // Triggers at threshold (low health, etc.)
 }
 
 export interface CardInstance {
@@ -628,15 +703,30 @@ export interface Entity {
 export interface PlayerEntity extends Entity {
   energy: number
   maxEnergy: number
+  // Hero ability state
+  heroCardId?: string // Reference to hero CardDefinition
+  activatedUsedThisTurn?: boolean
+  ultimateCharges?: number
+  ultimateReady?: boolean
 }
 
 export interface EnemyEntity extends Entity {
   intent: Intent
   patternIndex: number
   // Elemental properties
+  element?: Element // Primary element affinity
   vulnerabilities?: Element[] // Takes 1.5x damage from these elements
   resistances?: Element[] // Takes 0.5x damage from these elements
   innateStatus?: ElementalStatus // Starts combat with this status
+
+  // Enemy card reference (for theme: 'enemy' cards)
+  cardId?: string // Reference to enemy CardDefinition
+
+  // Enemy ability state (when created from enemy card)
+  energy?: number // Current energy pool
+  maxEnergy?: number // Max energy per turn
+  abilityCooldown?: number // Turns until ability is usable again
+  ultimateTriggered?: boolean // Has ultimate already fired?
 }
 
 // ============================================
@@ -661,6 +751,7 @@ export type IntentPattern =
 // HERO DEFINITIONS
 // ============================================
 
+// Legacy HeroDefinition - kept for backwards compatibility during migration
 export interface HeroDefinition {
   id: string
   name: string
@@ -670,10 +761,18 @@ export interface HeroDefinition {
   starterDeck: string[]
 }
 
-// Runtime hero state during a run (extends definition with mutable properties)
-export interface HeroState extends HeroDefinition {
+// Runtime hero state during a run - references hero card
+export interface HeroState {
+  heroCardId?: string // Reference to hero CardDefinition (theme: 'hero') - optional for migration
   currentHealth: number
   maxHealth: number
+  // Fallback fields for migration (from legacy HeroDefinition)
+  id?: string
+  name?: string
+  health?: number
+  energy?: number
+  image?: string
+  starterDeck?: string[]
 }
 
 // ============================================
@@ -695,6 +794,57 @@ export interface RoomCard {
   uid: string
   definitionId: string
   revealed: boolean
+  enemyCardIds?: string[] // For combat rooms: which enemy cards to spawn (overrides room definition)
+}
+
+// ============================================
+// DUNGEON DECK DEFINITIONS
+// ============================================
+
+export interface DungeonRoom {
+  id: string
+  type: RoomType
+  enemyCardIds?: string[] // For combat rooms: which enemy cards to spawn
+  modifiers?: RoomModifier[]
+}
+
+export interface RoomModifier {
+  type: 'elite' | 'boss' | 'doubleEnemy' | 'noReward' | 'enhancedReward'
+  value?: number
+}
+
+/**
+ * A saveable dungeon deck template that defines a complete run structure.
+ * Can be Groq-generated, player-modified, or system-created.
+ */
+export interface DungeonDeckDefinition {
+  id: string
+  name: string
+  description: string
+  theme?: string // "Fire Caverns", "Void Temple", etc.
+  difficulty: 1 | 2 | 3 | 4 | 5
+
+  // Room composition
+  rooms: DungeonRoom[]
+
+  // Metadata
+  createdBy: 'groq' | 'player' | 'system'
+  createdAt: number
+}
+
+/**
+ * Tracks player ownership of dungeon decks with roguelike consequences.
+ * - Beat deck → Special reward scaled to difficulty
+ * - Abandon deck → Gold cost penalty
+ * - Die → Lose deck + death penalties
+ */
+export interface OwnedDungeonDeck {
+  deckId: string
+  acquiredAt: number
+  status: 'available' | 'active' | 'beaten' | 'abandoned' | 'lost'
+  attemptsCount: number
+  bestFloor: number
+  completedAt?: number
 }
 
 // ============================================
@@ -765,6 +915,8 @@ export interface RunState {
   roomChoices: RoomCard[]
   gold: number
   stats: RunStats
+  // Dungeon deck tracking (for roguelike ownership)
+  dungeonDeckId?: string // Reference to DungeonDeckDefinition.id
 }
 
 // ============================================
@@ -856,6 +1008,9 @@ export type GameAction =
   | { type: 'resolveTutor'; selectedUids: string[] }
   | { type: 'resolveDiscover'; selectedCardIds: string[] }
   | { type: 'resolveBanish'; selectedUids: string[] }
+  // Hero abilities
+  | { type: 'useActivatedAbility' }
+  | { type: 'useUltimateAbility' }
 
 // ============================================
 // VISUAL EVENTS (Animation Queue)
@@ -890,6 +1045,14 @@ export type VisualEvent =
   | { type: 'powerTrigger'; targetId: string; powerId: string; triggerEvent: string }
   | { type: 'relicTrigger'; relicId: string; relicDefId: string; trigger: RelicTrigger }
   | { type: 'enemyDeath'; enemyId: string }
+  // Hero abilities
+  | { type: 'heroActivated'; heroCardId: string }
+  | { type: 'heroUltimate'; heroCardId: string }
+  | { type: 'heroUltimateReady'; heroCardId: string }
+  | { type: 'heroUltimateCharge'; heroCardId: string; charges: number; required: number }
+  // Enemy abilities
+  | { type: 'enemyAbility'; entityId: string; abilityName: string }
+  | { type: 'enemyUltimate'; entityId: string; ultimateName: string }
 
 // ============================================
 // COMBAT NUMBERS (FCT)
