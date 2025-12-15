@@ -110,7 +110,7 @@ export function GameScreen({ deckId, heroId, dungeonDeckId, onReturnToMenu }: Ga
         if (deck) customCardIds = deck.cardIds
       }
 
-      setState(createNewRun(heroId ?? 'hero_ironclad', customCardIds, dungeonDeckId))
+      setState(await createNewRun(heroId ?? 'hero_ironclad', customCardIds, dungeonDeckId))
     }
     void init()
   }, [deckId, heroId, dungeonDeckId])

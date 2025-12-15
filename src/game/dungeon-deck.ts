@@ -1,4 +1,4 @@
-import type { RoomCard, RoomType } from '../types'
+import type { RoomCard, RoomType, DungeonDeckDefinition } from '../types'
 import { getRoomsByType } from '../content/rooms'
 import { generateUid } from '../lib/utils'
 
@@ -140,4 +140,17 @@ function shuffleArray<T>(array: T[]): T[] {
     ;[result[i], result[j]] = [result[j], result[i]]
   }
   return result
+}
+
+/**
+ * Convert a DungeonDeckDefinition into playable RoomCard array.
+ * Maps DungeonRoom entries to RoomCard format, preserving enemyCardIds for combat override.
+ */
+export function createDungeonDeckFromDefinition(definition: DungeonDeckDefinition): RoomCard[] {
+  return definition.rooms.map((room) => ({
+    uid: generateUid(),
+    definitionId: room.id,
+    revealed: false,
+    enemyCardIds: room.enemyCardIds,
+  }))
 }

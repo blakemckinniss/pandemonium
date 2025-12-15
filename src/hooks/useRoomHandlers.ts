@@ -62,8 +62,8 @@ export function useRoomHandlers({
         }
       }
 
-      // Create enemies from room
-      const enemies = createEnemiesFromRoom(room.definitionId)
+      // Create enemies from room (use override enemyCardIds if provided by seeded dungeon)
+      const enemies = createEnemiesFromRoom(room.definitionId, room.enemyCardIds)
 
       // Start combat
       let newState = applyAction(
@@ -80,7 +80,7 @@ export function useRoomHandlers({
     })
   }, [setState, setCurrentRoomId, prevHealthRef, lastTurnRef])
 
-  const handleRestart = useCallback(() => {
+  const handleRestart = useCallback(async () => {
     if (onReturnToMenu) {
       onReturnToMenu()
     } else {
@@ -90,7 +90,7 @@ export function useRoomHandlers({
       resetVisuals()
       setPendingUnlocks([])
       setCurrentRoomId(null)
-      setState(createNewRun('warrior'))
+      setState(await createNewRun('hero_ironclad'))
     }
   }, [onReturnToMenu, prevHealthRef, runStartRef, runRecordedRef, resetVisuals, setPendingUnlocks, setCurrentRoomId, setState])
 

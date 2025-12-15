@@ -1,9 +1,10 @@
 import type { RunState, HeroDefinition, EnemyEntity } from '../types'
 import { createCardInstance } from './actions'
 import { generateUid, randomInt } from '../lib/utils'
-import { createDungeonDeck, drawRoomChoices } from './dungeon-deck'
+import { createDungeonDeck, createDungeonDeckFromDefinition, drawRoomChoices } from './dungeon-deck'
 import { getRoomDefinition } from '../content/rooms'
 import { getCardDefinition, getEnemyCardById } from './cards'
+import { getDungeonDeck } from '../stores/db'
 
 // ============================================
 // HERO DEFINITIONS
@@ -200,19 +201,30 @@ function resolveHero(heroId: string): { def: HeroDefinition; heroCardId?: string
   return { def: HEROES['warrior'] }
 }
 
-export function createNewRun(
+export async function createNewRun(
   heroId: string = 'hero_ironclad',
   customCardIds?: string[],
   dungeonDeckId?: string
-): RunState {
+): Promise<RunState> {
   const { def: hero, heroCardId } = resolveHero(heroId)
 
   // Build deck from custom cards or hero starter deck
   const cardIds = customCardIds ?? hero.starterDeck
   const deck = cardIds.map((cardId) => createCardInstance(cardId))
 
-  // Create dungeon deck and draw initial choices
-  const dungeonDeck = createDungeonDeck()
+  // Create dungeon deck: load from definition if ID provided, otherwise generate random
+  let dungeonDeck
+  if (dungeonDeckId) {
+    const definition = await getDungeonDeck(dungeonDeckId)
+    if (definition) {
+      dungeonDeck = createDungeonDeckFromDefinition(definition)
+    } else {
+      // Fallback to random if dungeon not found
+      dungeonDeck = createDungeonDeck()
+    }
+  } else {
+    dungeonDeck = createDungeonDeck()
+  }
   const { choices, remaining } = drawRoomChoices(dungeonDeck, 3)
 
   return {
@@ -241,9 +253,16 @@ export function createNewRun(
 }
 
 /**
- * Create enemies from a room definition
+ * Create enemies from a room definition.
+ * If enemyCardIds is provided, use those instead of room definition's monsters.
  */
-export function createEnemiesFromRoom(roomId: string): EnemyEntity[] {
+export function createEnemiesFromRoom(roomId: string, enemyCardIds?: string[]): EnemyEntity[] {
+  // Use override enemies if provided
+  if (enemyCardIds && enemyCardIds.length > 0) {
+    return enemyCardIds.map((id) => createEnemy(id))
+  }
+
+  // Fall back to room definition monsters
   const room = getRoomDefinition(roomId)
   if (!room?.monsters) return []
 
