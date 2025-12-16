@@ -5,7 +5,7 @@
 // Card Variants
 export type CardVariant = 'player' | 'hand' | 'enemy' | 'room'
 export type CardTheme = 'attack' | 'skill' | 'power' | 'curse' | 'status' | 'hero' | 'enemy'
-export type CardRarity = 'starter' | 'common' | 'uncommon' | 'rare' | 'ultra-rare' | 'legendary' | 'mythic' | 'ancient'
+export type CardRarity = 'common' | 'uncommon' | 'rare' | 'ultra-rare' | 'legendary' | 'mythic' | 'ancient'
 
 // ============================================
 // ELEMENTAL SYSTEM

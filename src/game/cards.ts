@@ -91,7 +91,7 @@ registerCard({
   energy: 1,
   theme: 'attack',
   target: 'enemy',
-  rarity: 'starter',
+  rarity: 'common',
   effects: [{ type: 'damage', amount: 6 }],
   upgradesTo: {
     name: 'Strike+',
@@ -107,7 +107,7 @@ registerCard({
   energy: 1,
   theme: 'skill',
   target: 'self',
-  rarity: 'starter',
+  rarity: 'common',
   effects: [{ type: 'block', amount: 5 }],
   upgradesTo: {
     name: 'Defend+',
@@ -123,7 +123,7 @@ registerCard({
   energy: 2,
   theme: 'attack',
   target: 'enemy',
-  rarity: 'starter',
+  rarity: 'common',
   effects: [
     { type: 'damage', amount: 8 },
     { type: 'applyPower', powerId: 'vulnerable', amount: 2 },

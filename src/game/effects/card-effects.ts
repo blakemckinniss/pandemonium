@@ -505,9 +505,6 @@ export function executeDiscover(
 
   // Filter by pool
   let candidates = allCards.filter((card) => {
-    // Exclude status and curse cards by default
-    if (card.rarity === 'starter') return false
-
     // Apply pool filter
     if (effect.pool) {
       switch (effect.pool) {

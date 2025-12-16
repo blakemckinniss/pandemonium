@@ -582,16 +582,6 @@ body {
   animation: uncommon-glow 2.5s ease-in-out infinite;
 }
 
-/* Starter card - basic, no frills */
-.Card.Card--starter {
-  border-color: oklch(0.3 0.01 260);
-  background: linear-gradient(
-    180deg,
-    oklch(0.18 0.003 260) 0%,
-    oklch(0.14 0.003 260) 100%
-  );
-}
-
 /* Common card - drab, functional (no animation) */
 .Card.Card--common {
   border-color: var(--rarity-common);
@@ -656,26 +646,24 @@ body {
    ELEMENT-BASED BORDER TINTS
    ============================================ */
 
-.Card--element-physical {
-  --element-hue: 250;
-  border-color: var(--color-element-physical);
-}
-.Card--element-fire {
-  --element-hue: 35;
-  border-color: var(--color-element-fire);
-}
-.Card--element-ice {
-  --element-hue: 220;
-  border-color: var(--color-element-ice);
-}
-.Card--element-lightning {
-  --element-hue: 95;
-  border-color: var(--color-element-lightning);
-}
-.Card--element-void {
-  --element-hue: 310;
-  border-color: var(--color-element-void);
-}
+/* Element classes set hue for shader but DON'T override rarity borders */
+.Card--element-physical { --element-hue: 250; }
+.Card--element-fire { --element-hue: 35; }
+.Card--element-ice { --element-hue: 220; }
+.Card--element-lightning { --element-hue: 95; }
+.Card--element-void { --element-hue: 310; }
+
+/* Only common/uncommon cards use element border colors (premium rarities have their own) */
+.Card.Card--common.Card--element-fire,
+.Card.Card--uncommon.Card--element-fire { border-color: var(--color-element-fire); }
+.Card.Card--common.Card--element-ice,
+.Card.Card--uncommon.Card--element-ice { border-color: var(--color-element-ice); }
+.Card.Card--common.Card--element-lightning,
+.Card.Card--uncommon.Card--element-lightning { border-color: var(--color-element-lightning); }
+.Card.Card--common.Card--element-void,
+.Card.Card--uncommon.Card--element-void { border-color: var(--color-element-void); }
+.Card.Card--common.Card--element-physical,
+.Card.Card--uncommon.Card--element-physical { border-color: var(--color-element-physical); }
 
 /* Element emblem styling */
 .Card__element-emblem {
