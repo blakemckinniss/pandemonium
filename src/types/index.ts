@@ -34,6 +34,7 @@ export type IntentType = 'attack' | 'defend' | 'buff' | 'debuff' | 'unknown'
 export interface Intent {
   type: IntentType
   value?: number
+  times?: number  // For multi-hit attacks (e.g., 3x5 damage)
 }
 
 // ============================================
@@ -1056,7 +1057,7 @@ export type VisualEvent =
   | { type: 'enemyAbility'; entityId: string; abilityName: string }
   | { type: 'enemyUltimate'; entityId: string; ultimateName: string }
   // Enemy turn animations
-  | { type: 'enemyTelegraph'; enemyId: string; intentType: 'attack' | 'defend' | 'buff' | 'debuff' | 'ability' | 'ultimate'; intentValue?: number }
+  | { type: 'enemyTelegraph'; enemyId: string; intentType: 'attack' | 'defend' | 'buff' | 'debuff' | 'ability' | 'ultimate'; intentValue?: number; intentTimes?: number }
   | { type: 'enemyActionExecute'; enemyId: string; intentType: 'attack' | 'defend' | 'buff' | 'debuff' | 'ability' | 'ultimate' }
 
 // ============================================
@@ -1066,14 +1067,14 @@ export type VisualEvent =
 export interface CombatNumber {
   id: string
   value: number
-  type: 'damage' | 'heal' | 'block' | 'maxHealth' | 'combo' | 'gold'
+  type: 'damage' | 'heal' | 'block' | 'maxHealth' | 'combo' | 'gold' | 'preview'
   targetId: string
   x: number
   y: number
   element?: Element
-  variant?: 'poison' | 'piercing' | 'combo' | 'chain' | 'execute'
+  variant?: 'poison' | 'piercing' | 'combo' | 'chain' | 'execute' | 'multi'
   comboName?: string
-  label?: string // Custom label like "Max HP"
+  label?: string // Custom label like "Max HP" or "x3"
 }
 
 // ============================================

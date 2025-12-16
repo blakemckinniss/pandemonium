@@ -263,6 +263,29 @@ body {
   color: oklch(0.6 0.2 140);
 }
 
+/* Damage preview (incoming attack warning) */
+.CombatNumber--preview {
+  color: oklch(0.7 0.2 25);
+  font-size: 1.25rem;
+  opacity: 0.85;
+  text-shadow: 0 0 8px oklch(0.5 0.25 25), 2px 2px 4px oklch(0 0 0 / 0.8);
+  animation: preview-pulse 0.4s ease-in-out infinite alternate;
+}
+.CombatNumber--preview-multi {
+  color: oklch(0.75 0.25 25);
+  font-size: 1.5rem;
+  opacity: 0.9;
+  text-shadow: 0 0 12px oklch(0.6 0.3 25), 2px 2px 6px oklch(0 0 0 / 0.9);
+  animation: preview-pulse 0.3s ease-in-out infinite alternate;
+}
+.CombatNumber--multi {
+  color: oklch(0.8 0.2 40);
+}
+@keyframes preview-pulse {
+  from { transform: scale(1); }
+  to { transform: scale(1.1); }
+}
+
 /* Max health variants */
 .CombatNumber--maxHealth-gain {
   color: oklch(0.7 0.18 145);

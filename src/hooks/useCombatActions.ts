@@ -107,6 +107,7 @@ export function useCombatActions({
             enemyId: enemy.id,
             intentType: intentType as 'attack' | 'defend' | 'buff' | 'debuff',
             intentValue: enemy.intent?.value,
+            intentTimes: enemy.intent?.times,
           }
 
           return applyAction(currentState, { type: 'emitVisual', event: telegraphEvent })

@@ -616,6 +616,7 @@ export function useVisualEventProcessor({
       }
       case 'enemyTelegraph': {
         const enemyEl = queryContainer(`[data-target="${event.enemyId}"]`)
+        const playerEl = queryContainer('[data-target="player"]')
         if (enemyEl) {
           effects.enemyTelegraph(enemyEl, { intentType: event.intentType })
           // Emit intent-specific warning particles
@@ -624,6 +625,22 @@ export function useVisualEventProcessor({
             case 'ability':
             case 'ultimate':
               emitParticle(enemyEl, 'attack')
+              // Show damage preview on player
+              if (playerEl && event.intentValue) {
+                const rect = playerEl.getBoundingClientRect()
+                const times = event.intentTimes ?? 1
+                const previewNum: CombatNumber = {
+                  id: generateUid(),
+                  value: event.intentValue,
+                  type: 'preview',
+                  targetId: 'player',
+                  x: rect.left + rect.width / 2,
+                  y: rect.top + rect.height / 4,
+                  variant: times > 1 ? 'multi' : undefined,
+                  label: times > 1 ? `x${times}` : undefined,
+                }
+                setCombatNumbers((prev) => [...prev, previewNum])
+              }
               break
             case 'defend':
               emitParticle(enemyEl, 'block')

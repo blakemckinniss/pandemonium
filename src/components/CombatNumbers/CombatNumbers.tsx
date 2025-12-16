@@ -38,6 +38,7 @@ const VARIANT_STYLES: Record<string, string> = {
   execute: 'CombatNumber--execute',
   piercing: 'CombatNumber--piercing',
   poison: 'CombatNumber--poison',
+  multi: 'CombatNumber--multi',
 }
 
 function FloatingNumber({ number, onComplete }: FloatingNumberProps) {
@@ -63,6 +64,8 @@ function FloatingNumber({ number, onComplete }: FloatingNumberProps) {
     colorClass = number.value > 0 ? 'CombatNumber--maxHealth-gain' : 'CombatNumber--maxHealth-lose'
   } else if (number.type === 'combo') {
     colorClass = 'CombatNumber--combo-counter'
+  } else if (number.type === 'preview') {
+    colorClass = number.variant === 'multi' ? 'CombatNumber--preview-multi' : 'CombatNumber--preview'
   } else {
     colorClass = {
       heal: 'CombatNumber--heal',
@@ -80,6 +83,7 @@ function FloatingNumber({ number, onComplete }: FloatingNumberProps) {
     maxHealth: '❤️',
     combo: '🔥',
     gold: '🪙',
+    preview: '⚠️',
   }[number.type]
 
   // For combo type, show "COMBO x{count}"
