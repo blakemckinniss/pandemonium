@@ -16,6 +16,7 @@ import type {
   CardInstance,
   EffectContext,
 } from '../types'
+import { matchesFilter } from '../game/selection-effects'
 
 // ============================================
 // VALUE RESOLUTION
@@ -165,7 +166,10 @@ export function evaluateCondition(
           pile = combat.exhaustPile
           break
       }
-      // TODO: Apply filter if provided
+      // Apply filter if provided
+      if (condition.filter) {
+        pile = pile.filter(card => matchesFilter(card, condition.filter))
+      }
       return compareValues(pile.length, condition.op, condition.value)
     }
 
@@ -382,7 +386,10 @@ export function resolveCardTarget(
   // Handle FilteredCardTarget
   if (typeof target === 'object' && 'from' in target) {
     let cards = resolveCardTarget(target.from, state, _ctx)
-    // TODO: Apply filter
+    // Apply filter if provided
+    if (target.filter) {
+      cards = cards.filter(card => matchesFilter(card, target.filter))
+    }
     if (target.count !== undefined) {
       cards = cards.slice(0, target.count)
     }
