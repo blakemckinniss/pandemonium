@@ -4,9 +4,10 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "concurrently -k -n vite,comfy -c cyan,magenta \"npm run dev:vite\" \"npm run dev:comfyui\"",
+    "dev": "concurrently -k -n vite,comfy,imggen -c cyan,magenta,yellow \"npm run dev:vite\" \"npm run dev:comfyui\" \"npm run dev:imagegen\"",
     "dev:vite": "vite",
     "dev:comfyui": "./scripts/start-comfyui.sh",
+    "dev:imagegen": "./scripts/start-imagegen.sh",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview",

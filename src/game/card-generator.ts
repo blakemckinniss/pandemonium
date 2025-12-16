@@ -889,7 +889,7 @@ function validateTarget(target: unknown): CardDefinition['target'] {
 }
 
 function validateRarity(rarity: unknown): CardDefinition['rarity'] {
-  const valid = ['starter', 'common', 'uncommon', 'rare']
+  const valid = ['common', 'uncommon', 'rare', 'ultra-rare', 'legendary', 'mythic', 'ancient']
   if (typeof rarity === 'string' && valid.includes(rarity)) {
     return rarity as CardDefinition['rarity']
   }
@@ -984,21 +984,33 @@ export interface PackConfig {
     uncommon: number
     rare: number
   }
+  elementWeights?: {
+    physical: number
+    fire: number
+    ice: number
+    lightning: number
+    void: number
+  }
   heroChance?: number // Chance per card to be a hero (0-100, default 2%)
   theme?: string // Theme hint for all cards
   guaranteedRare?: boolean // At least one rare per pack
+  maxSameElement?: number // Max cards of same element per pack (default: 2)
 }
 
 const DEFAULT_PACK_CONFIG: PackConfig = {
   size: 6,
   rarityWeights: { common: 60, uncommon: 30, rare: 10 },
+  elementWeights: { physical: 30, fire: 20, ice: 20, lightning: 15, void: 15 },
   heroChance: 2, // 2% chance per card = ~1 in 50
   guaranteedRare: false,
+  maxSameElement: 2, // Max 2 cards of same element per pack
 }
+
+type ElementType = 'physical' | 'fire' | 'ice' | 'lightning' | 'void'
 
 /**
  * Generate a pack of random cards.
- * Uses weighted rarity distribution and optional theme hints.
+ * Uses weighted rarity and element distribution.
  * Each card has a small chance (~2%) to be a hero instead.
  */
 export async function generatePack(
@@ -1007,15 +1019,49 @@ export async function generatePack(
   const cfg = { ...DEFAULT_PACK_CONFIG, ...config }
   const cards: CardDefinition[] = []
   const heroChance = cfg.heroChance ?? 2
+  const maxSameElement = cfg.maxSameElement ?? 2
+
+  // Track element counts to enforce variety
+  const elementCounts: Record<ElementType, number> = {
+    physical: 0, fire: 0, ice: 0, lightning: 0, void: 0,
+  }
 
   // Weighted rarity selection
-  const totalWeight = cfg.rarityWeights.common + cfg.rarityWeights.uncommon + cfg.rarityWeights.rare
+  const rarityTotal = cfg.rarityWeights.common + cfg.rarityWeights.uncommon + cfg.rarityWeights.rare
 
   function pickRarity(): 'common' | 'uncommon' | 'rare' {
-    const roll = Math.random() * totalWeight
+    const roll = Math.random() * rarityTotal
     if (roll < cfg.rarityWeights.common) return 'common'
     if (roll < cfg.rarityWeights.common + cfg.rarityWeights.uncommon) return 'uncommon'
     return 'rare'
+  }
+
+  // Weighted element selection with saturation check
+  const elemWeights = cfg.elementWeights ?? DEFAULT_PACK_CONFIG.elementWeights!
+
+  function pickElement(): ElementType {
+    // Filter out saturated elements
+    const available = (Object.keys(elemWeights) as ElementType[]).filter(
+      (el) => elementCounts[el] < maxSameElement
+    )
+
+    // If all saturated (shouldn't happen with default settings), allow any
+    if (available.length === 0) {
+      const all = Object.keys(elemWeights) as ElementType[]
+      return all[Math.floor(Math.random() * all.length)]
+    }
+
+    // Calculate weights for available elements only
+    const availableWeights = available.map((el) => elemWeights[el])
+    const totalWeight = availableWeights.reduce((a, b) => a + b, 0)
+
+    const roll = Math.random() * totalWeight
+    let cumulative = 0
+    for (let i = 0; i < available.length; i++) {
+      cumulative += availableWeights[i]
+      if (roll < cumulative) return available[i]
+    }
+    return available[available.length - 1]
   }
 
   // Generate cards
@@ -1026,11 +1072,14 @@ export async function generatePack(
 
     if (isHeroPull) {
       // Generate a hero instead of a regular card
+      const element = pickElement()
       const hero = await generateHero({
+        element,
         hint: cfg.theme,
         generateArt: true,
       })
       cards.push(hero)
+      elementCounts[element]++
       hasRare = true // Heroes count as rare for guaranteed rare purposes
       continue
     }
@@ -1044,12 +1093,15 @@ export async function generatePack(
 
     if (rarity === 'rare') hasRare = true
 
+    const element = pickElement()
     const card = await generateRandomCard({
       rarity,
+      element,
       hint: cfg.theme,
-      generateArt: true, // Generate art for pack cards
+      generateArt: true,
     })
     cards.push(card)
+    elementCounts[element]++
   }
 
   return cards
