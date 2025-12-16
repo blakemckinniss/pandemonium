@@ -1005,6 +1005,7 @@ export type GameAction =
   | { type: 'selectRoom'; roomUid: string }
   | { type: 'dealRoomChoices' }
   | { type: 'clearVisualQueue' }
+  | { type: 'emitVisual'; event: VisualEvent }
   | { type: 'resolveScry'; keptUids: string[]; discardedUids: string[] }
   | { type: 'resolveTutor'; selectedUids: string[] }
   | { type: 'resolveDiscover'; selectedCardIds: string[] }
@@ -1054,6 +1055,9 @@ export type VisualEvent =
   // Enemy abilities
   | { type: 'enemyAbility'; entityId: string; abilityName: string }
   | { type: 'enemyUltimate'; entityId: string; ultimateName: string }
+  // Enemy turn animations
+  | { type: 'enemyTelegraph'; enemyId: string; intentType: 'attack' | 'defend' | 'buff' | 'debuff' | 'ability' | 'ultimate'; intentValue?: number }
+  | { type: 'enemyAttackExecute'; enemyId: string }
 
 // ============================================
 // COMBAT NUMBERS (FCT)

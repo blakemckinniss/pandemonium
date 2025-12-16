@@ -96,6 +96,12 @@ export function applyAction(state: RunState, action: GameAction): RunState {
       case 'clearVisualQueue':
         handleClearVisualQueue(draft)
         break
+      case 'emitVisual':
+        if (draft.combat) {
+          draft.combat.visualQueue = draft.combat.visualQueue ?? []
+          draft.combat.visualQueue.push(action.event)
+        }
+        break
       case 'resolveScry':
         handleResolveScry(draft, action.keptUids, action.discardedUids)
         break

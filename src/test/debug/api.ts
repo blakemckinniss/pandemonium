@@ -43,8 +43,8 @@ export interface DebugAPI {
   removeCard: (cardUidOrId: string) => void
 
   // Inspection
-  player: () => RunState['combat'] extends { player: infer P } ? P : null
-  enemies: () => RunState['combat'] extends { enemies: infer E } ? E : []
+  player: () => CombatState['player'] | null
+  enemies: () => CombatState['enemies']
   hand: () => CardInstance[]
 
   // Meta

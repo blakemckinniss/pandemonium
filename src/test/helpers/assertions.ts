@@ -1,5 +1,5 @@
 import { expect } from 'vitest'
-import type { RunState, CombatState, Entity, PlayerEntity, EnemyEntity } from '../../types'
+import type { RunState, CombatState, Entity } from '../../types'
 
 // ============================================================================
 // Entity Assertions

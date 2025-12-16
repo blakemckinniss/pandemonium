@@ -1,4 +1,4 @@
-import type { RunState, HeroState, CombatState, RelicInstance, RunStats, GamePhase, RoomCard } from '../../types'
+import type { RunState, HeroState, RelicInstance, RunStats, RoomCard } from '../../types'
 import { createCombat, CombatBuilder, type CombatOptions } from './combat'
 import { createDeck, DECKS } from './cards'
 

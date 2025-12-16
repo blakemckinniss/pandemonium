@@ -1,6 +1,6 @@
-import type { CombatState, PlayerEntity, EnemyEntity, CardInstance, VisualEvent } from '../../types'
+import type { CombatState, CardInstance } from '../../types'
 import { createPlayer, createEnemy, createEnemies, type PlayerOptions, type EnemyOptions } from './entities'
-import { createCard, createDeck, createHand, DECKS } from './cards'
+import { createDeck, createHand, DECKS } from './cards'
 
 // ============================================================================
 // Combat Factory

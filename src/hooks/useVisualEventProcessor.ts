@@ -614,6 +614,31 @@ export function useVisualEventProcessor({
         }
         break
       }
+      case 'enemyTelegraph': {
+        const enemyEl = queryContainer(`[data-target="${event.enemyId}"]`)
+        if (enemyEl) {
+          effects.enemyTelegraph(enemyEl, { intentType: event.intentType })
+          // Emit warning particles based on intent
+          if (event.intentType === 'attack' || event.intentType === 'ability' || event.intentType === 'ultimate') {
+            emitParticle(enemyEl, 'attack')
+          }
+        }
+        break
+      }
+      case 'enemyAttackExecute': {
+        const enemyEl = queryContainer(`[data-target="${event.enemyId}"]`)
+        const playerEl = queryContainer('[data-target="player"]')
+        if (enemyEl) {
+          effects.enemyAttackLunge(enemyEl)
+        }
+        if (playerEl) {
+          // Flash player when hit
+          setTimeout(() => {
+            emitParticle(playerEl, 'spark')
+          }, 120)
+        }
+        break
+      }
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [spawnCombatNumber, queryContainer, queryHand, containerRef, setTriggeredRelicId])

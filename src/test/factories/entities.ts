@@ -1,4 +1,4 @@
-import type { PlayerEntity, EnemyEntity, Powers, Power, Intent, Element, ElementalStatus } from '../../types'
+import type { PlayerEntity, EnemyEntity, Powers, Power, Intent } from '../../types'
 
 // ============================================================================
 // Power Utilities
