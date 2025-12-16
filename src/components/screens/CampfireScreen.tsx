@@ -1,8 +1,7 @@
 import { useState, useEffect, useRef } from 'react'
 import { Icon } from '@iconify/react'
-import { Card } from '../Card/Card'
+import { Card, getCardDefProps } from '../Card/Card'
 import { getEffectiveCardDef } from '../../game/cards'
-import { getEnergyCost } from '../../lib/effects'
 import { gsap } from '../../lib/animations'
 import type { CardInstance, HeroState } from '../../types'
 
@@ -87,13 +86,8 @@ export function CampfireScreen({ hero, deck, onRest, onSmith, onSkip }: Campfire
                   }`}
                 >
                   <Card
+                    {...getCardDefProps(def)}
                     variant="hand"
-                    theme={def.theme}
-                    name={def.name}
-                cardId={def.id}
-                    description={def.description}
-                    energy={getEnergyCost(def.energy)}
-                    rarity={def.rarity}
                     playable={isSelected}
                   />
                 </button>

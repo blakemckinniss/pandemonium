@@ -1,11 +1,10 @@
 import { useEffect, useRef, useState } from 'react'
 import { Icon } from '@iconify/react'
-import { Card } from '../Card/Card'
+import { Card, getCardDefProps } from '../Card/Card'
 import { CardPreviewModal } from '../Modal/CardPreviewModal'
 import type { CardDefinition, RelicDefinition } from '../../types'
 import { getAllCards } from '../../game/cards'
 import { getAllRelics } from '../../game/relics'
-import { getEnergyCost } from '../../lib/effects'
 import { gsap } from '../../lib/animations'
 import { generateRandomCard } from '../../game/card-generator'
 
@@ -188,17 +187,7 @@ export function RewardScreen({ floor, gold, ownedRelicIds, onAddCard, onAddRelic
               className="transition-transform hover:scale-110 hover:-translate-y-2"
               onClick={() => onAddCard(cardDef.id)}
             >
-              <Card
-                variant="hand"
-                theme={cardDef.theme}
-                name={cardDef.name}
-                description={cardDef.description}
-                energy={getEnergyCost(cardDef.energy)}
-                rarity={cardDef.rarity}
-                element={cardDef.element}
-                ethereal={cardDef.ethereal}
-                playable
-              />
+              <Card {...getCardDefProps(cardDef)} variant="hand" playable />
             </button>
             {/* Preview button */}
             <button

@@ -1,8 +1,7 @@
 import { useState, useCallback } from 'react'
 import { Modal } from './Modal'
-import { Card } from '../Card/Card'
+import { Card, getCardDefProps } from '../Card/Card'
 import { getEffectiveCardDef } from '../../game/cards'
-import { getEnergyCost } from '../../lib/effects'
 import type { CardInstance, CardDefinition } from '../../types'
 
 export type SelectionMode = 'pick' | 'scry' | 'discard' | 'discover'
@@ -145,15 +144,9 @@ export function CardSelectionModal({
                 </div>
               )}
               <Card
+                {...getCardDefProps(def)}
                 variant="hand"
-                theme={def.theme}
-                name={def.name}
-                cardId={def.id}
-                description={def.description}
-                energy={getEnergyCost(def.energy)}
-                rarity={def.rarity}
                 upgraded={isDefinition ? false : card.upgraded}
-                element={def.element}
               />
               {isSelected && (
                 <div className={`CardSelectionModal-check ${mode === 'scry' ? 'is-discard' : ''}`}>

@@ -1,7 +1,6 @@
 import { Modal } from './Modal'
-import { Card } from '../Card/Card'
+import { Card, getCardDefProps } from '../Card/Card'
 import { getCardDefinition } from '../../game/cards'
-import { getEnergyCost } from '../../lib/effects'
 import type { CardInstance } from '../../types'
 
 export type PileType = 'draw' | 'discard' | 'exhaust'
@@ -81,14 +80,9 @@ export function CardPileModal({ isOpen, onClose, pileType, cards }: CardPileModa
               <div key={key} className="CardPileModal-item">
                 <div className="CardPileModal-card">
                   <Card
+                    {...getCardDefProps(effectiveDef)}
                     variant="hand"
-                    theme={effectiveDef.theme}
-                    name={effectiveDef.name}
-                    description={effectiveDef.description}
-                    energy={getEnergyCost(effectiveDef.energy)}
-                    rarity={effectiveDef.rarity}
                     upgraded={upgraded}
-                    element={effectiveDef.element}
                   />
                 </div>
                 {count > 1 && (

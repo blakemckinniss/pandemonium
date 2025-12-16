@@ -1,8 +1,7 @@
 import { useEffect, useRef } from 'react'
-import { Card } from '../Card/Card'
+import { Card, getCardDefProps } from '../Card/Card'
 import type { CardDefinition } from '../../types'
 import { gsap } from '../../lib/dragdrop'
-import { getEnergyCost } from '../../lib/effects'
 
 export interface PendingCardAnimation {
   id: string
@@ -58,13 +57,7 @@ function AnimatedCard({ animation, onComplete }: AnimatedCardProps) {
         transform: 'translate(-50%, -50%)',
       }}
     >
-      <Card
-        variant="hand"
-        theme={cardDef.theme}
-        name={cardDef.name}
-        description={cardDef.description}
-        energy={getEnergyCost(cardDef.energy)}
-      />
+      <Card {...getCardDefProps(cardDef)} variant="hand" />
     </div>
   )
 }

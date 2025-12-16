@@ -1,8 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Icon } from '@iconify/react'
-import { Card } from '../Card/Card'
+import { Card, getCardDefProps } from '../Card/Card'
 import { getCardDefinition, getAllCards, getStarterCardIds } from '../../game/cards'
-import { getEnergyCost } from '../../lib/effects'
 import { generatePack, type PackConfig } from '../../game/card-generator'
 import {
   getCustomDecks,
@@ -325,17 +324,7 @@ function CardGrid({
           onClick={() => onAddCard(card.id)}
           className="group transition-transform hover:scale-105"
         >
-          <Card
-            cardId={card.id}
-            variant="hand"
-            theme={card.theme}
-            name={card.name}
-            description={card.description}
-            energy={getEnergyCost(card.energy)}
-            element={card.element}
-            rarity={card.rarity}
-            playable
-          />
+          <Card {...getCardDefProps(card)} variant="hand" playable />
         </button>
       ))}
     </div>
@@ -367,17 +356,7 @@ function CollectionGrid({
           onClick={() => onAddCard(def.id)}
           className="group transition-transform hover:scale-105 relative"
         >
-          <Card
-            cardId={def.id}
-            variant="hand"
-            theme={def.theme}
-            name={def.name}
-            description={def.description}
-            energy={getEnergyCost(def.energy)}
-            element={def.element}
-            rarity={def.rarity}
-            playable
-          />
+          <Card {...getCardDefProps(def)} variant="hand" playable />
           {quantity > 1 && (
             <span className="absolute top-2 right-2 bg-energy text-gray-900 text-xs font-bold px-2 py-1 rounded-full">
               x{quantity}
@@ -508,17 +487,7 @@ function PackOpeningPanel({
                   animationDelay: `${idx * 0.1}s`,
                 }}
               >
-                <Card
-                  cardId={card.id}
-                  variant="hand"
-                  theme={card.theme}
-                  name={card.name}
-                  description={card.description}
-                  energy={getEnergyCost(card.energy)}
-                  element={card.element}
-                  rarity={card.rarity}
-                  playable
-                />
+                <Card {...getCardDefProps(card)} variant="hand" playable />
                 <div className="text-center mt-1">
                   <span
                     className={`text-xs font-medium ${

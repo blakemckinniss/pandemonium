@@ -2,9 +2,46 @@ import { memo, useRef, useEffect, useState, useCallback } from 'react'
 import { Icon } from '@iconify/react'
 import { gsap } from '../../lib/dragdrop'
 import { PowerTooltip } from '../PowerTooltip/PowerTooltip'
-import type { CardVariant, CardTheme, Intent, Powers, Element, CardRarity } from '../../types'
+import type { CardVariant, CardTheme, Intent, Powers, Element, CardRarity, CardDefinition } from '../../types'
 import { emitParticle } from '../ParticleEffects/emitParticle'
 import { RarityShader } from './RarityShader'
+
+// ============================================
+// UTILITY: Extract Card props from definition
+// ============================================
+
+/**
+ * Convert energy value to display format.
+ * Handles number, 'X', and EffectValue types.
+ */
+export function getEnergyCost(energy: CardDefinition['energy']): number | 'X' {
+  if (typeof energy === 'number') return energy
+  if (energy === 'X') return 'X'
+  if (typeof energy === 'object' && 'value' in energy) return energy.value
+  return 0
+}
+
+/**
+ * Extract visual props from a CardDefinition for the Card component.
+ * Use this to ensure consistent prop mapping across all card displays.
+ *
+ * @example
+ * const defProps = getCardDefProps(cardDef)
+ * <Card {...defProps} variant="hand" playable />
+ */
+export function getCardDefProps(def: CardDefinition) {
+  return {
+    cardId: def.id,
+    name: def.name,
+    description: def.description,
+    theme: def.theme,
+    energy: getEnergyCost(def.energy),
+    element: def.element,
+    rarity: def.rarity,
+    image: def.image,
+    ethereal: def.ethereal,
+  }
+}
 
 // Card dimensions by variant
 const CARD_DIMENSIONS: Record<CardVariant, { width: number; height: number }> = {
