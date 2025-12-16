@@ -19,6 +19,7 @@ import { THEMES, getTheme } from '../../config/themes'
 import { CardFiltersBar, filterCards, sortCards } from '../CardFilters'
 import { CardDetailModal } from '../CardDetailModal'
 import { GachaReveal } from '../PackOpening'
+import { DeckAnalytics } from '../DeckAnalytics'
 import type { CardDefinition, CardFilters, SortOption, SortDirection, DEFAULT_FILTERS } from '../../types'
 
 type Tab = 'collection' | 'packs' | 'all'
@@ -51,6 +52,9 @@ export function DeckBuilderScreen({ onBack }: DeckBuilderScreenProps) {
 
   // Card detail modal state
   const [selectedCard, setSelectedCard] = useState<CardDefinition | null>(null)
+
+  // Analytics collapsed state
+  const [analyticsCollapsed, setAnalyticsCollapsed] = useState(false)
 
   // Load data on mount
   useEffect(() => {
@@ -285,6 +289,13 @@ export function DeckBuilderScreen({ onBack }: DeckBuilderScreenProps) {
               )
             })}
           </div>
+
+          {/* Deck Analytics */}
+          <DeckAnalytics
+            cardIds={currentDeck}
+            collapsed={analyticsCollapsed}
+            onToggleCollapsed={() => setAnalyticsCollapsed((c) => !c)}
+          />
         </div>
 
         {/* Actions */}
