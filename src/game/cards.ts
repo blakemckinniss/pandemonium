@@ -493,3 +493,97 @@ registerCard({
     { type: 'applyPower', powerId: 'noDraw', amount: 1, target: 'self' },
   ],
 })
+
+// ============================================
+// PREMIUM RARITY SHOWCASE CARDS
+// Legendary, Mythic, and Ancient tier cards
+// featuring enhanced WebGL holographic effects
+// ============================================
+
+registerCard({
+  id: 'phoenix_rebirth',
+  name: 'Phoenix Rebirth',
+  description: 'Deal 15 damage. Apply 5 Burning. Heal 8 HP.',
+  energy: 3,
+  theme: 'attack',
+  target: 'enemy',
+  rarity: 'legendary',
+  element: 'fire',
+  effects: [
+    { type: 'damage', amount: 15 },
+    { type: 'applyPower', powerId: 'burning', amount: 5 },
+    { type: 'heal', amount: 8, target: 'self' },
+  ],
+})
+
+registerCard({
+  id: 'glacial_fortress',
+  name: 'Glacial Fortress',
+  description: 'Gain 25 Block. Apply 3 Frozen to ALL enemies.',
+  energy: 3,
+  theme: 'skill',
+  target: 'self',
+  rarity: 'legendary',
+  element: 'ice',
+  effects: [
+    { type: 'block', amount: 25, target: 'self' },
+    { type: 'applyPower', powerId: 'frozen', amount: 3, target: 'allEnemies' },
+  ],
+})
+
+registerCard({
+  id: 'storm_avatar',
+  name: 'Storm Avatar',
+  description: 'Gain 3 Strength. Deal 24 damage to ALL enemies.',
+  energy: 4,
+  theme: 'attack',
+  target: 'allEnemies',
+  rarity: 'mythic',
+  element: 'lightning',
+  effects: [
+    { type: 'applyPower', powerId: 'strength', amount: 3, target: 'self' },
+    { type: 'damage', amount: 24 },
+  ],
+})
+
+registerCard({
+  id: 'void_embrace',
+  name: 'Void Embrace',
+  description: 'Draw 5 cards. Apply 5 Vulnerable to an enemy.',
+  energy: 2,
+  theme: 'skill',
+  target: 'enemy',
+  rarity: 'mythic',
+  element: 'void',
+  effects: [
+    { type: 'draw', amount: 5 },
+    { type: 'applyPower', powerId: 'vulnerable', amount: 5 },
+  ],
+})
+
+registerCard({
+  id: 'primordial_inferno',
+  name: 'Primordial Inferno',
+  description: 'Deal 50 damage. Apply 10 Burning.',
+  energy: 5,
+  theme: 'attack',
+  target: 'enemy',
+  rarity: 'ancient',
+  element: 'fire',
+  effects: [
+    { type: 'damage', amount: 50 },
+    { type: 'applyPower', powerId: 'burning', amount: 10 },
+  ],
+})
+
+registerCard({
+  id: 'cosmic_singularity',
+  name: 'Cosmic Singularity',
+  description: 'Deal 99 damage to an enemy.',
+  energy: 6,
+  theme: 'attack',
+  target: 'enemy',
+  rarity: 'ancient',
+  element: 'void',
+  effects: [{ type: 'damage', amount: 99 }],
+})

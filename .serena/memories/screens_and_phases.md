@@ -8,24 +8,33 @@ Game screens mapped to `GamePhase` values. Located in `src/components/screens/`.
 
 ```typescript
 type GamePhase = 
-  | 'menu'        // Main menu
-  | 'roomSelect'  // Choose next room
-  | 'combat'      // Active combat
-  | 'reward'      // Post-combat rewards
-  | 'campfire'    // Rest site
-  | 'treasure'    // Treasure room
-  | 'gameOver'    // Run ended (win/loss)
+  | 'menu'           // Main menu + dungeon selection
+  | 'roomSelect'     // Choose next room
+  | 'combat'         // Active combat
+  | 'reward'         // Post-combat rewards
+  | 'campfire'       // Rest site
+  | 'treasure'       // Treasure room
+  | 'dungeonComplete' // Beat the boss, dungeon cleared
+  | 'gameOver'       // Run ended (loss)
 ```
 
 ## Screen Components
 
 ### MenuScreen (`menu`)
 
-Main menu with options:
-- New Game (starts run)
-- Continue (if saved run exists)
+Main menu with dungeon selection.
+
+**Features:**
+- Dungeon deck browser (owned dungeons)
+- New Game (select dungeon + hero)
+- Content seeding (first run)
 - Settings
 - Stats (view meta-progression)
+
+**Dungeon Selection:**
+- Shows owned dungeons from IndexedDB
+- Displays difficulty, theme, completion status
+- Seeds base content if first run
 
 ### RoomSelect (`roomSelect`)
 
@@ -37,6 +46,7 @@ Choose next room from dungeon deck.
 - 3 room cards to choose from
 - Room type icons (combat/elite/boss/rest/treasure)
 - Floor counter
+- Current dungeon name
 
 ### GameScreen (`combat`)
 
@@ -55,6 +65,10 @@ Main combat interface.
 - Defeat overlay (when player HP ≤ 0)
 - Selection modal (for scry/tutor/discover)
 
+**Hero Abilities:**
+- Activated ability button (once per turn)
+- Ultimate ability button (when charged)
+
 ### RewardScreen (`reward`)
 
 Post-combat rewards.
@@ -63,7 +77,6 @@ Post-combat rewards.
 - Gold (always)
 - Card choice (3 options)
 - Relic (sometimes, based on room type)
-- Potion (sometimes)
 
 **Hook:** `useRewardHandlers`
 
@@ -89,6 +102,20 @@ Treasure room rewards.
 
 **Hook:** `useTreasureHandlers`
 
+### DungeonComplete (`dungeonComplete`)
+
+Displayed after defeating the boss.
+
+**Shows:**
+- Victory message
+- Dungeon completion stats
+- Bonus gold reward
+- Return to menu button
+
+**Updates:**
+- Sets dungeon status to 'completed'
+- Records completion time
+
 ### DeckBuilderScreen
 
 View/manage deck (accessible from pause menu).
@@ -104,12 +131,13 @@ View/manage deck (accessible from pause menu).
 menu → roomSelect → [room type] → reward/next phase
 
 Room type routing:
-- combat/elite/boss → GameScreen → RewardScreen
+- combat/elite → GameScreen → RewardScreen → roomSelect
+- boss → GameScreen → dungeonComplete (if victory)
 - campfire → CampfireScreen → roomSelect
 - treasure → TreasureScreen → roomSelect
 
-Win condition: Defeat final boss
-Loss condition: Player HP reaches 0
+Win condition: Defeat final boss → dungeonComplete
+Loss condition: Player HP reaches 0 → gameOver
 ```
 
 ## State Management
@@ -118,15 +146,13 @@ Phase stored in `runState.gamePhase`.
 
 Transition via:
 ```typescript
-setRunState(prev => ({ ...prev, gamePhase: 'reward' }))
+setRunState(prev => ({ ...prev, gamePhase: 'dungeonComplete' }))
 ```
-
-Or through actions in handlers that update phase as side effect.
 
 ## Adding New Screens
 
 1. Create component in `src/components/screens/`
 2. Add phase to `GamePhase` type in `src/types/index.ts`
-3. Add route in `App.tsx` switch statement
+3. Add route in `App.tsx` or `GameScreen.tsx` switch statement
 4. Create handler hook if logic is complex
 5. Define transitions to/from new phase

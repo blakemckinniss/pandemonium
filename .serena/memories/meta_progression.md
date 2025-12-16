@@ -2,18 +2,28 @@
 
 ## Overview
 
-Cross-run persistence for unlocks and statistics. Located in `src/stores/metaStore.ts`.
+Cross-run persistence for unlocks, statistics, and dungeon ownership. Split between Zustand (localStorage) and Dexie (IndexedDB).
 
-## State Structure
+## Storage Layers
+
+### Zustand Store (`src/stores/metaStore.ts`)
+Quick-access state in localStorage:
+- Unlocks (cards, heroes)
+- Statistics (runs, wins, floors)
+
+### Dexie Database (`src/stores/db.ts`)
+Larger data in IndexedDB:
+- Dungeon deck definitions
+- Owned dungeons tracking
+- Run history
+
+## MetaState Structure
 
 ```typescript
 interface MetaState {
   // Statistics
   totalRuns: number
   totalWins: number
-  totalDeaths: number
-  totalEnemiesKilled: number
-  totalGoldEarned: number
   highestFloor: number
   
   // Unlocks
@@ -26,25 +36,55 @@ interface MetaState {
   unlockHero: (heroId: string) => void
   isCardUnlocked: (cardId: string) => boolean
   isHeroUnlocked: (heroId: string) => boolean
-  reset: () => void
 }
 ```
 
-## Run Result
+## Dexie Tables
 
 ```typescript
-interface RunResult {
-  won: boolean
-  floor: number
-  enemiesKilled: number
-  gold: number
-  heroId: string
+// src/stores/db.ts
+class PandemoniumDB extends Dexie {
+  dungeonDecks!: Table<DungeonDeckDefinition>
+  ownedDungeons!: Table<OwnedDungeonDeck>
+  runHistory!: Table<RunRecord>
 }
 ```
 
-## Persistence
+### OwnedDungeonDeck
+Tracks player's dungeon ownership:
+```typescript
+interface OwnedDungeonDeck {
+  deckId: string
+  status: 'available' | 'in_progress' | 'completed'
+  attemptsCount: number
+  bestFloor: number
+  acquiredAt: number
+  completedAt?: number
+}
+```
 
-Uses Zustand with persist middleware:
+## Content Seeding
+
+First-run initialization via `src/game/seed-content.ts`:
+```typescript
+await seedBaseContent()  // Creates base enemies + dungeons in IndexedDB
+```
+
+Called from MenuScreen on first load.
+
+## Dungeon Ownership Flow
+
+```
+1. seedBaseContent() creates default dungeons in db.dungeonDecks
+2. Player sees dungeons in MenuScreen
+3. Selecting dungeon creates OwnedDungeonDeck with status: 'available'
+4. Starting run sets status: 'in_progress'
+5. Completing dungeon sets status: 'completed', records completedAt
+```
+
+## Persistence Configuration
+
+### Zustand
 ```typescript
 const useMetaStore = create<MetaState>()(
   persist(
@@ -57,53 +97,40 @@ const useMetaStore = create<MetaState>()(
 )
 ```
 
-## Default Unlocks
-
+### Dexie
 ```typescript
-const DEFAULT_CARDS = ['strike', 'defend', 'bash', ...]
-const DEFAULT_HEROES = ['warrior']
+const db = new PandemoniumDB()
+// Auto-persists to IndexedDB
 ```
-
-## Unlock System
-
-`checkUnlocks(result: RunResult)` evaluates conditions:
-
-Potential unlock triggers:
-- Win with specific hero
-- Reach floor N
-- Kill X enemies in a run
-- Earn X gold total
-- Complete N runs
-- Win N times
 
 ## Usage
 
 ```typescript
-// In game end screen
+// Zustand store
 const meta = useMetaStore()
+meta.recordRun({ won: true, floor: 15 })
 
-// Record completed run
-meta.recordRun({
-  won: true,
-  floor: 15,
-  enemiesKilled: 42,
-  gold: 350,
-  heroId: 'warrior'
-})
+// Dexie operations
+const dungeons = await db.dungeonDecks.toArray()
+await db.ownedDungeons.put({ deckId: 'dungeon_1', status: 'completed', ... })
+```
 
-// Check for new unlocks
-const newUnlocks = checkUnlocks(runResult)
-newUnlocks.forEach(cardId => meta.unlockCard(cardId))
+## Default Content
 
-// Check unlock status
-if (meta.isCardUnlocked('fireball')) {
-  // Add to card pool
-}
+```typescript
+// Default unlocked
+const DEFAULT_CARDS = ['strike', 'defend', ...]
+const DEFAULT_HEROES = ['hero_ironclad']
+
+// Base dungeons (seeded)
+// - "Ember Depths" (fire theme, difficulty 1)
+// - "Frozen Wastes" (ice theme, difficulty 2)
+// - "Heart of Chaos" (void theme, difficulty 3, boss)
 ```
 
 ## Integration Points
 
-- `GameScreen` calls `recordRun()` on game over
-- `RewardScreen` shows newly unlocked content
-- `DeckBuilder` filters by `isCardUnlocked()`
-- `HeroSelect` filters by `isHeroUnlocked()`
+- `MenuScreen` - Shows owned dungeons, triggers seeding
+- `GameScreen` - Updates dungeon progress on room completion
+- `dungeonComplete` phase - Marks dungeon as completed
+- `RewardScreen` - Shows newly unlocked content

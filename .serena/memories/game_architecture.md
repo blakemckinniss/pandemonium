@@ -10,24 +10,41 @@ interface CombatState {
   player: PlayerEntity
   enemies: EnemyEntity[]
   hand: CardInstance[]
-  deck: CardInstance[]
-  discard: CardInstance[]
-  exhaust: CardInstance[]
-  energy: number
+  drawPile: CardInstance[]
+  discardPile: CardInstance[]
+  exhaustPile: CardInstance[]
   turn: number
   phase: TurnPhase
-  // ... more
+  cardsPlayedThisTurn: number
+  lastPlayedCard?: string
+  pendingSelection?: PendingSelection
+  visualQueue: VisualEvent[]
 }
 ```
 
 ### Run State (`RunState`)
-Persistent run data (deck, gold, rooms completed).
+Persistent run data:
+```typescript
+interface RunState {
+  hero: HeroState
+  deck: CardInstance[]
+  gold: number
+  floor: number
+  relics: RelicInstance[]
+  dungeonDeckId: string           // Current dungeon being played
+  dungeonDeck: DungeonRoom[]      // Rooms in current dungeon
+  roomChoices: RoomCard[]         // Available room choices
+  currentRoomId?: string
+  combat?: CombatState
+  gamePhase: GamePhase
+  stats: RunStats
+}
+```
 
 ### Meta State (`MetaState`)
 Cross-run persistence via Zustand + localStorage:
-- Unlocks
-- Statistics
-- Settings
+- `unlockedCards`, `unlockedHeroes`
+- `totalRuns`, `totalWins`, `highestFloor`
 
 ## Action System
 
@@ -39,57 +56,88 @@ type GameAction =
   | { type: 'endTurn' }
   | { type: 'startCombat'; enemies: EnemyEntity[] }
   | { type: 'drawCards'; count: number }
-  | { type: 'takeDamage'; entityId: string; amount: number }
+  | { type: 'takeDamage'; entityId: string; amount: number; element?: Element }
+  | { type: 'useActivatedAbility' }
+  | { type: 'useUltimateAbility' }
   // ... more
+```
+
+## Entity System
+
+### Base Entity
+```typescript
+interface Entity {
+  id: string
+  name: string
+  currentHealth: number
+  maxHealth: number
+  block: number
+  barrier?: number
+  powers: Power[]
+  image?: string
+}
+```
+
+### PlayerEntity
+```typescript
+interface PlayerEntity extends Entity {
+  heroCardId: string
+  energy: number
+  maxEnergy: number
+  ultimateCharges: number
+  ultimateReady: boolean
+  activatedUsedThisTurn: boolean
+}
+```
+
+### EnemyEntity
+```typescript
+interface EnemyEntity extends Entity {
+  cardId: string
+  intent: Intent
+  patternIndex: number
+  energy?: number
+  maxEnergy?: number
+  abilityCooldown?: number
+  ultimateTriggered?: boolean
+  element?: Element
+  resistances?: Element[]
+  vulnerabilities?: Element[]
+  innateStatus?: { powerId: string; amount: number }
+}
 ```
 
 ## Effects System
 
 Cards use declarative effects:
-
 ```typescript
 interface CardDefinition {
   id: string
   name: string
   energy: number
-  theme: CardTheme      // 'attack' | 'skill' | 'power'
+  theme: CardTheme      // 'attack' | 'skill' | 'power' | 'hero'
   target: CardTarget    // 'enemy' | 'self' | 'all_enemies' | 'none'
   effects: AtomicEffect[]
+  // Hero-specific
+  heroStats?: HeroStats
+  passive?: AtomicEffect[]
+  activated?: HeroActivated
+  ultimate?: HeroUltimate
+  // Enemy-specific
+  enemyStats?: EnemyStats
+  enemyAbility?: EnemyAbility
+  enemyUltimate?: EnemyUltimate
 }
 ```
 
-Effect types (100+ defined in types/index.ts):
-- `DamageEffect`, `BlockEffect`, `HealEffect`
-- `DrawEffect`, `DiscardEffect`, `ExhaustEffect`
-- `ApplyPowerEffect`, `RemovePowerEffect`
-- `ConditionalEffect`, `RepeatEffect`, `SequenceEffect`
-
-## Entity System
-
-```typescript
-interface Entity {
-  uid: string
-  name: string
-  hp: number
-  maxHp: number
-  block: number
-  powers: Power[]
-}
-
-interface PlayerEntity extends Entity {
-  type: 'player'
-}
-
-interface EnemyEntity extends Entity {
-  type: 'enemy'
-  intent: Intent
-  definitionId: string
-}
-```
+### Effect Categories
+- **Card Effects**: damage, block, draw, discard, exhaust
+- **Combat Effects**: heal, energy, addCard, gold, maxHealth
+- **Control Effects**: conditional, repeat, sequence, random, forEach
+- **Power Effects**: applyPower, removePower, transferPower
+- **Selection Effects**: scry, tutor, discover, banish, transform
 
 ## Power/Buff System
-
-Powers modify entity behavior:
 
 ```typescript
 interface Power {
@@ -97,55 +145,48 @@ interface Power {
   amount: number
   duration?: number
 }
-```
 
-With triggers: `onTurnStart`, `onTurnEnd`, `onAttack`, `onDefend`, etc.
-
-## Hero System
-
-Heroes are CardDefinitions with `theme: 'hero'` and three ability layers:
-
-```typescript
-interface HeroCardDefinition extends CardDefinition {
-  theme: 'hero'
-  heroStats: { health: number, energy: number, drawPerTurn: number }
-  passive: AtomicEffect[]       // Applied at combat start
-  activated: {                  // Once per turn, costs energy
-    description: string
-    energyCost: number
-    effects: AtomicEffect[]
-  }
-  ultimate: {                   // Charges over turns
-    description: string
-    chargesRequired: number
-    chargeOn: 'turnStart' | 'turnEnd' | 'cardPlayed' | 'damageTaken'
-    effects: AtomicEffect[]
-  }
+interface PowerDefinition {
+  id: string
+  name: string
+  description: string
+  stackBehavior: 'intensity' | 'duration' | 'replace'
+  isDebuff?: boolean
+  modifiers?: PowerModifiers
+  triggers?: PowerTriggerDef[]
+  decayOn?: PowerTrigger
 }
 ```
-
-Handler functions in `src/game/handlers/hero.ts`:
-- `canUseActivatedAbility(state)` - Check if can use
-- `handleUseActivatedAbility(state)` - Execute activated ability
-- `canUseUltimateAbility(state)` - Check if ultimate ready
-- `handleUseUltimateAbility(state)` - Execute ultimate, reset charges
 
 ## Room System
 
 ```typescript
-interface RoomDefinition {
+interface DungeonRoom {
   id: string
-  name: string
-  type: RoomType        // 'combat' | 'elite' | 'boss' | 'rest' | 'event'
-  monsters: string[]    // Monster definition IDs
-  tier: number
+  type: RoomType        // 'combat' | 'elite' | 'boss' | 'campfire' | 'treasure'
+  enemyCardIds: string[]
+  modifiers?: RoomModifier[]
 }
+```
+
+## Game Phases
+
+```typescript
+type GamePhase = 
+  | 'menu'           // Main menu, dungeon selection
+  | 'roomSelect'     // Choose next room
+  | 'combat'         // Active combat
+  | 'reward'         // Post-combat rewards
+  | 'campfire'       // Rest site
+  | 'treasure'       // Treasure room
+  | 'dungeonComplete' // Beat the boss
+  | 'gameOver'       // Run ended
 ```
 
 ## Animation Integration
 
 GSAP effects triggered after state changes:
 1. State mutation in `applyAction()`
-2. Component re-renders
-3. `useEffect` triggers GSAP animation
-4. Animation plays using registered effects
+2. Visual event added to `visualQueue`
+3. `useVisualEventProcessor` processes queue
+4. GSAP animations play using registered effects
