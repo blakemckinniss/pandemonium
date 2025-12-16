@@ -4,9 +4,9 @@ import { applyAction } from '../game/actions'
 import { getCardDefinition } from '../game/cards'
 
 // Timing constants for enemy turn animations (ms)
-const TELEGRAPH_DURATION = 450  // How long enemy winds up
-const ACTION_DELAY = 300        // Delay after action before next enemy
-const INITIAL_DELAY = 400       // Initial delay before first enemy acts
+const TELEGRAPH_DURATION = 350  // How long enemy winds up (snappier)
+const ACTION_DELAY = 200        // Delay after action before next enemy
+const INITIAL_DELAY = 300       // Initial delay before first enemy acts
 
 interface CombatActionsConfig {
   combat: CombatState | null
@@ -125,10 +125,12 @@ export function useCombatActions({
               return afterTelegraph
             }
 
-            // Emit attack execute visual
+            // Emit action execute visual with intent type
+            const intentType = enemy.intent?.type ?? 'attack'
             const executeEvent: VisualEvent = {
-              type: 'enemyAttackExecute',
+              type: 'enemyActionExecute',
               enemyId: enemy.id,
+              intentType: intentType as 'attack' | 'defend' | 'buff' | 'debuff',
             }
             let newState = applyAction(afterTelegraph, { type: 'emitVisual', event: executeEvent })
 

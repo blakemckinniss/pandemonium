@@ -1057,7 +1057,7 @@ export type VisualEvent =
   | { type: 'enemyUltimate'; entityId: string; ultimateName: string }
   // Enemy turn animations
   | { type: 'enemyTelegraph'; enemyId: string; intentType: 'attack' | 'defend' | 'buff' | 'debuff' | 'ability' | 'ultimate'; intentValue?: number }
-  | { type: 'enemyAttackExecute'; enemyId: string }
+  | { type: 'enemyActionExecute'; enemyId: string; intentType: 'attack' | 'defend' | 'buff' | 'debuff' | 'ability' | 'ultimate' }
 
 // ============================================
 // COMBAT NUMBERS (FCT)

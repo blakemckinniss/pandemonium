@@ -625,17 +625,36 @@ export function useVisualEventProcessor({
         }
         break
       }
-      case 'enemyAttackExecute': {
+      case 'enemyActionExecute': {
         const enemyEl = queryContainer(`[data-target="${event.enemyId}"]`)
         const playerEl = queryContainer('[data-target="player"]')
+
         if (enemyEl) {
-          effects.enemyAttackLunge(enemyEl)
-        }
-        if (playerEl) {
-          // Flash player when hit
-          setTimeout(() => {
-            emitParticle(playerEl, 'spark')
-          }, 120)
+          // Use intent-specific animation
+          switch (event.intentType) {
+            case 'attack':
+            case 'ability':
+            case 'ultimate':
+              effects.enemyAttackLunge(enemyEl)
+              if (playerEl) {
+                setTimeout(() => emitParticle(playerEl, 'spark'), 120)
+              }
+              break
+            case 'defend':
+              effects.enemyDefend(enemyEl)
+              emitParticle(enemyEl, 'block')
+              break
+            case 'buff':
+              effects.pulse(enemyEl, { color: 'oklch(0.65 0.18 85)' })
+              emitParticle(enemyEl, 'energy')
+              break
+            case 'debuff':
+              effects.pulse(enemyEl, { color: 'oklch(0.55 0.18 300)' })
+              if (playerEl) {
+                emitParticle(playerEl, 'poison')
+              }
+              break
+          }
         }
         break
       }
