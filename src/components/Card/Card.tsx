@@ -1,4 +1,4 @@
-import { memo, useRef, useEffect, useState } from 'react'
+import { memo, useRef, useEffect, useState, useCallback } from 'react'
 import { Icon } from '@iconify/react'
 import { gsap } from '../../lib/dragdrop'
 import { PowerTooltip } from '../PowerTooltip/PowerTooltip'
@@ -92,6 +92,25 @@ export const Card = memo(function Card({
   const resolvedImage = image || (cardId ? `/cards/${cardId}.webp` : undefined)
   const [imageError, setImageError] = useState(false)
 
+  // Mouse position tracking for premium card tilt effect (0-1 normalized)
+  const [mousePos, setMousePos] = useState({ x: 0.5, y: 0.5 })
+  const [isHovered, setIsHovered] = useState(false)
+
+  const handleMouseMove = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
+    const card = cardRef.current
+    if (!card) return
+    const rect = card.getBoundingClientRect()
+    const x = (e.clientX - rect.left) / rect.width
+    const y = (e.clientY - rect.top) / rect.height
+    setMousePos({ x, y })
+  }, [])
+
+  const handleMouseEnter = useCallback(() => setIsHovered(true), [])
+  const handleMouseLeave = useCallback(() => {
+    setIsHovered(false)
+    setMousePos({ x: 0.5, y: 0.5 }) // Reset to center
+  }, [])
+
   // Reset error state when image source changes
   useEffect(() => {
     setImageError(false)
@@ -152,8 +171,17 @@ export const Card = memo(function Card({
   const isPremiumRarity = rarity === 'legendary' || rarity === 'mythic' || rarity === 'ancient'
   const cardDimensions = CARD_DIMENSIONS[variant]
 
+  // Mouse handlers only for premium cards (to avoid overhead on common cards)
+  const mouseHandlers = isPremiumRarity
+    ? {
+        onMouseMove: handleMouseMove,
+        onMouseEnter: handleMouseEnter,
+        onMouseLeave: handleMouseLeave,
+      }
+    : {}
+
   return (
-    <div ref={cardRef} className={classes} onClick={onClick} {...dataAttrs}>
+    <div ref={cardRef} className={classes} onClick={onClick} {...mouseHandlers} {...dataAttrs}>
       {/* WebGL Holographic shader for premium rarities */}
       {isPremiumRarity && (
         <RarityShader
@@ -161,6 +189,9 @@ export const Card = memo(function Card({
           element={element}
           width={cardDimensions.width}
           height={cardDimensions.height}
+          mouseX={mousePos.x}
+          mouseY={mousePos.y}
+          isHovered={isHovered}
         />
       )}
 

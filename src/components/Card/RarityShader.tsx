@@ -7,6 +7,9 @@ interface RarityShaderProps {
   element?: Element
   width: number
   height: number
+  mouseX?: number // 0-1 normalized mouse X position
+  mouseY?: number // 0-1 normalized mouse Y position
+  isHovered?: boolean
 }
 
 // Element hue mapping (OKLCH hue values)
@@ -33,6 +36,8 @@ const fragmentShader = `
   uniform float uRarityLevel; // 1=legendary, 2=mythic, 3=ancient
   uniform float uElementHue;
   uniform vec2 uResolution;
+  uniform vec2 uMouse; // 0-1 normalized mouse position
+  uniform float uHovered; // 0 or 1
 
   varying vec2 vUv;
 
@@ -222,6 +227,21 @@ const fragmentShader = `
     vec2 uv = vUv;
     float time = uTime;
 
+    // Mouse-reactive parallax offset
+    vec2 mouseOffset = (uMouse - 0.5) * 2.0; // -1 to 1
+    float hoverStrength = uHovered * 0.15 * uRarityLevel; // Stronger for higher rarities
+
+    // Parallax-shifted UV for depth layers
+    vec2 parallaxUv = uv + mouseOffset * hoverStrength * 0.1;
+
+    // Tilt-based lighting (simulates 3D surface reflection)
+    float tiltLight = 1.0 + dot(mouseOffset, vec2(0.3, 0.5)) * uHovered * 0.3;
+
+    // Hot spot that follows mouse (like light reflecting off foil)
+    vec2 hotSpotPos = uMouse;
+    float hotSpotDist = length(uv - hotSpotPos);
+    float hotSpot = smoothstep(0.4, 0.0, hotSpotDist) * uHovered;
+
     // Border detection
     float borderDist = min(min(uv.x, 1.0 - uv.x), min(uv.y, 1.0 - uv.y));
     float borderWidth = 0.12 + uRarityLevel * 0.04;
@@ -239,9 +259,11 @@ const fragmentShader = `
     // LEGENDARY (Level 1)
     // ===================
 
-    // Rainbow holographic sweep
-    float sweep = fract(uv.x * 0.5 + uv.y * 0.3 + time * 0.15);
-    vec3 holoColor = hsl2rgb(vec3(fract(baseHue + sweep * 0.4), 0.85, 0.65));
+    // Rainbow holographic sweep (uses parallax UV for depth)
+    float sweep = fract(parallaxUv.x * 0.5 + parallaxUv.y * 0.3 + time * 0.15);
+    // Mouse-reactive hue shift
+    float mouseHueShift = dot(mouseOffset, vec2(0.1, 0.05)) * uHovered;
+    vec3 holoColor = hsl2rgb(vec3(fract(baseHue + sweep * 0.4 + mouseHueShift), 0.85, 0.65));
 
     // Chromatic aberration at edges
     float caStrength = edgeMask * 0.15;
@@ -342,8 +364,30 @@ const fragmentShader = `
       alpha = min(0.9, alpha + 0.15);
     }
 
+    // ===================
+    // MOUSE-REACTIVE EFFECTS
+    // ===================
+
+    // Apply tilt-based lighting
+    finalColor *= tiltLight;
+
+    // Add hot spot highlight (foil reflection following mouse)
+    vec3 hotSpotColor = hsl2rgb(vec3(fract(baseHue + 0.1), 0.3, 0.95));
+    finalColor += hotSpotColor * hotSpot * 0.8 * uRarityLevel;
+
+    // Fresnel-like edge glow that reacts to mouse position
+    float fresnelMouse = 1.0 - dot(normalize(vec2(0.5) - uv), normalize(mouseOffset + 0.001));
+    fresnelMouse = pow(abs(fresnelMouse), 2.0) * uHovered;
+    finalColor += vec3(1.0, 0.95, 0.9) * fresnelMouse * edgeMask * 0.3;
+
+    // Boost intensity on hover
+    float hoverBoost = 1.0 + uHovered * 0.15;
+    finalColor *= hoverBoost;
+    alpha *= hoverBoost;
+
     // Final alpha with edge falloff
     alpha *= smoothstep(0.0, 0.02, borderDist);
+    alpha = clamp(alpha, 0.0, 0.95);
 
     gl_FragColor = vec4(finalColor, alpha);
   }
@@ -354,6 +398,9 @@ export const RarityShader = memo(function RarityShader({
   element = 'physical',
   width,
   height,
+  mouseX = 0.5,
+  mouseY = 0.5,
+  isHovered = false,
 }: RarityShaderProps) {
   const containerRef = useRef<HTMLDivElement>(null)
   const rendererRef = useRef<THREE.WebGLRenderer | null>(null)
@@ -396,6 +443,8 @@ export const RarityShader = memo(function RarityShader({
         uRarityLevel: { value: rarityLevel },
         uElementHue: { value: ELEMENT_HUE[element] },
         uResolution: { value: new THREE.Vector2(width, height) },
+        uMouse: { value: new THREE.Vector2(mouseX, mouseY) },
+        uHovered: { value: isHovered ? 1.0 : 0.0 },
       },
       transparent: true,
       depthWrite: false,
@@ -438,6 +487,14 @@ export const RarityShader = memo(function RarityShader({
       materialRef.current.uniforms.uElementHue.value = ELEMENT_HUE[element]
     }
   }, [rarityLevel, element])
+
+  // Update mouse uniforms (separate effect for performance - runs frequently)
+  useEffect(() => {
+    if (materialRef.current) {
+      materialRef.current.uniforms.uMouse.value.set(mouseX, mouseY)
+      materialRef.current.uniforms.uHovered.value = isHovered ? 1.0 : 0.0
+    }
+  }, [mouseX, mouseY, isHovered])
 
   return (
     <div
