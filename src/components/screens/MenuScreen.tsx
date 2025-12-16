@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useMemo } from 'react'
 import { Icon } from '@iconify/react'
 import {
   getCustomDecks,
@@ -6,25 +6,51 @@ import {
   getCollection,
   initializeStarterCollection,
   getAllDungeonDecks,
+  saveCustomDeck,
+  updateCustomDeck,
+  deleteCustomDeck,
+  addToCollection,
   type CustomDeckRecord,
   type CollectionCard,
 } from '../../stores/db'
-import type { DungeonDeckDefinition } from '../../types'
-import { getStarterCardIds, getStarterHeroId, getAllHeroes, getCardDefinition } from '../../game/cards'
+import type { DungeonDeckDefinition, CardDefinition, CardFilters, SortOption, SortDirection } from '../../types'
+import { getStarterCardIds, getStarterHeroId, getAllHeroes, getCardDefinition, getAllCards } from '../../game/cards'
 import { seedBaseContent, isContentSeeded } from '../../game/seed-content'
-import type { CardDefinition } from '../../types'
+import { generatePack, type PackConfig } from '../../game/card-generator'
+import { generateUid } from '../../lib/utils'
+import { THEMES, getTheme } from '../../config/themes'
+import { Card, getCardDefProps } from '../Card/Card'
+import { CardFiltersBar, filterCards, sortCards } from '../CardFilters'
+import { CardDetailModal } from '../CardDetailModal'
+import { DeckAnalytics } from '../DeckAnalytics'
+import { CollectionStats } from '../CollectionStats'
+import { GachaReveal } from '../PackOpening'
+
+type HubTab = 'play' | 'collection' | 'build' | 'packs'
+
+const INITIAL_FILTERS: CardFilters = {
+  themes: [],
+  rarities: [],
+  elements: [],
+  energyRange: [0, 10],
+  owned: null,
+  searchQuery: '',
+}
 
 interface MenuScreenProps {
   onStartRun: (deckId: string | null, heroId: string, dungeonDeckId?: string) => void
-  onDeckBuilder: () => void
+  onDeckBuilder?: () => void // Kept for backwards compat but not used
 }
 
-export function MenuScreen({ onStartRun, onDeckBuilder }: MenuScreenProps) {
+export function MenuScreen({ onStartRun }: MenuScreenProps) {
+  // Tab state
+  const [activeTab, setActiveTab] = useState<HubTab>('play')
+
+  // Play tab state
   const [customDecks, setCustomDecks] = useState<CustomDeckRecord[]>([])
   const [selectedDeckId, setSelectedDeckId] = useState<string | null>(null)
   const [selectedHeroId, setSelectedHeroId] = useState<string>(getStarterHeroId())
   const [stats, setStats] = useState({ totalRuns: 0, totalWins: 0, bestFloor: 0 })
-  const [collection, setCollection] = useState<CollectionCard[]>([])
   const [availableHeroes, setAvailableHeroes] = useState<CardDefinition[]>([])
   const [deckValidation, setDeckValidation] = useState<{ valid: boolean; missing: string[] }>({
     valid: true,
@@ -35,95 +61,371 @@ export function MenuScreen({ onStartRun, onDeckBuilder }: MenuScreenProps) {
   const [dungeonDecks, setDungeonDecks] = useState<DungeonDeckDefinition[]>([])
   const [selectedDungeonId, setSelectedDungeonId] = useState<string | undefined>(undefined)
 
-  // Load custom decks, stats, collection, and heroes on mount
+  // Collection & deck building state
+  const [collection, setCollection] = useState<CollectionCard[]>([])
+  const [currentDeck, setCurrentDeck] = useState<string[]>([])
+  const [deckName, setDeckName] = useState('Custom Deck')
+  const [editingDeckId, setEditingDeckId] = useState<string | null>(null)
+
+  // Filter & Sort state
+  const [filters, setFilters] = useState<CardFilters>(INITIAL_FILTERS)
+  const [sortBy, setSortBy] = useState<SortOption>('rarity')
+  const [sortDirection, setSortDirection] = useState<SortDirection>('desc')
+
+  // UI state
+  const [selectedCard, setSelectedCard] = useState<CardDefinition | null>(null)
+  const [analyticsCollapsed, setAnalyticsCollapsed] = useState(false)
+  const [collectionStatsCollapsed, setCollectionStatsCollapsed] = useState(false)
+
+  // Pack opening state
+  const [isGenerating, setIsGenerating] = useState(false)
+  const [packError, setPackError] = useState<string | null>(null)
+  const [selectedTheme, setSelectedTheme] = useState<string>('standard')
+  const [packSize, setPackSize] = useState(6)
+  const [revealedCards, setRevealedCards] = useState<CardDefinition[]>([])
+  const [showGacha, setShowGacha] = useState(false)
+  const [pendingCards, setPendingCards] = useState<CardDefinition[]>([])
+
+  // Load data on mount
   useEffect(() => {
-    async function loadData() {
-      // Initialize starter collection if needed
-      await initializeStarterCollection(getStarterCardIds())
-
-      const [decks, runStats, owned] = await Promise.all([
-        getCustomDecks(),
-        getRunStats(),
-        getCollection(),
-      ])
-      setCustomDecks(decks)
-      setStats({ totalRuns: runStats.totalRuns, totalWins: runStats.totalWins, bestFloor: runStats.bestFloor })
-      setCollection(owned)
-
-      // Load available heroes - all hero cards from registry
-      // Filter to owned heroes or include starter hero
-      const allHeroes = getAllHeroes()
-      const ownedCardIds = new Set(owned.map((c) => c.cardId))
-      const starterHeroId = getStarterHeroId()
-
-      // Include starter hero + any owned hero cards
-      const heroes = allHeroes.filter(
-        (h) => h.id === starterHeroId || ownedCardIds.has(h.id)
-      )
-
-      // Always ensure starter hero is available (even if not in registry yet)
-      const starterHero = getCardDefinition(starterHeroId)
-      const finalHeroes = starterHero && !heroes.find((h) => h.id === starterHeroId)
-        ? [starterHero, ...heroes]
-        : heroes
-
-      setAvailableHeroes(finalHeroes)
-
-      // Check if content already seeded
-      const contentSeeded = await isContentSeeded()
-      setSeeded(contentSeeded)
-
-      // Load available dungeon decks
-      const dungeons = await getAllDungeonDecks()
-      setDungeonDecks(dungeons)
-    }
     void loadData()
   }, [])
+
+  async function loadData() {
+    await initializeStarterCollection(getStarterCardIds())
+
+    const [decks, runStats, owned, dungeons, contentSeeded] = await Promise.all([
+      getCustomDecks(),
+      getRunStats(),
+      getCollection(),
+      getAllDungeonDecks(),
+      isContentSeeded(),
+    ])
+
+    setCustomDecks(decks)
+    setStats({ totalRuns: runStats.totalRuns, totalWins: runStats.totalWins, bestFloor: runStats.bestFloor })
+    setCollection(owned)
+    setDungeonDecks(dungeons)
+    setSeeded(contentSeeded)
+
+    // Load heroes
+    const allHeroes = getAllHeroes()
+    const ownedCardIds = new Set(owned.map((c) => c.cardId))
+    const starterHeroId = getStarterHeroId()
+    const heroes = allHeroes.filter((h) => h.id === starterHeroId || ownedCardIds.has(h.id))
+    const starterHero = getCardDefinition(starterHeroId)
+    const finalHeroes = starterHero && !heroes.find((h) => h.id === starterHeroId)
+      ? [starterHero, ...heroes]
+      : heroes
+    setAvailableHeroes(finalHeroes)
+  }
 
   // Validate selected deck against collection
   useEffect(() => {
     if (!selectedDeckId) {
-      // Starter deck always valid (uses hardcoded starters)
       setDeckValidation({ valid: true, missing: [] })
       return
     }
-
     const deck = customDecks.find((d) => d.deckId === selectedDeckId)
     if (!deck) {
       setDeckValidation({ valid: false, missing: [] })
       return
     }
-
-    // Check each card in deck is owned
     const ownedCardIds = new Set(collection.map((c) => c.cardId))
     const missing = deck.cardIds.filter((cardId) => !ownedCardIds.has(cardId))
-    const uniqueMissing = [...new Set(missing)]
-
-    setDeckValidation({
-      valid: uniqueMissing.length === 0,
-      missing: uniqueMissing,
-    })
+    setDeckValidation({ valid: missing.length === 0, missing: [...new Set(missing)] })
   }, [selectedDeckId, customDecks, collection])
 
-  // Dev: seed base content
+  // Memoized card data
+  const ownedCardIds = useMemo(() => new Set(collection.map((c) => c.cardId)), [collection])
+
+  const collectionCardDefs = useMemo(() => {
+    return collection
+      .map((c) => {
+        const def = getCardDefinition(c.cardId)
+        return def ? { def, quantity: c.quantity } : null
+      })
+      .filter((c): c is { def: CardDefinition; quantity: number } => c !== null)
+  }, [collection])
+
+  const filteredCollectionCards = useMemo(() => {
+    const defs = collectionCardDefs.map((c) => c.def)
+    const filtered = filterCards(defs, filters, ownedCardIds)
+    const sorted = sortCards(filtered, sortBy, sortDirection)
+    return sorted.map((def) => ({
+      def,
+      quantity: collectionCardDefs.find((c) => c.def.id === def.id)?.quantity || 1,
+    }))
+  }, [collectionCardDefs, filters, sortBy, sortDirection, ownedCardIds])
+
+  // Deck management
+  const handleAddCard = (cardId: string) => setCurrentDeck((prev) => [...prev, cardId])
+  const handleRemoveCard = (index: number) => setCurrentDeck((prev) => prev.filter((_, i) => i !== index))
+
+  const handleSaveDeck = async () => {
+    if (currentDeck.length === 0) return
+    if (editingDeckId) {
+      await updateCustomDeck(editingDeckId, { name: deckName, cardIds: currentDeck })
+    } else {
+      await saveCustomDeck({
+        deckId: generateUid(),
+        name: deckName,
+        heroId: selectedHeroId,
+        cardIds: currentDeck,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      })
+    }
+    const decks = await getCustomDecks()
+    setCustomDecks(decks)
+    setEditingDeckId(null)
+  }
+
+  const handleLoadDeck = (deck: CustomDeckRecord) => {
+    setCurrentDeck(deck.cardIds)
+    setDeckName(deck.name)
+    setEditingDeckId(deck.deckId)
+    setActiveTab('build')
+  }
+
+  const handleDeleteDeck = async (deckId: string) => {
+    await deleteCustomDeck(deckId)
+    const decks = await getCustomDecks()
+    setCustomDecks(decks)
+    if (editingDeckId === deckId) {
+      setEditingDeckId(null)
+      setCurrentDeck([])
+      setDeckName('Custom Deck')
+    }
+  }
+
+  const handleClearDeck = () => {
+    setCurrentDeck([])
+    setDeckName('Custom Deck')
+    setEditingDeckId(null)
+  }
+
+  // Pack opening
+  async function handleOpenPack() {
+    setIsGenerating(true)
+    setPackError(null)
+    setRevealedCards([])
+    try {
+      const theme = getTheme(selectedTheme)
+      const config: Partial<PackConfig> = {
+        size: packSize,
+        theme: theme?.hints[Math.floor(Math.random() * theme.hints.length)],
+        guaranteedRare: packSize >= 5,
+      }
+      const cards = await generatePack(config)
+      setPendingCards(cards)
+      setShowGacha(true)
+    } catch (err) {
+      setPackError(err instanceof Error ? err.message : 'Pack generation failed')
+      setIsGenerating(false)
+    }
+  }
+
+  async function handleGachaComplete() {
+    setShowGacha(false)
+    setRevealedCards(pendingCards)
+    for (const card of pendingCards) {
+      await addToCollection(card.id, 1, 'pack')
+    }
+    const owned = await getCollection()
+    setCollection(owned)
+    setPendingCards([])
+    setIsGenerating(false)
+  }
+
+  // Dev: seed content
   async function handleSeedContent() {
     setSeeding(true)
     const result = await seedBaseContent()
     setSeeding(false)
     setSeeded(result.enemies > 0 || result.dungeons > 0)
-    alert(`Seeded: ${result.enemies} enemies, ${result.dungeons} dungeons${result.errors.length ? `\nErrors: ${result.errors.join(', ')}` : ''}`)
+    alert(`Seeded: ${result.enemies} enemies, ${result.dungeons} dungeons`)
   }
 
-  return (
-    <div className="MenuScreen h-screen flex flex-col items-center justify-center bg-gradient-to-b from-gray-900 to-gray-950">
-      {/* Title */}
-      <h1 className="text-6xl font-bold mb-2 text-energy tracking-wider">PANDEMONIUM</h1>
-      <p className="text-gray-500 mb-8">A Roguelike Deckbuilder</p>
+  // Deck counts for display
+  const deckCounts = currentDeck.reduce((acc, id) => {
+    acc[id] = (acc[id] || 0) + 1
+    return acc
+  }, {} as Record<string, number>)
 
+  return (
+    <div className="MenuScreen h-screen flex flex-col bg-gray-950">
+      {/* Header with Title and Tabs */}
+      <header className="bg-surface border-b border-gray-800">
+        <div className="flex items-center justify-between px-6 py-4">
+          <h1 className="text-2xl font-bold text-energy tracking-wider">PANDEMONIUM</h1>
+          <div className="text-gray-500 text-sm flex gap-4">
+            <span><Icon icon="mdi:counter" className="inline mr-1" />Runs: {stats.totalRuns}</span>
+            <span><Icon icon="mdi:trophy" className="inline mr-1" />Wins: {stats.totalWins}</span>
+            <span><Icon icon="mdi:stairs" className="inline mr-1" />Best: Floor {stats.bestFloor}</span>
+          </div>
+        </div>
+
+        {/* Tabs */}
+        <div className="flex px-6 gap-1">
+          {([
+            { id: 'play', icon: 'mdi:play-circle', label: 'Play' },
+            { id: 'collection', icon: 'mdi:cards', label: `Collection (${collection.length})` },
+            { id: 'build', icon: 'mdi:pencil', label: 'Build Deck' },
+            { id: 'packs', icon: 'mdi:package-variant', label: 'Open Packs' },
+          ] as const).map((tab) => (
+            <button
+              key={tab.id}
+              onClick={() => setActiveTab(tab.id)}
+              className={`px-4 py-2 text-sm font-medium transition-colors rounded-t-lg ${
+                activeTab === tab.id
+                  ? 'bg-gray-800 text-energy border-b-2 border-energy'
+                  : 'text-gray-500 hover:text-gray-300 hover:bg-gray-800/50'
+              }`}
+            >
+              <Icon icon={tab.icon} className="inline mr-2" />
+              {tab.label}
+            </button>
+          ))}
+        </div>
+      </header>
+
+      {/* Main Content */}
+      <main className="flex-1 overflow-hidden flex">
+        {activeTab === 'play' && (
+          <PlayTab
+            availableHeroes={availableHeroes}
+            selectedHeroId={selectedHeroId}
+            setSelectedHeroId={setSelectedHeroId}
+            customDecks={customDecks}
+            selectedDeckId={selectedDeckId}
+            setSelectedDeckId={setSelectedDeckId}
+            dungeonDecks={dungeonDecks}
+            selectedDungeonId={selectedDungeonId}
+            setSelectedDungeonId={setSelectedDungeonId}
+            deckValidation={deckValidation}
+            onStartRun={onStartRun}
+            onLoadDeck={handleLoadDeck}
+            seeding={seeding}
+            seeded={seeded}
+            onSeedContent={handleSeedContent}
+          />
+        )}
+
+        {activeTab === 'collection' && (
+          <CollectionTab
+            collection={collection}
+            filteredCards={filteredCollectionCards}
+            filters={filters}
+            setFilters={setFilters}
+            sortBy={sortBy}
+            sortDirection={sortDirection}
+            onSortChange={(s, d) => { setSortBy(s); setSortDirection(d) }}
+            collectionStatsCollapsed={collectionStatsCollapsed}
+            setCollectionStatsCollapsed={setCollectionStatsCollapsed}
+            onAddCard={handleAddCard}
+            onViewCard={setSelectedCard}
+          />
+        )}
+
+        {activeTab === 'build' && (
+          <BuildTab
+            currentDeck={currentDeck}
+            deckName={deckName}
+            setDeckName={setDeckName}
+            editingDeckId={editingDeckId}
+            deckCounts={deckCounts}
+            customDecks={customDecks}
+            filteredCards={filteredCollectionCards}
+            filters={filters}
+            setFilters={setFilters}
+            sortBy={sortBy}
+            sortDirection={sortDirection}
+            onSortChange={(s, d) => { setSortBy(s); setSortDirection(d) }}
+            analyticsCollapsed={analyticsCollapsed}
+            setAnalyticsCollapsed={setAnalyticsCollapsed}
+            onAddCard={handleAddCard}
+            onRemoveCard={handleRemoveCard}
+            onSaveDeck={handleSaveDeck}
+            onClearDeck={handleClearDeck}
+            onLoadDeck={handleLoadDeck}
+            onDeleteDeck={handleDeleteDeck}
+            onViewCard={setSelectedCard}
+          />
+        )}
+
+        {activeTab === 'packs' && (
+          <PacksTab
+            isGenerating={isGenerating}
+            packError={packError}
+            selectedTheme={selectedTheme}
+            setSelectedTheme={setSelectedTheme}
+            packSize={packSize}
+            setPackSize={setPackSize}
+            revealedCards={revealedCards}
+            showGacha={showGacha}
+            pendingCards={pendingCards}
+            onOpenPack={handleOpenPack}
+            onGachaComplete={handleGachaComplete}
+            onGachaSkip={handleGachaComplete}
+          />
+        )}
+      </main>
+
+      {/* Card Detail Modal */}
+      {selectedCard && (
+        <CardDetailModal
+          card={selectedCard}
+          collectionData={
+            collection.find((c) => c.cardId === selectedCard.id)
+              ? {
+                  quantity: collection.find((c) => c.cardId === selectedCard.id)!.quantity,
+                  obtainedAt: collection.find((c) => c.cardId === selectedCard.id)!.obtainedAt,
+                  source: collection.find((c) => c.cardId === selectedCard.id)!.source,
+                }
+              : undefined
+          }
+          onClose={() => setSelectedCard(null)}
+          onAddToDeck={() => { handleAddCard(selectedCard.id); setActiveTab('build') }}
+        />
+      )}
+    </div>
+  )
+}
+
+// ============================================
+// TAB COMPONENTS
+// ============================================
+
+function PlayTab({
+  availableHeroes, selectedHeroId, setSelectedHeroId,
+  customDecks, selectedDeckId, setSelectedDeckId,
+  dungeonDecks, selectedDungeonId, setSelectedDungeonId,
+  deckValidation, onStartRun, onLoadDeck,
+  seeding, seeded, onSeedContent,
+}: {
+  availableHeroes: CardDefinition[]
+  selectedHeroId: string
+  setSelectedHeroId: (id: string) => void
+  customDecks: CustomDeckRecord[]
+  selectedDeckId: string | null
+  setSelectedDeckId: (id: string | null) => void
+  dungeonDecks: DungeonDeckDefinition[]
+  selectedDungeonId: string | undefined
+  setSelectedDungeonId: (id: string | undefined) => void
+  deckValidation: { valid: boolean; missing: string[] }
+  onStartRun: (deckId: string | null, heroId: string, dungeonDeckId?: string) => void
+  onLoadDeck: (deck: CustomDeckRecord) => void
+  seeding: boolean
+  seeded: boolean
+  onSeedContent: () => void
+}) {
+  return (
+    <div className="flex-1 flex flex-col items-center justify-center p-8">
       {/* Hero Selection */}
       {availableHeroes.length > 0 && (
         <div className="mb-6">
-          <p className="text-gray-400 mb-3 text-sm uppercase tracking-wide">Select Hero</p>
+          <p className="text-gray-400 mb-3 text-sm uppercase tracking-wide text-center">Select Hero</p>
           <div className="flex gap-3 flex-wrap justify-center max-w-2xl">
             {availableHeroes.map((hero) => (
               <button
@@ -149,10 +451,9 @@ export function MenuScreen({ onStartRun, onDeckBuilder }: MenuScreenProps) {
       )}
 
       {/* Deck Selection */}
-      <div className="mb-8">
-        <p className="text-gray-400 mb-3 text-sm uppercase tracking-wide">Select Deck</p>
-        <div className="flex gap-3">
-          {/* Starter Deck */}
+      <div className="mb-6">
+        <p className="text-gray-400 mb-3 text-sm uppercase tracking-wide text-center">Select Deck</p>
+        <div className="flex gap-3 flex-wrap justify-center">
           <button
             onClick={() => setSelectedDeckId(null)}
             className={`px-4 py-2 rounded-lg border-2 transition-all ${
@@ -164,17 +465,17 @@ export function MenuScreen({ onStartRun, onDeckBuilder }: MenuScreenProps) {
             <Icon icon="mdi:sword" className="inline mr-2" />
             Starter Deck
           </button>
-
-          {/* Custom Decks */}
           {customDecks.map((deck) => (
             <button
               key={deck.deckId}
               onClick={() => setSelectedDeckId(deck.deckId)}
+              onDoubleClick={() => onLoadDeck(deck)}
               className={`px-4 py-2 rounded-lg border-2 transition-all ${
                 selectedDeckId === deck.deckId
                   ? 'border-energy bg-energy/20 text-energy'
                   : 'border-gray-600 text-gray-400 hover:border-gray-500'
               }`}
+              title="Double-click to edit"
             >
               <Icon icon="mdi:cards" className="inline mr-2" />
               {deck.name}
@@ -187,9 +488,8 @@ export function MenuScreen({ onStartRun, onDeckBuilder }: MenuScreenProps) {
       {/* Dungeon Selection */}
       {dungeonDecks.length > 0 && (
         <div className="mb-6">
-          <p className="text-gray-400 mb-3 text-sm uppercase tracking-wide">Select Dungeon</p>
+          <p className="text-gray-400 mb-3 text-sm uppercase tracking-wide text-center">Select Dungeon</p>
           <div className="flex gap-3 flex-wrap justify-center max-w-2xl">
-            {/* Random Dungeon (default) */}
             <button
               onClick={() => setSelectedDungeonId(undefined)}
               className={`px-4 py-2 rounded-lg border-2 transition-all ${
@@ -228,57 +528,378 @@ export function MenuScreen({ onStartRun, onDeckBuilder }: MenuScreenProps) {
         </div>
       )}
 
-      {/* Primary Actions */}
-      <div className="flex flex-col gap-3 mb-12">
-        <button
-          onClick={() => onStartRun(selectedDeckId, selectedHeroId, selectedDungeonId)}
-          disabled={!deckValidation.valid}
-          className={`px-8 py-3 font-bold rounded-lg transition-colors text-lg ${
-            deckValidation.valid
-              ? 'bg-energy text-gray-900 hover:bg-energy/90'
-              : 'bg-gray-700 text-gray-500 cursor-not-allowed'
-          }`}
-        >
-          <Icon icon="mdi:play" className="inline mr-2 text-xl" />
-          Start Run
-        </button>
+      {/* Start Button */}
+      <button
+        onClick={() => onStartRun(selectedDeckId, selectedHeroId, selectedDungeonId)}
+        disabled={!deckValidation.valid}
+        className={`px-12 py-4 font-bold rounded-lg transition-colors text-xl ${
+          deckValidation.valid
+            ? 'bg-energy text-gray-900 hover:bg-energy/90'
+            : 'bg-gray-700 text-gray-500 cursor-not-allowed'
+        }`}
+      >
+        <Icon icon="mdi:play" className="inline mr-2 text-2xl" />
+        Start Run
+      </button>
 
-        <button
-          onClick={onDeckBuilder}
-          className="px-8 py-3 border-2 border-gray-600 text-gray-300 rounded-lg hover:border-gray-500 hover:text-white transition-colors"
-        >
-          <Icon icon="mdi:cards-outline" className="inline mr-2" />
-          Deck Builder
-        </button>
-      </div>
-
-      {/* Stats */}
-      <div className="text-gray-500 text-sm flex gap-6">
-        <span>
-          <Icon icon="mdi:counter" className="inline mr-1" />
-          Runs: {stats.totalRuns}
-        </span>
-        <span>
-          <Icon icon="mdi:trophy" className="inline mr-1" />
-          Wins: {stats.totalWins}
-        </span>
-        <span>
-          <Icon icon="mdi:stairs" className="inline mr-1" />
-          Best: Floor {stats.bestFloor}
-        </span>
-      </div>
-
-      {/* Dev: Seed Content (only in dev mode) */}
+      {/* Dev: Seed Content */}
       {import.meta.env.DEV && (
         <button
-          onClick={handleSeedContent}
+          onClick={onSeedContent}
           disabled={seeding || seeded}
-          className="mt-6 px-4 py-2 text-xs border border-gray-700 text-gray-500 rounded hover:border-gray-600 hover:text-gray-400 disabled:opacity-50 disabled:cursor-not-allowed"
+          className="mt-8 px-4 py-2 text-xs border border-gray-700 text-gray-500 rounded hover:border-gray-600 hover:text-gray-400 disabled:opacity-50"
         >
           <Icon icon="mdi:database-plus" className="inline mr-1" />
           {seeding ? 'Generating...' : seeded ? 'Content Seeded' : 'Seed Base Content'}
         </button>
       )}
+    </div>
+  )
+}
+
+function CollectionTab({
+  collection, filteredCards, filters, setFilters,
+  sortBy, sortDirection, onSortChange,
+  collectionStatsCollapsed, setCollectionStatsCollapsed,
+  onAddCard, onViewCard,
+}: {
+  collection: CollectionCard[]
+  filteredCards: { def: CardDefinition; quantity: number }[]
+  filters: CardFilters
+  setFilters: (f: CardFilters) => void
+  sortBy: SortOption
+  sortDirection: SortDirection
+  onSortChange: (s: SortOption, d: SortDirection) => void
+  collectionStatsCollapsed: boolean
+  setCollectionStatsCollapsed: (c: boolean) => void
+  onAddCard: (id: string) => void
+  onViewCard: (card: CardDefinition) => void
+}) {
+  return (
+    <div className="flex-1 flex flex-col overflow-hidden">
+      <div className="px-6 pt-4">
+        <CardFiltersBar
+          filters={filters}
+          onFiltersChange={setFilters}
+          sortBy={sortBy}
+          sortDirection={sortDirection}
+          onSortChange={onSortChange}
+          totalCards={collection.length}
+          filteredCount={filteredCards.length}
+        />
+      </div>
+      <div className="flex-1 overflow-auto p-6 space-y-4">
+        <CollectionStats
+          collection={collection}
+          collapsed={collectionStatsCollapsed}
+          onToggleCollapsed={() => setCollectionStatsCollapsed(!collectionStatsCollapsed)}
+        />
+        <CardGrid cards={filteredCards} onAddCard={onAddCard} onViewCard={onViewCard} />
+      </div>
+    </div>
+  )
+}
+
+function BuildTab({
+  currentDeck, deckName, setDeckName, editingDeckId, deckCounts,
+  customDecks, filteredCards, filters, setFilters,
+  sortBy, sortDirection, onSortChange,
+  analyticsCollapsed, setAnalyticsCollapsed,
+  onAddCard, onRemoveCard, onSaveDeck, onClearDeck, onLoadDeck, onDeleteDeck, onViewCard,
+}: {
+  currentDeck: string[]
+  deckName: string
+  setDeckName: (n: string) => void
+  editingDeckId: string | null
+  deckCounts: Record<string, number>
+  customDecks: CustomDeckRecord[]
+  filteredCards: { def: CardDefinition; quantity: number }[]
+  filters: CardFilters
+  setFilters: (f: CardFilters) => void
+  sortBy: SortOption
+  sortDirection: SortDirection
+  onSortChange: (s: SortOption, d: SortDirection) => void
+  analyticsCollapsed: boolean
+  setAnalyticsCollapsed: (c: boolean) => void
+  onAddCard: (id: string) => void
+  onRemoveCard: (idx: number) => void
+  onSaveDeck: () => void
+  onClearDeck: () => void
+  onLoadDeck: (deck: CustomDeckRecord) => void
+  onDeleteDeck: (id: string) => void
+  onViewCard: (card: CardDefinition) => void
+}) {
+  return (
+    <div className="flex-1 flex overflow-hidden">
+      {/* Left Sidebar - Deck Editor */}
+      <aside className="w-72 bg-surface border-r border-gray-800 flex flex-col">
+        {/* Saved Decks */}
+        <div className="p-4 border-b border-gray-800">
+          <h3 className="text-xs uppercase tracking-wide text-gray-500 mb-2">Saved Decks</h3>
+          <div className="space-y-1 max-h-32 overflow-auto">
+            {customDecks.length === 0 ? (
+              <p className="text-gray-600 text-sm">No saved decks</p>
+            ) : (
+              customDecks.map((deck) => (
+                <div
+                  key={deck.deckId}
+                  className={`flex items-center gap-2 p-2 rounded cursor-pointer ${
+                    editingDeckId === deck.deckId
+                      ? 'bg-energy/20 text-energy'
+                      : 'hover:bg-gray-800 text-gray-300'
+                  }`}
+                  onClick={() => onLoadDeck(deck)}
+                >
+                  <Icon icon="mdi:cards" />
+                  <span className="flex-1 truncate">{deck.name}</span>
+                  <span className="text-xs opacity-60">{deck.cardIds.length}</span>
+                  <button
+                    onClick={(e) => { e.stopPropagation(); void onDeleteDeck(deck.deckId) }}
+                    className="p-1 text-gray-500 hover:text-damage"
+                  >
+                    <Icon icon="mdi:delete" />
+                  </button>
+                </div>
+              ))
+            )}
+          </div>
+        </div>
+
+        {/* Current Deck */}
+        <div className="flex-1 p-4 overflow-auto">
+          <div className="flex items-center justify-between mb-2">
+            <h3 className="text-xs uppercase tracking-wide text-gray-500">Current Deck</h3>
+            <span className="text-xs text-gray-500">{currentDeck.length} cards</span>
+          </div>
+          <input
+            type="text"
+            value={deckName}
+            onChange={(e) => setDeckName(e.target.value)}
+            className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded text-sm text-gray-200 mb-3"
+            placeholder="Deck name"
+          />
+          <div className="space-y-1 mb-4">
+            {Object.entries(deckCounts).map(([cardId, count]) => {
+              const card = getCardDefinition(cardId)
+              if (!card) return null
+              return (
+                <div key={cardId} className="flex items-center gap-2 p-2 bg-gray-800/50 rounded text-sm">
+                  <span className="text-energy">{count}x</span>
+                  <span className="flex-1 text-gray-300 truncate">{card.name}</span>
+                  <button
+                    onClick={() => {
+                      const idx = currentDeck.indexOf(cardId)
+                      if (idx >= 0) onRemoveCard(idx)
+                    }}
+                    className="p-1 text-gray-500 hover:text-damage"
+                  >
+                    <Icon icon="mdi:minus" />
+                  </button>
+                </div>
+              )
+            })}
+          </div>
+          <DeckAnalytics
+            cardIds={currentDeck}
+            collapsed={analyticsCollapsed}
+            onToggleCollapsed={() => setAnalyticsCollapsed(!analyticsCollapsed)}
+          />
+        </div>
+
+        {/* Actions */}
+        <div className="p-4 border-t border-gray-800 space-y-2">
+          <button
+            onClick={() => void onSaveDeck()}
+            disabled={currentDeck.length === 0}
+            className="w-full px-4 py-2 bg-energy text-gray-900 font-medium rounded disabled:opacity-50"
+          >
+            <Icon icon="mdi:content-save" className="inline mr-2" />
+            {editingDeckId ? 'Update Deck' : 'Save Deck'}
+          </button>
+          <button onClick={onClearDeck} className="w-full px-4 py-2 border border-gray-600 text-gray-400 rounded hover:text-white">
+            <Icon icon="mdi:eraser" className="inline mr-2" />
+            Clear
+          </button>
+        </div>
+      </aside>
+
+      {/* Card Pool */}
+      <div className="flex-1 flex flex-col overflow-hidden">
+        <div className="px-6 pt-4">
+          <CardFiltersBar
+            filters={filters}
+            onFiltersChange={setFilters}
+            sortBy={sortBy}
+            sortDirection={sortDirection}
+            onSortChange={onSortChange}
+            totalCards={filteredCards.length}
+            filteredCount={filteredCards.length}
+          />
+        </div>
+        <div className="flex-1 overflow-auto p-6">
+          <p className="text-xs text-gray-500 mb-4">Click to add to deck · Right-click to view details</p>
+          <CardGrid cards={filteredCards} onAddCard={onAddCard} onViewCard={onViewCard} />
+        </div>
+      </div>
+    </div>
+  )
+}
+
+function PacksTab({
+  isGenerating, packError, selectedTheme, setSelectedTheme,
+  packSize, setPackSize, revealedCards,
+  showGacha, pendingCards,
+  onOpenPack, onGachaComplete, onGachaSkip,
+}: {
+  isGenerating: boolean
+  packError: string | null
+  selectedTheme: string
+  setSelectedTheme: (t: string) => void
+  packSize: number
+  setPackSize: (s: number) => void
+  revealedCards: CardDefinition[]
+  showGacha: boolean
+  pendingCards: CardDefinition[]
+  onOpenPack: () => void
+  onGachaComplete: () => void
+  onGachaSkip: () => void
+}) {
+  return (
+    <>
+      {showGacha && pendingCards.length > 0 && (
+        <GachaReveal cards={pendingCards} onComplete={onGachaComplete} onSkip={onGachaSkip} />
+      )}
+      <div className="flex-1 overflow-auto p-6 space-y-6">
+        {/* Pack Controls */}
+        <div className="flex items-end gap-4 p-4 bg-gray-800/50 rounded-lg max-w-2xl mx-auto">
+          <div className="flex-1">
+            <label className="block text-xs text-gray-500 mb-1">Theme</label>
+            <select
+              value={selectedTheme}
+              onChange={(e) => setSelectedTheme(e.target.value)}
+              className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded text-sm text-gray-200"
+            >
+              {THEMES.map((theme) => (
+                <option key={theme.id} value={theme.id}>
+                  {theme.name} - {theme.description}
+                </option>
+              ))}
+            </select>
+          </div>
+          <div className="w-24">
+            <label className="block text-xs text-gray-500 mb-1">Pack Size</label>
+            <select
+              value={packSize}
+              onChange={(e) => setPackSize(Number(e.target.value))}
+              className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded text-sm text-gray-200"
+            >
+              <option value={3}>3 cards</option>
+              <option value={6}>6 cards</option>
+              <option value={10}>10 cards</option>
+            </select>
+          </div>
+          <button
+            onClick={onOpenPack}
+            disabled={isGenerating}
+            className="px-6 py-2 bg-energy text-gray-900 font-medium rounded disabled:opacity-50 flex items-center gap-2"
+          >
+            {isGenerating ? (
+              <>
+                <div className="animate-spin w-4 h-4 border-2 border-gray-900 border-t-transparent rounded-full" />
+                Generating...
+              </>
+            ) : (
+              <>
+                <Icon icon="mdi:package-variant" />
+                Open Pack
+              </>
+            )}
+          </button>
+        </div>
+
+        {packError && (
+          <div className="p-4 bg-damage/20 border border-damage/50 rounded-lg text-damage max-w-2xl mx-auto">
+            {packError}
+          </div>
+        )}
+
+        {revealedCards.length > 0 && (
+          <div className="max-w-4xl mx-auto">
+            <h3 className="text-sm font-medium text-gray-400 mb-4 flex items-center gap-2">
+              <Icon icon="mdi:star" className="text-energy" />
+              Pack Contents ({revealedCards.length} cards)
+            </h3>
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-4">
+              {revealedCards.map((card, idx) => (
+                <div key={`${card.id}-${idx}`} className="transform transition-all">
+                  <Card {...getCardDefProps(card)} variant="hand" playable />
+                  <div className="text-center mt-1">
+                    <span className={`text-xs font-medium ${
+                      card.rarity === 'rare' ? 'text-yellow-400'
+                        : card.rarity === 'uncommon' ? 'text-blue-400'
+                        : 'text-gray-400'
+                    }`}>
+                      {card.rarity}
+                    </span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {revealedCards.length === 0 && !isGenerating && (
+          <div className="text-center text-gray-500 py-12">
+            <Icon icon="mdi:package-variant-closed" className="text-6xl mb-4 opacity-30" />
+            <p className="text-lg">Ready to open a pack?</p>
+            <p className="text-sm mt-2">Choose a theme and click Open Pack to generate new cards!</p>
+          </div>
+        )}
+      </div>
+    </>
+  )
+}
+
+// ============================================
+// SHARED COMPONENTS
+// ============================================
+
+function CardGrid({
+  cards,
+  onAddCard,
+  onViewCard,
+}: {
+  cards: { def: CardDefinition; quantity: number }[]
+  onAddCard: (id: string) => void
+  onViewCard: (card: CardDefinition) => void
+}) {
+  if (cards.length === 0) {
+    return (
+      <div className="text-center text-gray-500 py-12">
+        <Icon icon="mdi:cards-outline" className="text-4xl mb-2 opacity-50" />
+        <p>No cards found</p>
+        <p className="text-sm mt-1">Try adjusting your filters</p>
+      </div>
+    )
+  }
+
+  return (
+    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+      {cards.map(({ def, quantity }) => (
+        <button
+          key={def.id}
+          onClick={() => onAddCard(def.id)}
+          onContextMenu={(e) => { e.preventDefault(); onViewCard(def) }}
+          className="group transition-transform hover:scale-105 relative"
+        >
+          <Card {...getCardDefProps(def)} variant="hand" playable />
+          {quantity > 1 && (
+            <span className="absolute top-2 right-2 bg-energy text-gray-900 text-xs font-bold px-2 py-1 rounded-full">
+              x{quantity}
+            </span>
+          )}
+        </button>
+      ))}
     </div>
   )
 }

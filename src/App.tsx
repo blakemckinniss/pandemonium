@@ -1,16 +1,14 @@
 import { lazy, Suspense, useEffect, useState } from 'react'
-import type { AppScreen } from './types'
 import { MenuScreen } from './components/screens/MenuScreen'
 import { loadGeneratedCardsIntoRegistry } from './game/card-generator'
 
-// Lazy load heavy components - only MenuScreen needed at startup
+// Lazy load heavy components - MenuScreen is now the unified hub
 const GameScreen = lazy(() => import('./components/screens/GameScreen'))
-const DeckBuilderScreen = lazy(() => import('./components/screens/DeckBuilderScreen'))
 const AmbientBackground = lazy(() => import('./components/AmbientBackground/AmbientBackground'))
 
 function App() {
   const [ready, setReady] = useState(false)
-  const [currentScreen, setCurrentScreen] = useState<AppScreen>('menu')
+  const [currentScreen, setCurrentScreen] = useState<'menu' | 'game'>('menu')
   const [selectedDeckId, setSelectedDeckId] = useState<string | null>(null)
   const [selectedHeroId, setSelectedHeroId] = useState<string>('hero_ironclad')
   const [selectedDungeonId, setSelectedDungeonId] = useState<string | undefined>(undefined)
@@ -41,19 +39,10 @@ function App() {
 
   // Render content based on current screen
   const renderScreen = () => {
-    switch (currentScreen) {
-      case 'menu':
-        return (
-          <MenuScreen
-            onStartRun={handleStartRun}
-            onDeckBuilder={() => setCurrentScreen('deckBuilder')}
-          />
-        )
-      case 'deckBuilder':
-        return <DeckBuilderScreen onBack={() => setCurrentScreen('menu')} />
-      case 'game':
-        return <GameScreen deckId={selectedDeckId} heroId={selectedHeroId} dungeonDeckId={selectedDungeonId} onReturnToMenu={handleReturnToMenu} />
+    if (currentScreen === 'game') {
+      return <GameScreen deckId={selectedDeckId} heroId={selectedHeroId} dungeonDeckId={selectedDungeonId} onReturnToMenu={handleReturnToMenu} />
     }
+    return <MenuScreen onStartRun={handleStartRun} />
   }
 
   return (
