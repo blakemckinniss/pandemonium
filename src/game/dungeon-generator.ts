@@ -7,6 +7,7 @@
 
 import { chatCompletion } from '../lib/groq'
 import { generateUid } from '../lib/utils'
+import { logger } from '../lib/logger'
 import type { DungeonDeckDefinition, DungeonRoom, RoomType, RoomModifier } from '../types'
 
 // ============================================
@@ -352,9 +353,9 @@ export async function generateBaseDungeonSet(): Promise<DungeonDeckDefinition[]>
     try {
       const dungeon = await generateDungeonDeck(spec)
       dungeons.push(dungeon)
-      console.log(`[generateBaseDungeonSet] Generated: ${dungeon.name} (${dungeon.rooms.length} rooms)`)
+      logger.debug('DungeonGen', `Generated: ${dungeon.name} (${dungeon.rooms.length} rooms)`)
     } catch (error) {
-      console.error(`[generateBaseDungeonSet] Failed to generate dungeon:`, error)
+      logger.error('DungeonGen', 'Failed to generate dungeon:', error)
       // Continue with other dungeons
     }
   }

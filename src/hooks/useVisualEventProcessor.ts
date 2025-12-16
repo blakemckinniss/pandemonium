@@ -7,6 +7,7 @@ import { applyAction } from '../game/actions'
 import { emitParticle } from '../components/ParticleEffects/emitParticle'
 import { gsap } from '../lib/dragdrop'
 import { generateUid } from '../lib/utils'
+import { logger } from '../lib/logger'
 
 // Type wrapper for GSAP custom effects (plugin lacks proper types)
 type GsapEffect = (target: Element | Element[] | NodeListOf<Element> | null, config?: object) => void
@@ -287,7 +288,7 @@ export function useVisualEventProcessor({
             }
           }, 50)
         }
-        console.log(`+${event.count} ${cardName} → ${destName}`)
+        logger.debug('Visual', `+${event.count} ${cardName} → ${destName}`)
         break
       }
       case 'costModify': {
@@ -312,7 +313,7 @@ export function useVisualEventProcessor({
               : 'oklch(0.6 0.12 60)',
           })
         }
-        console.log(`Conditional: ${event.branch} branch`)
+        logger.debug('Visual', `Conditional: ${event.branch} branch`)
         break
       }
       case 'repeatEffect': {
@@ -322,7 +323,7 @@ export function useVisualEventProcessor({
             color: 'oklch(0.65 0.15 280)',
           })
         }
-        console.log(`Repeat: ${event.current}/${event.times}`)
+        logger.debug('Visual', `Repeat: ${event.current}/${event.times}`)
         break
       }
       case 'replay': {
@@ -351,7 +352,7 @@ export function useVisualEventProcessor({
         }
 
         const cardDef = getCardDefinition(event.cardId)
-        console.log(`Auto-play: ${cardDef?.name ?? event.cardId} from ${event.fromPile}`)
+        logger.debug('Visual', `Auto-play: ${cardDef?.name ?? event.cardId} from ${event.fromPile}`)
         break
       }
       case 'gold': {
@@ -410,7 +411,7 @@ export function useVisualEventProcessor({
             emitParticle(cardEl, 'upgrade')
           }
         }
-        console.log(`Upgraded ${event.cardUids.length} card(s)`)
+        logger.debug('Visual', `Upgraded ${event.cardUids.length} card(s)`)
         break
       }
       case 'retain': {
@@ -421,7 +422,7 @@ export function useVisualEventProcessor({
             emitParticle(cardEl, 'retain')
           }
         }
-        console.log(`Retained ${event.cardUids.length} card(s)`)
+        logger.debug('Visual', `Retained ${event.cardUids.length} card(s)`)
         break
       }
       case 'transform': {
@@ -432,7 +433,7 @@ export function useVisualEventProcessor({
         }
         const fromDef = getCardDefinition(event.fromCardId)
         const toDef = getCardDefinition(event.toCardId)
-        console.log(`Transform: ${fromDef?.name ?? event.fromCardId} → ${toDef?.name ?? event.toCardId}`)
+        logger.debug('Visual', `Transform: ${fromDef?.name ?? event.fromCardId} → ${toDef?.name ?? event.toCardId}`)
         break
       }
       case 'putOnDeck': {
@@ -454,7 +455,7 @@ export function useVisualEventProcessor({
         if (deckAnims.length > 0) {
           setPendingAnimations((prev) => [...prev, ...deckAnims])
         }
-        console.log(`Put ${event.cardUids.length} card(s) on ${event.position} of deck`)
+        logger.debug('Visual', `Put ${event.cardUids.length} card(s) on ${event.position} of deck`)
         break
       }
       case 'relicTrigger': {
@@ -468,7 +469,7 @@ export function useVisualEventProcessor({
           })
           emitParticle(playerEl, 'energy')
         }
-        console.log(`Relic triggered: ${event.relicDefId} (${event.trigger})`)
+        logger.debug('Visual', `Relic triggered: ${event.relicDefId} (${event.trigger})`)
         break
       }
       case 'powerTrigger': {
@@ -499,7 +500,7 @@ export function useVisualEventProcessor({
           effects.pulse(targetEl, { color })
           emitParticle(targetEl, particleType)
         }
-        console.log(`Power triggered: ${event.powerId} on ${event.targetId} (${event.triggerEvent})`)
+        logger.debug('Visual', `Power triggered: ${event.powerId} on ${event.targetId} (${event.triggerEvent})`)
         break
       }
       case 'cardPlayed': {

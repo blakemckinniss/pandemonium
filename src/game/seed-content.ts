@@ -5,6 +5,7 @@ import { generateBaseEnemySet } from './card-generator'
 import { generateBaseDungeonSet } from './dungeon-generator'
 import { registerCard } from './cards'
 import { db, saveDungeonDeck } from '../stores/db'
+import { logger } from '../lib/logger'
 
 export interface SeedResult {
   enemies: number
@@ -22,39 +23,39 @@ export interface SeedResult {
 export async function seedBaseContent(): Promise<SeedResult> {
   const result: SeedResult = { enemies: 0, dungeons: 0, errors: [] }
 
-  console.log('[seedBaseContent] Starting content generation...')
+  logger.info('Seed', 'Starting content generation...')
 
   // Generate and register enemies
   try {
-    console.log('[seedBaseContent] Generating enemies...')
+    logger.info('Seed', 'Generating enemies...')
     const enemies = await generateBaseEnemySet()
     for (const enemy of enemies) {
       registerCard(enemy)
       result.enemies++
     }
-    console.log(`[seedBaseContent] Registered ${result.enemies} enemies`)
+    logger.info('Seed', `Registered ${result.enemies} enemies`)
   } catch (error) {
     const msg = `Enemy generation failed: ${error}`
-    console.error('[seedBaseContent]', msg)
+    logger.error('Seed', msg)
     result.errors.push(msg)
   }
 
   // Generate and save dungeons
   try {
-    console.log('[seedBaseContent] Generating dungeons...')
+    logger.info('Seed', 'Generating dungeons...')
     const dungeons = await generateBaseDungeonSet()
     for (const dungeon of dungeons) {
       await saveDungeonDeck(dungeon)
       result.dungeons++
     }
-    console.log(`[seedBaseContent] Saved ${result.dungeons} dungeons`)
+    logger.info('Seed', `Saved ${result.dungeons} dungeons`)
   } catch (error) {
     const msg = `Dungeon generation failed: ${error}`
-    console.error('[seedBaseContent]', msg)
+    logger.error('Seed', msg)
     result.errors.push(msg)
   }
 
-  console.log('[seedBaseContent] Complete:', result)
+  logger.info('Seed', 'Complete:', result)
   return result
 }
 

@@ -9,6 +9,7 @@ import {
   getImageUrl,
   type GenerateResponse,
 } from '../lib/image-gen'
+import { logger } from '../lib/logger'
 
 // ============================================
 // SYSTEM PROMPT
@@ -689,9 +690,9 @@ export async function generateBaseEnemySet(): Promise<CardDefinition[]> {
         generateArt: false, // Generate art separately in batch for efficiency
       })
       enemies.push(enemy)
-      console.log(`[generateBaseEnemySet] Generated: ${enemy.name}`)
+      logger.debug('EnemyGen', `Generated: ${enemy.name}`)
     } catch (error) {
-      console.error(`[generateBaseEnemySet] Failed to generate enemy:`, error)
+      logger.error('EnemyGen', 'Failed to generate enemy:', error)
       // Continue with other enemies
     }
   }
@@ -793,7 +794,7 @@ async function generateCardArtIfAvailable(
   try {
     const serviceAvailable = await checkServiceHealth()
     if (!serviceAvailable) {
-      console.warn('[card-generator] Image service unavailable, skipping art generation')
+      logger.warn('CardGen', 'Image service unavailable, skipping art generation')
       return null
     }
 
@@ -802,7 +803,7 @@ async function generateCardArtIfAvailable(
     result.url = getImageUrl(result.filename)
     return result
   } catch (error) {
-    console.error('[card-generator] Art generation failed:', error)
+    logger.error('CardGen', 'Art generation failed:', error)
     return null
   }
 }

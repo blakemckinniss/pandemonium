@@ -1,4 +1,5 @@
 import Groq from 'groq-sdk'
+import { logger } from './logger'
 
 // Initialize Groq client with API key from environment
 const groq = new Groq({
@@ -50,7 +51,7 @@ export async function testConnection(): Promise<boolean> {
     )
     return response.toLowerCase().includes('connected')
   } catch (error) {
-    console.error('Groq connection test failed:', error)
+    logger.error('Groq', 'Connection test failed:', error)
     return false
   }
 }

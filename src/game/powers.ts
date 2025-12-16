@@ -4,6 +4,7 @@
 
 import type { PowerDefinition, Entity } from '../types'
 import { ELEMENTAL_STATUS_POWERS } from './elements'
+import { logger } from '../lib/logger'
 
 // ============================================
 // POWER REGISTRY
@@ -676,7 +677,7 @@ export function applyPowerToEntity(
 ): void {
   const powerDef = getPowerDefinition(powerId)
   if (!powerDef) {
-    console.warn(`Unknown power: ${powerId}`)
+    logger.warn('Powers', `Unknown power: ${powerId}`)
     return
   }
 
