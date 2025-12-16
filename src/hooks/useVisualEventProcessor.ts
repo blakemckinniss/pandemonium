@@ -618,9 +618,22 @@ export function useVisualEventProcessor({
         const enemyEl = queryContainer(`[data-target="${event.enemyId}"]`)
         if (enemyEl) {
           effects.enemyTelegraph(enemyEl, { intentType: event.intentType })
-          // Emit warning particles based on intent
-          if (event.intentType === 'attack' || event.intentType === 'ability' || event.intentType === 'ultimate') {
-            emitParticle(enemyEl, 'attack')
+          // Emit intent-specific warning particles
+          switch (event.intentType) {
+            case 'attack':
+            case 'ability':
+            case 'ultimate':
+              emitParticle(enemyEl, 'attack')
+              break
+            case 'defend':
+              emitParticle(enemyEl, 'block')
+              break
+            case 'buff':
+              emitParticle(enemyEl, 'energy')
+              break
+            case 'debuff':
+              emitParticle(enemyEl, 'poison')
+              break
           }
         }
         break
