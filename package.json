@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "concurrently -k -n vite,comfy -c cyan,magenta \"npm run dev:vite\" \"npm run dev:comfyui\"",
     "dev:vite": "vite",
-    "dev:comfyui": "/home/jinx/ai/comfyui/start_optimized.sh",
+    "dev:comfyui": "./scripts/start-comfyui.sh",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview",
