@@ -20,6 +20,7 @@ import { CardFiltersBar, filterCards, sortCards } from '../CardFilters'
 import { CardDetailModal } from '../CardDetailModal'
 import { GachaReveal } from '../PackOpening'
 import { DeckAnalytics } from '../DeckAnalytics'
+import { CollectionStats } from '../CollectionStats'
 import type { CardDefinition, CardFilters, SortOption, SortDirection, DEFAULT_FILTERS } from '../../types'
 
 type Tab = 'collection' | 'packs' | 'all'
@@ -55,6 +56,7 @@ export function DeckBuilderScreen({ onBack }: DeckBuilderScreenProps) {
 
   // Analytics collapsed state
   const [analyticsCollapsed, setAnalyticsCollapsed] = useState(false)
+  const [collectionStatsCollapsed, setCollectionStatsCollapsed] = useState(false)
 
   // Load data on mount
   useEffect(() => {
@@ -360,7 +362,14 @@ export function DeckBuilderScreen({ onBack }: DeckBuilderScreenProps) {
         {/* Card Grid */}
         <div className="flex-1 overflow-auto p-6">
           {activeTab === 'collection' && (
-            <CollectionGrid cards={filteredCollectionCards} onAddCard={handleAddCard} onViewCard={setSelectedCard} />
+            <div className="space-y-4">
+              <CollectionStats
+                collection={collection}
+                collapsed={collectionStatsCollapsed}
+                onToggleCollapsed={() => setCollectionStatsCollapsed((c) => !c)}
+              />
+              <CollectionGrid cards={filteredCollectionCards} onAddCard={handleAddCard} onViewCard={setSelectedCard} />
+            </div>
           )}
           {activeTab === 'packs' && <PackOpeningPanel onCardsObtained={handleCardsObtained} />}
           {activeTab === 'all' && <CardGrid cards={filteredAllCards} onAddCard={handleAddCard} onViewCard={setSelectedCard} />}
