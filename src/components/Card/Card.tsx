@@ -2,7 +2,17 @@ import { memo, useRef, useEffect, useState } from 'react'
 import { Icon } from '@iconify/react'
 import { gsap } from '../../lib/dragdrop'
 import { PowerTooltip } from '../PowerTooltip/PowerTooltip'
-import type { CardVariant, CardTheme, Intent, Powers, Element } from '../../types'
+import type { CardVariant, CardTheme, Intent, Powers, Element, CardRarity } from '../../types'
+import { emitParticle } from '../ParticleEffects/emitParticle'
+import { RarityShader } from './RarityShader'
+
+// Card dimensions by variant
+const CARD_DIMENSIONS: Record<CardVariant, { width: number; height: number }> = {
+  hand: { width: 180, height: 252 },
+  player: { width: 200, height: 280 },
+  enemy: { width: 200, height: 280 },
+  room: { width: 220, height: 140 },
+}
 
 // Element visual config
 const ELEMENT_CONFIG: Record<Element, { icon: string; color: string; bg: string }> = {
@@ -19,7 +29,7 @@ interface CardProps {
   name: string
   cardId?: string // Definition ID for auto-resolving image from /cards/{id}.webp
   image?: string // Explicit image URL (overrides cardId)
-  rarity?: 'starter' | 'common' | 'uncommon' | 'rare'
+  rarity?: CardRarity
   upgraded?: boolean
   element?: Element
 
@@ -115,8 +125,8 @@ export const Card = memo(function Card({
     'Card',
     `Card--${variant}`,
     theme && `Card--${theme}`,
-    rarity === 'rare' && 'Card--rare',
-    rarity === 'uncommon' && 'Card--uncommon',
+    rarity && `Card--${rarity}`,
+    element && `Card--element-${element}`,
     upgraded && 'Card--upgraded',
     playable && 'is-playable',
     disabled && 'is-disabled',
@@ -125,8 +135,35 @@ export const Card = memo(function Card({
     .filter(Boolean)
     .join(' ')
 
+  // Particle aura for premium rarities
+  useEffect(() => {
+    const card = cardRef.current
+    if (!card) return
+    if (rarity !== 'mythic' && rarity !== 'ancient') return
+
+    const interval = setInterval(() => {
+      emitParticle(card, rarity === 'ancient' ? 'ancientAura' : 'mythicAura')
+    }, rarity === 'ancient' ? 500 : 2000)
+
+    return () => clearInterval(interval)
+  }, [rarity])
+
+  // Check if this rarity needs WebGL shader
+  const isPremiumRarity = rarity === 'legendary' || rarity === 'mythic' || rarity === 'ancient'
+  const cardDimensions = CARD_DIMENSIONS[variant]
+
   return (
     <div ref={cardRef} className={classes} onClick={onClick} {...dataAttrs}>
+      {/* WebGL Holographic shader for premium rarities */}
+      {isPremiumRarity && (
+        <RarityShader
+          rarity={rarity as 'legendary' | 'mythic' | 'ancient'}
+          element={element}
+          width={cardDimensions.width}
+          height={cardDimensions.height}
+        />
+      )}
+
       {/* Energy badge (hand cards) */}
       {variant === 'hand' && energy !== undefined && (
         <div className={`absolute top-2 left-2 w-8 h-8 rounded-full text-sm font-bold flex items-center justify-center shadow-md ${
@@ -136,10 +173,10 @@ export const Card = memo(function Card({
         </div>
       )}
 
-      {/* Element badge (hand cards with non-physical element) */}
-      {variant === 'hand' && element && element !== 'physical' && (
-        <div className={`absolute top-2 right-2 w-7 h-7 rounded-full ${ELEMENT_CONFIG[element].bg} flex items-center justify-center shadow-md border border-white/20`}>
-          <Icon icon={ELEMENT_CONFIG[element].icon} className={`w-4 h-4 ${ELEMENT_CONFIG[element].color}`} />
+      {/* Element emblem (hand cards - larger shield shape, all elements) */}
+      {variant === 'hand' && element && (
+        <div className={`Card__element-emblem Card__element-emblem--${element}`}>
+          <Icon icon={ELEMENT_CONFIG[element].icon} className={`w-6 h-6 ${ELEMENT_CONFIG[element].color}`} />
         </div>
       )}
 

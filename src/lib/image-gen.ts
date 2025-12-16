@@ -4,7 +4,7 @@
  * Communicates with the Python FastAPI service running on port 8420.
  */
 
-import type { CardDefinition, CardTheme } from '../types'
+import type { CardDefinition, CardTheme, CardRarity } from '../types'
 
 // Service configuration
 const IMAGE_GEN_URL = (import.meta.env.VITE_IMAGE_GEN_URL as string) || 'http://localhost:8420'
@@ -16,7 +16,7 @@ export interface GenerateRequest {
   description: string
   theme: CardTheme
   element?: 'physical' | 'fire' | 'ice' | 'lightning' | 'void'
-  rarity?: 'starter' | 'common' | 'uncommon' | 'rare'
+  rarity?: CardRarity
   custom_hint?: string
   use_xml?: boolean
   seed?: number

@@ -5,6 +5,7 @@
 // Card Variants
 export type CardVariant = 'player' | 'hand' | 'enemy' | 'room'
 export type CardTheme = 'attack' | 'skill' | 'power' | 'curse' | 'status' | 'hero' | 'enemy'
+export type CardRarity = 'starter' | 'common' | 'uncommon' | 'rare' | 'ultra-rare' | 'legendary' | 'mythic' | 'ancient'
 
 // ============================================
 // ELEMENTAL SYSTEM
@@ -654,7 +655,7 @@ export interface CardDefinition {
   target: EntityTarget
   effects: AtomicEffect[]
   tags?: string[]
-  rarity?: 'starter' | 'common' | 'uncommon' | 'rare'
+  rarity?: CardRarity
   image?: string
   upgraded?: boolean
   ethereal?: boolean // Card exhausts if not played by end of turn

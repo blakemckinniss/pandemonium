@@ -18,6 +18,29 @@
   --color-surface-alt: oklch(0.14 0.005 260);
   --color-border: oklch(0.25 0.005 260);
   --color-bg: oklch(0.11 0.005 260);
+
+  /* Element Colors (OKLCH) */
+  --color-element-physical: oklch(0.65 0.08 250);
+  --color-element-fire: oklch(0.65 0.22 35);
+  --color-element-ice: oklch(0.75 0.15 220);
+  --color-element-lightning: oklch(0.85 0.18 95);
+  --color-element-void: oklch(0.60 0.20 310);
+
+  /* Element Muted (backgrounds) */
+  --color-element-physical-muted: oklch(0.35 0.04 250);
+  --color-element-fire-muted: oklch(0.30 0.10 35);
+  --color-element-ice-muted: oklch(0.30 0.08 220);
+  --color-element-lightning-muted: oklch(0.35 0.08 95);
+  --color-element-void-muted: oklch(0.25 0.10 310);
+
+  /* Rarity Colors */
+  --rarity-common: oklch(0.35 0.02 260);
+  --rarity-uncommon: oklch(0.55 0.14 190);
+  --rarity-rare: oklch(0.65 0.18 80);
+  --rarity-ultra: oklch(0.55 0.25 320);
+  --rarity-legendary: oklch(0.70 0.20 60);
+  --rarity-mythic: oklch(0.75 0.25 280);
+  --rarity-ancient: oklch(0.70 0.30 200);
 }
 
 * {
@@ -557,6 +580,337 @@ body {
 
 .Card.Card--uncommon {
   animation: uncommon-glow 2.5s ease-in-out infinite;
+}
+
+/* Starter card - basic, no frills */
+.Card.Card--starter {
+  border-color: oklch(0.3 0.01 260);
+  background: linear-gradient(
+    180deg,
+    oklch(0.18 0.003 260) 0%,
+    oklch(0.14 0.003 260) 100%
+  );
+}
+
+/* Common card - drab, functional (no animation) */
+.Card.Card--common {
+  border-color: var(--rarity-common);
+  background: linear-gradient(
+    180deg,
+    oklch(0.2 0.005 260) 0%,
+    oklch(0.16 0.005 260) 100%
+  );
+  box-shadow: inset 0 1px 0 oklch(0.3 0 0 / 0.3);
+}
+
+/* Ultra Rare - purple/magenta glow with shimmer sweep */
+@keyframes ultra-rare-glow {
+  0%, 100% {
+    box-shadow:
+      0 0 30px oklch(0.55 0.22 320 / 0.5),
+      0 0 60px oklch(0.5 0.2 320 / 0.3),
+      0 0 90px oklch(0.45 0.15 280 / 0.2),
+      inset 0 1px 0 oklch(0.7 0.15 320 / 0.4);
+    border-color: oklch(0.5 0.2 320);
+  }
+  50% {
+    box-shadow:
+      0 0 40px oklch(0.6 0.25 320 / 0.6),
+      0 0 80px oklch(0.55 0.22 320 / 0.4),
+      0 0 110px oklch(0.5 0.18 280 / 0.25),
+      inset 0 1px 0 oklch(0.8 0.18 320 / 0.5);
+    border-color: oklch(0.6 0.25 320);
+  }
+}
+
+@keyframes ultra-rare-shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+.Card.Card--ultra-rare {
+  animation: ultra-rare-glow 1.8s ease-in-out infinite;
+  position: relative;
+}
+
+.Card.Card--ultra-rare::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: linear-gradient(
+    105deg,
+    transparent 40%,
+    oklch(0.8 0.15 320 / 0.15) 45%,
+    oklch(0.9 0.1 320 / 0.25) 50%,
+    oklch(0.8 0.15 320 / 0.15) 55%,
+    transparent 60%
+  );
+  background-size: 200% 100%;
+  animation: ultra-rare-shimmer 3s linear infinite;
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* ============================================
+   ELEMENT-BASED BORDER TINTS
+   ============================================ */
+
+.Card--element-physical {
+  --element-hue: 250;
+  border-color: var(--color-element-physical);
+}
+.Card--element-fire {
+  --element-hue: 35;
+  border-color: var(--color-element-fire);
+}
+.Card--element-ice {
+  --element-hue: 220;
+  border-color: var(--color-element-ice);
+}
+.Card--element-lightning {
+  --element-hue: 95;
+  border-color: var(--color-element-lightning);
+}
+.Card--element-void {
+  --element-hue: 310;
+  border-color: var(--color-element-void);
+}
+
+/* Element emblem styling */
+.Card__element-emblem {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  width: 40px;
+  height: 40px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 8px oklch(0 0 0 / 0.4);
+  z-index: 2;
+}
+
+.Card__element-emblem--physical {
+  background: linear-gradient(135deg, var(--color-element-physical-muted) 0%, oklch(0.2 0.02 250) 100%);
+  border: 1.5px solid var(--color-element-physical);
+}
+.Card__element-emblem--fire {
+  background: linear-gradient(135deg, var(--color-element-fire-muted) 0%, oklch(0.2 0.05 35) 100%);
+  border: 1.5px solid var(--color-element-fire);
+}
+.Card__element-emblem--ice {
+  background: linear-gradient(135deg, var(--color-element-ice-muted) 0%, oklch(0.2 0.04 220) 100%);
+  border: 1.5px solid var(--color-element-ice);
+}
+.Card__element-emblem--lightning {
+  background: linear-gradient(135deg, var(--color-element-lightning-muted) 0%, oklch(0.25 0.04 95) 100%);
+  border: 1.5px solid var(--color-element-lightning);
+}
+.Card__element-emblem--void {
+  background: linear-gradient(135deg, var(--color-element-void-muted) 0%, oklch(0.15 0.05 310) 100%);
+  border: 1.5px solid var(--color-element-void);
+}
+
+/* ============================================
+   PREMIUM RARITY TIERS (Legendary+)
+   WebGL shader handles main effect, CSS provides fallback
+   ============================================ */
+
+/* Legendary - Rainbow rotating border + holographic */
+@keyframes legendary-glow {
+  0%, 100% {
+    box-shadow:
+      0 0 40px oklch(0.7 0.2 0 / 0.4),
+      0 0 80px oklch(0.6 0.15 120 / 0.25);
+    border-color: oklch(0.7 0.2 60);
+  }
+  33% {
+    box-shadow:
+      0 0 40px oklch(0.7 0.2 120 / 0.4),
+      0 0 80px oklch(0.6 0.15 240 / 0.25);
+    border-color: oklch(0.7 0.2 180);
+  }
+  66% {
+    box-shadow:
+      0 0 40px oklch(0.7 0.2 240 / 0.4),
+      0 0 80px oklch(0.6 0.15 0 / 0.25);
+    border-color: oklch(0.7 0.2 300);
+  }
+}
+
+@keyframes legendary-holographic {
+  0% { background-position: 0% 0%; filter: hue-rotate(0deg); }
+  50% { background-position: 100% 100%; filter: hue-rotate(30deg); }
+  100% { background-position: 0% 0%; filter: hue-rotate(0deg); }
+}
+
+.Card.Card--legendary {
+  animation: legendary-glow 4s linear infinite;
+  border-width: 3px;
+}
+
+.Card.Card--legendary::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: linear-gradient(
+    135deg,
+    oklch(0.9 0.1 0 / 0) 0%,
+    oklch(0.9 0.15 60 / 0.1) 25%,
+    oklch(0.9 0.15 180 / 0.15) 50%,
+    oklch(0.9 0.15 300 / 0.1) 75%,
+    oklch(0.9 0.1 0 / 0) 100%
+  );
+  background-size: 200% 200%;
+  animation: legendary-holographic 6s ease-in-out infinite;
+  pointer-events: none;
+  mix-blend-mode: overlay;
+  z-index: 1;
+}
+
+/* Mythic - Transcendent prismatic */
+@keyframes mythic-pulse {
+  0%, 100% {
+    box-shadow:
+      0 0 50px oklch(0.7 0.25 0 / 0.5),
+      0 0 100px oklch(0.6 0.2 120 / 0.3),
+      0 0 150px oklch(0.5 0.15 240 / 0.2);
+  }
+  33% {
+    box-shadow:
+      0 0 50px oklch(0.7 0.25 120 / 0.5),
+      0 0 100px oklch(0.6 0.2 240 / 0.3),
+      0 0 150px oklch(0.5 0.15 0 / 0.2);
+  }
+  66% {
+    box-shadow:
+      0 0 50px oklch(0.7 0.25 240 / 0.5),
+      0 0 100px oklch(0.6 0.2 0 / 0.3),
+      0 0 150px oklch(0.5 0.15 120 / 0.2);
+  }
+}
+
+.Card.Card--mythic {
+  animation: legendary-glow 3s linear infinite, mythic-pulse 2s ease-in-out infinite;
+  border-width: 4px;
+}
+
+.Card.Card--mythic::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: linear-gradient(
+    115deg,
+    transparent 30%,
+    oklch(0.95 0.1 60 / 0.2) 45%,
+    oklch(1 0 0 / 0.35) 50%,
+    oklch(0.95 0.1 300 / 0.2) 55%,
+    transparent 70%
+  );
+  background-size: 200% 100%;
+  animation: ultra-rare-shimmer 2s linear infinite;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.Card.Card--mythic::after {
+  animation: legendary-holographic 4s ease-in-out infinite;
+}
+
+/* Ancient - Cosmic artifact, ultimate tier */
+@keyframes ancient-warp {
+  0%, 100% {
+    transform: perspective(1000px) rotateY(0deg);
+    filter: brightness(1);
+  }
+  25% {
+    transform: perspective(1000px) rotateY(1deg);
+    filter: brightness(1.05);
+  }
+  75% {
+    transform: perspective(1000px) rotateY(-1deg);
+    filter: brightness(1.05);
+  }
+}
+
+@keyframes ancient-glow {
+  0%, 100% {
+    box-shadow:
+      0 0 60px oklch(0.7 0.3 200 / 0.6),
+      0 0 120px oklch(0.6 0.25 280 / 0.4),
+      0 0 180px oklch(0.5 0.2 320 / 0.3),
+      0 0 240px oklch(0.4 0.15 60 / 0.2),
+      inset 0 0 30px oklch(0.8 0.15 200 / 0.2);
+  }
+  50% {
+    box-shadow:
+      0 0 80px oklch(0.75 0.35 200 / 0.7),
+      0 0 150px oklch(0.65 0.3 280 / 0.5),
+      0 0 220px oklch(0.55 0.25 320 / 0.35),
+      0 0 300px oklch(0.45 0.2 60 / 0.25),
+      inset 0 0 40px oklch(0.9 0.2 200 / 0.25);
+  }
+}
+
+.Card.Card--ancient {
+  background:
+    radial-gradient(ellipse at 30% 20%, oklch(0.25 0.1 280) 0%, transparent 50%),
+    radial-gradient(ellipse at 70% 80%, oklch(0.2 0.15 200) 0%, transparent 40%),
+    oklch(0.12 0.05 280);
+  border: 4px solid transparent;
+  animation:
+    legendary-glow 2.5s linear infinite,
+    ancient-warp 8s ease-in-out infinite,
+    ancient-glow 3s ease-in-out infinite;
+}
+
+.Card.Card--ancient::after {
+  animation: legendary-holographic 3s ease-in-out infinite;
+  mix-blend-mode: screen;
+}
+
+/* ============================================
+   READABILITY SAFEGUARDS FOR PREMIUM TIERS
+   ============================================ */
+
+.Card.Card--legendary .Card-name,
+.Card.Card--mythic .Card-name,
+.Card.Card--ancient .Card-name,
+.Card--legendary [class*="text-"],
+.Card--mythic [class*="text-"],
+.Card--ancient [class*="text-"] {
+  text-shadow:
+    0 1px 2px oklch(0 0 0 / 0.8),
+    0 0 8px oklch(0 0 0 / 0.5);
+  position: relative;
+  z-index: 2;
+}
+
+/* ============================================
+   REDUCED MOTION SUPPORT
+   ============================================ */
+
+@media (prefers-reduced-motion: reduce) {
+  .Card.Card--legendary,
+  .Card.Card--mythic,
+  .Card.Card--ancient,
+  .Card.Card--ultra-rare {
+    animation: none !important;
+  }
+
+  .Card.Card--legendary::before,
+  .Card.Card--legendary::after,
+  .Card.Card--mythic::before,
+  .Card.Card--mythic::after,
+  .Card.Card--ancient::before,
+  .Card.Card--ancient::after,
+  .Card.Card--ultra-rare::before {
+    animation: none !important;
+  }
 }
 
 /* Energy orb ambient glow */

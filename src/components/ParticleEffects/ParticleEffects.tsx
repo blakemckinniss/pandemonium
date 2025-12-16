@@ -171,6 +171,23 @@ const PARTICLE_CONFIG = {
     size: 6,
     gravity: 0.1, // Explosive burst
   },
+  // Rarity aura particles
+  mythicAura: {
+    colors: ['#ff6b6b', '#ffd93d', '#6bff6b', '#6bd9ff', '#d96bff'],
+    count: 6,
+    speed: 1.5,
+    life: 80,
+    size: 3,
+    gravity: -0.03, // Gentle float upward
+  },
+  ancientAura: {
+    colors: ['#ffffff', '#a0d2ff', '#ffd700', '#ff69b4', '#00ffff'],
+    count: 8,
+    speed: 2,
+    life: 100,
+    size: 2.5,
+    gravity: -0.02, // Very slow drift
+  },
 }
 
 export function ParticleEffects({ containerRef }: ParticleEffectsProps) {
