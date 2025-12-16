@@ -34,6 +34,7 @@ export interface MonsterTemplate {
   name: string
   healthRange: [number, number]
   damage: number
+  times?: number  // Multi-hit attacks (e.g., 3x4 damage)
   // Elemental properties
   vulnerabilities?: import('../types').Element[]
   resistances?: import('../types').Element[]
@@ -58,6 +59,20 @@ export const MONSTERS: Record<string, MonsterTemplate> = {
     name: 'Jaw Worm',
     healthRange: [40, 44],
     damage: 11,
+  },
+  spike_slime: {
+    id: 'spike_slime',
+    name: 'Spike Slime',
+    healthRange: [28, 32],
+    damage: 5,
+    times: 2,  // Attacks twice: 2x5 damage
+  },
+  gremlin_nob: {
+    id: 'gremlin_nob',
+    name: 'Gremlin Nob',
+    healthRange: [82, 86],
+    damage: 8,
+    times: 3,  // Attacks three times: 3x8 damage
   },
 
   // --- ELEMENTAL MONSTERS ---
@@ -161,7 +176,7 @@ export function createEnemy(templateId: string): EnemyEntity {
     block: 0,
     barrier: 0,
     powers: {},
-    intent: { type: 'attack', value: template.damage },
+    intent: { type: 'attack', value: template.damage, times: template.times },
     patternIndex: 0,
     // Elemental properties
     vulnerabilities: template.vulnerabilities,

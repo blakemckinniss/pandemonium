@@ -625,19 +625,30 @@ export function useVisualEventProcessor({
             case 'ability':
             case 'ultimate':
               emitParticle(enemyEl, 'attack')
-              // Show damage preview on player
+              // Show damage preview on player with block calculation
               if (playerEl && event.intentValue) {
                 const rect = playerEl.getBoundingClientRect()
                 const times = event.intentTimes ?? 1
+                const totalDamage = event.intentValue * times
+                const playerBlock = combat?.player.block ?? 0
+                const netDamage = Math.max(0, totalDamage - playerBlock)
+                const isFullyBlocked = netDamage === 0 && playerBlock > 0
+
                 const previewNum: CombatNumber = {
                   id: generateUid(),
-                  value: event.intentValue,
+                  value: isFullyBlocked ? 0 : (times > 1 ? event.intentValue : netDamage),
                   type: 'preview',
                   targetId: 'player',
                   x: rect.left + rect.width / 2,
                   y: rect.top + rect.height / 4,
-                  variant: times > 1 ? 'multi' : undefined,
-                  label: times > 1 ? `x${times}` : undefined,
+                  variant: isFullyBlocked ? undefined : (times > 1 ? 'multi' : undefined),
+                  label: isFullyBlocked
+                    ? '🛡️ BLOCKED'
+                    : times > 1
+                      ? `x${times} → ${netDamage}`
+                      : playerBlock > 0
+                        ? `→ ${netDamage}`
+                        : undefined,
                 }
                 setCombatNumbers((prev) => [...prev, previewNum])
               }
