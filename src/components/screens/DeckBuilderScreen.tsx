@@ -8,12 +8,10 @@ import {
   saveCustomDeck,
   updateCustomDeck,
   deleteCustomDeck,
-  getAllGeneratedCards,
   getCollection,
   addToCollection,
   initializeStarterCollection,
   type CustomDeckRecord,
-  type GeneratedCardRecord,
   type CollectionCard,
 } from '../../stores/db'
 import { generateUid } from '../../lib/utils'
@@ -32,7 +30,6 @@ export function DeckBuilderScreen({ onBack }: DeckBuilderScreenProps) {
   const [deckName, setDeckName] = useState('Custom Deck')
   const [editingDeckId, setEditingDeckId] = useState<string | null>(null)
   const [savedDecks, setSavedDecks] = useState<CustomDeckRecord[]>([])
-  const [_generatedCards, setGeneratedCards] = useState<GeneratedCardRecord[]>([])
   const [collection, setCollection] = useState<CollectionCard[]>([])
 
   // Load data on mount
@@ -44,13 +41,11 @@ export function DeckBuilderScreen({ onBack }: DeckBuilderScreenProps) {
     // Initialize starter collection if needed
     await initializeStarterCollection(getStarterCardIds())
 
-    const [decks, cards, owned] = await Promise.all([
+    const [decks, owned] = await Promise.all([
       getCustomDecks(),
-      getAllGeneratedCards(),
       getCollection(),
     ])
     setSavedDecks(decks)
-    setGeneratedCards(cards)
     setCollection(owned)
   }
 
@@ -131,10 +126,9 @@ export function DeckBuilderScreen({ onBack }: DeckBuilderScreenProps) {
     for (const card of cards) {
       await addToCollection(card.id, 1, 'pack')
     }
-    // Refresh collection and generated cards
-    const [owned, generated] = await Promise.all([getCollection(), getAllGeneratedCards()])
+    // Refresh collection
+    const owned = await getCollection()
     setCollection(owned)
-    setGeneratedCards(generated)
   }
 
   // Group current deck cards by ID for display
@@ -378,7 +372,6 @@ function PackOpeningPanel({
   const [selectedTheme, setSelectedTheme] = useState<string>('standard')
   const [packSize, setPackSize] = useState(6)
   const [revealedCards, setRevealedCards] = useState<CardDefinition[]>([])
-  const [_isRevealing, setIsRevealing] = useState(false)
 
   async function handleOpenPack() {
     setIsGenerating(true)
@@ -396,12 +389,10 @@ function PackOpeningPanel({
       const cards = await generatePack(config)
 
       // Reveal cards one by one
-      setIsRevealing(true)
       for (let i = 0; i < cards.length; i++) {
         await new Promise((r) => setTimeout(r, 300))
         setRevealedCards((prev) => [...prev, cards[i]])
       }
-      setIsRevealing(false)
 
       // Add to collection
       await onCardsObtained(cards)

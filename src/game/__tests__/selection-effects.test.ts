@@ -764,8 +764,15 @@ describe('executeTransform', () => {
       },
     }, ctx)
 
-    // Assert - should transform to some card (we can't predict which)
-    expect(draft.combat!.hand[0].definitionId).not.toBe('strike')
+    // Assert - visual queue records the transformation (result may be any common attack, including strike)
+    expect(draft.combat!.visualQueue).toHaveLength(1)
+    expect(draft.combat!.visualQueue[0].type).toBe('transform')
+    if (draft.combat!.visualQueue[0].type === 'transform') {
+      expect(draft.combat!.visualQueue[0].cardUid).toBe(card.uid)
+      expect(draft.combat!.visualQueue[0].fromCardId).toBe('strike')
+      // toCardId will be a random common attack - just verify it's set
+      expect(draft.combat!.visualQueue[0].toCardId).toBeDefined()
+    }
   })
 
   it('does_nothing_when_no_combat', () => {

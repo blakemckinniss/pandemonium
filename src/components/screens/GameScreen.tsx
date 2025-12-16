@@ -24,7 +24,7 @@ import { getEnergyCostNumber } from '../../lib/effects'
 import { gsap } from '../../lib/animations'
 import { enableDragDrop, disableDragDrop } from '../../lib/dragdrop'
 import { useMetaStore, checkUnlocks } from '../../stores/metaStore'
-import { saveRun, getCustomDeckById } from '../../stores/db'
+import { saveRun, getCustomDeckById, getDungeonDeck } from '../../stores/db'
 import { useCampfireHandlers } from '../../hooks/useCampfireHandlers'
 import { useTreasureHandlers } from '../../hooks/useTreasureHandlers'
 import { useRewardHandlers } from '../../hooks/useRewardHandlers'
@@ -230,7 +230,9 @@ export function GameScreen({ deckId, heroId, dungeonDeckId, onReturnToMenu }: Ga
       setTimeout(async () => {
         if (isBoss && state) {
           // Boss defeated - dungeon complete!
-          const { goldReward } = await handleDungeonBeaten(state, 3) // TODO: Get actual difficulty
+          const dungeon = state.dungeonDeckId ? await getDungeonDeck(state.dungeonDeckId) : undefined
+          const difficulty = dungeon?.difficulty ?? 1
+          const { goldReward } = await handleDungeonBeaten(state, difficulty)
           setDungeonReward(goldReward)
           setState((prev) => {
             if (!prev) return prev
