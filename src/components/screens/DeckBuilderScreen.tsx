@@ -332,6 +332,8 @@ function CardGrid({
             name={card.name}
             description={card.description}
             energy={getEnergyCost(card.energy)}
+            element={card.element}
+            rarity={card.rarity}
             playable
           />
         </button>
@@ -372,6 +374,8 @@ function CollectionGrid({
             name={def.name}
             description={def.description}
             energy={getEnergyCost(def.energy)}
+            element={def.element}
+            rarity={def.rarity}
             playable
           />
           {quantity > 1 && (
@@ -511,6 +515,8 @@ function PackOpeningPanel({
                   name={card.name}
                   description={card.description}
                   energy={getEnergyCost(card.energy)}
+                  element={card.element}
+                  rarity={card.rarity}
                   playable
                 />
                 <div className="text-center mt-1">
