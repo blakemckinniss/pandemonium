@@ -195,10 +195,14 @@ export const Card = memo(function Card({
         />
       )}
 
-      {/* Energy badge (hand cards) */}
+      {/* Energy badge (hand cards) - colored by element */}
       {variant === 'hand' && energy !== undefined && (
         <div className={`absolute top-2 left-2 w-8 h-8 rounded-full text-sm font-bold flex items-center justify-center shadow-md ${
-          costModified ? 'bg-green-500 text-white ring-2 ring-green-300' : 'bg-energy text-black'
+          costModified
+            ? 'bg-green-500 text-white ring-2 ring-green-300'
+            : element
+              ? `${ELEMENT_CONFIG[element].bg} ${ELEMENT_CONFIG[element].color}`
+              : 'bg-energy text-black'
         }`}>
           {energy}
         </div>
