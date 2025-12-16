@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useMemo } from 'react'
 import { Icon } from '@iconify/react'
 import { Card, getCardDefProps } from '../Card/Card'
 import { getCardDefinition, getAllCards, getStarterCardIds } from '../../game/cards'
@@ -16,9 +16,21 @@ import {
 } from '../../stores/db'
 import { generateUid } from '../../lib/utils'
 import { THEMES, getTheme } from '../../config/themes'
-import type { CardDefinition } from '../../types'
+import { CardFiltersBar, filterCards, sortCards } from '../CardFilters'
+import { CardDetailModal } from '../CardDetailModal'
+import { GachaReveal } from '../PackOpening'
+import type { CardDefinition, CardFilters, SortOption, SortDirection, DEFAULT_FILTERS } from '../../types'
 
 type Tab = 'collection' | 'packs' | 'all'
+
+const INITIAL_FILTERS: CardFilters = {
+  themes: [],
+  rarities: [],
+  elements: [],
+  energyRange: [0, 10],
+  owned: null,
+  searchQuery: '',
+}
 
 interface DeckBuilderScreenProps {
   onBack: () => void
@@ -31,6 +43,14 @@ export function DeckBuilderScreen({ onBack }: DeckBuilderScreenProps) {
   const [editingDeckId, setEditingDeckId] = useState<string | null>(null)
   const [savedDecks, setSavedDecks] = useState<CustomDeckRecord[]>([])
   const [collection, setCollection] = useState<CollectionCard[]>([])
+
+  // Filter & Sort state
+  const [filters, setFilters] = useState<CardFilters>(INITIAL_FILTERS)
+  const [sortBy, setSortBy] = useState<SortOption>('rarity')
+  const [sortDirection, setSortDirection] = useState<SortDirection>('desc')
+
+  // Card detail modal state
+  const [selectedCard, setSelectedCard] = useState<CardDefinition | null>(null)
 
   // Load data on mount
   useEffect(() => {
@@ -59,6 +79,40 @@ export function DeckBuilderScreen({ onBack }: DeckBuilderScreenProps) {
 
   // Get all cards (starters + generated)
   const allCards = getAllCards()
+
+  // Create set of owned card IDs for filtering
+  const ownedCardIds = useMemo(
+    () => new Set(collection.map((c) => c.cardId)),
+    [collection]
+  )
+
+  // Filter & sort collection cards
+  const filteredCollectionCards = useMemo(() => {
+    const defs = collectionCardDefs.map((c) => c.def)
+    const filtered = filterCards(defs, filters, ownedCardIds)
+    const sorted = sortCards(filtered, sortBy, sortDirection)
+    // Re-attach quantity info
+    return sorted.map((def) => ({
+      def,
+      quantity: collectionCardDefs.find((c) => c.def.id === def.id)?.quantity || 1,
+    }))
+  }, [collectionCardDefs, filters, sortBy, sortDirection, ownedCardIds])
+
+  // Filter & sort all cards
+  const filteredAllCards = useMemo(() => {
+    // Exclude hero and enemy cards from browsing
+    const browsableCards = allCards.filter(
+      (c) => c.theme !== 'hero' && c.theme !== 'enemy'
+    )
+    const filtered = filterCards(browsableCards, filters, ownedCardIds)
+    return sortCards(filtered, sortBy, sortDirection)
+  }, [allCards, filters, sortBy, sortDirection, ownedCardIds])
+
+  // Handle sort change
+  const handleSortChange = (newSort: SortOption, newDirection: SortDirection) => {
+    setSortBy(newSort)
+    setSortDirection(newDirection)
+  }
 
   // Add card to current deck
   const handleAddCard = (cardId: string) => {
@@ -277,15 +331,48 @@ export function DeckBuilderScreen({ onBack }: DeckBuilderScreenProps) {
           ))}
         </div>
 
+        {/* Filter Bar (show for collection and all tabs) */}
+        {activeTab !== 'packs' && (
+          <div className="px-6 pt-4">
+            <CardFiltersBar
+              filters={filters}
+              onFiltersChange={setFilters}
+              sortBy={sortBy}
+              sortDirection={sortDirection}
+              onSortChange={handleSortChange}
+              totalCards={activeTab === 'collection' ? collectionCardDefs.length : allCards.filter(c => c.theme !== 'hero' && c.theme !== 'enemy').length}
+              filteredCount={activeTab === 'collection' ? filteredCollectionCards.length : filteredAllCards.length}
+            />
+          </div>
+        )}
+
         {/* Card Grid */}
         <div className="flex-1 overflow-auto p-6">
           {activeTab === 'collection' && (
-            <CollectionGrid cards={collectionCardDefs} onAddCard={handleAddCard} />
+            <CollectionGrid cards={filteredCollectionCards} onAddCard={handleAddCard} onViewCard={setSelectedCard} />
           )}
           {activeTab === 'packs' && <PackOpeningPanel onCardsObtained={handleCardsObtained} />}
-          {activeTab === 'all' && <CardGrid cards={allCards} onAddCard={handleAddCard} />}
+          {activeTab === 'all' && <CardGrid cards={filteredAllCards} onAddCard={handleAddCard} onViewCard={setSelectedCard} />}
         </div>
       </main>
+
+      {/* Card Detail Modal */}
+      {selectedCard && (
+        <CardDetailModal
+          card={selectedCard}
+          collectionData={
+            collection.find((c) => c.cardId === selectedCard.id)
+              ? {
+                  quantity: collection.find((c) => c.cardId === selectedCard.id)!.quantity,
+                  obtainedAt: collection.find((c) => c.cardId === selectedCard.id)!.obtainedAt,
+                  source: collection.find((c) => c.cardId === selectedCard.id)!.source,
+                }
+              : undefined
+          }
+          onClose={() => setSelectedCard(null)}
+          onAddToDeck={() => handleAddCard(selectedCard.id)}
+        />
+      )}
     </div>
   )
 }
@@ -297,40 +384,54 @@ export function DeckBuilderScreen({ onBack }: DeckBuilderScreenProps) {
 function CardGrid({
   cards,
   onAddCard,
+  onViewCard,
 }: {
   cards: CardDefinition[]
   onAddCard: (id: string) => void
+  onViewCard: (card: CardDefinition) => void
 }) {
   if (cards.length === 0) {
     return (
       <div className="text-center text-gray-500 py-12">
         <Icon icon="mdi:cards-outline" className="text-4xl mb-2 opacity-50" />
         <p>No cards available</p>
+        <p className="text-sm mt-1">Try adjusting your filters</p>
       </div>
     )
   }
 
   return (
-    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
-      {cards.map((card) => (
-        <button
-          key={card.id}
-          onClick={() => onAddCard(card.id)}
-          className="group transition-transform hover:scale-105"
-        >
-          <Card {...getCardDefProps(card)} variant="hand" playable />
-        </button>
-      ))}
-    </div>
+    <>
+      <p className="text-xs text-gray-500 mb-4">
+        Click to add to deck • Right-click to view details
+      </p>
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+        {cards.map((card) => (
+          <button
+            key={card.id}
+            onClick={() => onAddCard(card.id)}
+            onContextMenu={(e) => {
+              e.preventDefault()
+              onViewCard(card)
+            }}
+            className="group transition-transform hover:scale-105"
+          >
+            <Card {...getCardDefProps(card)} variant="hand" playable />
+          </button>
+        ))}
+      </div>
+    </>
   )
 }
 
 function CollectionGrid({
   cards,
   onAddCard,
+  onViewCard,
 }: {
   cards: { def: CardDefinition; quantity: number }[]
   onAddCard: (id: string) => void
+  onViewCard: (card: CardDefinition) => void
 }) {
   if (cards.length === 0) {
     return (
@@ -343,22 +444,31 @@ function CollectionGrid({
   }
 
   return (
-    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
-      {cards.map(({ def, quantity }) => (
-        <button
-          key={def.id}
-          onClick={() => onAddCard(def.id)}
-          className="group transition-transform hover:scale-105 relative"
-        >
-          <Card {...getCardDefProps(def)} variant="hand" playable />
-          {quantity > 1 && (
-            <span className="absolute top-2 right-2 bg-energy text-gray-900 text-xs font-bold px-2 py-1 rounded-full">
-              x{quantity}
-            </span>
-          )}
-        </button>
-      ))}
-    </div>
+    <>
+      <p className="text-xs text-gray-500 mb-4">
+        Click to add to deck • Right-click to view details
+      </p>
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+        {cards.map(({ def, quantity }) => (
+          <button
+            key={def.id}
+            onClick={() => onAddCard(def.id)}
+            onContextMenu={(e) => {
+              e.preventDefault()
+              onViewCard(def)
+            }}
+            className="group transition-transform hover:scale-105 relative"
+          >
+            <Card {...getCardDefProps(def)} variant="hand" playable />
+            {quantity > 1 && (
+              <span className="absolute top-2 right-2 bg-energy text-gray-900 text-xs font-bold px-2 py-1 rounded-full">
+                x{quantity}
+              </span>
+            )}
+          </button>
+        ))}
+      </div>
+    </>
   )
 }
 
@@ -372,6 +482,8 @@ function PackOpeningPanel({
   const [selectedTheme, setSelectedTheme] = useState<string>('standard')
   const [packSize, setPackSize] = useState(6)
   const [revealedCards, setRevealedCards] = useState<CardDefinition[]>([])
+  const [showGacha, setShowGacha] = useState(false)
+  const [pendingCards, setPendingCards] = useState<CardDefinition[]>([])
 
   async function handleOpenPack() {
     setIsGenerating(true)
@@ -388,23 +500,41 @@ function PackOpeningPanel({
 
       const cards = await generatePack(config)
 
-      // Reveal cards one by one
-      for (let i = 0; i < cards.length; i++) {
-        await new Promise((r) => setTimeout(r, 300))
-        setRevealedCards((prev) => [...prev, cards[i]])
-      }
-
-      // Add to collection
-      await onCardsObtained(cards)
+      // Store cards and show gacha ceremony
+      setPendingCards(cards)
+      setShowGacha(true)
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Pack generation failed')
-    } finally {
       setIsGenerating(false)
     }
   }
 
+  // Handle gacha ceremony completion
+  async function handleGachaComplete() {
+    setShowGacha(false)
+    setRevealedCards(pendingCards)
+    await onCardsObtained(pendingCards)
+    setPendingCards([])
+    setIsGenerating(false)
+  }
+
+  // Handle gacha skip
+  function handleGachaSkip() {
+    handleGachaComplete()
+  }
+
   return (
-    <div className="space-y-6">
+    <>
+      {/* Gacha Reveal Overlay */}
+      {showGacha && pendingCards.length > 0 && (
+        <GachaReveal
+          cards={pendingCards}
+          onComplete={() => void handleGachaComplete()}
+          onSkip={handleGachaSkip}
+        />
+      )}
+
+      <div className="space-y-6">
       {/* Pack Controls */}
       <div className="flex items-end gap-4 p-4 bg-gray-800/50 rounded-lg">
         <div className="flex-1">
@@ -506,7 +636,8 @@ function PackOpeningPanel({
           <p className="text-sm mt-2">Choose a theme and click Open Pack to generate new cards!</p>
         </div>
       )}
-    </div>
+      </div>
+    </>
   )
 }
 

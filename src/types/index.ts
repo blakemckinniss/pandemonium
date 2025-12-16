@@ -7,6 +7,39 @@ export type CardVariant = 'player' | 'hand' | 'enemy' | 'room'
 export type CardTheme = 'attack' | 'skill' | 'power' | 'curse' | 'status' | 'hero' | 'enemy'
 export type CardRarity = 'common' | 'uncommon' | 'rare' | 'ultra-rare' | 'legendary' | 'mythic' | 'ancient'
 
+// Card Filtering & Sorting
+export interface CardFilters {
+  themes: CardTheme[]
+  rarities: CardRarity[]
+  elements: Element[]
+  energyRange: [number, number]
+  owned: boolean | null // true=owned only, false=unowned, null=all
+  searchQuery: string
+}
+
+export type SortOption = 'name' | 'rarity' | 'energy' | 'theme' | 'element'
+export type SortDirection = 'asc' | 'desc'
+
+export const DEFAULT_FILTERS: CardFilters = {
+  themes: [],
+  rarities: [],
+  elements: [],
+  energyRange: [0, 10],
+  owned: null,
+  searchQuery: '',
+}
+
+// Rarity order for sorting (higher = rarer)
+export const RARITY_ORDER: Record<CardRarity, number> = {
+  common: 1,
+  uncommon: 2,
+  rare: 3,
+  'ultra-rare': 4,
+  legendary: 5,
+  mythic: 6,
+  ancient: 7,
+}
+
 // ============================================
 // ELEMENTAL SYSTEM
 // ============================================
