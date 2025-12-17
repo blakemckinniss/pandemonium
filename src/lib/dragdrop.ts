@@ -216,6 +216,15 @@ function playCardAnimation(
   _targetEl: HTMLElement | null,
   onComplete: () => void
 ): void {
+  // Keep card above field entities during animation
+  // The wrapper's transform creates a stacking context, so we must boost it too
+  const handCardWrapper = cardEl.closest('.HandCard') as HTMLElement | null
+  if (handCardWrapper) {
+    handCardWrapper.style.zIndex = String(DRAG_Z_INDEX)
+    handCardWrapper.style.transform = 'none'
+  }
+  cardEl.style.zIndex = String(DRAG_Z_INDEX)
+
   // Animation starts from current position (where card was dropped)
   // and flies to discard pile area
   effects.playCard(cardEl, { onComplete })
