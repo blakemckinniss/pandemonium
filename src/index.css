@@ -1784,3 +1784,712 @@ h1, h2, h3, h4, h5, h6,
   gap: 0.125rem;
   font-variant-numeric: tabular-nums;
 }
+
+/* ============================================
+   PHASE 3: ROOM SELECT - Occult Manuscript
+   Mystical path selection with aged map aesthetic
+   ============================================ */
+
+.RoomSelect {
+  background:
+    radial-gradient(ellipse at 50% 30%, oklch(0.14 0.025 45 / 0.6) 0%, transparent 60%),
+    linear-gradient(180deg, oklch(0.10 0.015 38) 0%, oklch(0.07 0.01 32) 100%);
+  position: relative;
+}
+
+/* Mystical fog overlay */
+.RoomSelect::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(ellipse at 20% 80%, oklch(0.25 0.03 45 / 0.15) 0%, transparent 40%),
+    radial-gradient(ellipse at 80% 20%, oklch(0.20 0.02 280 / 0.1) 0%, transparent 35%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* Floor header - ancient chapter title */
+.RoomSelect h1 {
+  font-family: var(--font-display);
+  font-size: 2rem;
+  font-weight: 600;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--color-accent-warm);
+  text-shadow:
+    0 0 30px oklch(0.65 0.15 55 / 0.4),
+    0 2px 4px oklch(0 0 0 / 0.6);
+  position: relative;
+  z-index: 1;
+}
+
+.RoomSelect h1::before,
+.RoomSelect h1::after {
+  content: "◆";
+  position: relative;
+  margin: 0 1rem;
+  font-size: 0.6em;
+  color: oklch(0.45 0.08 50);
+  vertical-align: middle;
+}
+
+/* Subtitle - prophecy text */
+.RoomSelect p {
+  font-family: var(--font-body);
+  font-style: italic;
+  color: oklch(0.55 0.03 45);
+  letter-spacing: 0.05em;
+  position: relative;
+  z-index: 1;
+}
+
+/* Room card container */
+.RoomSelect > div:last-child {
+  position: relative;
+  z-index: 1;
+}
+
+/* Room cards - weathered parchment style */
+.RoomCard > div {
+  background:
+    linear-gradient(135deg, oklch(0.18 0.02 42) 0%, oklch(0.14 0.015 38) 50%, oklch(0.12 0.01 35) 100%);
+  border: 2px solid oklch(0.28 0.03 45);
+  box-shadow:
+    0 4px 20px oklch(0 0 0 / 0.4),
+    inset 0 1px 0 oklch(1 0 0 / 0.03),
+    inset 0 -1px 0 oklch(0 0 0 / 0.2);
+  transition: all 0.3s ease;
+}
+
+.RoomCard:hover > div {
+  border-color: var(--color-accent-warm);
+  box-shadow:
+    0 8px 32px oklch(0.55 0.12 55 / 0.3),
+    0 0 40px oklch(0.55 0.12 55 / 0.15),
+    inset 0 1px 0 oklch(1 0 0 / 0.05);
+  transform: translateY(-4px) scale(1.02);
+}
+
+/* Room icon area - mystical glow */
+.RoomCard > div > div:first-child {
+  background:
+    radial-gradient(circle at 50% 50%, oklch(0.20 0.03 45 / 0.5) 0%, transparent 70%);
+  position: relative;
+}
+
+/* Room info panel */
+.RoomCard > div > div:last-child {
+  background: linear-gradient(180deg, oklch(0.12 0.015 40) 0%, oklch(0.10 0.01 38) 100%);
+  border-top: 1px solid oklch(0.25 0.02 42);
+}
+
+.RoomCard h3 {
+  font-family: var(--font-display);
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  color: oklch(0.80 0.04 50);
+}
+
+/* Room type colors - thematic */
+.RoomCard .text-red-400 { color: oklch(0.60 0.18 25); }     /* Combat - blood */
+.RoomCard .text-orange-400 { color: oklch(0.65 0.20 55); }  /* Elite - ember */
+.RoomCard .text-purple-400 { color: oklch(0.58 0.18 310); } /* Boss - void */
+.RoomCard .text-green-400 { color: oklch(0.58 0.14 145); }  /* Campfire - verdant */
+.RoomCard .text-yellow-400 { color: oklch(0.72 0.16 85); }  /* Treasure - gold */
+.RoomCard .text-blue-400 { color: oklch(0.60 0.12 240); }   /* Event - mystic */
+
+/* Room description text */
+.RoomCard .text-gray-500 {
+  color: oklch(0.50 0.02 45);
+  font-style: italic;
+}
+
+/* ============================================
+   PHASE 4: GAME SCREEN - Combat Arena
+   Dramatic battlefield with occult atmosphere
+   ============================================ */
+
+.Field {
+  background:
+    radial-gradient(ellipse at 50% 100%, oklch(0.12 0.02 25 / 0.4) 0%, transparent 50%),
+    radial-gradient(ellipse at 50% 0%, oklch(0.15 0.02 280 / 0.3) 0%, transparent 40%);
+  position: relative;
+}
+
+/* Subtle arcane circle beneath combat */
+.Field::before {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 80%;
+  height: 80%;
+  border: 1px solid oklch(0.25 0.04 50 / 0.2);
+  border-radius: 50%;
+  pointer-events: none;
+  opacity: 0.3;
+}
+
+/* Combat HUD - top bar styling */
+.GameScreen__hud {
+  background: linear-gradient(180deg, oklch(0.12 0.015 40 / 0.95) 0%, oklch(0.10 0.01 38 / 0.9) 100%);
+  border-bottom: 1px solid oklch(0.25 0.025 45);
+  backdrop-filter: blur(8px);
+}
+
+/* Floor/Room indicator */
+.GameScreen__floor-indicator {
+  font-family: var(--font-display);
+  font-size: 0.75rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: oklch(0.55 0.04 50);
+}
+
+/* Deck/Discard pile buttons - tome styling */
+.PileIndicator {
+  background: linear-gradient(135deg, oklch(0.16 0.015 42) 0%, oklch(0.12 0.01 38) 100%);
+  border: 1px solid oklch(0.28 0.025 45);
+  border-radius: 8px;
+  font-family: var(--font-display);
+  font-size: 0.7rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: oklch(0.60 0.03 48);
+  transition: all 0.2s ease;
+}
+
+.PileIndicator:hover {
+  background: linear-gradient(135deg, oklch(0.20 0.02 45) 0%, oklch(0.15 0.015 40) 100%);
+  border-color: oklch(0.35 0.04 50);
+  color: oklch(0.75 0.04 52);
+  box-shadow: 0 2px 12px oklch(0.5 0.1 55 / 0.2);
+}
+
+/* End Turn button - dramatic action */
+.EndTurnBtn {
+  font-family: var(--font-display);
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  background: linear-gradient(180deg, var(--color-accent-warm) 0%, oklch(0.55 0.15 52) 100%);
+  color: oklch(0.12 0.02 40);
+  border: 2px solid oklch(0.70 0.16 58);
+  box-shadow:
+    0 4px 16px oklch(0.55 0.14 55 / 0.35),
+    inset 0 1px 0 oklch(1 0 0 / 0.2);
+  transition: all 0.2s ease;
+}
+
+.EndTurnBtn:hover:not(:disabled) {
+  background: linear-gradient(180deg, oklch(0.72 0.18 58) 0%, var(--color-accent-warm) 100%);
+  box-shadow:
+    0 6px 24px oklch(0.55 0.15 55 / 0.45),
+    inset 0 1px 0 oklch(1 0 0 / 0.25);
+  transform: translateY(-2px);
+}
+
+.EndTurnBtn:disabled {
+  background: oklch(0.25 0.02 40);
+  border-color: oklch(0.30 0.02 42);
+  color: oklch(0.45 0.02 45);
+  box-shadow: none;
+}
+
+/* Enemy intent display - ominous */
+.EnemyIntent {
+  font-family: var(--font-display);
+  font-size: 0.8rem;
+  letter-spacing: 0.03em;
+  padding: 0.25rem 0.5rem;
+  background: oklch(0.15 0.02 25 / 0.9);
+  border: 1px solid oklch(0.35 0.08 25);
+  border-radius: 6px;
+  color: oklch(0.70 0.12 25);
+  box-shadow: 0 2px 8px oklch(0.4 0.15 25 / 0.3);
+}
+
+.EnemyIntent--attack {
+  border-color: oklch(0.45 0.15 20);
+  color: oklch(0.75 0.18 20);
+}
+
+.EnemyIntent--defend {
+  border-color: oklch(0.40 0.10 240);
+  color: oklch(0.70 0.12 240);
+}
+
+.EnemyIntent--buff {
+  border-color: oklch(0.45 0.12 145);
+  color: oklch(0.70 0.14 145);
+}
+
+/* ============================================
+   PHASE 5: CARD VISUAL IDENTITY
+   Enhanced card frames with occult detailing
+   ============================================ */
+
+/* Room cards - special map-like styling */
+.Card--room {
+  background:
+    linear-gradient(135deg, oklch(0.20 0.025 45) 0%, oklch(0.15 0.02 40) 50%, oklch(0.12 0.015 38) 100%);
+  border: 2px solid oklch(0.30 0.035 48);
+  box-shadow:
+    0 4px 16px oklch(0 0 0 / 0.35),
+    inset 0 1px 0 oklch(1 0 0 / 0.04);
+}
+
+.Card--room:hover {
+  border-color: var(--color-accent-warm);
+  box-shadow:
+    0 8px 24px oklch(0.5 0.12 55 / 0.25),
+    0 0 30px oklch(0.55 0.1 55 / 0.15),
+    inset 0 1px 0 oklch(1 0 0 / 0.06);
+}
+
+/* Card name plate - aged brass */
+.Card__name {
+  font-family: var(--font-display);
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  text-shadow: 0 1px 2px oklch(0 0 0 / 0.5);
+}
+
+/* Energy cost orb - embedded gem */
+.Card__cost {
+  font-family: var(--font-display);
+  font-weight: 700;
+  text-shadow:
+    0 1px 2px oklch(0 0 0 / 0.6),
+    0 0 8px oklch(0.5 0.12 70 / 0.4);
+}
+
+/* Card description text - manuscript script */
+.Card__description {
+  font-family: var(--font-body);
+  font-size: 0.8rem;
+  line-height: 1.35;
+  color: oklch(0.72 0.02 48);
+}
+
+/* Upgraded card name - emerald glow */
+.Card--upgraded .Card__name {
+  color: oklch(0.75 0.15 160);
+  text-shadow:
+    0 0 8px oklch(0.6 0.12 160 / 0.5),
+    0 1px 2px oklch(0 0 0 / 0.5);
+}
+
+/* Card type indicator strip */
+.Card__type-strip {
+  font-family: var(--font-display);
+  font-size: 0.6rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: oklch(0.55 0.03 45);
+}
+
+/* ============================================
+   PHASE 6: REWARD & REST SCREENS
+   Treasure halls and sacred sanctuaries
+   ============================================ */
+
+/* Reward Screen - treasure vault */
+.RewardScreen {
+  background:
+    radial-gradient(ellipse at 50% 20%, oklch(0.22 0.06 70 / 0.3) 0%, transparent 50%),
+    radial-gradient(ellipse at 50% 80%, oklch(0.15 0.03 280 / 0.2) 0%, transparent 40%),
+    linear-gradient(180deg, oklch(0.11 0.015 40) 0%, oklch(0.08 0.01 35) 100%);
+}
+
+.RewardScreen__title {
+  font-family: var(--font-display);
+  font-size: 2.5rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--color-gold);
+  text-shadow:
+    0 0 40px oklch(0.65 0.18 70 / 0.5),
+    0 0 80px oklch(0.55 0.15 70 / 0.3),
+    0 2px 4px oklch(0 0 0 / 0.6);
+}
+
+/* Reward option cards */
+.RewardOption {
+  background: linear-gradient(135deg, oklch(0.18 0.02 45) 0%, oklch(0.14 0.015 40) 100%);
+  border: 2px solid oklch(0.30 0.04 50);
+  border-radius: 12px;
+  padding: 1rem;
+  cursor: pointer;
+  transition: all 0.25s ease;
+}
+
+.RewardOption:hover {
+  border-color: var(--color-gold);
+  background: linear-gradient(135deg, oklch(0.22 0.04 55) 0%, oklch(0.17 0.03 48) 100%);
+  box-shadow:
+    0 8px 32px oklch(0.55 0.15 70 / 0.25),
+    0 0 40px oklch(0.55 0.12 70 / 0.15);
+  transform: translateY(-4px);
+}
+
+.RewardOption__icon {
+  font-size: 2.5rem;
+  filter: drop-shadow(0 4px 8px oklch(0 0 0 / 0.4));
+}
+
+.RewardOption__label {
+  font-family: var(--font-display);
+  font-weight: 500;
+  letter-spacing: 0.03em;
+  color: oklch(0.80 0.04 52);
+}
+
+.RewardOption__value {
+  font-family: var(--font-body);
+  color: var(--color-gold);
+  font-weight: 600;
+}
+
+/* Gold reward - extra shine */
+.RewardOption--gold {
+  border-color: oklch(0.45 0.12 75);
+}
+
+.RewardOption--gold:hover {
+  box-shadow:
+    0 8px 32px oklch(0.60 0.18 75 / 0.35),
+    0 0 50px oklch(0.58 0.15 75 / 0.2);
+}
+
+/* Card reward selection */
+.CardRewardGrid {
+  display: flex;
+  gap: 1.5rem;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+/* Skip button - subtle */
+.SkipRewardBtn {
+  font-family: var(--font-display);
+  font-size: 0.75rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: oklch(0.50 0.02 45);
+  background: transparent;
+  border: 1px solid oklch(0.30 0.02 42);
+  border-radius: 6px;
+  padding: 0.5rem 1rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.SkipRewardBtn:hover {
+  color: oklch(0.70 0.03 48);
+  border-color: oklch(0.40 0.03 45);
+  background: oklch(0.15 0.01 40);
+}
+
+/* Campfire Screen - sacred rest */
+.CampfireScreen {
+  background:
+    radial-gradient(ellipse at 50% 70%, oklch(0.20 0.08 35 / 0.4) 0%, transparent 45%),
+    radial-gradient(ellipse at 50% 100%, oklch(0.25 0.12 30 / 0.3) 0%, transparent 50%),
+    linear-gradient(180deg, oklch(0.08 0.01 35) 0%, oklch(0.06 0.008 30) 100%);
+  position: relative;
+}
+
+/* Animated firelight flicker */
+@keyframes firelight-flicker {
+  0%, 100% {
+    opacity: 0.4;
+    transform: scale(1);
+  }
+  25% {
+    opacity: 0.5;
+    transform: scale(1.02);
+  }
+  50% {
+    opacity: 0.35;
+    transform: scale(0.98);
+  }
+  75% {
+    opacity: 0.45;
+    transform: scale(1.01);
+  }
+}
+
+.CampfireScreen::before {
+  content: "";
+  position: absolute;
+  bottom: 20%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 300px;
+  height: 300px;
+  background: radial-gradient(circle, oklch(0.50 0.20 35 / 0.3) 0%, transparent 70%);
+  border-radius: 50%;
+  animation: firelight-flicker 3s ease-in-out infinite;
+  pointer-events: none;
+}
+
+.CampfireScreen__title {
+  font-family: var(--font-display);
+  font-size: 2rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: oklch(0.75 0.12 45);
+  text-shadow:
+    0 0 20px oklch(0.60 0.15 40 / 0.4),
+    0 2px 4px oklch(0 0 0 / 0.5);
+  position: relative;
+  z-index: 1;
+}
+
+/* Campfire actions */
+.CampfireAction {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1.5rem 2rem;
+  background: linear-gradient(180deg, oklch(0.15 0.02 38 / 0.9) 0%, oklch(0.12 0.015 35 / 0.95) 100%);
+  border: 2px solid oklch(0.28 0.03 42);
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  position: relative;
+  z-index: 1;
+}
+
+.CampfireAction:hover {
+  border-color: oklch(0.50 0.10 45);
+  background: linear-gradient(180deg, oklch(0.20 0.03 42 / 0.95) 0%, oklch(0.15 0.025 38 / 0.98) 100%);
+  box-shadow:
+    0 8px 24px oklch(0.45 0.12 40 / 0.25),
+    0 0 30px oklch(0.50 0.10 40 / 0.15);
+  transform: translateY(-4px);
+}
+
+.CampfireAction__icon {
+  font-size: 3rem;
+  filter: drop-shadow(0 4px 8px oklch(0 0 0 / 0.4));
+}
+
+.CampfireAction__label {
+  font-family: var(--font-display);
+  font-weight: 500;
+  font-size: 1.1rem;
+  letter-spacing: 0.04em;
+  color: oklch(0.78 0.04 48);
+}
+
+.CampfireAction__desc {
+  font-family: var(--font-body);
+  font-size: 0.85rem;
+  color: oklch(0.55 0.02 45);
+  text-align: center;
+  max-width: 150px;
+}
+
+/* Rest action - healing green */
+.CampfireAction--rest:hover {
+  border-color: oklch(0.50 0.12 145);
+  box-shadow:
+    0 8px 24px oklch(0.45 0.12 145 / 0.25),
+    0 0 30px oklch(0.50 0.10 145 / 0.15);
+}
+
+/* Smith action - upgrade emerald */
+.CampfireAction--smith:hover {
+  border-color: oklch(0.55 0.15 160);
+  box-shadow:
+    0 8px 24px oklch(0.50 0.14 160 / 0.25),
+    0 0 30px oklch(0.55 0.12 160 / 0.15);
+}
+
+/* Treasure Screen - golden vault */
+.TreasureScreen {
+  background:
+    radial-gradient(ellipse at 50% 30%, oklch(0.25 0.08 75 / 0.25) 0%, transparent 50%),
+    radial-gradient(ellipse at 30% 70%, oklch(0.20 0.06 60 / 0.2) 0%, transparent 40%),
+    radial-gradient(ellipse at 70% 80%, oklch(0.18 0.05 85 / 0.15) 0%, transparent 35%),
+    linear-gradient(180deg, oklch(0.10 0.015 45) 0%, oklch(0.07 0.01 38) 100%);
+}
+
+.TreasureScreen__title {
+  font-family: var(--font-display);
+  font-size: 2.5rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--color-gold);
+  text-shadow:
+    0 0 30px oklch(0.65 0.18 75 / 0.5),
+    0 0 60px oklch(0.55 0.15 75 / 0.3),
+    0 2px 4px oklch(0 0 0 / 0.6);
+}
+
+/* Treasure chest animation */
+@keyframes treasure-gleam {
+  0%, 100% {
+    box-shadow:
+      0 0 30px oklch(0.60 0.18 75 / 0.3),
+      0 0 60px oklch(0.50 0.15 75 / 0.2);
+  }
+  50% {
+    box-shadow:
+      0 0 50px oklch(0.70 0.22 75 / 0.4),
+      0 0 100px oklch(0.55 0.18 75 / 0.25);
+  }
+}
+
+.TreasureChest {
+  animation: treasure-gleam 2s ease-in-out infinite;
+  border-radius: 16px;
+}
+
+/* Relic display - artifact presentation */
+.RelicReward {
+  background: linear-gradient(135deg, oklch(0.20 0.04 55) 0%, oklch(0.15 0.03 48) 100%);
+  border: 3px solid oklch(0.45 0.12 70);
+  border-radius: 16px;
+  padding: 2rem;
+  text-align: center;
+  box-shadow:
+    0 8px 32px oklch(0.5 0.15 70 / 0.3),
+    inset 0 1px 0 oklch(1 0 0 / 0.05);
+}
+
+.RelicReward__icon {
+  font-size: 4rem;
+  margin-bottom: 1rem;
+  filter: drop-shadow(0 4px 12px oklch(0.5 0.15 70 / 0.4));
+}
+
+.RelicReward__name {
+  font-family: var(--font-display);
+  font-size: 1.5rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  color: var(--color-gold);
+  margin-bottom: 0.5rem;
+}
+
+.RelicReward__desc {
+  font-family: var(--font-body);
+  color: oklch(0.70 0.03 50);
+  line-height: 1.4;
+}
+
+/* ============================================
+   GAME OVER SCREENS
+   Victory triumph / Defeat despair
+   ============================================ */
+
+/* Victory - triumphant gold */
+.VictoryScreen {
+  background:
+    radial-gradient(ellipse at 50% 30%, oklch(0.30 0.12 75 / 0.3) 0%, transparent 50%),
+    radial-gradient(ellipse at 50% 70%, oklch(0.20 0.08 60 / 0.2) 0%, transparent 45%),
+    linear-gradient(180deg, oklch(0.12 0.02 50) 0%, oklch(0.08 0.015 40) 100%);
+}
+
+.VictoryScreen__title {
+  font-family: var(--font-display);
+  font-size: 4rem;
+  font-weight: 700;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--color-gold);
+  text-shadow:
+    0 0 50px oklch(0.70 0.20 75 / 0.6),
+    0 0 100px oklch(0.55 0.18 75 / 0.4),
+    0 4px 8px oklch(0 0 0 / 0.6);
+}
+
+/* Defeat - somber crimson */
+.DefeatScreen {
+  background:
+    radial-gradient(ellipse at 50% 50%, oklch(0.15 0.08 20 / 0.3) 0%, transparent 50%),
+    linear-gradient(180deg, oklch(0.08 0.02 25) 0%, oklch(0.05 0.015 20) 100%);
+}
+
+.DefeatScreen__title {
+  font-family: var(--font-display);
+  font-size: 3.5rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: oklch(0.55 0.18 20);
+  text-shadow:
+    0 0 30px oklch(0.50 0.20 20 / 0.4),
+    0 2px 4px oklch(0 0 0 / 0.6);
+}
+
+/* Run stats display */
+.RunStats {
+  background: linear-gradient(180deg, oklch(0.14 0.015 40 / 0.95) 0%, oklch(0.11 0.01 38 / 0.98) 100%);
+  border: 1px solid oklch(0.25 0.02 42);
+  border-radius: 12px;
+  padding: 1.5rem;
+}
+
+.RunStats__header {
+  font-family: var(--font-display);
+  font-size: 0.8rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: oklch(0.55 0.03 48);
+  margin-bottom: 1rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid oklch(0.25 0.02 42);
+}
+
+.RunStats__row {
+  display: flex;
+  justify-content: space-between;
+  padding: 0.375rem 0;
+  font-family: var(--font-body);
+}
+
+.RunStats__label {
+  color: oklch(0.60 0.02 45);
+}
+
+.RunStats__value {
+  color: oklch(0.80 0.04 50);
+  font-weight: 600;
+}
+
+/* Restart button */
+.RestartBtn {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 1rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  padding: 0.875rem 2.5rem;
+  background: linear-gradient(180deg, oklch(0.45 0.12 250) 0%, oklch(0.38 0.10 260) 100%);
+  color: oklch(0.95 0 0);
+  border: 2px solid oklch(0.55 0.14 250);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow:
+    0 4px 16px oklch(0.40 0.12 250 / 0.35),
+    inset 0 1px 0 oklch(1 0 0 / 0.15);
+}
+
+.RestartBtn:hover {
+  background: linear-gradient(180deg, oklch(0.52 0.14 250) 0%, oklch(0.45 0.12 260) 100%);
+  box-shadow:
+    0 6px 24px oklch(0.45 0.14 250 / 0.45),
+    inset 0 1px 0 oklch(1 0 0 / 0.2);
+  transform: translateY(-2px);
+}
