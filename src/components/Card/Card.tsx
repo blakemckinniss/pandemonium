@@ -268,23 +268,32 @@ export const Card = memo(function Card({
         </div>
       )}
 
-      {/* Intent badge (enemies) */}
-      {variant === 'enemy' && intent && (
-        <div className="absolute top-2 right-2 px-2 py-1 rounded bg-surface-alt/90 text-sm flex items-center gap-1 z-10">
-          {intent.type === 'attack' && (
-            <>
-              <Icon icon="game-icons:crossed-swords" className="text-damage" />
-              <span className="text-damage font-medium">{intent.value}</span>
-            </>
+      {/* Top-right info column (intent + powers) for player/enemy */}
+      {(variant === 'player' || variant === 'enemy') && (
+        <div className="absolute top-2 right-2 flex flex-col items-end gap-1 z-10">
+          {/* Intent badge (enemies only) */}
+          {variant === 'enemy' && intent && (
+            <div className="px-2 py-1 rounded bg-surface-alt/90 text-sm flex items-center gap-1">
+              {intent.type === 'attack' && (
+                <>
+                  <Icon icon="game-icons:crossed-swords" className="text-damage" />
+                  <span className="text-damage font-medium">{intent.value}</span>
+                </>
+              )}
+              {intent.type === 'defend' && (
+                <>
+                  <Icon icon="game-icons:shield" className="text-block" />
+                  <span className="text-block font-medium">{intent.value}</span>
+                </>
+              )}
+              {intent.type === 'buff' && <Icon icon="game-icons:arrow-up" className="text-heal" />}
+              {intent.type === 'debuff' && <Icon icon="game-icons:arrow-down" className="text-damage" />}
+            </div>
           )}
-          {intent.type === 'defend' && (
-            <>
-              <Icon icon="game-icons:shield" className="text-block" />
-              <span className="text-block font-medium">{intent.value}</span>
-            </>
+          {/* Power indicators stacked vertically */}
+          {powers && Object.keys(powers).length > 0 && (
+            <PowerIndicatorsVertical powers={powers} />
           )}
-          {intent.type === 'buff' && <Icon icon="game-icons:arrow-up" className="text-heal" />}
-          {intent.type === 'debuff' && <Icon icon="game-icons:arrow-down" className="text-damage" />}
         </div>
       )}
 
@@ -327,7 +336,7 @@ export const Card = memo(function Card({
         </div>
       )}
 
-      {/* Entity info footer - player/enemy cards (unified stacking) */}
+      {/* Entity info footer - player/enemy cards (name + health) */}
       {(variant === 'player' || variant === 'enemy') && (
         <div className="absolute bottom-0 left-0 right-0 z-10 flex flex-col">
           {/* Name */}
@@ -342,10 +351,6 @@ export const Card = memo(function Card({
               block={block}
             />
           </div>
-          {/* Power indicators */}
-          {powers && Object.keys(powers).length > 0 && (
-            <PowerIndicators powers={powers} />
-          )}
         </div>
       )}
     </div>
@@ -431,12 +436,13 @@ interface PowerIndicatorsProps {
   powers: Powers
 }
 
-const PowerIndicators = memo(function PowerIndicators({ powers }: PowerIndicatorsProps) {
+// Power indicators in vertical column for top-right layout
+const PowerIndicatorsVertical = memo(function PowerIndicatorsVertical({ powers }: PowerIndicatorsProps) {
   const entries = Object.entries(powers)
   if (entries.length === 0) return null
 
   return (
-    <div className="flex flex-wrap gap-1 px-2 pb-2 justify-center">
+    <div className="flex flex-col gap-1">
       {entries.map(([id, power]) => {
         const config = POWER_ICONS[id] || { icon: 'game-icons:uncertainty', color: 'text-gray-400' }
         return (
