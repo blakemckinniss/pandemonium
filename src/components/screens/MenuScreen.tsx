@@ -254,20 +254,29 @@ export function MenuScreen({ onStartRun }: MenuScreenProps) {
   }, {} as Record<string, number>)
 
   return (
-    <div className="MenuScreen h-screen flex flex-col bg-gray-950">
+    <div className="MenuScreen h-screen flex flex-col">
       {/* Header with Title and Tabs */}
-      <header className="bg-surface border-b border-gray-800">
+      <header className="menu-header">
         <div className="flex items-center justify-between px-6 py-4">
-          <h1 className="text-2xl font-bold text-energy tracking-wider">PANDEMONIUM</h1>
-          <div className="text-gray-500 text-sm flex gap-4">
-            <span><Icon icon="mdi:counter" className="inline mr-1" />Runs: {stats.totalRuns}</span>
-            <span><Icon icon="mdi:trophy" className="inline mr-1" />Wins: {stats.totalWins}</span>
-            <span><Icon icon="mdi:stairs" className="inline mr-1" />Best: Floor {stats.bestFloor}</span>
+          <h1 className="menu-title">Pandemonium</h1>
+          <div className="flex gap-3">
+            <span className="stat-badge">
+              <Icon icon="mdi:counter" className="text-accent-ember" />
+              Runs: {stats.totalRuns}
+            </span>
+            <span className="stat-badge">
+              <Icon icon="mdi:trophy" className="text-gold" />
+              Wins: {stats.totalWins}
+            </span>
+            <span className="stat-badge">
+              <Icon icon="mdi:stairs" className="text-accent-warm" />
+              Best: Floor {stats.bestFloor}
+            </span>
           </div>
         </div>
 
         {/* Tabs */}
-        <div className="flex px-6 gap-1">
+        <div className="menu-tabs">
           {([
             { id: 'play', icon: 'mdi:play-circle', label: 'Play' },
             { id: 'collection', icon: 'mdi:cards', label: `Collection (${collection.length})` },
@@ -277,13 +286,9 @@ export function MenuScreen({ onStartRun }: MenuScreenProps) {
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
-              className={`px-4 py-2 text-sm font-medium transition-colors rounded-t-lg ${
-                activeTab === tab.id
-                  ? 'bg-gray-800 text-energy border-b-2 border-energy'
-                  : 'text-gray-500 hover:text-gray-300 hover:bg-gray-800/50'
-              }`}
+              className={`menu-tab ${activeTab === tab.id ? 'menu-tab--active' : ''}`}
             >
-              <Icon icon={tab.icon} className="inline mr-2" />
+              <Icon icon={tab.icon} className="inline mr-2 opacity-70" />
               {tab.label}
             </button>
           ))}
@@ -424,23 +429,19 @@ function PlayTab({
     <div className="flex-1 flex flex-col items-center justify-center p-8">
       {/* Hero Selection */}
       {availableHeroes.length > 0 && (
-        <div className="mb-6">
-          <p className="text-gray-400 mb-3 text-sm uppercase tracking-wide text-center">Select Hero</p>
+        <div className="mb-8">
+          <p className="section-header">Select Hero</p>
           <div className="flex gap-3 flex-wrap justify-center max-w-2xl">
             {availableHeroes.map((hero) => (
               <button
                 key={hero.id}
                 onClick={() => setSelectedHeroId(hero.id)}
-                className={`px-4 py-3 rounded-lg border-2 transition-all flex flex-col items-center min-w-[120px] ${
-                  selectedHeroId === hero.id
-                    ? 'border-yellow-500 bg-yellow-500/20 text-yellow-400'
-                    : 'border-gray-600 text-gray-400 hover:border-gray-500'
-                }`}
+                className={`selection-btn ${selectedHeroId === hero.id ? 'selection-btn--selected' : ''}`}
               >
-                <Icon icon="mdi:shield-account" className="text-2xl mb-1" />
-                <span className="font-medium">{hero.name}</span>
+                <Icon icon="mdi:shield-account" className="text-2xl opacity-70" />
+                <span className="selection-btn__label">{hero.name}</span>
                 {hero.heroStats && (
-                  <span className="text-xs opacity-60 mt-1">
+                  <span className="selection-btn__meta">
                     {hero.heroStats.health} HP · {hero.heroStats.energy} Energy
                   </span>
                 )}
@@ -451,35 +452,27 @@ function PlayTab({
       )}
 
       {/* Deck Selection */}
-      <div className="mb-6">
-        <p className="text-gray-400 mb-3 text-sm uppercase tracking-wide text-center">Select Deck</p>
+      <div className="mb-8">
+        <p className="section-header">Select Deck</p>
         <div className="flex gap-3 flex-wrap justify-center">
           <button
             onClick={() => setSelectedDeckId(null)}
-            className={`px-4 py-2 rounded-lg border-2 transition-all ${
-              selectedDeckId === null
-                ? 'border-energy bg-energy/20 text-energy'
-                : 'border-gray-600 text-gray-400 hover:border-gray-500'
-            }`}
+            className={`selection-btn ${selectedDeckId === null ? 'selection-btn--selected' : ''}`}
           >
-            <Icon icon="mdi:sword" className="inline mr-2" />
-            Starter Deck
+            <Icon icon="mdi:sword" className="text-xl opacity-70" />
+            <span className="selection-btn__label">Starter Deck</span>
           </button>
           {customDecks.map((deck) => (
             <button
               key={deck.deckId}
               onClick={() => setSelectedDeckId(deck.deckId)}
               onDoubleClick={() => onLoadDeck(deck)}
-              className={`px-4 py-2 rounded-lg border-2 transition-all ${
-                selectedDeckId === deck.deckId
-                  ? 'border-energy bg-energy/20 text-energy'
-                  : 'border-gray-600 text-gray-400 hover:border-gray-500'
-              }`}
+              className={`selection-btn ${selectedDeckId === deck.deckId ? 'selection-btn--selected' : ''}`}
               title="Double-click to edit"
             >
-              <Icon icon="mdi:cards" className="inline mr-2" />
-              {deck.name}
-              <span className="ml-2 text-xs opacity-60">({deck.cardIds.length})</span>
+              <Icon icon="mdi:cards" className="text-xl opacity-70" />
+              <span className="selection-btn__label">{deck.name}</span>
+              <span className="selection-btn__meta">{deck.cardIds.length} cards</span>
             </button>
           ))}
         </div>
@@ -487,33 +480,25 @@ function PlayTab({
 
       {/* Dungeon Selection */}
       {dungeonDecks.length > 0 && (
-        <div className="mb-6">
-          <p className="text-gray-400 mb-3 text-sm uppercase tracking-wide text-center">Select Dungeon</p>
-          <div className="flex gap-3 flex-wrap justify-center max-w-2xl">
+        <div className="mb-8">
+          <p className="section-header">Select Dungeon</p>
+          <div className="flex gap-3 flex-wrap justify-center max-w-3xl">
             <button
               onClick={() => setSelectedDungeonId(undefined)}
-              className={`px-4 py-2 rounded-lg border-2 transition-all ${
-                selectedDungeonId === undefined
-                  ? 'border-purple-500 bg-purple-500/20 text-purple-400'
-                  : 'border-gray-600 text-gray-400 hover:border-gray-500'
-              }`}
+              className={`selection-btn ${selectedDungeonId === undefined ? 'selection-btn--selected' : ''}`}
             >
-              <Icon icon="mdi:dice-multiple" className="inline mr-2" />
-              Random
+              <Icon icon="mdi:dice-multiple" className="text-xl opacity-70" />
+              <span className="selection-btn__label">Random</span>
             </button>
             {dungeonDecks.map((dungeon) => (
               <button
                 key={dungeon.id}
                 onClick={() => setSelectedDungeonId(dungeon.id)}
-                className={`px-4 py-2 rounded-lg border-2 transition-all ${
-                  selectedDungeonId === dungeon.id
-                    ? 'border-purple-500 bg-purple-500/20 text-purple-400'
-                    : 'border-gray-600 text-gray-400 hover:border-gray-500'
-                }`}
+                className={`selection-btn ${selectedDungeonId === dungeon.id ? 'selection-btn--selected' : ''}`}
               >
-                <Icon icon="mdi:castle" className="inline mr-2" />
-                {dungeon.name}
-                <span className="ml-2 text-xs opacity-60">★{dungeon.difficulty}</span>
+                <Icon icon="mdi:castle" className="text-xl opacity-70" />
+                <span className="selection-btn__label">{dungeon.name}</span>
+                <span className="selection-btn__meta">★{dungeon.difficulty}</span>
               </button>
             ))}
           </div>
@@ -522,7 +507,7 @@ function PlayTab({
 
       {/* Validation Warning */}
       {!deckValidation.valid && deckValidation.missing.length > 0 && (
-        <div className="mb-4 p-3 bg-damage/20 border border-damage/50 rounded-lg text-damage text-sm max-w-md text-center">
+        <div className="mb-6 p-4 bg-damage/20 border border-damage/50 rounded-lg text-damage text-sm max-w-md text-center">
           <Icon icon="mdi:alert" className="inline mr-2" />
           Deck contains {deckValidation.missing.length} card(s) not in your collection
         </div>
@@ -532,14 +517,10 @@ function PlayTab({
       <button
         onClick={() => onStartRun(selectedDeckId, selectedHeroId, selectedDungeonId)}
         disabled={!deckValidation.valid}
-        className={`px-12 py-4 font-bold rounded-lg transition-colors text-xl ${
-          deckValidation.valid
-            ? 'bg-energy text-gray-900 hover:bg-energy/90'
-            : 'bg-gray-700 text-gray-500 cursor-not-allowed'
-        }`}
+        className="action-btn-primary"
       >
-        <Icon icon="mdi:play" className="inline mr-2 text-2xl" />
-        Start Run
+        <Icon icon="mdi:play" className="inline mr-2 text-xl" />
+        Begin Your Descent
       </button>
 
       {/* Dev: Seed Content */}
@@ -547,7 +528,7 @@ function PlayTab({
         <button
           onClick={onSeedContent}
           disabled={seeding || seeded}
-          className="mt-8 px-4 py-2 text-xs border border-gray-700 text-gray-500 rounded hover:border-gray-600 hover:text-gray-400 disabled:opacity-50"
+          className="mt-8 px-4 py-2 text-xs border border-border text-gray-500 rounded hover:border-accent-warm/50 hover:text-gray-400 disabled:opacity-50 font-display tracking-wide uppercase"
         >
           <Icon icon="mdi:database-plus" className="inline mr-1" />
           {seeding ? 'Generating...' : seeded ? 'Content Seeded' : 'Seed Base Content'}
