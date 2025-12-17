@@ -374,7 +374,7 @@ h1, h2, h3, h4, h5, h6,
   border-radius: 12px;
   background: var(--color-surface);
   border: 2px solid var(--color-border);
-  overflow: hidden;
+  overflow: visible; /* Allow power badges to extend beyond card */
   cursor: pointer;
   user-select: none;
   position: relative;
@@ -389,6 +389,7 @@ h1, h2, h3, h4, h5, h6,
   object-fit: cover;
   object-position: center top;
   z-index: 0;
+  border-radius: 10px; /* Slightly less than card border-radius to account for border */
 }
 
 /* Fallback when no image */
@@ -404,6 +405,7 @@ h1, h2, h3, h4, h5, h6,
     oklch(0.12 0.015 35) 100%
   );
   z-index: 0;
+  border-radius: 10px;
 }
 
 /* Gradient overlay for text readability */
@@ -419,6 +421,7 @@ h1, h2, h3, h4, h5, h6,
   );
   z-index: 1;
   pointer-events: none;
+  border-radius: 10px;
 }
 
 /* Card info area (name + description) */
