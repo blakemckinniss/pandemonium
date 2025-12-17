@@ -21,8 +21,8 @@ export function handleEnemyActionEvents(event: VisualEvent, ctx: HandlerContext)
           effects.shake(ctx.containerRef.current, { intensity: 12 })
         }
 
-        // Use the dramatic shatter/disintegrate effect
-        effects.enemyDeath(enemyEl)
+        // Use element-themed shatter effect
+        effects.enemyDeath(enemyEl, { element: event.element })
       }
       return true
     }

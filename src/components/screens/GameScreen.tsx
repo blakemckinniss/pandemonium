@@ -261,16 +261,30 @@ export function GameScreen({ deckId, heroId, dungeonDeckId, onReturnToMenu }: Ga
       gsap.set(title, { scale: 0, opacity: 0 })
       gsap.set(subtitle, { opacity: 0, y: 20 })
 
-      // Animate in
-      gsap.to(overlay, { opacity: 1, duration: 0.3 })
-      gsap.to(title, { scale: 1, opacity: 1, duration: 0.5, delay: 0.2, ease: 'back.out(1.7)' })
-      gsap.to(subtitle, { opacity: 1, y: 0, duration: 0.4, delay: 0.5 })
+      // Screen shake for impact
+      if (containerRef.current) {
+        gsap.to(containerRef.current, {
+          x: '+=8', duration: 0.05, yoyo: true, repeat: 5, ease: 'power2.inOut',
+          onComplete: () => { gsap.set(containerRef.current, { x: 0 }) }
+        })
+      }
 
-      // Screen flash effect
+      // Golden screen flash effect
       const flash = document.createElement('div')
-      flash.style.cssText = 'position:fixed;inset:0;background:white;pointer-events:none;z-index:100'
+      flash.style.cssText = 'position:fixed;inset:0;background:linear-gradient(135deg, oklch(0.85 0.15 85), oklch(0.9 0.12 60));pointer-events:none;z-index:100'
       document.body.appendChild(flash)
-      gsap.fromTo(flash, { opacity: 0.6 }, { opacity: 0, duration: 0.4, onComplete: () => flash.remove() })
+      gsap.fromTo(flash, { opacity: 0.7 }, { opacity: 0, duration: 0.5, onComplete: () => flash.remove() })
+
+      // Animate overlay in
+      gsap.to(overlay, { opacity: 1, duration: 0.3, delay: 0.1 })
+      gsap.to(title, { scale: 1, opacity: 1, duration: 0.6, delay: 0.25, ease: 'back.out(2)' })
+      gsap.to(subtitle, { opacity: 1, y: 0, duration: 0.4, delay: 0.6 })
+
+      // Victory explosion effect (golden particle burst)
+      const effects = gsap.effects as { victoryExplosion?: (el: Element) => void }
+      if (effects.victoryExplosion) {
+        effects.victoryExplosion(overlay)
+      }
 
       // Particle burst from center
       const rect = overlay.getBoundingClientRect()
@@ -278,13 +292,16 @@ export function GameScreen({ deckId, heroId, dungeonDeckId, onReturnToMenu }: Ga
       const centerY = rect.top + rect.height / 2
       const win = window as unknown as { spawnParticles?: (x: number, y: number, type: string) => void }
       if (win.spawnParticles) {
-        // Initial burst
-        for (let i = 0; i < 8; i++) {
-          setTimeout(() => {
-            win.spawnParticles!(centerX + (Math.random() - 0.5) * 150, centerY + (Math.random() - 0.5) * 80, 'gold')
-            win.spawnParticles!(centerX + (Math.random() - 0.5) * 150, centerY + (Math.random() - 0.5) * 80, 'heal')
-            win.spawnParticles!(centerX + (Math.random() - 0.5) * 100, centerY + (Math.random() - 0.5) * 50, 'spark')
-          }, i * 80)
+        // Staggered particle waves
+        for (let wave = 0; wave < 3; wave++) {
+          for (let i = 0; i < 6; i++) {
+            setTimeout(() => {
+              win.spawnParticles!(centerX + (Math.random() - 0.5) * 200, centerY + (Math.random() - 0.5) * 100, 'gold')
+              win.spawnParticles!(centerX + (Math.random() - 0.5) * 150, centerY + (Math.random() - 0.5) * 80, 'heal')
+              win.spawnParticles!(centerX + (Math.random() - 0.5) * 100, centerY + (Math.random() - 0.5) * 50, 'spark')
+              win.spawnParticles!(centerX + (Math.random() - 0.5) * 180, centerY + (Math.random() - 0.5) * 90, 'energy')
+            }, wave * 200 + i * 50)
+          }
         }
       }
     }
