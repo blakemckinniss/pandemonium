@@ -93,6 +93,45 @@ export function handleGameEvents(event: VisualEvent, ctx: HandlerContext): boole
       }
       return true
     }
+
+    case 'playerTurnStart': {
+      // Energizing pulse on player and field
+      const playerEl = ctx.queryContainer('[data-entity="player"]')
+      if (playerEl) {
+        effects.turnStart(playerEl)
+        emitParticle(playerEl, 'energy')
+      }
+
+      // Energy orb pulse
+      const energyOrb = ctx.queryContainer('[data-energy-display]')
+      if (energyOrb) {
+        effects.energyPulse(energyOrb, { color: 'oklch(0.7 0.15 70)' })
+      }
+
+      return true
+    }
+
+    case 'enemyTurnStart': {
+      // Ominous warning effect
+      if (ctx.containerRef.current) {
+        effects.enemyTurnStart(ctx.containerRef.current)
+      }
+
+      // Warning particles on all enemies
+      const enemies = ctx.queryContainer('[data-entity="enemy"]')
+      if (enemies) {
+        const enemyList = enemies instanceof NodeList ? Array.from(enemies) : [enemies]
+        enemyList.forEach((enemy, i) => {
+          setTimeout(() => {
+            if (enemy instanceof Element) {
+              emitParticle(enemy, 'spark')
+            }
+          }, i * 100)
+        })
+      }
+
+      return true
+    }
   }
   return false
 }

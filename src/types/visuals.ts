@@ -46,6 +46,9 @@ export type VisualEvent =
   // Enemy turn animations
   | { type: 'enemyTelegraph'; enemyId: string; intentType: 'attack' | 'defend' | 'buff' | 'debuff' | 'ability' | 'ultimate'; intentValue?: number; intentTimes?: number }
   | { type: 'enemyActionExecute'; enemyId: string; intentType: 'attack' | 'defend' | 'buff' | 'debuff' | 'ability' | 'ultimate' }
+  // Turn transitions
+  | { type: 'playerTurnStart' }
+  | { type: 'enemyTurnStart' }
 
 // ============================================
 // COMBAT NUMBERS (FCT)
