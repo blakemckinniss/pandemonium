@@ -52,9 +52,23 @@ export function enableDragDrop(config: DragDropConfig): void {
         gsap.killTweensOf(cardEl)
         cardEl.classList.add(DRAG_CLASS)
 
-        // Store original z-index and boost to top
+        // The HandCard wrapper has transform which creates a stacking context
+        // We need to boost z-index on the wrapper, not just the card
+        const handCardWrapper = cardEl.closest('.HandCard') as HTMLElement | null
+
+        // Store original styles and boost to top
         // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-explicit-any
         ;(this as any).originalZIndex = cardEl.style.zIndex
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-explicit-any
+        ;(this as any).handCardWrapper = handCardWrapper
+        if (handCardWrapper) {
+          // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-explicit-any
+          ;(this as any).originalWrapperZIndex = handCardWrapper.style.zIndex
+          // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-explicit-any
+          ;(this as any).originalWrapperTransform = handCardWrapper.style.transform
+          handCardWrapper.style.zIndex = String(DRAG_Z_INDEX)
+          handCardWrapper.style.transform = 'none' // Remove transform to escape stacking context
+        }
         cardEl.style.zIndex = String(DRAG_Z_INDEX)
 
         // Store start position (Draggable tracks these internally)
@@ -86,6 +100,18 @@ export function enableDragDrop(config: DragDropConfig): void {
         // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-explicit-any
         const originalZ = (this as any).originalZIndex as string | undefined
         cardEl.style.zIndex = originalZ || ''
+
+        // Restore wrapper styles
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-explicit-any
+        const handCardWrapper = (this as any).handCardWrapper as HTMLElement | null
+        if (handCardWrapper) {
+          // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-explicit-any
+          const originalWrapperZ = (this as any).originalWrapperZIndex as string | undefined
+          // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-explicit-any
+          const originalWrapperTransform = (this as any).originalWrapperTransform as string | undefined
+          handCardWrapper.style.zIndex = originalWrapperZ || ''
+          handCardWrapper.style.transform = originalWrapperTransform || ''
+        }
 
         const cardTarget = getCardTarget(cardEl)
         const cardUid = cardEl.dataset.cardId
