@@ -1691,7 +1691,7 @@ h1, h2, h3, h4, h5, h6,
   position: absolute;
   left: 50%;
   transform: translateX(-50%);
-  z-index: 1000;
+  z-index: 99999; /* Must be above all cards and overlays */
   width: 220px;
   background: oklch(0.12 0.015 35);
   border: 1px solid oklch(0.25 0.03 40);
