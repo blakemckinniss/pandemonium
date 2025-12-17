@@ -561,7 +561,7 @@ function CollectionTab({
       {/* Two-column layout: Stats sidebar + Card grid */}
       <div className="flex-1 flex overflow-hidden">
         {/* Left column: Collection Stats */}
-        <aside className="w-72 flex-shrink-0 border-r border-border overflow-y-auto p-4">
+        <aside className="w-72 flex-shrink-0 border-border overflow-y-auto p-4">
           <CollectionStats
             collection={collection}
             collapsed={collectionStatsCollapsed}
@@ -623,7 +623,7 @@ function BuildTab({
   return (
     <div className="flex-1 flex overflow-hidden">
       {/* Left Sidebar - Deck Editor */}
-      <aside className="w-72 bg-surface border-r border-warm-800 flex flex-col">
+      <aside className="w-72 bg-surface border-warm-800 flex flex-col">
         {/* Saved Decks */}
         <div className="p-4 border-b border-warm-800">
           <h3 className="text-xs uppercase tracking-wide text-warm-500 mb-2">Saved Decks</h3>
@@ -875,7 +875,7 @@ function CardGrid({
   }
 
   return (
-    <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 2xl:grid-cols-7 gap-2">
+    <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 2xl:grid-cols-7 gap-3">
       {cards.map(({ def, quantity }) => (
         <button
           key={def.id}
