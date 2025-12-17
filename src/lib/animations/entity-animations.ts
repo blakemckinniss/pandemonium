@@ -202,16 +202,30 @@ gsap.registerEffect({
   extendTimeline: true,
 })
 
-// Enemy death - dramatic shatter/disintegrate effect
+// Element color palettes for themed effects
+const ELEMENT_COLORS: Record<string, { hue: number; sat: number; glow: string }> = {
+  fire: { hue: 15, sat: 90, glow: '#ff6348' },
+  ice: { hue: 200, sat: 85, glow: '#00d4ff' },
+  lightning: { hue: 50, sat: 95, glow: '#ffd700' },
+  void: { hue: 280, sat: 70, glow: '#a55eea' },
+  physical: { hue: 0, sat: 0, glow: '#e8e8e8' },
+}
+
+// Enemy death - dramatic shatter/disintegrate effect with element theming
 gsap.registerEffect({
   name: 'enemyDeath',
-  effect: (targets: gsap.TweenTarget) => {
+  effect: (targets: gsap.TweenTarget, config: { element?: string }) => {
     const tl = gsap.timeline()
-    const element = (targets as HTMLElement[])[0] || (targets as HTMLElement)
-    if (!element || !(element instanceof HTMLElement)) return tl
+    const el = (targets as HTMLElement[])[0] || (targets as HTMLElement)
+    if (!el || !(el instanceof HTMLElement)) return tl
+
+    // Get element-specific colors (default to red/orange for physical)
+    const elemColors = ELEMENT_COLORS[config.element ?? 'physical'] ?? ELEMENT_COLORS.physical
+    const baseHue = elemColors.hue || Math.random() * 40
+    const baseSat = elemColors.sat
 
     // Phase 1: Flash white and freeze
-    tl.to(element, {
+    tl.to(el, {
       filter: 'brightness(3) saturate(0)',
       scale: 1.1,
       duration: 0.1,
@@ -219,24 +233,24 @@ gsap.registerEffect({
     })
 
     // Phase 2: Glitch effect - rapid color/position shifts
-    tl.to(element, {
-      filter: 'brightness(1.5) saturate(2) hue-rotate(90deg)',
+    tl.to(el, {
+      filter: `brightness(1.5) saturate(2) hue-rotate(${90 + baseHue}deg)`,
       x: '+=5',
       duration: 0.05,
     })
-    tl.to(element, {
-      filter: 'brightness(2) saturate(0.5) hue-rotate(-90deg)',
+    tl.to(el, {
+      filter: `brightness(2) saturate(0.5) hue-rotate(${-90 + baseHue}deg)`,
       x: '-=10',
       duration: 0.05,
     })
-    tl.to(element, {
-      filter: 'brightness(1.8) saturate(1.5) hue-rotate(180deg)',
+    tl.to(el, {
+      filter: `brightness(1.8) saturate(1.5) hue-rotate(${180 + baseHue}deg)`,
       x: '+=5',
       duration: 0.05,
     })
 
     // Phase 3: Create and animate shatter fragments
-    const rect = element.getBoundingClientRect()
+    const rect = el.getBoundingClientRect()
     const fragmentCount = 12
     const fragments: HTMLDivElement[] = []
 
@@ -253,15 +267,16 @@ gsap.registerEffect({
     `
     document.body.appendChild(container)
 
-    // Create fragments as colored shards
+    // Create fragments as element-colored shards
     for (let i = 0; i < fragmentCount; i++) {
       const fragment = document.createElement('div')
       const size = 15 + Math.random() * 25
       const startX = Math.random() * rect.width
       const startY = Math.random() * rect.height
 
-      // Random shard colors (enemy-themed reds/oranges)
-      const hue = 0 + Math.random() * 40 // Red to orange
+      // Element-themed shard colors with variation
+      const hue = baseHue + (Math.random() * 40 - 20)
+      const sat = baseSat + (Math.random() * 20 - 10)
       const lightness = 40 + Math.random() * 30
 
       fragment.style.cssText = `
@@ -272,8 +287,8 @@ gsap.registerEffect({
         height: ${size}px;
         background: linear-gradient(
           ${Math.random() * 360}deg,
-          hsl(${hue}, 80%, ${lightness}%),
-          hsl(${hue + 20}, 90%, ${lightness + 20}%)
+          hsl(${hue}, ${sat}%, ${lightness}%),
+          hsl(${hue + 20}, ${Math.min(100, sat + 10)}%, ${lightness + 20}%)
         );
         clip-path: polygon(
           ${Math.random() * 30}% ${Math.random() * 30}%,
@@ -281,7 +296,7 @@ gsap.registerEffect({
           ${60 + Math.random() * 40}% ${60 + Math.random() * 40}%,
           ${Math.random() * 40}% ${70 + Math.random() * 30}%
         );
-        box-shadow: 0 0 10px hsl(${hue}, 80%, 50%);
+        box-shadow: 0 0 10px ${elemColors.glow};
         opacity: 1;
       `
       container.appendChild(fragment)
@@ -310,7 +325,7 @@ gsap.registerEffect({
 
     // Phase 5: Original element dissolves
     tl.to(
-      element,
+      el,
       {
         filter: 'brightness(0.5) blur(8px) saturate(0)',
         scale: 0.3,
@@ -324,6 +339,137 @@ gsap.registerEffect({
     // Cleanup fragments after animation
     tl.add(() => {
       setTimeout(() => container.remove(), 100)
+    })
+
+    return tl
+  },
+  extendTimeline: true,
+})
+
+// Card play flash - impact effect on target
+gsap.registerEffect({
+  name: 'cardPlayFlash',
+  effect: (targets: gsap.TweenTarget, config: { theme?: string }) => {
+    const tl = gsap.timeline()
+    const themeColors: Record<string, string> = {
+      attack: '#ff4757',
+      skill: '#2ed573',
+      power: '#ffa502',
+    }
+    const color = themeColors[config.theme ?? 'attack'] ?? '#ffffff'
+
+    // Quick impact flash
+    tl.to(targets, {
+      filter: `brightness(1.8) drop-shadow(0 0 20px ${color})`,
+      scale: 1.08,
+      duration: 0.1,
+      ease: 'power3.out',
+    })
+    tl.to(targets, {
+      filter: 'brightness(1) drop-shadow(0 0 0px transparent)',
+      scale: 1,
+      duration: 0.2,
+      ease: 'power2.out',
+    })
+
+    return tl
+  },
+  extendTimeline: true,
+})
+
+// Combo surge - escalating visual intensity
+gsap.registerEffect({
+  name: 'comboSurge',
+  effect: (targets: gsap.TweenTarget, config: { intensity?: number }) => {
+    const tl = gsap.timeline()
+    const intensity = config.intensity ?? 1
+
+    // Scale and glow based on combo intensity
+    const glowSize = 15 + intensity * 8
+    const scaleAmount = 1 + intensity * 0.05
+
+    tl.to(targets, {
+      filter: `brightness(${1 + intensity * 0.2}) drop-shadow(0 0 ${glowSize}px oklch(0.7 0.2 70))`,
+      scale: scaleAmount,
+      duration: 0.15,
+      ease: 'power3.out',
+    })
+    tl.to(targets, {
+      filter: 'brightness(1) drop-shadow(0 0 0px transparent)',
+      scale: 1,
+      duration: 0.3,
+      ease: 'power2.out',
+    })
+
+    return tl
+  },
+  extendTimeline: true,
+})
+
+// Victory explosion - dramatic win celebration
+gsap.registerEffect({
+  name: 'victoryExplosion',
+  effect: (targets: gsap.TweenTarget) => {
+    const tl = gsap.timeline()
+    const el = (targets as HTMLElement[])[0] || (targets as HTMLElement)
+    if (!el || !(el instanceof HTMLElement)) return tl
+
+    const rect = el.getBoundingClientRect()
+    const centerX = rect.left + rect.width / 2
+    const centerY = rect.top + rect.height / 2
+
+    // Create radial burst of golden particles
+    const container = document.createElement('div')
+    container.style.cssText = `
+      position: fixed;
+      left: 0;
+      top: 0;
+      width: 100vw;
+      height: 100vh;
+      pointer-events: none;
+      z-index: 9998;
+    `
+    document.body.appendChild(container)
+
+    // Create victory particles
+    const particleCount = 30
+    for (let i = 0; i < particleCount; i++) {
+      const particle = document.createElement('div')
+      const size = 8 + Math.random() * 16
+      const hue = 40 + Math.random() * 30 // Golden range
+
+      particle.style.cssText = `
+        position: absolute;
+        left: ${centerX}px;
+        top: ${centerY}px;
+        width: ${size}px;
+        height: ${size}px;
+        background: radial-gradient(circle, hsl(${hue}, 90%, 60%), hsl(${hue}, 100%, 40%));
+        border-radius: 50%;
+        box-shadow: 0 0 ${size}px hsl(${hue}, 90%, 50%);
+      `
+      container.appendChild(particle)
+
+      // Animate outward
+      const angle = (i / particleCount) * Math.PI * 2
+      const distance = 200 + Math.random() * 300
+      const dx = Math.cos(angle) * distance
+      const dy = Math.sin(angle) * distance
+
+      gsap.to(particle, {
+        x: dx,
+        y: dy,
+        scale: 0,
+        opacity: 0,
+        duration: 0.8 + Math.random() * 0.4,
+        ease: 'power2.out',
+        delay: Math.random() * 0.2,
+      })
+    }
+
+    // Cleanup
+    tl.add(() => {
+      setTimeout(() => container.remove(), 1500)
     })
 
     return tl

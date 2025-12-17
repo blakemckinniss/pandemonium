@@ -96,11 +96,10 @@ export function drawRoomChoices(
   const choices: RoomCard[] = []
   const remaining = [...dungeonDeck]
 
-  // Draw up to count cards
+  // Draw up to count cards (spread to avoid mutating frozen objects)
   for (let i = 0; i < count && remaining.length > 0; i++) {
     const card = remaining.pop()!
-    card.revealed = true
-    choices.push(card)
+    choices.push({ ...card, revealed: true })
   }
 
   return { choices, remaining }

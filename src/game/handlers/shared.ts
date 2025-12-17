@@ -102,7 +102,7 @@ export function applyDamageInternal(
 
     if (enemy.currentHealth <= 0) {
       // Emit death visual before removing enemy (so we can find it for animation)
-      emitVisual(draft, { type: 'enemyDeath', enemyId: targetId })
+      emitVisual(draft, { type: 'enemyDeath', enemyId: targetId, element: enemy.element })
 
       combat.enemies = combat.enemies.filter((e) => e.id !== targetId)
       draft.stats.enemiesKilled++
