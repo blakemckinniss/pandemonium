@@ -596,8 +596,8 @@ export function GameScreen({ deckId, heroId, dungeonDeckId, onReturnToMenu }: Ga
         />
       </div>
 
-      {/* Hand area - no border/divider */}
-      <div ref={handRef} className="pb-4">
+      {/* Hand area - fixed height to prevent layout shift during discard */}
+      <div ref={handRef} className="pb-4 min-h-[280px]">
         <Hand
           cards={combat.hand}
           energy={combat.player.energy}
