@@ -32,10 +32,17 @@ export function enableDragDrop(config: DragDropConfig): void {
       type: 'x,y',
       zIndexBoost: true,
 
+      // Block drag before it starts for unplayable cards
+      onPress(this: Draggable) {
+        if (!canPlay(this.target as HTMLElement)) {
+          this.endDrag(new PointerEvent('pointerup'))
+        }
+      },
+
       onDragStart(this: Draggable) {
         const cardEl = this.target as HTMLElement
 
-        // Don't drag if can't play
+        // Double-check - shouldn't reach here if onPress blocked it
         if (!canPlay(cardEl)) {
           this.endDrag(new PointerEvent('pointerup'))
           return
