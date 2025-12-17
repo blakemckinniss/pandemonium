@@ -2,6 +2,7 @@ import { Draggable, gsap } from './animations'
 
 const DRAG_CLASS = 'is-dragging'
 const OVER_CLASS = 'is-dragOver'
+const DRAG_Z_INDEX = 99999 // Ensure dragged card is always on top
 
 export type PlayCardCallback = (
   cardUid: string,
@@ -51,6 +52,11 @@ export function enableDragDrop(config: DragDropConfig): void {
         gsap.killTweensOf(cardEl)
         cardEl.classList.add(DRAG_CLASS)
 
+        // Store original z-index and boost to top
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-explicit-any
+        ;(this as any).originalZIndex = cardEl.style.zIndex
+        cardEl.style.zIndex = String(DRAG_Z_INDEX)
+
         // Store start position (Draggable tracks these internally)
         // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-explicit-any
         ;(this as any).startX = this.x
@@ -75,6 +81,11 @@ export function enableDragDrop(config: DragDropConfig): void {
       onRelease(this: Draggable) {
         const cardEl = this.target as HTMLElement
         cardEl.classList.remove(DRAG_CLASS)
+
+        // Restore original z-index
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-explicit-any
+        const originalZ = (this as any).originalZIndex as string | undefined
+        cardEl.style.zIndex = originalZ || ''
 
         const cardTarget = getCardTarget(cardEl)
         const cardUid = cardEl.dataset.cardId
