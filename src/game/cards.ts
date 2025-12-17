@@ -153,6 +153,7 @@ registerCard({
   target: 'none',
   rarity: 'rare',
   element: 'physical',
+  image: '/cards/hero_ironclad.webp',
   archetype: 'Warrior',
   heroStats: {
     health: 80,
@@ -186,6 +187,7 @@ registerCard({
   target: 'none',
   rarity: 'rare',
   element: 'fire',
+  image: '/cards/hero_pyromancer.webp',
   archetype: 'Mage',
   heroStats: {
     health: 70,
