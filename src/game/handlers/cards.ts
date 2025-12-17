@@ -68,6 +68,7 @@ export function handlePlayCard(
     cardUid: cardInstance.uid,
     theme: cardDef.theme,
     targetId,
+    element: cardDef.element,
   })
 
   // Emit combo milestone at thresholds (3, 5, 7, ...)

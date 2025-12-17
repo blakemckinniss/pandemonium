@@ -29,7 +29,7 @@ export type VisualEvent =
   | { type: 'upgrade'; cardUids: string[] }
   | { type: 'retain'; cardUids: string[] }
   | { type: 'transform'; cardUid: string; fromCardId: string; toCardId: string }
-  | { type: 'cardPlayed'; cardUid: string; theme: CardTheme; targetId?: string }
+  | { type: 'cardPlayed'; cardUid: string; theme: CardTheme; targetId?: string; element?: import('./elements').Element }
   | { type: 'comboMilestone'; count: number }
   | { type: 'putOnDeck'; cardUids: string[]; position: 'top' | 'bottom' | 'random' }
   | { type: 'powerTrigger'; targetId: string; powerId: string; triggerEvent: string }

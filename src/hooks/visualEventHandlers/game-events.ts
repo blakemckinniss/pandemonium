@@ -18,6 +18,13 @@ export function handleGameEvents(event: VisualEvent, ctx: HandlerContext): boole
             setTimeout(() => emitParticle(targetEl, 'spark'), 50)
           }
 
+          // Element-themed particles for elemental cards
+          if (event.element) {
+            emitParticle(targetEl, event.element)
+            // Extra burst for dramatic elemental feel
+            setTimeout(() => emitParticle(targetEl, event.element!), 80)
+          }
+
           // Enhanced card play flash effect
           effects.cardPlayFlash(targetEl, { theme: event.theme })
 

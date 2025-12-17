@@ -188,6 +188,47 @@ const PARTICLE_CONFIG = {
     size: 2.5,
     gravity: -0.02, // Very slow drift
   },
+  // Element-themed particles
+  fire: {
+    colors: ['#ff4500', '#ff6348', '#ff7f50', '#ffa500', '#ffcc00'],
+    count: 16,
+    speed: 7,
+    life: 35,
+    size: 5,
+    gravity: -0.15, // Flames rise
+  },
+  ice: {
+    colors: ['#00d4ff', '#87ceeb', '#b0e0e6', '#e0ffff', '#ffffff'],
+    count: 14,
+    speed: 4,
+    life: 45,
+    size: 4,
+    gravity: 0.08, // Crystals fall gently
+  },
+  lightning: {
+    colors: ['#ffd700', '#ffff00', '#fffacd', '#ffffff', '#87ceeb'],
+    count: 20,
+    speed: 12,
+    life: 20,
+    size: 3,
+    gravity: 0, // Electric scatter
+  },
+  void: {
+    colors: ['#8b00ff', '#9400d3', '#4b0082', '#2e0854', '#1a0033'],
+    count: 18,
+    speed: 3,
+    life: 55,
+    size: 5,
+    gravity: -0.05, // Drift into void
+  },
+  physical: {
+    colors: ['#c0c0c0', '#a9a9a9', '#808080', '#d3d3d3', '#ffffff'],
+    count: 12,
+    speed: 8,
+    life: 25,
+    size: 4,
+    gravity: 0.2, // Impact debris
+  },
 }
 
 export function ParticleEffects({ containerRef }: ParticleEffectsProps) {

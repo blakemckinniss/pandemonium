@@ -558,24 +558,34 @@ function CollectionTab({
 }) {
   return (
     <div className="flex-1 flex flex-col overflow-hidden">
-      <div className="px-6 pt-4">
-        <CardFiltersBar
-          filters={filters}
-          onFiltersChange={setFilters}
-          sortBy={sortBy}
-          sortDirection={sortDirection}
-          onSortChange={onSortChange}
-          totalCards={collection.length}
-          filteredCount={filteredCards.length}
-        />
-      </div>
-      <div className="flex-1 overflow-auto p-6 space-y-4">
-        <CollectionStats
-          collection={collection}
-          collapsed={collectionStatsCollapsed}
-          onToggleCollapsed={() => setCollectionStatsCollapsed(!collectionStatsCollapsed)}
-        />
-        <CardGrid cards={filteredCards} onAddCard={onAddCard} onViewCard={onViewCard} />
+      {/* Two-column layout: Stats sidebar + Card grid */}
+      <div className="flex-1 flex overflow-hidden">
+        {/* Left column: Collection Stats */}
+        <aside className="w-72 flex-shrink-0 border-r border-border overflow-y-auto p-4">
+          <CollectionStats
+            collection={collection}
+            collapsed={collectionStatsCollapsed}
+            onToggleCollapsed={() => setCollectionStatsCollapsed(!collectionStatsCollapsed)}
+          />
+        </aside>
+
+        {/* Right column: Filters + Card Grid */}
+        <div className="flex-1 flex flex-col overflow-hidden">
+          <div className="px-6 pt-4">
+            <CardFiltersBar
+              filters={filters}
+              onFiltersChange={setFilters}
+              sortBy={sortBy}
+              sortDirection={sortDirection}
+              onSortChange={onSortChange}
+              totalCards={collection.length}
+              filteredCount={filteredCards.length}
+            />
+          </div>
+          <div className="flex-1 overflow-auto p-6">
+            <CardGrid cards={filteredCards} onAddCard={onAddCard} onViewCard={onViewCard} />
+          </div>
+        </div>
       </div>
     </div>
   )
