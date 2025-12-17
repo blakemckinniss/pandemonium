@@ -84,16 +84,28 @@ export function enableDragDrop(config: DragDropConfig): void {
         let droppedTarget: HTMLElement | null = null
         let droppedTargetId: string | null = null
 
+        // Collect all valid targets for this card
+        const validTargets: HTMLElement[] = []
         for (const targetEl of targets) {
           const targetType = targetEl.dataset.targetType
+          if (isValidDropTarget(cardTarget, targetType)) {
+            validTargets.push(targetEl)
+          }
+          // Check if dropped directly on target
           const isOver = this.hitTest(targetEl, '40%')
-          const isValidTarget = isValidDropTarget(cardTarget, targetType)
-
-          if (isOver && isValidTarget) {
+          if (isOver && isValidDropTarget(cardTarget, targetType)) {
             droppedTarget = targetEl
             droppedTargetId = targetEl.dataset.target || targetType || null
-            break
           }
+        }
+
+        // Auto-select if only one valid target exists (no precision needed)
+        if (!droppedTarget && validTargets.length === 1) {
+          droppedTarget = validTargets[0]
+          droppedTargetId =
+            droppedTarget.dataset.target ||
+            droppedTarget.dataset.targetType ||
+            null
         }
 
         // Self-target cards don't need a drop target
