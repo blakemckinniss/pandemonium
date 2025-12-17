@@ -47,6 +47,10 @@ export function handleCombatNumberEvents(event: VisualEvent, ctx: HandlerContext
           } else if (event.amount >= 5) {
             effects.enemyShake(damageTarget)
           }
+        } else {
+          // Player hit - dramatic recoil based on damage
+          const intensity = isCritical ? 2 : event.amount >= 8 ? 1.5 : 1
+          effects.playerHit(damageTarget, { intensity })
         }
       }
       return true

@@ -73,6 +73,53 @@ gsap.registerEffect({
   extendTimeline: true,
 })
 
+// Player hit - dramatic recoil and red flash
+gsap.registerEffect({
+  name: 'playerHit',
+  effect: (targets: gsap.TweenTarget, config: { intensity?: number }) => {
+    const intensity = config.intensity ?? 1
+    const tl = gsap.timeline()
+
+    // Red flash and recoil backward
+    tl.to(targets, {
+      filter: `brightness(1.8) saturate(1.5) hue-rotate(-15deg) drop-shadow(0 0 20px #ff2222)`,
+      x: `+=${15 * intensity}`,
+      scale: 1 - 0.03 * intensity,
+      duration: 0.08,
+      ease: 'power3.out',
+    })
+
+    // Quick shake while red
+    tl.to(targets, {
+      x: `-=${8 * intensity}`,
+      duration: 0.04,
+      ease: 'power2.inOut',
+    })
+    tl.to(targets, {
+      x: `+=${6 * intensity}`,
+      duration: 0.04,
+      ease: 'power2.inOut',
+    })
+    tl.to(targets, {
+      x: `-=${4 * intensity}`,
+      duration: 0.04,
+      ease: 'power2.inOut',
+    })
+
+    // Recover back to normal
+    tl.to(targets, {
+      filter: 'brightness(1) saturate(1) hue-rotate(0deg) drop-shadow(0 0 0px transparent)',
+      x: 0,
+      scale: 1,
+      duration: 0.2,
+      ease: 'power2.out',
+    })
+
+    return tl
+  },
+  extendTimeline: true,
+})
+
 // Enemy telegraph - wind-up before attacking
 gsap.registerEffect({
   name: 'enemyTelegraph',
