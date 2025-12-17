@@ -51,6 +51,10 @@ export function handleCombatNumberEvents(event: VisualEvent, ctx: HandlerContext
           // Player hit - dramatic recoil based on damage
           const intensity = isCritical ? 2 : event.amount >= 8 ? 1.5 : 1
           effects.playerHit(damageTarget, { intensity })
+
+          // Screen edge vignette on player damage
+          const vignetteIntensity = isCritical ? 1.5 : event.amount >= 10 ? 1.2 : 1
+          effects.damageVignette(damageTarget, { intensity: vignetteIntensity })
         }
       }
       return true

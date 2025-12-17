@@ -9,14 +9,22 @@ import { logger } from '../../lib/logger'
 export function handleCardAnimationEvents(event: VisualEvent, ctx: HandlerContext): boolean {
   switch (event.type) {
     case 'draw':
-      // Animate mid-turn draws (turn-start draws handled by turn change effect)
+      // Animate mid-turn draws with flourish
       if (ctx.lastTurnRef.current === ctx.combat?.turn) {
         setTimeout(() => {
           const handCards = ctx.queryHand('.HandCard')
           if (handCards && handCards.length > 0) {
             const newCards = Array.from(handCards).slice(-event.count)
             if (newCards.length > 0) {
-              effects.dealCards(newCards, { stagger: 0.05 })
+              // Use draw flourish for each card
+              newCards.forEach((card, i) => {
+                effects.drawFlourish(card, { index: i })
+              })
+              // Particles on deck
+              const deckPile = ctx.queryContainer('[data-deck-pile]')
+              if (deckPile) {
+                emitParticle(deckPile, 'spark')
+              }
             }
           }
         }, 50)

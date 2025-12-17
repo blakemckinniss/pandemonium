@@ -9,22 +9,35 @@ export function handlePowerEffectEvents(event: VisualEvent, ctx: HandlerContext)
     case 'powerApply': {
       const targetEl = ctx.queryContainer(`[data-target="${event.targetId}"]`)
       if (targetEl) {
-        const isDebuff = event.powerId.match(/vulnerable|weak|frail|poison/)
-        effects.pulse(targetEl, {
-          color: isDebuff
-            ? 'oklch(0.55 0.18 20)'
-            : 'oklch(0.5 0.12 145)',
-        })
-        if (event.powerId === 'poison') {
+        const isDebuff = event.powerId.match(/vulnerable|weak|frail|poison|burning|frozen|charged/)
+
+        // Use enhanced buff/debuff effects
+        if (isDebuff) {
+          effects.debuffApply(targetEl)
           emitParticle(targetEl, 'poison')
+        } else {
+          effects.buffApply(targetEl)
+          emitParticle(targetEl, 'energy')
+        }
+
+        // Extra particles for specific powers
+        if (event.powerId === 'poison' || event.powerId === 'burning') {
+          emitParticle(targetEl, 'poison')
+        } else if (event.powerId === 'strength' || event.powerId === 'dexterity') {
+          emitParticle(targetEl, 'spark')
         }
       }
       return true
     }
 
-    case 'powerRemove':
-      // PowerIndicators handles fade reactively
+    case 'powerRemove': {
+      // Power expiry flash effect
+      const targetEl = ctx.queryContainer(`[data-target="${event.targetId}"]`)
+      if (targetEl) {
+        effects.pulse(targetEl, { color: 'oklch(0.5 0.1 0)' })
+      }
       return true
+    }
 
     case 'powerTrigger': {
       const targetEl = ctx.queryContainer(`[data-target="${event.targetId}"]`)
