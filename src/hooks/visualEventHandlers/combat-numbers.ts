@@ -19,6 +19,38 @@ export function handleCombatNumberEvents(event: VisualEvent, ctx: HandlerContext
       // Spawn particles on target
       const damageTarget = ctx.queryContainer(`[data-target="${event.targetId}"]`)
       if (damageTarget) {
+        // Element-themed particles for elemental damage
+        if (event.element && event.element !== 'physical') {
+          emitParticle(damageTarget, event.element)
+          setTimeout(() => emitParticle(damageTarget, event.element!), 60)
+        }
+
+        // Elemental combo particles - dramatic multi-burst
+        if (event.comboName) {
+          // Map combo names to particle types
+          const comboParticles: Record<string, Array<'fire' | 'ice' | 'lightning' | 'void' | 'physical' | 'spark' | 'energy' | 'critical'>> = {
+            'Conducted': ['lightning', 'lightning', 'spark'],
+            'Flash Freeze': ['ice', 'ice', 'critical'],
+            'Steam Burst': ['fire', 'ice', 'energy'],
+            'Conflagration': ['fire', 'fire', 'critical'],
+            'Shatter': ['ice', 'physical', 'spark'],
+            'Overload': ['lightning', 'energy', 'critical'],
+            'Void Surge': ['void', 'lightning', 'energy'],
+            'Plasma': ['fire', 'lightning', 'spark'],
+            'Conduct': ['lightning', 'spark'],
+          }
+          const particles = comboParticles[event.comboName]
+          if (particles) {
+            particles.forEach((particle, i) => {
+              setTimeout(() => emitParticle(damageTarget, particle), i * 50)
+            })
+          }
+          // Extra screen shake for combos
+          if (ctx.containerRef.current) {
+            effects.shake(ctx.containerRef.current, { intensity: 10 })
+          }
+        }
+
         // Critical hits get extra particle burst
         if (isCritical) {
           emitParticle(damageTarget, 'critical')
