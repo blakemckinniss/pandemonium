@@ -822,6 +822,7 @@ export interface RoomDefinition {
   name: string
   description: string
   icon?: string
+  image?: string
   monsters?: string[]
 }
 

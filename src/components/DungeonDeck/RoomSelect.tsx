@@ -50,14 +50,25 @@ export function RoomSelect({ choices, floor, onSelectRoom }: RoomSelectProps) {
               className="RoomCard group"
               onClick={() => onSelectRoom(roomCard.uid)}
             >
-              <div className="w-48 h-64 rounded-xl bg-surface border-2 border-border hover:border-energy transition-all duration-200 flex flex-col overflow-hidden group-hover:scale-105 group-hover:shadow-lg group-hover:shadow-energy/20">
-                {/* Icon */}
-                <div className="flex-1 flex items-center justify-center text-6xl">
-                  {def.icon}
-                </div>
+              <div className="w-48 h-64 rounded-xl bg-surface border-2 border-border hover:border-energy transition-all duration-200 flex flex-col overflow-hidden group-hover:scale-105 group-hover:shadow-lg group-hover:shadow-energy/20 relative">
+                {/* Background Image */}
+                {def.image ? (
+                  <div className="absolute inset-0">
+                    <img
+                      src={def.image}
+                      alt={def.name}
+                      className="w-full h-full object-cover opacity-60"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent" />
+                  </div>
+                ) : (
+                  <div className="flex-1 flex items-center justify-center text-6xl">
+                    {def.icon}
+                  </div>
+                )}
 
-                {/* Info */}
-                <div className="p-4 bg-surface-alt">
+                {/* Info - positioned at bottom */}
+                <div className={`p-4 ${def.image ? 'absolute bottom-0 left-0 right-0' : 'bg-surface-alt'}`}>
                   <h3 className="font-bold text-lg">{def.name}</h3>
                   <p className={`text-sm ${difficultyColor} capitalize`}>
                     {def.type}

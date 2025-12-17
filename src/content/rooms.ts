@@ -9,6 +9,7 @@ export const ROOMS: Record<string, RoomDefinition> = {
     name: 'Slime Pit',
     description: 'A den of acidic slimes.',
     icon: '🟢',
+    image: '/cards/room_slime_pit.webp',
     monsters: ['slime', 'slime'],
   },
   cultist_lair: {
@@ -17,6 +18,7 @@ export const ROOMS: Record<string, RoomDefinition> = {
     name: 'Cultist Lair',
     description: 'Dark worshippers lurk here.',
     icon: '🔮',
+    image: '/cards/room_cultist_lair.webp',
     monsters: ['cultist'],
   },
   jaw_worm_nest: {
@@ -25,6 +27,7 @@ export const ROOMS: Record<string, RoomDefinition> = {
     name: 'Worm Nest',
     description: 'Writhing tunnels ahead.',
     icon: '🪱',
+    image: '/cards/room_worm_nest.webp',
     monsters: ['jaw_worm'],
   },
   mixed_combat: {
@@ -43,6 +46,7 @@ export const ROOMS: Record<string, RoomDefinition> = {
     name: 'Infernal Pit',
     description: 'Flames dance in the darkness.',
     icon: '🔥',
+    image: '/cards/room_infernal_pit.webp',
     monsters: ['fire_imp', 'fire_imp'],
   },
   frozen_cavern: {
@@ -51,6 +55,7 @@ export const ROOMS: Record<string, RoomDefinition> = {
     name: 'Frozen Cavern',
     description: 'Ice crystals line the walls.',
     icon: '❄️',
+    image: '/cards/room_frozen_cavern.webp',
     monsters: ['frost_elemental'],
   },
   storm_nexus: {
@@ -59,6 +64,7 @@ export const ROOMS: Record<string, RoomDefinition> = {
     name: 'Storm Nexus',
     description: 'Lightning crackles in the air.',
     icon: '⚡',
+    image: '/cards/room_storm_nexus.webp',
     monsters: ['storm_sprite', 'storm_sprite', 'storm_sprite'],
   },
   void_shrine: {
@@ -67,6 +73,7 @@ export const ROOMS: Record<string, RoomDefinition> = {
     name: 'Void Shrine',
     description: 'Reality warps around you.',
     icon: '🌀',
+    image: '/cards/room_void_shrine.webp',
     monsters: ['void_cultist'],
   },
   flooded_chamber: {
@@ -113,6 +120,7 @@ export const ROOMS: Record<string, RoomDefinition> = {
     name: 'Campfire',
     description: 'Rest and recover.',
     icon: '🔥',
+    image: '/cards/room_campfire.webp',
   },
 
   // Treasure rooms
@@ -122,6 +130,7 @@ export const ROOMS: Record<string, RoomDefinition> = {
     name: 'Treasure Cache',
     description: 'A small stash of valuables.',
     icon: '💎',
+    image: '/cards/room_treasure.webp',
   },
   treasure_large: {
     id: 'treasure_large',
@@ -129,6 +138,7 @@ export const ROOMS: Record<string, RoomDefinition> = {
     name: 'Treasure Vault',
     description: 'A vault filled with ancient relics.',
     icon: '👑',
+    image: '/cards/room_treasure.webp',
   },
 }
 

@@ -587,7 +587,7 @@ export function GameScreen({ deckId, heroId, dungeonDeckId, onReturnToMenu }: Ga
       </div>
 
       {/* Combat field - centered */}
-      <div className="flex-1 flex flex-col justify-center">
+      <div className="flex-1 flex flex-col justify-center items-center overflow-visible">
         <Field
           player={combat.player}
           enemies={combat.enemies}

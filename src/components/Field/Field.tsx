@@ -31,7 +31,7 @@ export const Field = memo(function Field({ player, enemies, onTargetClick, onUse
   const canUseUltimate = heroCard?.ultimate && player.ultimateReady
 
   return (
-    <div className="Field flex justify-center items-center gap-16 px-8 py-6">
+    <div className="Field flex justify-center items-center gap-12 px-4 py-6 overflow-visible">
       {/* Player with Hero Abilities */}
       <div className="flex flex-col items-center gap-3">
         <Card
