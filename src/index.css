@@ -88,6 +88,18 @@
   --rarity-legendary: oklch(0.70 0.20 60);
   --rarity-mythic: oklch(0.75 0.25 280);
   --rarity-ancient: oklch(0.70 0.30 200);
+
+  /* Warm neutral palette (replaces cold grays) */
+  --color-warm-50: oklch(0.96 0.01 55);
+  --color-warm-100: oklch(0.90 0.015 50);
+  --color-warm-200: oklch(0.82 0.02 48);
+  --color-warm-300: oklch(0.72 0.025 46);
+  --color-warm-400: oklch(0.60 0.03 44);
+  --color-warm-500: oklch(0.50 0.025 42);
+  --color-warm-600: oklch(0.40 0.02 40);
+  --color-warm-700: oklch(0.30 0.018 38);
+  --color-warm-800: oklch(0.20 0.015 36);
+  --color-warm-900: oklch(0.12 0.012 35);
 }
 
 * {

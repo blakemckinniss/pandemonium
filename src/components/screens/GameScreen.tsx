@@ -134,17 +134,45 @@ export function GameScreen({ deckId, heroId, dungeonDeckId, onReturnToMenu }: Ga
     // New turn started
     lastTurnRef.current = currentTurn
 
-    // Energy orb refill glow
+    // Screen flash for turn transition (subtle green pulse on container)
+    if (containerRef.current && currentTurn > 1) {
+      gsap.fromTo(
+        containerRef.current,
+        { boxShadow: 'inset 0 0 100px 20px rgba(34, 197, 94, 0.3)' },
+        { boxShadow: 'inset 0 0 0px 0px rgba(34, 197, 94, 0)', duration: 0.5, ease: 'power2.out' }
+      )
+    }
+
+    // Energy orb refill glow with enhanced particles
     const energyOrb = queryContainer('[data-energy-orb]')
     if (energyOrb) {
       ;(gsap.effects as Record<string, (el: Element, opts: object) => void>).energyPulse(energyOrb, { color: 'oklch(0.8 0.2 70)' })
+      // Burst of energy particles
       emitParticle(energyOrb, 'energy')
+      setTimeout(() => emitParticle(energyOrb, 'energy'), 50)
+      setTimeout(() => emitParticle(energyOrb, 'energy'), 100)
+      // Scale bounce for satisfying refill feel
+      gsap.fromTo(energyOrb, { scale: 1.3 }, { scale: 1, duration: 0.3, ease: 'elastic.out(1, 0.5)' })
     }
 
     // Player card glow on turn start
     const playerCard = queryContainer('[data-entity="player"]')
     if (playerCard && currentTurn > 1) {
       ;(gsap.effects as Record<string, (el: Element, opts: object) => void>).pulse(playerCard, { color: 'oklch(0.6 0.15 145)' })
+    }
+
+    // Staggered hand card glow on turn start
+    if (currentTurn > 1) {
+      const handCards = containerRef.current?.querySelectorAll('[data-hand-card]')
+      handCards?.forEach((card, i) => {
+        setTimeout(() => {
+          gsap.fromTo(
+            card,
+            { boxShadow: '0 0 20px 5px rgba(34, 197, 94, 0.5)' },
+            { boxShadow: '0 0 0px 0px rgba(34, 197, 94, 0)', duration: 0.4, ease: 'power2.out' }
+          )
+        }, i * 60)
+      })
     }
 
     // Use setTimeout to ensure React has committed DOM changes for card dealing
@@ -155,6 +183,15 @@ export function GameScreen({ deckId, heroId, dungeonDeckId, onReturnToMenu }: Ga
   // Visual cues when enemy turn starts
   useEffect(() => {
     if (!state?.combat || state.combat.phase !== 'enemyTurn') return
+
+    // Threatening red screen tint
+    if (containerRef.current) {
+      gsap.fromTo(
+        containerRef.current,
+        { boxShadow: 'inset 0 0 150px 40px rgba(220, 38, 38, 0.4)' },
+        { boxShadow: 'inset 0 0 80px 20px rgba(220, 38, 38, 0.15)', duration: 0.4, ease: 'power2.out' }
+      )
+    }
 
     // Pulse all enemy cards to show they're about to act
     const enemyCards = containerRef.current?.querySelectorAll('[data-entity="enemy"]')
@@ -177,6 +214,11 @@ export function GameScreen({ deckId, heroId, dungeonDeckId, onReturnToMenu }: Ga
   // Restore end turn button when player turn starts
   useEffect(() => {
     if (!state?.combat || state.combat.phase !== 'playerTurn') return
+
+    // Clear any red tint from enemy turn
+    if (containerRef.current) {
+      gsap.to(containerRef.current, { boxShadow: 'inset 0 0 0px 0px rgba(0, 0, 0, 0)', duration: 0.3 })
+    }
 
     const endTurnBtn = containerRef.current?.querySelector('[data-end-turn]')
     if (endTurnBtn) {
