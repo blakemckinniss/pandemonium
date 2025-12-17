@@ -73,6 +73,43 @@ gsap.registerEffect({
   extendTimeline: true,
 })
 
+// Low HP danger warning - pulsing red glow
+gsap.registerEffect({
+  name: 'healthDanger',
+  effect: (targets: gsap.TweenTarget) => {
+    const tl = gsap.timeline()
+
+    // Rapid pulsing red glow to indicate danger
+    tl.to(targets, {
+      boxShadow: '0 0 30px 10px rgba(255, 50, 50, 0.8), inset 0 0 20px rgba(255, 0, 0, 0.3)',
+      filter: 'brightness(1.2) saturate(1.3)',
+      duration: 0.15,
+      ease: 'power2.out',
+    })
+    tl.to(targets, {
+      boxShadow: '0 0 15px 5px rgba(255, 50, 50, 0.4), inset 0 0 10px rgba(255, 0, 0, 0.1)',
+      filter: 'brightness(1.1) saturate(1.15)',
+      duration: 0.15,
+      ease: 'power2.in',
+    })
+    tl.to(targets, {
+      boxShadow: '0 0 25px 8px rgba(255, 50, 50, 0.6), inset 0 0 15px rgba(255, 0, 0, 0.2)',
+      filter: 'brightness(1.15) saturate(1.2)',
+      duration: 0.12,
+      ease: 'power2.out',
+    })
+    tl.to(targets, {
+      boxShadow: 'none',
+      filter: 'brightness(1) saturate(1)',
+      duration: 0.3,
+      ease: 'power2.out',
+    })
+
+    return tl
+  },
+  extendTimeline: true,
+})
+
 // Player hit - dramatic recoil and red flash
 gsap.registerEffect({
   name: 'playerHit',

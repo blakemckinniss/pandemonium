@@ -55,6 +55,18 @@ export function handleCombatNumberEvents(event: VisualEvent, ctx: HandlerContext
           // Screen edge vignette on player damage
           const vignetteIntensity = isCritical ? 1.5 : event.amount >= 10 ? 1.2 : 1
           effects.damageVignette(damageTarget, { intensity: vignetteIntensity })
+
+          // Low HP danger warning when below 30%
+          if (ctx.combat) {
+            const { currentHealth, maxHealth } = ctx.combat.player
+            const hpPercent = currentHealth / maxHealth
+            if (hpPercent <= 0.3 && hpPercent > 0) {
+              // Delay slightly so it plays after the hit animation
+              setTimeout(() => {
+                effects.healthDanger(damageTarget)
+              }, 300)
+            }
+          }
         }
       }
       return true
