@@ -84,11 +84,21 @@ export function handleGameEvents(event: VisualEvent, ctx: HandlerContext): boole
 
       const playerEl = ctx.queryContainer('[data-entity="player"]')
       if (playerEl) {
+        // Dramatic relic activation - purple glow + particle burst
         effects.pulse(playerEl, {
           color: 'oklch(0.6 0.15 300)',
         })
         emitParticle(playerEl, 'energy')
+        setTimeout(() => emitParticle(playerEl, 'spark'), 50)
+        setTimeout(() => emitParticle(playerEl, 'energy'), 100)
       }
+
+      // Also pulse the relic bar if visible
+      const relicBar = ctx.queryContainer('[data-relic-bar]')
+      if (relicBar) {
+        effects.pulse(relicBar, { color: 'oklch(0.7 0.18 280)' })
+      }
+
       logger.debug('Visual', `Relic triggered: ${event.relicDefId} (${event.trigger})`)
       return true
     }

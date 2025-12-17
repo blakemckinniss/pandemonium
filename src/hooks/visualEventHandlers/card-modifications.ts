@@ -12,7 +12,12 @@ export function handleCardModificationEvents(event: VisualEvent, ctx: HandlerCon
         const cardEl = ctx.queryContainer(`[data-card-uid="${cardUid}"]`)
         if (cardEl) {
           effects.upgradeCard(cardEl)
+          // Sparkle burst for upgrade - staggered gold particles
           emitParticle(cardEl, 'upgrade')
+          setTimeout(() => emitParticle(cardEl, 'upgrade'), 50)
+          setTimeout(() => emitParticle(cardEl, 'gold'), 100)
+          setTimeout(() => emitParticle(cardEl, 'upgrade'), 150)
+          setTimeout(() => emitParticle(cardEl, 'energy'), 200)
         }
       }
       logger.debug('Visual', `Upgraded ${event.cardUids.length} card(s)`)
