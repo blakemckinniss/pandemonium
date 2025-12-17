@@ -201,3 +201,132 @@ gsap.registerEffect({
   },
   extendTimeline: true,
 })
+
+// Enemy death - dramatic shatter/disintegrate effect
+gsap.registerEffect({
+  name: 'enemyDeath',
+  effect: (targets: gsap.TweenTarget) => {
+    const tl = gsap.timeline()
+    const element = (targets as HTMLElement[])[0] || (targets as HTMLElement)
+    if (!element || !(element instanceof HTMLElement)) return tl
+
+    // Phase 1: Flash white and freeze
+    tl.to(element, {
+      filter: 'brightness(3) saturate(0)',
+      scale: 1.1,
+      duration: 0.1,
+      ease: 'power4.out',
+    })
+
+    // Phase 2: Glitch effect - rapid color/position shifts
+    tl.to(element, {
+      filter: 'brightness(1.5) saturate(2) hue-rotate(90deg)',
+      x: '+=5',
+      duration: 0.05,
+    })
+    tl.to(element, {
+      filter: 'brightness(2) saturate(0.5) hue-rotate(-90deg)',
+      x: '-=10',
+      duration: 0.05,
+    })
+    tl.to(element, {
+      filter: 'brightness(1.8) saturate(1.5) hue-rotate(180deg)',
+      x: '+=5',
+      duration: 0.05,
+    })
+
+    // Phase 3: Create and animate shatter fragments
+    const rect = element.getBoundingClientRect()
+    const fragmentCount = 12
+    const fragments: HTMLDivElement[] = []
+
+    // Create fragment container at same position
+    const container = document.createElement('div')
+    container.style.cssText = `
+      position: fixed;
+      left: ${rect.left}px;
+      top: ${rect.top}px;
+      width: ${rect.width}px;
+      height: ${rect.height}px;
+      pointer-events: none;
+      z-index: 9999;
+    `
+    document.body.appendChild(container)
+
+    // Create fragments as colored shards
+    for (let i = 0; i < fragmentCount; i++) {
+      const fragment = document.createElement('div')
+      const size = 15 + Math.random() * 25
+      const startX = Math.random() * rect.width
+      const startY = Math.random() * rect.height
+
+      // Random shard colors (enemy-themed reds/oranges)
+      const hue = 0 + Math.random() * 40 // Red to orange
+      const lightness = 40 + Math.random() * 30
+
+      fragment.style.cssText = `
+        position: absolute;
+        left: ${startX}px;
+        top: ${startY}px;
+        width: ${size}px;
+        height: ${size}px;
+        background: linear-gradient(
+          ${Math.random() * 360}deg,
+          hsl(${hue}, 80%, ${lightness}%),
+          hsl(${hue + 20}, 90%, ${lightness + 20}%)
+        );
+        clip-path: polygon(
+          ${Math.random() * 30}% ${Math.random() * 30}%,
+          ${70 + Math.random() * 30}% ${Math.random() * 40}%,
+          ${60 + Math.random() * 40}% ${60 + Math.random() * 40}%,
+          ${Math.random() * 40}% ${70 + Math.random() * 30}%
+        );
+        box-shadow: 0 0 10px hsl(${hue}, 80%, 50%);
+        opacity: 1;
+      `
+      container.appendChild(fragment)
+      fragments.push(fragment)
+    }
+
+    // Phase 4: Explode fragments outward
+    tl.add(() => {
+      fragments.forEach((fragment, i) => {
+        const angle = (i / fragmentCount) * Math.PI * 2 + Math.random() * 0.5
+        const distance = 100 + Math.random() * 150
+        const dx = Math.cos(angle) * distance
+        const dy = Math.sin(angle) * distance - 50 // Bias upward
+
+        gsap.to(fragment, {
+          x: dx,
+          y: dy,
+          rotation: Math.random() * 720 - 360,
+          scale: 0,
+          opacity: 0,
+          duration: 0.6 + Math.random() * 0.3,
+          ease: 'power2.out',
+        })
+      })
+    }, '-=0.1')
+
+    // Phase 5: Original element dissolves
+    tl.to(
+      element,
+      {
+        filter: 'brightness(0.5) blur(8px) saturate(0)',
+        scale: 0.3,
+        opacity: 0,
+        duration: 0.4,
+        ease: 'power3.in',
+      },
+      '-=0.5'
+    )
+
+    // Cleanup fragments after animation
+    tl.add(() => {
+      setTimeout(() => container.remove(), 100)
+    })
+
+    return tl
+  },
+  extendTimeline: true,
+})

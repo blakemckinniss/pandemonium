@@ -2,7 +2,6 @@ import type { VisualEvent, CombatNumber } from '../../types'
 import type { HandlerContext } from './types'
 import { effects } from './utils'
 import { emitParticle } from '../../components/ParticleEffects/emitParticle'
-import { gsap } from '../../lib/dragdrop'
 import { generateUid } from '../../lib/utils'
 
 export function handleEnemyActionEvents(event: VisualEvent, ctx: HandlerContext): boolean {
@@ -10,24 +9,20 @@ export function handleEnemyActionEvents(event: VisualEvent, ctx: HandlerContext)
     case 'enemyDeath': {
       const enemyEl = ctx.queryContainer(`[data-target="${event.enemyId}"]`)
       if (enemyEl) {
-        // Explosion particle burst
-        for (let i = 0; i < 3; i++) {
-          setTimeout(() => emitParticle(enemyEl, 'explosion'), i * 50)
+        // Dramatic particle burst throughout the animation
+        for (let i = 0; i < 5; i++) {
+          setTimeout(() => emitParticle(enemyEl, 'explosion'), i * 60)
         }
-        emitParticle(enemyEl, 'critical')
+        setTimeout(() => emitParticle(enemyEl, 'critical'), 100)
+        setTimeout(() => emitParticle(enemyEl, 'spark'), 200)
 
-        // Screen shake
+        // Screen shake on death
         if (ctx.containerRef.current) {
-          effects.shake(ctx.containerRef.current, { intensity: 10 })
+          effects.shake(ctx.containerRef.current, { intensity: 12 })
         }
 
-        // Fade out the enemy card
-        gsap.to(enemyEl, {
-          opacity: 0,
-          scale: 1.2,
-          duration: 0.4,
-          ease: 'power2.out',
-        })
+        // Use the dramatic shatter/disintegrate effect
+        effects.enemyDeath(enemyEl)
       }
       return true
     }
