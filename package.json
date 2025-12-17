@@ -4,7 +4,8 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "concurrently -k -n vite,comfy,imggen -c cyan,magenta,yellow \"npm run dev:vite\" \"npm run dev:comfyui\" \"npm run dev:imagegen\"",
+    "dev": "concurrently -k -n vite,comfy,imggen -c cyan,magenta,yellow --hide comfy,imggen \"npm run dev:vite\" \"npm run dev:comfyui\" \"npm run dev:imagegen\"",
+    "dev:full": "concurrently -k -n vite,comfy,imggen -c cyan,magenta,yellow \"npm run dev:vite\" \"npm run dev:comfyui\" \"npm run dev:imagegen\"",
     "dev:vite": "vite",
     "dev:comfyui": "./scripts/start-comfyui.sh",
     "dev:imagegen": "./scripts/start-imagegen.sh",
