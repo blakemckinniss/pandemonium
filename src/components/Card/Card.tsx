@@ -315,31 +315,37 @@ export const Card = memo(function Card({
       {/* Gradient overlay for text readability */}
       <div className="Card__gradient-overlay" />
 
-      {/* Card info footer */}
-      <div className="Card__info">
-        <div className="Card__name-bar">
-          <span className="Card__name">{displayName}</span>
-        </div>
-        {variant === 'hand' && description && (
-          <div className="Card__description">{description}</div>
-        )}
-      </div>
-
-      {/* Health bar with text inside (player/enemy) */}
-      {(variant === 'player' || variant === 'enemy') && (
-        <div className="absolute bottom-8 left-0 right-0 px-3 z-10">
-          <HealthBar
-            current={currentHealth ?? 0}
-            max={maxHealth ?? 1}
-            block={block}
-          />
+      {/* Card info footer - hand cards only */}
+      {variant === 'hand' && (
+        <div className="Card__info">
+          <div className="Card__name-bar">
+            <span className="Card__name">{displayName}</span>
+          </div>
+          {description && (
+            <div className="Card__description">{description}</div>
+          )}
         </div>
       )}
 
-      {/* Power indicators (player/enemy) */}
-      {(variant === 'player' || variant === 'enemy') && powers && Object.keys(powers).length > 0 && (
-        <div className="absolute bottom-0 left-0 right-0 z-10">
-          <PowerIndicators powers={powers} />
+      {/* Entity info footer - player/enemy cards (unified stacking) */}
+      {(variant === 'player' || variant === 'enemy') && (
+        <div className="absolute bottom-0 left-0 right-0 z-10 flex flex-col">
+          {/* Name */}
+          <div className="Card__name-bar mx-2">
+            <span className="Card__name">{displayName}</span>
+          </div>
+          {/* Health bar */}
+          <div className="px-3 py-1">
+            <HealthBar
+              current={currentHealth ?? 0}
+              max={maxHealth ?? 1}
+              block={block}
+            />
+          </div>
+          {/* Power indicators */}
+          {powers && Object.keys(powers).length > 0 && (
+            <PowerIndicators powers={powers} />
+          )}
         </div>
       )}
     </div>
