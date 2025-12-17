@@ -364,7 +364,7 @@ h1, h2, h3, h4, h5, h6,
   background: linear-gradient(90deg, transparent, oklch(0.45 0.08 55 / 0.4), transparent);
 }
 
-/* Card base styles - 2x bigger */
+/* Card base styles - Image-first design */
 .Card {
   --card-width: 180px;
   --card-height: 252px;
@@ -374,12 +374,173 @@ h1, h2, h3, h4, h5, h6,
   border-radius: 12px;
   background: var(--color-surface);
   border: 2px solid var(--color-border);
-  display: flex;
-  flex-direction: column;
   overflow: hidden;
   cursor: pointer;
   user-select: none;
   position: relative;
+}
+
+/* Full-bleed card image */
+.Card__image {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center top;
+  z-index: 0;
+}
+
+/* Fallback when no image */
+.Card__image-fallback {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(
+    180deg,
+    oklch(0.18 0.02 40) 0%,
+    oklch(0.12 0.015 35) 100%
+  );
+  z-index: 0;
+}
+
+/* Gradient overlay for text readability */
+.Card__gradient-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    to top,
+    oklch(0.05 0.01 35 / 0.95) 0%,
+    oklch(0.08 0.01 35 / 0.85) 25%,
+    oklch(0.1 0.01 35 / 0.4) 50%,
+    transparent 70%
+  );
+  z-index: 1;
+  pointer-events: none;
+}
+
+/* Card info area (name + description) */
+.Card__info {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 0.5rem 0.625rem;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+/* Name bar with aged parchment feel */
+.Card__name-bar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.25rem 0.5rem;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    oklch(0.12 0.02 40 / 0.8) 10%,
+    oklch(0.15 0.025 45 / 0.9) 50%,
+    oklch(0.12 0.02 40 / 0.8) 90%,
+    transparent 100%
+  );
+  border-top: 1px solid oklch(0.4 0.05 45 / 0.3);
+  border-bottom: 1px solid oklch(0.08 0.01 35 / 0.5);
+}
+
+/* Energy badge - gem-like orb */
+.Card__energy-badge {
+  position: absolute;
+  top: 0.5rem;
+  left: 0.5rem;
+  width: 2rem;
+  height: 2rem;
+  border-radius: 50%;
+  font-family: var(--font-display);
+  font-size: 0.9rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10;
+  background: linear-gradient(
+    135deg,
+    oklch(0.65 0.18 85) 0%,
+    oklch(0.5 0.15 75) 50%,
+    oklch(0.4 0.12 70) 100%
+  );
+  color: oklch(0.1 0.02 70);
+  border: 2px solid oklch(0.75 0.15 80);
+  box-shadow:
+    0 2px 6px oklch(0 0 0 / 0.5),
+    inset 0 1px 0 oklch(1 0 0 / 0.3),
+    0 0 12px oklch(0.6 0.15 80 / 0.4);
+  text-shadow: 0 1px 1px oklch(1 0 0 / 0.3);
+}
+
+.Card__energy-badge--modified {
+  background: linear-gradient(135deg, oklch(0.55 0.18 145) 0%, oklch(0.45 0.15 140) 100%);
+  border-color: oklch(0.65 0.15 150);
+  box-shadow:
+    0 2px 6px oklch(0 0 0 / 0.5),
+    0 0 12px oklch(0.5 0.15 145 / 0.5);
+}
+
+.Card__energy-badge--fire {
+  background: linear-gradient(135deg, oklch(0.6 0.2 35) 0%, oklch(0.45 0.18 30) 100%);
+  border-color: oklch(0.7 0.18 40);
+  color: oklch(0.95 0.02 50);
+}
+
+.Card__energy-badge--ice {
+  background: linear-gradient(135deg, oklch(0.65 0.12 220) 0%, oklch(0.5 0.1 215) 100%);
+  border-color: oklch(0.75 0.1 225);
+  color: oklch(0.1 0.02 220);
+}
+
+.Card__energy-badge--lightning {
+  background: linear-gradient(135deg, oklch(0.75 0.15 95) 0%, oklch(0.6 0.12 90) 100%);
+  border-color: oklch(0.85 0.12 100);
+  color: oklch(0.15 0.02 90);
+}
+
+.Card__energy-badge--void {
+  background: linear-gradient(135deg, oklch(0.45 0.15 310) 0%, oklch(0.3 0.12 305) 100%);
+  border-color: oklch(0.55 0.12 315);
+  color: oklch(0.9 0.03 310);
+}
+
+.Card__energy-badge--physical {
+  background: linear-gradient(135deg, oklch(0.5 0.02 250) 0%, oklch(0.35 0.015 245) 100%);
+  border-color: oklch(0.6 0.02 255);
+  color: oklch(0.9 0.01 250);
+}
+
+/* Status badges (ethereal, retained) */
+.Card__status-badge {
+  width: 1.375rem;
+  height: 1.375rem;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 4px oklch(0 0 0 / 0.4);
+}
+
+.Card__status-badge--ethereal {
+  background: linear-gradient(135deg, oklch(0.4 0.12 290) 0%, oklch(0.25 0.1 285) 100%);
+  border: 1.5px solid oklch(0.55 0.1 295 / 0.6);
+  color: oklch(0.8 0.08 290);
+}
+
+.Card__status-badge--retained {
+  background: linear-gradient(135deg, oklch(0.45 0.12 60) 0%, oklch(0.3 0.1 55) 100%);
+  border: 1.5px solid oklch(0.6 0.1 65 / 0.6);
+  color: oklch(0.85 0.08 60);
 }
 
 .Card--attack { border-color: var(--color-card-attack); }
@@ -972,16 +1133,18 @@ h1, h2, h3, h4, h5, h6,
 /* Element emblem styling */
 .Card__element-emblem {
   position: absolute;
-  top: 6px;
-  right: 6px;
-  width: 40px;
-  height: 40px;
-  border-radius: 8px;
+  top: 0.375rem;
+  right: 0.375rem;
+  width: 2rem;
+  height: 2rem;
+  border-radius: 6px;
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 2px 8px oklch(0 0 0 / 0.4);
-  z-index: 2;
+  box-shadow:
+    0 2px 6px oklch(0 0 0 / 0.5),
+    inset 0 1px 0 oklch(1 0 0 / 0.15);
+  z-index: 10;
 }
 
 .Card__element-emblem--physical {
@@ -2049,15 +2212,21 @@ h1, h2, h3, h4, h5, h6,
     inset 0 1px 0 oklch(1 0 0 / 0.06);
 }
 
-/* Card name plate - aged brass */
+/* Card name - elegant medieval script on image */
 .Card__name {
   font-family: var(--font-display);
-  font-weight: 500;
-  letter-spacing: 0.02em;
-  text-shadow: 0 1px 2px oklch(0 0 0 / 0.5);
+  font-weight: 600;
+  font-size: 0.8rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: oklch(0.92 0.03 55);
+  text-shadow:
+    0 1px 2px oklch(0 0 0 / 0.9),
+    0 0 10px oklch(0.5 0.1 45 / 0.4);
+  text-align: center;
 }
 
-/* Energy cost orb - embedded gem */
+/* Energy cost orb */
 .Card__cost {
   font-family: var(--font-display);
   font-weight: 700;
@@ -2066,12 +2235,14 @@ h1, h2, h3, h4, h5, h6,
     0 0 8px oklch(0.5 0.12 70 / 0.4);
 }
 
-/* Card description text - manuscript script */
+/* Card description - readable on image */
 .Card__description {
   font-family: var(--font-body);
-  font-size: 0.8rem;
-  line-height: 1.35;
-  color: oklch(0.72 0.02 48);
+  font-size: 0.68rem;
+  line-height: 1.3;
+  color: oklch(0.82 0.015 50);
+  text-align: center;
+  text-shadow: 0 1px 2px oklch(0 0 0 / 0.8);
 }
 
 /* Upgraded card name - emerald glow */

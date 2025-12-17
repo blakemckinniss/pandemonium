@@ -234,35 +234,35 @@ export const Card = memo(function Card({
 
       {/* Energy badge (hand cards) - colored by element */}
       {variant === 'hand' && energy !== undefined && (
-        <div className={`absolute top-2 left-2 w-8 h-8 rounded-full text-sm font-bold flex items-center justify-center shadow-md ${
+        <div className={`Card__energy-badge ${
           costModified
-            ? 'bg-green-500 text-white ring-2 ring-green-300'
+            ? 'Card__energy-badge--modified'
             : element
-              ? `${ELEMENT_CONFIG[element].bg} ${ELEMENT_CONFIG[element].color}`
-              : 'bg-energy text-black'
+              ? `Card__energy-badge--${element}`
+              : ''
         }`}>
           {energy}
         </div>
       )}
 
-      {/* Element emblem (hand cards - larger shield shape, all elements) */}
+      {/* Element emblem (hand cards) */}
       {variant === 'hand' && element && (
         <div className={`Card__element-emblem Card__element-emblem--${element}`}>
-          <Icon icon={ELEMENT_CONFIG[element].icon} className={`w-6 h-6 ${ELEMENT_CONFIG[element].color}`} />
+          <Icon icon={ELEMENT_CONFIG[element].icon} className={`w-4 h-4 ${ELEMENT_CONFIG[element].color}`} />
         </div>
       )}
 
       {/* Status keyword badges (ethereal/retained) */}
       {variant === 'hand' && (ethereal || retained) && (
-        <div className="absolute top-11 right-2 flex flex-col gap-1">
+        <div className="absolute top-10 right-1.5 flex flex-col gap-1 z-10">
           {ethereal && (
-            <div className="w-6 h-6 rounded-full bg-purple-900/80 flex items-center justify-center shadow-md border border-purple-400/30" title="Ethereal - Exhausts if not played">
-              <Icon icon="game-icons:ghost" className="w-3.5 h-3.5 text-purple-300" />
+            <div className="Card__status-badge Card__status-badge--ethereal" title="Ethereal - Exhausts if not played">
+              <Icon icon="game-icons:ghost" className="w-3 h-3" />
             </div>
           )}
           {retained && (
-            <div className="w-6 h-6 rounded-full bg-amber-900/80 flex items-center justify-center shadow-md border border-amber-400/30" title="Retained - Stays in hand">
-              <Icon icon="game-icons:hand" className="w-3.5 h-3.5 text-amber-300" />
+            <div className="Card__status-badge Card__status-badge--retained" title="Retained - Stays in hand">
+              <Icon icon="game-icons:hand" className="w-3 h-3" />
             </div>
           )}
         </div>
@@ -270,7 +270,7 @@ export const Card = memo(function Card({
 
       {/* Intent badge (enemies) */}
       {variant === 'enemy' && intent && (
-        <div className="absolute top-2 right-2 px-2 py-1 rounded bg-surface-alt/90 text-sm flex items-center gap-1">
+        <div className="absolute top-2 right-2 px-2 py-1 rounded bg-surface-alt/90 text-sm flex items-center gap-1 z-10">
           {intent.type === 'attack' && (
             <>
               <Icon icon="game-icons:crossed-swords" className="text-damage" />
@@ -290,43 +290,44 @@ export const Card = memo(function Card({
 
       {/* Energy orb inside player card */}
       {variant === 'player' && energy !== undefined && (
-        <div className="absolute top-2 left-2 EnergyOrb text-xs" data-energy-orb>
+        <div className="absolute top-2 left-2 EnergyOrb text-xs z-10" data-energy-orb>
           {energy}/{maxEnergy}
         </div>
       )}
 
-      {/* Portrait/Art area */}
-      <div className="flex-1 flex items-center justify-center p-3 overflow-hidden">
-        {resolvedImage && !imageError ? (
-          <img
-            src={resolvedImage}
-            alt={name}
-            className="max-w-full max-h-full object-contain rounded"
-            onError={() => setImageError(true)}
-          />
-        ) : (
+      {/* Full-bleed card art */}
+      {resolvedImage && !imageError ? (
+        <img
+          src={resolvedImage}
+          alt={name}
+          className="Card__image"
+          onError={() => setImageError(true)}
+        />
+      ) : (
+        <div className="Card__image-fallback">
           <Icon
             icon={getCardIcon(variant, theme)}
-            className="w-16 h-16 opacity-60"
+            className="w-20 h-20 opacity-40"
           />
-        )}
-      </div>
-
-      {/* Name */}
-      <div className="px-3 py-2 text-center text-sm font-medium truncate bg-surface-alt/50">
-        {displayName}
-      </div>
-
-      {/* Description (hand cards) */}
-      {variant === 'hand' && description && (
-        <div className="px-3 py-2 text-xs text-center text-gray-400 leading-tight">
-          {description}
         </div>
       )}
 
+      {/* Gradient overlay for text readability */}
+      <div className="Card__gradient-overlay" />
+
+      {/* Card info footer */}
+      <div className="Card__info">
+        <div className="Card__name-bar">
+          <span className="Card__name">{displayName}</span>
+        </div>
+        {variant === 'hand' && description && (
+          <div className="Card__description">{description}</div>
+        )}
+      </div>
+
       {/* Health bar with text inside (player/enemy) */}
       {(variant === 'player' || variant === 'enemy') && (
-        <div className="p-3 pt-1">
+        <div className="absolute bottom-8 left-0 right-0 px-3 z-10">
           <HealthBar
             current={currentHealth ?? 0}
             max={maxHealth ?? 1}
@@ -337,7 +338,9 @@ export const Card = memo(function Card({
 
       {/* Power indicators (player/enemy) */}
       {(variant === 'player' || variant === 'enemy') && powers && Object.keys(powers).length > 0 && (
-        <PowerIndicators powers={powers} />
+        <div className="absolute bottom-0 left-0 right-0 z-10">
+          <PowerIndicators powers={powers} />
+        </div>
       )}
     </div>
   )
