@@ -35,6 +35,7 @@ export interface MonsterTemplate {
   healthRange: [number, number]
   damage: number
   times?: number  // Multi-hit attacks (e.g., 3x4 damage)
+  image?: string  // Path to monster portrait
   // Elemental properties
   vulnerabilities?: import('../types').Element[]
   resistances?: import('../types').Element[]
@@ -47,18 +48,21 @@ export const MONSTERS: Record<string, MonsterTemplate> = {
     name: 'Acid Slime',
     healthRange: [8, 12],
     damage: 5,
+    image: '/cards/enemy_slime.webp',
   },
   cultist: {
     id: 'cultist',
     name: 'Cultist',
     healthRange: [48, 54],
     damage: 6,
+    image: '/cards/enemy_cultist.webp',
   },
   jaw_worm: {
     id: 'jaw_worm',
     name: 'Jaw Worm',
     healthRange: [40, 44],
     damage: 11,
+    image: '/cards/enemy_jaw_worm.webp',
   },
   spike_slime: {
     id: 'spike_slime',
@@ -66,6 +70,7 @@ export const MONSTERS: Record<string, MonsterTemplate> = {
     healthRange: [28, 32],
     damage: 5,
     times: 2,  // Attacks twice: 2x5 damage
+    image: '/cards/enemy_spike_slime.webp',
   },
   gremlin_nob: {
     id: 'gremlin_nob',
@@ -73,6 +78,7 @@ export const MONSTERS: Record<string, MonsterTemplate> = {
     healthRange: [82, 86],
     damage: 8,
     times: 3,  // Attacks three times: 3x8 damage
+    image: '/cards/enemy_gremlin_nob.webp',
   },
 
   // --- ELEMENTAL MONSTERS ---
@@ -85,6 +91,7 @@ export const MONSTERS: Record<string, MonsterTemplate> = {
     resistances: ['fire'],
     vulnerabilities: ['ice'],
     innateStatus: 'burning', // Burns itself but deals fire damage
+    image: '/cards/enemy_fire_imp.webp',
   },
   frost_elemental: {
     id: 'frost_elemental',
@@ -94,6 +101,7 @@ export const MONSTERS: Record<string, MonsterTemplate> = {
     resistances: ['ice'],
     vulnerabilities: ['fire'],
     innateStatus: 'frozen',
+    image: '/cards/enemy_frost_elemental.webp',
   },
   storm_sprite: {
     id: 'storm_sprite',
@@ -103,6 +111,7 @@ export const MONSTERS: Record<string, MonsterTemplate> = {
     resistances: ['lightning'],
     vulnerabilities: ['physical'],
     innateStatus: 'charged',
+    image: '/cards/enemy_storm_sprite.webp',
   },
   void_cultist: {
     id: 'void_cultist',
@@ -112,6 +121,7 @@ export const MONSTERS: Record<string, MonsterTemplate> = {
     resistances: ['void'],
     vulnerabilities: ['lightning'],
     innateStatus: 'oiled',
+    image: '/cards/enemy_void_cultist.webp',
   },
   water_slime: {
     id: 'water_slime',
@@ -121,6 +131,7 @@ export const MONSTERS: Record<string, MonsterTemplate> = {
     resistances: ['ice', 'physical'],
     vulnerabilities: ['lightning', 'fire'],
     innateStatus: 'wet',
+    image: '/cards/enemy_water_slime.webp',
   },
 }
 
@@ -171,6 +182,7 @@ export function createEnemy(templateId: string): EnemyEntity {
   return {
     id: generateUid(),
     name: template.name,
+    image: template.image,
     currentHealth: health,
     maxHealth: health,
     block: 0,
