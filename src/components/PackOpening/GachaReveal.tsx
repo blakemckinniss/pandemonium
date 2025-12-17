@@ -259,7 +259,7 @@ export function GachaReveal({ cards, onComplete, onSkip }: GachaRevealProps) {
           <p className="text-yellow-400 animate-pulse text-lg">Opening...</p>
         )}
         {phase === 'revealing' && (
-          <p className="text-gray-400">
+          <p className="text-warm-400">
             Card {Math.min(revealedIndex + 1, sortedCards.length)} of {sortedCards.length}
           </p>
         )}
@@ -272,7 +272,7 @@ export function GachaReveal({ cards, onComplete, onSkip }: GachaRevealProps) {
       {phase !== 'idle' && phase !== 'complete' && (
         <button
           onClick={handleSkip}
-          className="absolute bottom-8 right-8 px-4 py-2 bg-gray-800/80 text-gray-400 rounded-lg hover:text-white hover:bg-gray-700 transition-colors"
+          className="absolute bottom-8 right-8 px-4 py-2 bg-warm-800/80 text-warm-400 rounded-lg hover:text-white hover:bg-warm-700 transition-colors"
         >
           <Icon icon="mdi:skip-next" className="inline mr-1" />
           Skip
@@ -281,7 +281,7 @@ export function GachaReveal({ cards, onComplete, onSkip }: GachaRevealProps) {
 
       {/* Click to start hint */}
       {phase === 'idle' && (
-        <p className="absolute bottom-16 text-gray-500 animate-bounce">
+        <p className="absolute bottom-16 text-warm-500 animate-bounce">
           Click pack to open!
         </p>
       )}

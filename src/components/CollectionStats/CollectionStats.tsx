@@ -102,11 +102,11 @@ export function CollectionStats({ collection, collapsed = false, onToggleCollaps
   const stats = useMemo(() => analyzeCollection(collection), [collection])
 
   return (
-    <div className="CollectionStats bg-gray-800/50 rounded-lg p-4">
+    <div className="CollectionStats bg-warm-800/50 rounded-lg p-4">
       {/* Header */}
       <button
         onClick={onToggleCollapsed}
-        className="w-full flex items-center justify-between text-sm font-medium text-gray-300 mb-3 hover:text-white transition-colors"
+        className="w-full flex items-center justify-between text-sm font-medium text-warm-300 mb-3 hover:text-white transition-colors"
       >
         <span className="flex items-center gap-2">
           <Icon icon="mdi:chart-pie" className="text-energy" />
@@ -123,25 +123,25 @@ export function CollectionStats({ collection, collapsed = false, onToggleCollaps
           {/* Completion Progress */}
           <div>
             <div className="flex items-center justify-between text-xs mb-1">
-              <span className="text-gray-500">Completion</span>
+              <span className="text-warm-500">Completion</span>
               <span className="text-energy font-medium">
                 {stats.totalUnique} / {stats.totalInGame} ({stats.completionPct.toFixed(1)}%)
               </span>
             </div>
-            <div className="h-2 bg-gray-700 rounded overflow-hidden">
+            <div className="h-2 bg-warm-700 rounded overflow-hidden">
               <div
                 className="h-full bg-gradient-to-r from-energy to-green-400 transition-all duration-500"
                 style={{ width: `${Math.min(stats.completionPct, 100)}%` }}
               />
             </div>
-            <div className="text-[10px] text-gray-600 mt-1">
+            <div className="text-[10px] text-warm-600 mt-1">
               {stats.totalCopies} total cards in collection
             </div>
           </div>
 
           {/* Rarity Breakdown */}
           <div>
-            <div className="text-xs text-gray-500 mb-2">By Rarity</div>
+            <div className="text-xs text-warm-500 mb-2">By Rarity</div>
             <div className="grid grid-cols-2 gap-1">
               {RARITY_ORDER.map((rarity) => {
                 const data = stats.byRarity[rarity]
@@ -159,7 +159,7 @@ export function CollectionStats({ collection, collapsed = false, onToggleCollaps
                       className="w-2 h-2 rounded-full"
                       style={{ backgroundColor: RARITY_COLORS[rarity] }}
                     />
-                    <span className="flex-1 capitalize text-gray-400">{rarity}</span>
+                    <span className="flex-1 capitalize text-warm-400">{rarity}</span>
                     <span style={{ color: RARITY_COLORS[rarity] }}>
                       {data.owned}/{data.total}
                     </span>
@@ -172,7 +172,7 @@ export function CollectionStats({ collection, collapsed = false, onToggleCollaps
           {/* Acquisition Sources */}
           {Object.keys(stats.bySource).length > 0 && (
             <div>
-              <div className="text-xs text-gray-500 mb-2">Sources</div>
+              <div className="text-xs text-warm-500 mb-2">Sources</div>
               <div className="flex flex-wrap gap-2">
                 {Object.entries(stats.bySource)
                   .sort((a, b) => b[1] - a[1])
@@ -204,19 +204,19 @@ export function CollectionStats({ collection, collapsed = false, onToggleCollaps
           {/* Recent Acquisitions */}
           {stats.recentCards.length > 0 && (
             <div>
-              <div className="text-xs text-gray-500 mb-2">Recent</div>
+              <div className="text-xs text-warm-500 mb-2">Recent</div>
               <div className="space-y-1">
                 {stats.recentCards.map((card, idx) => (
                   <div
                     key={`${card.cardId}-${idx}`}
-                    className="flex items-center gap-2 text-xs text-gray-400"
+                    className="flex items-center gap-2 text-xs text-warm-400"
                   >
                     <Icon
                       icon={SOURCE_LABELS[card.source]?.icon || 'mdi:card'}
-                      className="text-gray-600"
+                      className="text-warm-600"
                     />
                     <span className="flex-1 truncate">{card.name}</span>
-                    <span className="text-gray-600">
+                    <span className="text-warm-600">
                       {formatRelativeTime(card.obtainedAt)}
                     </span>
                   </div>

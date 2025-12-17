@@ -64,7 +64,7 @@ export function CardPileModal({ isOpen, onClose, pileType, cards }: CardPileModa
       size="lg"
     >
       {cards.length === 0 ? (
-        <div className="text-center py-12 text-gray-500">
+        <div className="text-center py-12 text-warm-500">
           {config.emptyMessage}
         </div>
       ) : (

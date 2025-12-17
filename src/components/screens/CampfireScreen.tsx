@@ -62,12 +62,12 @@ export function CampfireScreen({ hero, deck, onRest, onSmith, onSkip }: Campfire
 
   if (mode === 'smith') {
     return (
-      <div ref={containerRef} className="CampfireScreen h-screen flex flex-col items-center justify-center bg-gradient-to-b from-gray-900 to-gray-950">
+      <div ref={containerRef} className="CampfireScreen h-screen flex flex-col items-center justify-center bg-gradient-to-b from-warm-900 to-warm-900">
         <h1 className="text-3xl font-bold mb-2 text-energy">Smith</h1>
-        <p className="text-gray-400 mb-6">Choose a card to upgrade</p>
+        <p className="text-warm-400 mb-6">Choose a card to upgrade</p>
 
         {upgradeableCards.length === 0 ? (
-          <p className="text-gray-500 mb-8">No cards available to upgrade</p>
+          <p className="text-warm-500 mb-8">No cards available to upgrade</p>
         ) : (
           <div className="flex flex-wrap gap-4 justify-center max-w-4xl mb-8 px-4">
             {upgradeableCards.map(card => {
@@ -99,7 +99,7 @@ export function CampfireScreen({ hero, deck, onRest, onSmith, onSkip }: Campfire
         <div className="flex gap-4">
           <button
             onClick={() => setMode('choice')}
-            className="px-6 py-3 bg-surface border border-gray-600 rounded-lg text-gray-300 hover:bg-surface-alt transition"
+            className="px-6 py-3 bg-surface border border-warm-600 rounded-lg text-warm-300 hover:bg-surface-alt transition"
           >
             Back
           </button>
@@ -116,7 +116,7 @@ export function CampfireScreen({ hero, deck, onRest, onSmith, onSkip }: Campfire
   }
 
   return (
-    <div ref={containerRef} className="CampfireScreen h-screen flex flex-col items-center justify-center bg-gradient-to-b from-gray-900 via-orange-950/20 to-gray-950">
+    <div ref={containerRef} className="CampfireScreen h-screen flex flex-col items-center justify-center bg-gradient-to-b from-warm-900 via-orange-950/20 to-warm-900">
       {/* Fire visual */}
       <div className="relative mb-8">
         <div className="fire-glow absolute inset-0 w-32 h-32 bg-orange-500 rounded-full blur-3xl opacity-40" />
@@ -127,44 +127,44 @@ export function CampfireScreen({ hero, deck, onRest, onSmith, onSkip }: Campfire
       </div>
 
       <h1 className="text-4xl font-bold mb-2 text-orange-300">Campfire</h1>
-      <p className="text-gray-400 mb-8">Take a moment to rest</p>
+      <p className="text-warm-400 mb-8">Take a moment to rest</p>
 
       {/* Options */}
       <div className="flex gap-6">
         {/* Rest option */}
         <button
           onClick={onRest}
-          className="group flex flex-col items-center p-6 bg-surface border-2 border-gray-700 rounded-xl hover:border-heal hover:bg-surface-alt transition-all w-48"
+          className="group flex flex-col items-center p-6 bg-surface border-2 border-warm-700 rounded-xl hover:border-heal hover:bg-surface-alt transition-all w-48"
         >
           <Icon
             icon="game-icons:health-potion"
             className="w-16 h-16 text-heal mb-3 group-hover:scale-110 transition-transform"
           />
           <span className="text-xl font-bold text-heal mb-1">Rest</span>
-          <span className="text-gray-400 text-sm">Heal {healAmount} HP</span>
-          <span className="text-gray-500 text-xs">(30% of max)</span>
+          <span className="text-warm-400 text-sm">Heal {healAmount} HP</span>
+          <span className="text-warm-500 text-xs">(30% of max)</span>
         </button>
 
         {/* Smith option */}
         <button
           onClick={() => setMode('smith')}
           disabled={upgradeableCards.length === 0}
-          className="group flex flex-col items-center p-6 bg-surface border-2 border-gray-700 rounded-xl hover:border-energy hover:bg-surface-alt transition-all w-48 disabled:opacity-50 disabled:cursor-not-allowed"
+          className="group flex flex-col items-center p-6 bg-surface border-2 border-warm-700 rounded-xl hover:border-energy hover:bg-surface-alt transition-all w-48 disabled:opacity-50 disabled:cursor-not-allowed"
         >
           <Icon
             icon="game-icons:anvil"
             className="w-16 h-16 text-energy mb-3 group-hover:scale-110 transition-transform"
           />
           <span className="text-xl font-bold text-energy mb-1">Smith</span>
-          <span className="text-gray-400 text-sm">Upgrade a card</span>
-          <span className="text-gray-500 text-xs">({upgradeableCards.length} available)</span>
+          <span className="text-warm-400 text-sm">Upgrade a card</span>
+          <span className="text-warm-500 text-xs">({upgradeableCards.length} available)</span>
         </button>
       </div>
 
       {/* Skip option */}
       <button
         onClick={onSkip}
-        className="mt-8 px-4 py-2 text-gray-500 hover:text-gray-300 transition"
+        className="mt-8 px-4 py-2 text-warm-500 hover:text-warm-300 transition"
       >
         Skip and continue
       </button>

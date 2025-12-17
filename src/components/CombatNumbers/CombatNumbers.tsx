@@ -24,7 +24,7 @@ interface FloatingNumberProps {
 
 // Element-based colors for damage numbers
 const ELEMENT_COLORS: Record<Element, string> = {
-  physical: 'text-gray-200',
+  physical: 'text-warm-200',
   fire: 'text-orange-400',
   ice: 'text-cyan-400',
   lightning: 'text-yellow-300',

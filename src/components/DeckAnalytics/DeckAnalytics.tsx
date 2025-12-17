@@ -98,11 +98,11 @@ export function DeckAnalytics({ cardIds, collapsed = false, onToggleCollapsed }:
   const maxEnergyCurve = Math.max(...Object.values(stats.energyCurve), 1)
 
   return (
-    <div className="DeckAnalytics border-t border-gray-800 pt-3">
+    <div className="DeckAnalytics border-t border-warm-800 pt-3">
       {/* Header */}
       <button
         onClick={onToggleCollapsed}
-        className="w-full flex items-center justify-between text-xs uppercase tracking-wide text-gray-500 mb-2 hover:text-gray-400 transition-colors"
+        className="w-full flex items-center justify-between text-xs uppercase tracking-wide text-warm-500 mb-2 hover:text-warm-400 transition-colors"
       >
         <span className="flex items-center gap-1">
           <Icon icon="mdi:chart-bar" />
@@ -118,7 +118,7 @@ export function DeckAnalytics({ cardIds, collapsed = false, onToggleCollapsed }:
         <div className="space-y-4">
           {/* Summary Stats */}
           <div className="flex items-center justify-between text-xs">
-            <span className="text-gray-500">Avg Cost</span>
+            <span className="text-warm-500">Avg Cost</span>
             <span className="text-energy font-medium">
               {stats.avgEnergy.toFixed(1)} <Icon icon="mdi:lightning-bolt" className="inline text-xs" />
             </span>
@@ -126,7 +126,7 @@ export function DeckAnalytics({ cardIds, collapsed = false, onToggleCollapsed }:
 
           {/* Energy Curve */}
           <div>
-            <div className="text-xs text-gray-500 mb-1">Energy Curve</div>
+            <div className="text-xs text-warm-500 mb-1">Energy Curve</div>
             <div className="flex items-end gap-1 h-12">
               {[0, 1, 2, 3, 4, 5].map((cost) => {
                 const count = stats.energyCurve[cost] || 0
@@ -138,7 +138,7 @@ export function DeckAnalytics({ cardIds, collapsed = false, onToggleCollapsed }:
                       style={{ height: `${height}%`, minHeight: count > 0 ? '4px' : '0' }}
                       title={`${cost === 5 ? '5+' : cost} cost: ${count} cards`}
                     />
-                    <span className="text-[10px] text-gray-600 mt-1">
+                    <span className="text-[10px] text-warm-600 mt-1">
                       {cost === 5 ? '5+' : cost}
                     </span>
                   </div>
@@ -149,7 +149,7 @@ export function DeckAnalytics({ cardIds, collapsed = false, onToggleCollapsed }:
             <div className="flex gap-1 mt-0.5">
               {[0, 1, 2, 3, 4, 5].map((cost) => (
                 <div key={cost} className="flex-1 text-center">
-                  <span className="text-[9px] text-gray-600">
+                  <span className="text-[9px] text-warm-600">
                     {stats.energyCurve[cost] || 0}
                   </span>
                 </div>
@@ -160,7 +160,7 @@ export function DeckAnalytics({ cardIds, collapsed = false, onToggleCollapsed }:
           {/* Theme Distribution */}
           {Object.keys(stats.themeDistribution).length > 0 && (
             <div>
-              <div className="text-xs text-gray-500 mb-1">Card Types</div>
+              <div className="text-xs text-warm-500 mb-1">Card Types</div>
               <div className="space-y-1">
                 {(['attack', 'skill', 'power'] as const).map((theme) => {
                   const count = stats.themeDistribution[theme] || 0
@@ -173,7 +173,7 @@ export function DeckAnalytics({ cardIds, collapsed = false, onToggleCollapsed }:
                         className="text-sm"
                         style={{ color: THEME_COLORS[theme] }}
                       />
-                      <div className="flex-1 h-2 bg-gray-800 rounded overflow-hidden">
+                      <div className="flex-1 h-2 bg-warm-800 rounded overflow-hidden">
                         <div
                           className="h-full rounded transition-all duration-200"
                           style={{
@@ -182,7 +182,7 @@ export function DeckAnalytics({ cardIds, collapsed = false, onToggleCollapsed }:
                           }}
                         />
                       </div>
-                      <span className="text-[10px] text-gray-500 w-8 text-right">
+                      <span className="text-[10px] text-warm-500 w-8 text-right">
                         {count}
                       </span>
                     </div>
@@ -195,7 +195,7 @@ export function DeckAnalytics({ cardIds, collapsed = false, onToggleCollapsed }:
           {/* Element Distribution */}
           {Object.keys(stats.elementDistribution).length > 0 && (
             <div>
-              <div className="text-xs text-gray-500 mb-1">Elements</div>
+              <div className="text-xs text-warm-500 mb-1">Elements</div>
               <div className="flex flex-wrap gap-2">
                 {(Object.entries(stats.elementDistribution) as [Element, number][])
                   .sort((a, b) => b[1] - a[1])
@@ -311,7 +311,7 @@ function SynergyHints({ cardIds }: { cardIds: string[] }) {
 
   return (
     <div>
-      <div className="text-xs text-gray-500 mb-1">Synergies</div>
+      <div className="text-xs text-warm-500 mb-1">Synergies</div>
       <div className="space-y-1">
         {synergies.map((synergy, idx) => (
           <div

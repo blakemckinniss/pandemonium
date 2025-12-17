@@ -504,23 +504,23 @@ export function GameScreen({ deckId, heroId, dungeonDeckId, onReturnToMenu }: Ga
   // Dungeon complete (boss defeated)
   if (state.gamePhase === 'dungeonComplete') {
     return (
-      <div className="h-screen flex flex-col items-center justify-center bg-gradient-to-b from-amber-900/20 to-gray-950">
+      <div className="h-screen flex flex-col items-center justify-center bg-gradient-to-b from-amber-900/20 to-warm-900">
         <UnlockNotification unlocks={pendingUnlocks} onComplete={handleUnlocksDismissed} />
         <div className="text-center">
           <div className="text-6xl mb-4">👑</div>
           <h1 className="text-5xl font-bold text-energy mb-4">Dungeon Conquered!</h1>
-          <p className="text-xl text-gray-300 mb-6">You have defeated the dungeon boss!</p>
+          <p className="text-xl text-warm-300 mb-6">You have defeated the dungeon boss!</p>
 
-          <div className="bg-gray-800/50 rounded-xl p-6 mb-8 border border-energy/30">
+          <div className="bg-warm-800/50 rounded-xl p-6 mb-8 border border-energy/30">
             <h2 className="text-2xl font-bold text-energy mb-4">Rewards</h2>
             <div className="flex items-center justify-center gap-2 text-3xl">
               <Icon icon="mdi:gold" className="text-energy" />
               <span className="text-energy font-bold">+{dungeonReward ?? 0}</span>
             </div>
-            <p className="text-gray-400 mt-2">Total Gold: {state.gold}</p>
+            <p className="text-warm-400 mt-2">Total Gold: {state.gold}</p>
           </div>
 
-          <div className="text-sm text-gray-500 mb-8 space-y-1">
+          <div className="text-sm text-warm-500 mb-8 space-y-1">
             <p>Floors Cleared: {state.floor}</p>
             <p>Enemies Slain: {state.stats.enemiesKilled}</p>
             <p>Damage Dealt: {state.stats.damageDealt}</p>
@@ -540,12 +540,12 @@ export function GameScreen({ deckId, heroId, dungeonDeckId, onReturnToMenu }: Ga
   // Game over (win)
   if (state.gamePhase === 'gameOver') {
     return (
-      <div className="h-screen flex flex-col items-center justify-center bg-gradient-to-b from-gray-900 to-gray-950">
+      <div className="h-screen flex flex-col items-center justify-center bg-gradient-to-b from-warm-900 to-warm-900">
         <UnlockNotification unlocks={pendingUnlocks} onComplete={handleUnlocksDismissed} />
         <h1 className="text-5xl font-bold text-heal mb-4">Dungeon Cleared!</h1>
-        <p className="text-xl text-gray-400 mb-2">You conquered all {state.floor} floors</p>
+        <p className="text-xl text-warm-400 mb-2">You conquered all {state.floor} floors</p>
         <p className="text-lg text-energy mb-4">Final Gold: {state.gold}</p>
-        <div className="text-sm text-gray-500 mb-8 space-y-1 text-center">
+        <div className="text-sm text-warm-500 mb-8 space-y-1 text-center">
           <p>Enemies Slain: {state.stats.enemiesKilled}</p>
           <p>Damage Dealt: {state.stats.damageDealt}</p>
           <p>Cards Played: {state.stats.cardsPlayed}</p>
@@ -595,7 +595,7 @@ export function GameScreen({ deckId, heroId, dungeonDeckId, onReturnToMenu }: Ga
         </button>
         <div className="flex gap-2">
           <div className="Chip">
-            <Icon icon="game-icons:hourglass" className="text-gray-400" />
+            <Icon icon="game-icons:hourglass" className="text-warm-400" />
             <span>Turn {combat.turn}</span>
           </div>
           <div className="Chip">
@@ -608,9 +608,9 @@ export function GameScreen({ deckId, heroId, dungeonDeckId, onReturnToMenu }: Ga
       {/* Top-left room info */}
       <div className="absolute top-4 left-4 z-10 flex flex-col gap-2">
         <div className="Chip">
-          <Icon icon="game-icons:dungeon-gate" className="text-gray-400" />
+          <Icon icon="game-icons:dungeon-gate" className="text-warm-400" />
           <span>{currentRoom?.name ?? 'Unknown Room'}</span>
-          <span className="text-gray-500 ml-1">({deckRemaining} left)</span>
+          <span className="text-warm-500 ml-1">({deckRemaining} left)</span>
         </div>
         <div className="flex gap-2">
           <div
@@ -618,7 +618,7 @@ export function GameScreen({ deckId, heroId, dungeonDeckId, onReturnToMenu }: Ga
             data-deck-pile
             onClick={() => setPileModalOpen('draw')}
           >
-            <Icon icon="game-icons:card-pickup" className="text-gray-400" />
+            <Icon icon="game-icons:card-pickup" className="text-warm-400" />
             <span>{combat.drawPile.length}</span>
           </div>
           <div
@@ -626,7 +626,7 @@ export function GameScreen({ deckId, heroId, dungeonDeckId, onReturnToMenu }: Ga
             data-discard-pile
             onClick={() => setPileModalOpen('discard')}
           >
-            <Icon icon="game-icons:card-discard" className="text-gray-400" />
+            <Icon icon="game-icons:card-discard" className="text-warm-400" />
             <span>{combat.discardPile.length}</span>
           </div>
           {combat.exhaustPile.length > 0 && (
@@ -675,7 +675,7 @@ export function GameScreen({ deckId, heroId, dungeonDeckId, onReturnToMenu }: Ga
         <div ref={victoryRef} className="absolute inset-0 bg-black/80 flex items-center justify-center z-40">
           <div className="text-center">
             <h2 className="text-5xl font-bold mb-4 text-heal">Victory!</h2>
-            <p className="text-gray-400">Proceeding to rewards...</p>
+            <p className="text-warm-400">Proceeding to rewards...</p>
           </div>
         </div>
       )}
@@ -685,8 +685,8 @@ export function GameScreen({ deckId, heroId, dungeonDeckId, onReturnToMenu }: Ga
           <div className="text-center">
             <h2 className="text-5xl font-bold mb-6 text-damage">Defeat</h2>
             <div className="defeat-content">
-              <p className="text-gray-400 mb-2">You reached floor {state.floor}</p>
-              <div className="text-sm text-gray-500 mb-6 space-y-1">
+              <p className="text-warm-400 mb-2">You reached floor {state.floor}</p>
+              <div className="text-sm text-warm-500 mb-6 space-y-1">
                 <p>Enemies Slain: {state.stats.enemiesKilled}</p>
                 <p>Damage Dealt: {state.stats.damageDealt}</p>
                 <p>Cards Played: {state.stats.cardsPlayed}</p>

@@ -5,14 +5,14 @@ import { getAllRelics } from '../../game/relics'
 import { RELIC_ICONS } from '../../config/relic-icons'
 
 const RARITY_COLORS: Record<string, string> = {
-  common: 'border-gray-400 bg-gray-800/50',
+  common: 'border-warm-400 bg-warm-800/50',
   uncommon: 'border-blue-400 bg-blue-900/30',
   rare: 'border-yellow-400 bg-yellow-900/30',
   boss: 'border-red-400 bg-red-900/30',
 }
 
 const RARITY_TEXT: Record<string, string> = {
-  common: 'text-gray-400',
+  common: 'text-warm-400',
   uncommon: 'text-blue-400',
   rare: 'text-yellow-400',
   boss: 'text-red-400',
@@ -85,15 +85,15 @@ export function TreasureScreen({
   }, [isLargeTreasure, ownedRelicIds])
 
   return (
-    <div className="TreasureScreen h-screen flex flex-col items-center justify-center bg-gradient-to-b from-purple-950 to-gray-950">
+    <div className="TreasureScreen h-screen flex flex-col items-center justify-center bg-gradient-to-b from-purple-950 to-warm-900">
       <div className="text-6xl mb-4">{isLargeTreasure ? '👑' : '💎'}</div>
       <h1 className="text-4xl font-bold mb-2 text-purple-300">
         {isLargeTreasure ? 'Treasure Vault' : 'Treasure Cache'}
       </h1>
-      <p className="text-gray-400 mb-8">Floor {floor} - Choose a relic</p>
+      <p className="text-warm-400 mb-8">Floor {floor} - Choose a relic</p>
 
       {relicChoices.length === 0 ? (
-        <p className="text-gray-500 mb-8">No relics available</p>
+        <p className="text-warm-500 mb-8">No relics available</p>
       ) : (
         <div className="flex gap-6 mb-8">
           {relicChoices.map((relic) => {
@@ -115,7 +115,7 @@ export function TreasureScreen({
                   <div className={`text-xs uppercase tracking-wide ${rarityText}`}>
                     {relic.rarity}
                   </div>
-                  <div className="text-sm text-gray-300 text-center max-w-40">
+                  <div className="text-sm text-warm-300 text-center max-w-40">
                     {relic.description}
                   </div>
                 </div>
@@ -128,7 +128,7 @@ export function TreasureScreen({
 
       <button
         onClick={onSkip}
-        className="px-6 py-2 text-gray-400 hover:text-white transition-colors"
+        className="px-6 py-2 text-warm-400 hover:text-white transition-colors"
       >
         Skip treasure
       </button>

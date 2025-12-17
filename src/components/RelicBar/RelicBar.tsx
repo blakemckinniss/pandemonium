@@ -5,7 +5,7 @@ import { RELIC_ICONS } from '../../config/relic-icons'
 
 // Rarity colors
 const RARITY_COLORS: Record<string, string> = {
-  common: 'border-gray-500 bg-gray-800/50',
+  common: 'border-warm-500 bg-warm-800/50',
   uncommon: 'border-blue-500 bg-blue-900/30',
   rare: 'border-yellow-500 bg-yellow-900/30',
   boss: 'border-red-500 bg-red-900/30',
@@ -37,7 +37,7 @@ export function RelicBar({ relics, triggeredRelicId }: RelicBarProps) {
             }`}
             title={`${def.name}: ${def.description}`}
           >
-            <Icon icon={icon} className="w-5 h-5 text-gray-200" />
+            <Icon icon={icon} className="w-5 h-5 text-warm-200" />
             {relic.counter !== undefined && relic.counter > 0 && (
               <span className="absolute -bottom-1 -right-1 text-[10px] bg-surface px-1 rounded">
                 {relic.counter}

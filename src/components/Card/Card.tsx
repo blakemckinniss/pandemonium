@@ -53,7 +53,7 @@ const CARD_DIMENSIONS: Record<CardVariant, { width: number; height: number }> = 
 
 // Element visual config
 const ELEMENT_CONFIG: Record<Element, { icon: string; color: string; bg: string }> = {
-  physical: { icon: 'game-icons:sword-wound', color: 'text-gray-300', bg: 'bg-gray-600' },
+  physical: { icon: 'game-icons:sword-wound', color: 'text-warm-300', bg: 'bg-warm-600' },
   fire: { icon: 'game-icons:fire', color: 'text-orange-400', bg: 'bg-orange-900' },
   ice: { icon: 'game-icons:snowflake-1', color: 'text-cyan-400', bg: 'bg-cyan-900' },
   lightning: { icon: 'game-icons:lightning-bolt', color: 'text-yellow-300', bg: 'bg-yellow-900' },
@@ -444,7 +444,7 @@ const PowerIndicatorsVertical = memo(function PowerIndicatorsVertical({ powers }
   return (
     <div className="flex flex-col gap-1">
       {entries.map(([id, power]) => {
-        const config = POWER_ICONS[id] || { icon: 'game-icons:uncertainty', color: 'text-gray-400' }
+        const config = POWER_ICONS[id] || { icon: 'game-icons:uncertainty', color: 'text-warm-400' }
         return (
           <PowerTooltip key={id} powerId={id} power={power}>
             <div

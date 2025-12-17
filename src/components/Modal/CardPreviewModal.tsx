@@ -5,7 +5,7 @@ import { getEnergyCost } from '../Card/Card'
 
 // Element visual config
 const ELEMENT_CONFIG: Record<Element, { icon: string; color: string; label: string }> = {
-  physical: { icon: 'game-icons:sword-wound', color: 'text-gray-300', label: 'Physical' },
+  physical: { icon: 'game-icons:sword-wound', color: 'text-warm-300', label: 'Physical' },
   fire: { icon: 'game-icons:fire', color: 'text-orange-400', label: 'Fire' },
   ice: { icon: 'game-icons:snowflake-1', color: 'text-cyan-400', label: 'Ice' },
   lightning: { icon: 'game-icons:lightning-bolt', color: 'text-yellow-300', label: 'Lightning' },
@@ -21,8 +21,8 @@ const THEME_CONFIG: Record<string, { icon: string; color: string; label: string 
 
 // Rarity styling
 const RARITY_CONFIG: Record<string, { color: string; label: string; bg: string }> = {
-  starter: { color: 'text-gray-400', label: 'Starter', bg: 'bg-gray-700' },
-  common: { color: 'text-gray-300', label: 'Common', bg: 'bg-gray-600' },
+  starter: { color: 'text-warm-400', label: 'Starter', bg: 'bg-warm-700' },
+  common: { color: 'text-warm-300', label: 'Common', bg: 'bg-warm-600' },
   uncommon: { color: 'text-blue-400', label: 'Uncommon', bg: 'bg-blue-900/50' },
   rare: { color: 'text-yellow-400', label: 'Rare', bg: 'bg-yellow-900/50' },
 }
@@ -102,7 +102,7 @@ export function CardPreviewModal({
 
         {/* Description */}
         <div className="text-center max-w-sm">
-          <p className="text-gray-300 leading-relaxed">{card.description}</p>
+          <p className="text-warm-300 leading-relaxed">{card.description}</p>
         </div>
 
         {/* Keywords */}
@@ -124,7 +124,7 @@ export function CardPreviewModal({
         )}
 
         {/* Keyword explanations */}
-        <div className="text-xs text-gray-500 text-center space-y-1">
+        <div className="text-xs text-warm-500 text-center space-y-1">
           {card.ethereal && <p><strong>Ethereal:</strong> If not played, exhausts at end of turn</p>}
           {hasExhaust && <p><strong>Exhaust:</strong> Removed from deck for this combat</p>}
           {card.target === 'enemy' && <p><strong>Targeted:</strong> Must select an enemy to play</p>}
@@ -135,7 +135,7 @@ export function CardPreviewModal({
         <div className="flex gap-3 w-full">
           <button
             onClick={onClose}
-            className="flex-1 px-4 py-2 rounded-lg bg-surface-alt text-gray-300 hover:bg-surface hover:text-white transition-colors"
+            className="flex-1 px-4 py-2 rounded-lg bg-surface-alt text-warm-300 hover:bg-surface hover:text-white transition-colors"
           >
             Back
           </button>

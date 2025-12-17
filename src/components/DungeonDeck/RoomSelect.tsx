@@ -33,9 +33,9 @@ export function RoomSelect({ choices, floor, onSelectRoom }: RoomSelectProps) {
   }, [choices])
 
   return (
-    <div className="RoomSelect h-screen flex flex-col items-center justify-center bg-gradient-to-b from-gray-900 to-gray-950">
+    <div className="RoomSelect h-screen flex flex-col items-center justify-center bg-gradient-to-b from-warm-900 to-warm-900">
       <h1 className="text-3xl font-bold mb-2">Floor {floor}</h1>
-      <p className="text-gray-400 mb-8">Choose your path</p>
+      <p className="text-warm-400 mb-8">Choose your path</p>
 
       <div ref={containerRef} className="flex gap-6">
         {choices.map((roomCard) => {
@@ -73,7 +73,7 @@ export function RoomSelect({ choices, floor, onSelectRoom }: RoomSelectProps) {
                   <p className={`text-sm ${difficultyColor} capitalize`}>
                     {def.type}
                   </p>
-                  <p className="text-xs text-gray-500 mt-1">{def.description}</p>
+                  <p className="text-xs text-warm-500 mt-1">{def.description}</p>
                 </div>
               </div>
             </button>
@@ -81,7 +81,7 @@ export function RoomSelect({ choices, floor, onSelectRoom }: RoomSelectProps) {
         })}
       </div>
 
-      <p className="text-gray-600 text-sm mt-8">
+      <p className="text-warm-600 text-sm mt-8">
         {choices.length} room{choices.length !== 1 ? 's' : ''} remaining in dungeon
       </p>
     </div>

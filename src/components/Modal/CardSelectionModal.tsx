@@ -105,7 +105,7 @@ export function CardSelectionModal({
       size="lg"
     >
       {/* Selection hint */}
-      <div className="text-center text-sm text-gray-400 mb-4">
+      <div className="text-center text-sm text-warm-400 mb-4">
         {selectionHint}
         {(mode === 'pick' || mode === 'discover') && (
           <span className="ml-2 text-energy">
@@ -163,7 +163,7 @@ export function CardSelectionModal({
         {allowSkip && (
           <button
             onClick={handleClose}
-            className="px-6 py-2 bg-surface-alt rounded-lg text-gray-300 hover:bg-surface-alt/80 transition"
+            className="px-6 py-2 bg-surface-alt rounded-lg text-warm-300 hover:bg-surface-alt/80 transition"
           >
             Skip
           </button>

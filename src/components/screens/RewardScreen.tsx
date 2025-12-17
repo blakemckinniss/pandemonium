@@ -145,16 +145,16 @@ export function RewardScreen({ floor, gold, ownedRelicIds, onAddCard, onAddRelic
   }, [cardChoices])
 
   return (
-    <div className="RewardScreen h-screen flex flex-col items-center justify-center bg-gradient-to-b from-gray-900 to-gray-950">
+    <div className="RewardScreen h-screen flex flex-col items-center justify-center bg-gradient-to-b from-warm-900 to-warm-900">
       <h1 className="text-4xl font-bold mb-2 text-heal">Victory!</h1>
-      <p className="text-gray-400 mb-8">Floor {floor} cleared</p>
+      <p className="text-warm-400 mb-8">Floor {floor} cleared</p>
 
       {/* Rewards row */}
       <div className="flex gap-4 mb-8">
         {/* Gold reward */}
         <div className="px-6 py-3 bg-surface rounded-lg border border-energy">
           <span className="text-energy text-xl">+{goldReward} Gold</span>
-          <span className="text-gray-500 ml-2">(Total: {gold + goldReward})</span>
+          <span className="text-warm-500 ml-2">(Total: {gold + goldReward})</span>
         </div>
 
         {/* Relic reward */}
@@ -168,7 +168,7 @@ export function RewardScreen({ floor, gold, ownedRelicIds, onAddCard, onAddRelic
             </div>
             <div className="text-left">
               <div className="text-purple-300 font-medium">{relicChoice.name}</div>
-              <div className="text-xs text-gray-400 max-w-48">{relicChoice.description}</div>
+              <div className="text-xs text-warm-400 max-w-48">{relicChoice.description}</div>
             </div>
             <div className="text-xs text-purple-400 opacity-0 group-hover:opacity-100 transition-opacity">
               +Add
@@ -178,7 +178,7 @@ export function RewardScreen({ floor, gold, ownedRelicIds, onAddCard, onAddRelic
       </div>
 
       {/* Card choices */}
-      <p className="text-gray-400 mb-4">Choose a card to add to your deck:</p>
+      <p className="text-warm-400 mb-4">Choose a card to add to your deck:</p>
 
       <div ref={containerRef} className="flex gap-4 mb-8 items-center">
         {cardChoices.map((cardDef) => (
@@ -195,7 +195,7 @@ export function RewardScreen({ floor, gold, ownedRelicIds, onAddCard, onAddRelic
                 e.stopPropagation()
                 setPreviewCard(cardDef)
               }}
-              className="absolute bottom-2 right-2 w-6 h-6 rounded-full bg-surface-alt/90 text-gray-300 hover:bg-surface hover:text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+              className="absolute bottom-2 right-2 w-6 h-6 rounded-full bg-surface-alt/90 text-warm-300 hover:bg-surface hover:text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
               title="Preview card"
             >
               ?
@@ -207,15 +207,15 @@ export function RewardScreen({ floor, gold, ownedRelicIds, onAddCard, onAddRelic
         <button
           onClick={() => void handleGenerateCard()}
           disabled={isGenerating}
-          className="RewardCard flex flex-col items-center justify-center w-32 h-44 rounded-lg border-2 border-dashed border-gray-600 hover:border-energy hover:bg-surface/50 transition-colors disabled:opacity-50 disabled:cursor-wait"
+          className="RewardCard flex flex-col items-center justify-center w-32 h-44 rounded-lg border-2 border-dashed border-warm-600 hover:border-energy hover:bg-surface/50 transition-colors disabled:opacity-50 disabled:cursor-wait"
         >
           {isGenerating ? (
             <div className="animate-spin w-8 h-8 border-2 border-energy border-t-transparent rounded-full" />
           ) : (
             <>
               <span className="text-3xl mb-2">✨</span>
-              <span className="text-sm text-gray-400">Generate</span>
-              <span className="text-xs text-gray-500">New Card</span>
+              <span className="text-sm text-warm-400">Generate</span>
+              <span className="text-xs text-warm-500">New Card</span>
             </>
           )}
         </button>
@@ -229,7 +229,7 @@ export function RewardScreen({ floor, gold, ownedRelicIds, onAddCard, onAddRelic
       {/* Skip button */}
       <button
         onClick={onSkip}
-        className="px-6 py-2 text-gray-400 hover:text-white transition-colors"
+        className="px-6 py-2 text-warm-400 hover:text-white transition-colors"
       >
         Skip reward
       </button>

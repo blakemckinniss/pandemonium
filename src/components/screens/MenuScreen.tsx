@@ -528,7 +528,7 @@ function PlayTab({
         <button
           onClick={onSeedContent}
           disabled={seeding || seeded}
-          className="mt-8 px-4 py-2 text-xs border border-border text-gray-500 rounded hover:border-accent-warm/50 hover:text-gray-400 disabled:opacity-50 font-display tracking-wide uppercase"
+          className="mt-8 px-4 py-2 text-xs border border-border text-warm-500 rounded hover:border-accent-warm/50 hover:text-warm-400 disabled:opacity-50 font-display tracking-wide uppercase"
         >
           <Icon icon="mdi:database-plus" className="inline mr-1" />
           {seeding ? 'Generating...' : seeded ? 'Content Seeded' : 'Seed Base Content'}
@@ -613,13 +613,13 @@ function BuildTab({
   return (
     <div className="flex-1 flex overflow-hidden">
       {/* Left Sidebar - Deck Editor */}
-      <aside className="w-72 bg-surface border-r border-gray-800 flex flex-col">
+      <aside className="w-72 bg-surface border-r border-warm-800 flex flex-col">
         {/* Saved Decks */}
-        <div className="p-4 border-b border-gray-800">
-          <h3 className="text-xs uppercase tracking-wide text-gray-500 mb-2">Saved Decks</h3>
+        <div className="p-4 border-b border-warm-800">
+          <h3 className="text-xs uppercase tracking-wide text-warm-500 mb-2">Saved Decks</h3>
           <div className="space-y-1 max-h-32 overflow-auto">
             {customDecks.length === 0 ? (
-              <p className="text-gray-600 text-sm">No saved decks</p>
+              <p className="text-warm-600 text-sm">No saved decks</p>
             ) : (
               customDecks.map((deck) => (
                 <div
@@ -627,7 +627,7 @@ function BuildTab({
                   className={`flex items-center gap-2 p-2 rounded cursor-pointer ${
                     editingDeckId === deck.deckId
                       ? 'bg-energy/20 text-energy'
-                      : 'hover:bg-gray-800 text-gray-300'
+                      : 'hover:bg-warm-800 text-warm-300'
                   }`}
                   onClick={() => onLoadDeck(deck)}
                 >
@@ -636,7 +636,7 @@ function BuildTab({
                   <span className="text-xs opacity-60">{deck.cardIds.length}</span>
                   <button
                     onClick={(e) => { e.stopPropagation(); void onDeleteDeck(deck.deckId) }}
-                    className="p-1 text-gray-500 hover:text-damage"
+                    className="p-1 text-warm-500 hover:text-damage"
                   >
                     <Icon icon="mdi:delete" />
                   </button>
@@ -649,14 +649,14 @@ function BuildTab({
         {/* Current Deck */}
         <div className="flex-1 p-4 overflow-auto">
           <div className="flex items-center justify-between mb-2">
-            <h3 className="text-xs uppercase tracking-wide text-gray-500">Current Deck</h3>
-            <span className="text-xs text-gray-500">{currentDeck.length} cards</span>
+            <h3 className="text-xs uppercase tracking-wide text-warm-500">Current Deck</h3>
+            <span className="text-xs text-warm-500">{currentDeck.length} cards</span>
           </div>
           <input
             type="text"
             value={deckName}
             onChange={(e) => setDeckName(e.target.value)}
-            className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded text-sm text-gray-200 mb-3"
+            className="w-full px-3 py-2 bg-warm-800 border border-warm-700 rounded text-sm text-warm-200 mb-3"
             placeholder="Deck name"
           />
           <div className="space-y-1 mb-4">
@@ -664,15 +664,15 @@ function BuildTab({
               const card = getCardDefinition(cardId)
               if (!card) return null
               return (
-                <div key={cardId} className="flex items-center gap-2 p-2 bg-gray-800/50 rounded text-sm">
+                <div key={cardId} className="flex items-center gap-2 p-2 bg-warm-800/50 rounded text-sm">
                   <span className="text-energy">{count}x</span>
-                  <span className="flex-1 text-gray-300 truncate">{card.name}</span>
+                  <span className="flex-1 text-warm-300 truncate">{card.name}</span>
                   <button
                     onClick={() => {
                       const idx = currentDeck.indexOf(cardId)
                       if (idx >= 0) onRemoveCard(idx)
                     }}
-                    className="p-1 text-gray-500 hover:text-damage"
+                    className="p-1 text-warm-500 hover:text-damage"
                   >
                     <Icon icon="mdi:minus" />
                   </button>
@@ -688,16 +688,16 @@ function BuildTab({
         </div>
 
         {/* Actions */}
-        <div className="p-4 border-t border-gray-800 space-y-2">
+        <div className="p-4 border-t border-warm-800 space-y-2">
           <button
             onClick={() => void onSaveDeck()}
             disabled={currentDeck.length === 0}
-            className="w-full px-4 py-2 bg-energy text-gray-900 font-medium rounded disabled:opacity-50"
+            className="w-full px-4 py-2 bg-energy text-warm-900 font-medium rounded disabled:opacity-50"
           >
             <Icon icon="mdi:content-save" className="inline mr-2" />
             {editingDeckId ? 'Update Deck' : 'Save Deck'}
           </button>
-          <button onClick={onClearDeck} className="w-full px-4 py-2 border border-gray-600 text-gray-400 rounded hover:text-white">
+          <button onClick={onClearDeck} className="w-full px-4 py-2 border border-warm-600 text-warm-400 rounded hover:text-white">
             <Icon icon="mdi:eraser" className="inline mr-2" />
             Clear
           </button>
@@ -718,7 +718,7 @@ function BuildTab({
           />
         </div>
         <div className="flex-1 overflow-auto p-6">
-          <p className="text-xs text-gray-500 mb-4">Click to add to deck · Right-click to view details</p>
+          <p className="text-xs text-warm-500 mb-4">Click to add to deck · Right-click to view details</p>
           <CardGrid cards={filteredCards} onAddCard={onAddCard} onViewCard={onViewCard} />
         </div>
       </div>
@@ -752,13 +752,13 @@ function PacksTab({
       )}
       <div className="flex-1 overflow-auto p-6 space-y-6">
         {/* Pack Controls */}
-        <div className="flex items-end gap-4 p-4 bg-gray-800/50 rounded-lg max-w-2xl mx-auto">
+        <div className="flex items-end gap-4 p-4 bg-warm-800/50 rounded-lg max-w-2xl mx-auto">
           <div className="flex-1">
-            <label className="block text-xs text-gray-500 mb-1">Theme</label>
+            <label className="block text-xs text-warm-500 mb-1">Theme</label>
             <select
               value={selectedTheme}
               onChange={(e) => setSelectedTheme(e.target.value)}
-              className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded text-sm text-gray-200"
+              className="w-full px-3 py-2 bg-warm-800 border border-warm-700 rounded text-sm text-warm-200"
             >
               {THEMES.map((theme) => (
                 <option key={theme.id} value={theme.id}>
@@ -768,11 +768,11 @@ function PacksTab({
             </select>
           </div>
           <div className="w-24">
-            <label className="block text-xs text-gray-500 mb-1">Pack Size</label>
+            <label className="block text-xs text-warm-500 mb-1">Pack Size</label>
             <select
               value={packSize}
               onChange={(e) => setPackSize(Number(e.target.value))}
-              className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded text-sm text-gray-200"
+              className="w-full px-3 py-2 bg-warm-800 border border-warm-700 rounded text-sm text-warm-200"
             >
               <option value={3}>3 cards</option>
               <option value={6}>6 cards</option>
@@ -782,11 +782,11 @@ function PacksTab({
           <button
             onClick={onOpenPack}
             disabled={isGenerating}
-            className="px-6 py-2 bg-energy text-gray-900 font-medium rounded disabled:opacity-50 flex items-center gap-2"
+            className="px-6 py-2 bg-energy text-warm-900 font-medium rounded disabled:opacity-50 flex items-center gap-2"
           >
             {isGenerating ? (
               <>
-                <div className="animate-spin w-4 h-4 border-2 border-gray-900 border-t-transparent rounded-full" />
+                <div className="animate-spin w-4 h-4 border-2 border-warm-900 border-t-transparent rounded-full" />
                 Generating...
               </>
             ) : (
@@ -806,7 +806,7 @@ function PacksTab({
 
         {revealedCards.length > 0 && (
           <div className="max-w-4xl mx-auto">
-            <h3 className="text-sm font-medium text-gray-400 mb-4 flex items-center gap-2">
+            <h3 className="text-sm font-medium text-warm-400 mb-4 flex items-center gap-2">
               <Icon icon="mdi:star" className="text-energy" />
               Pack Contents ({revealedCards.length} cards)
             </h3>
@@ -818,7 +818,7 @@ function PacksTab({
                     <span className={`text-xs font-medium ${
                       card.rarity === 'rare' ? 'text-yellow-400'
                         : card.rarity === 'uncommon' ? 'text-blue-400'
-                        : 'text-gray-400'
+                        : 'text-warm-400'
                     }`}>
                       {card.rarity}
                     </span>
@@ -830,7 +830,7 @@ function PacksTab({
         )}
 
         {revealedCards.length === 0 && !isGenerating && (
-          <div className="text-center text-gray-500 py-12">
+          <div className="text-center text-warm-500 py-12">
             <Icon icon="mdi:package-variant-closed" className="text-6xl mb-4 opacity-30" />
             <p className="text-lg">Ready to open a pack?</p>
             <p className="text-sm mt-2">Choose a theme and click Open Pack to generate new cards!</p>
@@ -856,7 +856,7 @@ function CardGrid({
 }) {
   if (cards.length === 0) {
     return (
-      <div className="text-center text-gray-500 py-12">
+      <div className="text-center text-warm-500 py-12">
         <Icon icon="mdi:cards-outline" className="text-4xl mb-2 opacity-50" />
         <p>No cards found</p>
         <p className="text-sm mt-1">Try adjusting your filters</p>
@@ -875,7 +875,7 @@ function CardGrid({
         >
           <Card {...getCardDefProps(def)} variant="hand" playable />
           {quantity > 1 && (
-            <span className="absolute top-2 right-2 bg-energy text-gray-900 text-xs font-bold px-2 py-1 rounded-full">
+            <span className="absolute top-2 right-2 bg-energy text-warm-900 text-xs font-bold px-2 py-1 rounded-full">
               x{quantity}
             </span>
           )}
