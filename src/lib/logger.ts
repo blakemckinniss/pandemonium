@@ -20,7 +20,7 @@ function shouldLog(level: LogLevel): boolean {
   return LEVEL_PRIORITY[level] >= LEVEL_PRIORITY[MIN_LEVEL]
 }
 
-function formatPrefix(level: LogLevel, context?: string): string {
+function formatPrefix(_level: LogLevel, context?: string): string {
   const tag = context ? `[${context}]` : ''
   return tag
 }

@@ -3,7 +3,6 @@ import type {
   CardFilters,
   SortOption,
   SortDirection,
-  RARITY_ORDER,
 } from '../../types'
 
 // Re-import RARITY_ORDER since it's a value not just a type

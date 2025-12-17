@@ -1,7 +1,7 @@
 import { useMemo } from 'react'
 import { Icon } from '@iconify/react'
 import { getCardDefinition } from '../../game/cards'
-import type { CardDefinition, CardTheme, Element } from '../../types'
+import type { CardDefinition, Element } from '../../types'
 
 interface DeckAnalyticsProps {
   cardIds: string[]
@@ -62,9 +62,11 @@ function calculateStats(cardIds: string[]): DeckStats {
 
   for (const card of cards) {
     // Energy curve (bucket 5+ together)
-    const costBucket = Math.min(card.energy, 5)
+    // Handle energy as number (EffectValue objects resolved by getEnergyCost in Card)
+    const energyCost = typeof card.energy === 'number' ? card.energy : 0
+    const costBucket = Math.min(energyCost, 5)
     energyCurve[costBucket] = (energyCurve[costBucket] || 0) + 1
-    totalEnergy += card.energy
+    totalEnergy += energyCost
 
     // Theme distribution (only count playable themes)
     if (['attack', 'skill', 'power'].includes(card.theme)) {

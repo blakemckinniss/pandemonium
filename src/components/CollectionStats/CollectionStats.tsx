@@ -146,7 +146,9 @@ export function CollectionStats({ collection, collapsed = false, onToggleCollaps
               {RARITY_ORDER.map((rarity) => {
                 const data = stats.byRarity[rarity]
                 if (data.total === 0) return null
-                const pct = data.total > 0 ? (data.owned / data.total) * 100 : 0
+                // pct available for future progress bar usage
+                const _pct = data.total > 0 ? (data.owned / data.total) * 100 : 0
+                void _pct // silence unused warning
                 return (
                   <div
                     key={rarity}

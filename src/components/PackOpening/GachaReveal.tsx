@@ -211,7 +211,7 @@ export function GachaReveal({ cards, onComplete, onSkip }: GachaRevealProps) {
             return (
               <div
                 key={`${card.id}-${index}`}
-                ref={(el) => (cardRefs.current[index] = el)}
+                ref={(el) => { cardRefs.current[index] = el }}
                 className="w-36 transform-gpu"
                 style={{
                   opacity: 0,

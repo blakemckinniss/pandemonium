@@ -14,7 +14,7 @@ import {
   type CollectionCard,
 } from '../../stores/db'
 import type { DungeonDeckDefinition, CardDefinition, CardFilters, SortOption, SortDirection } from '../../types'
-import { getStarterCardIds, getStarterHeroId, getAllHeroes, getCardDefinition, getAllCards } from '../../game/cards'
+import { getStarterCardIds, getStarterHeroId, getAllHeroes, getCardDefinition } from '../../game/cards'
 import { seedBaseContent, isContentSeeded } from '../../game/seed-content'
 import { generatePack, type PackConfig } from '../../game/card-generator'
 import { generateUid } from '../../lib/utils'

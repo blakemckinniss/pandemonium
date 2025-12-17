@@ -16,8 +16,8 @@ import { RarityShader } from './RarityShader'
  */
 export function getEnergyCost(energy: CardDefinition['energy']): number | 'X' {
   if (typeof energy === 'number') return energy
-  if (energy === 'X') return 'X'
-  if (typeof energy === 'object' && 'value' in energy) return energy.value
+  if (typeof energy === 'string' && energy === 'X') return 'X'
+  if (typeof energy === 'object' && energy !== null && 'value' in energy) return energy.value
   return 0
 }
 

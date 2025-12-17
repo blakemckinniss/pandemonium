@@ -1,6 +1,6 @@
 import { Icon } from '@iconify/react'
 import { Card, getCardDefProps } from '../Card/Card'
-import type { CardDefinition, CollectionCard } from '../../types'
+import type { CardDefinition } from '../../types'
 
 // Rarity color mapping
 const RARITY_COLORS: Record<string, string> = {
