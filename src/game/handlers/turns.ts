@@ -74,6 +74,9 @@ export function handleStartTurn(draft: RunState): void {
   combat.cardsPlayedThisTurn = 0
   combat.lastPlayedCard = undefined
 
+  // Emit player turn start visual
+  emitVisual(draft, { type: 'playerTurnStart' })
+
   // Reset energy
   combat.player.energy = combat.player.maxEnergy
 
@@ -164,4 +167,7 @@ export function handleEndTurn(draft: RunState): void {
 
   // Enemy turn
   combat.phase = 'enemyTurn'
+
+  // Emit enemy turn start visual
+  emitVisual(draft, { type: 'enemyTurnStart' })
 }
