@@ -392,27 +392,28 @@ export function executeExecute(
   const baseDamage = resolveValue(effect.amount, draft, ctx)
   const target = effect.target ?? 'enemy'
   const targetIds = resolveEntityTargets(target, draft, ctx)
+  const attacker = getEntityById(ctx.source, draft)
 
   for (const targetId of targetIds) {
     const entity = getEntityById(targetId, draft)
     if (!entity) continue
 
     const hpPercent = entity.currentHealth / entity.maxHealth
-    const damage = hpPercent <= effect.threshold
+    let damage = hpPercent <= effect.threshold
       ? Math.floor(baseDamage * effect.bonusMultiplier)
       : baseDamage
 
-    // Use the damage effect internally
-    executeDamage(draft, {
-      type: 'damage',
-      amount: damage,
-      target: { type: 'specific', id: targetId },
-      element: effect.element,
-    }, ctx)
-
-    if (hpPercent <= effect.threshold) {
-      emitVisual(draft, { type: 'damage', targetId, amount: damage, variant: 'execute' })
+    // Apply damage modifiers
+    if (attacker) {
+      damage = applyOutgoingDamageModifiers(damage, attacker)
     }
+    damage = applyIncomingDamageModifiers(damage, entity)
+
+    // Apply damage directly to resolved target
+    applyDamageInternal(draft, targetId, damage)
+
+    const variant = hpPercent <= effect.threshold ? 'execute' : undefined
+    emitVisual(draft, { type: 'damage', targetId, amount: damage, variant, element: effect.element })
   }
 }
 
@@ -426,15 +427,21 @@ export function executeSplash(
   const primaryDamage = resolveValue(effect.amount, draft, ctx)
   const splashDamage = resolveValue(effect.splashAmount, draft, ctx)
   const primaryTargetIds = resolveEntityTargets(effect.target, draft, ctx)
+  const attacker = getEntityById(ctx.source, draft)
 
   // Deal primary damage
   for (const targetId of primaryTargetIds) {
-    executeDamage(draft, {
-      type: 'damage',
-      amount: primaryDamage,
-      target: { type: 'specific', id: targetId },
-      element: effect.element,
-    }, ctx)
+    const entity = getEntityById(targetId, draft)
+    if (!entity) continue
+
+    let damage = primaryDamage
+    if (attacker) {
+      damage = applyOutgoingDamageModifiers(damage, attacker)
+    }
+    damage = applyIncomingDamageModifiers(damage, entity)
+
+    applyDamageInternal(draft, targetId, damage)
+    emitVisual(draft, { type: 'damage', targetId, amount: damage, element: effect.element })
   }
 
   // Deal splash damage to others
@@ -444,13 +451,14 @@ export function executeSplash(
       e.currentHealth > 0 && !primaryTargetIds.includes(e.id)
     )
     for (const enemy of otherEnemies) {
-      executeDamage(draft, {
-        type: 'damage',
-        amount: splashDamage,
-        target: { type: 'specific', id: enemy.id },
-        element: effect.element,
-      }, ctx)
-      emitVisual(draft, { type: 'damage', targetId: enemy.id, amount: splashDamage, variant: 'chain' })
+      let damage = splashDamage
+      if (attacker) {
+        damage = applyOutgoingDamageModifiers(damage, attacker)
+      }
+      damage = applyIncomingDamageModifiers(damage, enemy)
+
+      applyDamageInternal(draft, enemy.id, damage)
+      emitVisual(draft, { type: 'damage', targetId: enemy.id, amount: damage, variant: 'chain', element: effect.element })
     }
   }
 }
@@ -489,10 +497,11 @@ export function executeCounterAttack(
   // Apply as a power that triggers onAttacked
   const player = draft.combat.player
   const existingCounter = player.powers['counterAttack']
-  const newStacks = existingCounter ? (existingCounter.stacks ?? 0) + damage : damage
+  const newStacks = existingCounter ? (existingCounter.amount ?? 0) + damage : damage
 
   player.powers['counterAttack'] = {
-    stacks: newStacks,
+    id: 'counterAttack',
+    amount: newStacks,
     duration,
   }
 
@@ -506,34 +515,39 @@ export function executeChain(
 ): void {
   if (!draft.combat) return
 
-  let damage = resolveValue(effect.amount, draft, ctx)
+  let baseDamage = resolveValue(effect.amount, draft, ctx)
   const decayRate = effect.decay ?? 0.2
   const enemies = draft.combat.enemies.filter(e => e.currentHealth > 0)
+  const attacker = getEntityById(ctx.source, draft)
 
   if (enemies.length === 0) return
 
+  // Apply outgoing modifiers once
+  if (attacker) {
+    baseDamage = applyOutgoingDamageModifiers(baseDamage, attacker)
+  }
+
   // Hit enemies in sequence with decaying damage
   const bounceCount = Math.min(effect.bounces, enemies.length)
+  let currentDamage = baseDamage
   for (let i = 0; i < bounceCount; i++) {
     const targetEnemy = enemies[i % enemies.length]
 
-    executeDamage(draft, {
-      type: 'damage',
-      amount: Math.floor(damage),
-      target: { type: 'specific', id: targetEnemy.id },
-      element: effect.element,
-    }, ctx)
+    // Apply incoming modifiers per target
+    let finalDamage = Math.floor(applyIncomingDamageModifiers(currentDamage, targetEnemy))
+
+    applyDamageInternal(draft, targetEnemy.id, finalDamage)
 
     emitVisual(draft, {
       type: 'damage',
       targetId: targetEnemy.id,
-      amount: Math.floor(damage),
+      amount: finalDamage,
       variant: 'chain',
       element: effect.element,
     })
 
     // Decay damage for next bounce
-    damage = damage * (1 - decayRate)
+    currentDamage = currentDamage * (1 - decayRate)
   }
 }
 
@@ -572,19 +586,19 @@ export function executeMarkTarget(
   const duration = effect.duration ?? 1
 
   for (const targetId of targetIds) {
-    const entity = getEntity(draft.combat, targetId)
+    const entity = getEntityById(targetId, draft)
     if (!entity) continue
 
     // Apply 'marked' power with duration
-    const existingPower = entity.powers.find(p => p.id === 'marked')
+    const existingPower = entity.powers['marked']
     if (existingPower) {
       existingPower.duration = Math.max(existingPower.duration ?? 0, duration)
     } else {
-      entity.powers.push({
+      entity.powers['marked'] = {
         id: 'marked',
         amount: effect.bonusMultiplier ? Math.round(effect.bonusMultiplier * 100) : 50, // Store as percentage
         duration,
-      })
+      }
     }
     emitVisual(draft, { type: 'markTarget', targetId, duration })
   }
@@ -604,16 +618,16 @@ export function executeReflect(
 
   // Apply 'reflect' power to player
   const player = draft.combat.player
-  const existingPower = player.powers.find(p => p.id === 'reflect')
+  const existingPower = player.powers['reflect']
   if (existingPower) {
     existingPower.amount += amount
     if (duration !== -1) existingPower.duration = Math.max(existingPower.duration ?? 0, duration)
   } else {
-    player.powers.push({
+    player.powers['reflect'] = {
       id: 'reflect',
       amount,
       duration: duration === -1 ? undefined : duration,
-    })
+    }
   }
   emitVisual(draft, { type: 'reflect', targetId: 'player', amount })
 }
@@ -623,7 +637,7 @@ export function executeReflect(
 export function executeAmplify(
   draft: RunState,
   effect: { type: 'amplify'; multiplier: number; attacks?: number; duration?: number },
-  ctx: EffectContext
+  _ctx: EffectContext
 ): void {
   if (!draft.combat) return
 
@@ -632,16 +646,16 @@ export function executeAmplify(
 
   // Apply 'amplify' power to player
   const player = draft.combat.player
-  const existingPower = player.powers.find(p => p.id === 'amplify')
+  const existingPower = player.powers['amplify']
   if (existingPower) {
     existingPower.amount = Math.max(existingPower.amount, multiplierPercent)
     existingPower.stacks = (existingPower.stacks ?? 0) + attacks
   } else {
-    player.powers.push({
+    player.powers['amplify'] = {
       id: 'amplify',
       amount: multiplierPercent, // Store multiplier as percentage
       stacks: attacks,
-    })
+    }
   }
   emitVisual(draft, { type: 'amplify', targetId: 'player', multiplier: effect.multiplier, attacks })
 }
@@ -676,22 +690,22 @@ export function executeTempMaxEnergy(
 
   // Apply temporary max energy power
   const player = draft.combat.player
-  const existingPower = player.powers.find(p => p.id === 'tempMaxEnergy')
+  const existingPower = player.powers['tempMaxEnergy']
   if (existingPower) {
     existingPower.amount += amount
     if (existingPower.duration !== undefined) {
       existingPower.duration = Math.max(existingPower.duration, duration)
     }
   } else {
-    player.powers.push({
+    player.powers['tempMaxEnergy'] = {
       id: 'tempMaxEnergy',
       amount,
       duration,
-    })
+    }
   }
 
-  // Immediately increase current max energy
-  draft.combat.maxEnergy += amount
-  draft.combat.energy += amount
+  // Immediately increase current max energy (on player entity)
+  player.maxEnergy += amount
+  player.energy += amount
   emitVisual(draft, { type: 'tempMaxEnergy', amount })
 }

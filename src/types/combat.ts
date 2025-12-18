@@ -70,6 +70,7 @@ export interface CombatState {
   visualQueue: VisualEvent[]
   pendingSelection?: PendingSelection
   delayedEffects?: DelayedEffectEntry[] // Effects scheduled to trigger in future turns
+  energyNextTurn?: number // Pending energy to add at start of next turn
 }
 
 export interface RunStats {

@@ -71,6 +71,7 @@ function FloatingNumber({ number, onComplete }: FloatingNumberProps) {
       heal: 'CombatNumber--heal',
       block: 'CombatNumber--block',
       gold: 'CombatNumber--gold',
+      intentWeakened: 'CombatNumber--block', // Use block styling for intent reduction
     }[number.type] ?? ''
   }
 
@@ -84,6 +85,7 @@ function FloatingNumber({ number, onComplete }: FloatingNumberProps) {
     combo: '🔥',
     gold: '🪙',
     preview: '⚠️',
+    intentWeakened: '💫',
   }[number.type]
 
   // For combo type, show "COMBO x{count}"
