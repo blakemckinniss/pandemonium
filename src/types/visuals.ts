@@ -65,7 +65,7 @@ export type VisualEvent =
 export interface CombatNumber {
   id: string
   value: number
-  type: 'damage' | 'heal' | 'block' | 'maxHealth' | 'combo' | 'gold' | 'preview'
+  type: 'damage' | 'heal' | 'block' | 'maxHealth' | 'combo' | 'gold' | 'preview' | 'intentWeakened'
   targetId: string
   x: number
   y: number

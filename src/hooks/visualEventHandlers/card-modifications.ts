@@ -61,6 +61,32 @@ export function handleCardModificationEvents(event: VisualEvent, ctx: HandlerCon
       }
       return true
     }
+
+    case 'cardModified': {
+      const modifierColors: Record<string, string> = {
+        innate: 'oklch(0.7 0.18 85)',      // Gold for innate
+        ethereal: 'oklch(0.6 0.15 200)',   // Cyan for ethereal
+        unplayable: 'oklch(0.4 0.1 0)',    // Gray for unplayable
+      }
+      const modifierParticles: Record<string, 'gold' | 'spark' | 'banish'> = {
+        innate: 'gold',
+        ethereal: 'spark',
+        unplayable: 'banish',
+      }
+
+      for (const cardUid of event.cardUids) {
+        const cardEl = ctx.queryContainer(`[data-card-uid="${cardUid}"]`)
+        if (cardEl) {
+          effects.pulse(cardEl, {
+            color: modifierColors[event.modifier] ?? 'oklch(0.6 0.1 0)',
+            scale: event.modifier === 'unplayable' ? 0.95 : 1.05,
+          })
+          emitParticle(cardEl, modifierParticles[event.modifier] ?? 'spark')
+        }
+      }
+      logger.debug('Visual', `Modified ${event.cardUids.length} card(s): ${event.modifier}`)
+      return true
+    }
   }
   return false
 }

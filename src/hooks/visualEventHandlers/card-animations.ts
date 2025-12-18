@@ -139,6 +139,21 @@ export function handleCardAnimationEvents(event: VisualEvent, ctx: HandlerContex
       logger.debug('Visual', `Put ${event.cardUids.length} card(s) on ${event.position} of deck`)
       return true
     }
+
+    case 'mill': {
+      // Cards milled from deck - quick fade with void particles
+      const deckPile = ctx.queryContainer('[data-deck-pile]')
+      if (deckPile) {
+        // Particle burst on deck
+        for (let i = 0; i < Math.min(event.cardUids.length, 5); i++) {
+          setTimeout(() => emitParticle(deckPile, 'banish'), i * 40)
+        }
+        effects.pulse(deckPile, { color: 'oklch(0.35 0.15 280)', scale: 0.9 })
+        effects.abyssalRift?.(deckPile)
+      }
+      logger.debug('Visual', `Milled ${event.cardUids.length} card(s)`)
+      return true
+    }
   }
   return false
 }

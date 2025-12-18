@@ -72,6 +72,25 @@ export function handlePowerEffectEvents(event: VisualEvent, ctx: HandlerContext)
       logger.debug('Visual', `Power triggered: ${event.powerId} on ${event.targetId} (${event.triggerEvent})`)
       return true
     }
+
+    case 'powerSilenced': {
+      const targetEl = ctx.queryContainer(`[data-target="${event.targetId}"]`)
+      if (targetEl) {
+        // Silenced power - muted gray effect with suppression visual
+        effects.pulse(targetEl, {
+          color: 'oklch(0.45 0.05 0)',  // Desaturated gray
+          scale: 0.95,
+        })
+        // Void particles to indicate suppression
+        emitParticle(targetEl, 'banish')
+        setTimeout(() => emitParticle(targetEl, 'spark'), 80)
+
+        // Gothic shadow coil - dark chains binding the power
+        effects.shadowCoil?.(targetEl)
+      }
+      logger.debug('Visual', `Power silenced: ${event.powerId} on ${event.targetId} for ${event.duration} turns`)
+      return true
+    }
   }
   return false
 }

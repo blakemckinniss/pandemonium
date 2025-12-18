@@ -118,6 +118,69 @@ export function handleEnemyActionEvents(event: VisualEvent, ctx: HandlerContext)
       }
       return true
     }
+
+    case 'enemyAbility': {
+      const enemyEl = ctx.queryContainer(`[data-target="${event.entityId}"]`)
+      if (enemyEl) {
+        // Special ability activation - purple energy surge
+        effects.pulse(enemyEl, { color: 'oklch(0.6 0.2 280)', scale: 1.1 })
+        emitParticle(enemyEl, 'energy')
+        setTimeout(() => emitParticle(enemyEl, 'spark'), 80)
+
+        // Screen shake for dramatic effect
+        if (ctx.containerRef.current) {
+          effects.shake(ctx.containerRef.current, { intensity: 5 })
+        }
+      }
+      return true
+    }
+
+    case 'enemyUltimate': {
+      const enemyEl = ctx.queryContainer(`[data-target="${event.entityId}"]`)
+      if (enemyEl) {
+        // Ultimate ability - dramatic red/black burst
+        effects.pulse(enemyEl, { color: 'oklch(0.5 0.25 25)', scale: 1.15 })
+
+        // Multi-burst particles
+        for (let i = 0; i < 4; i++) {
+          setTimeout(() => emitParticle(enemyEl, 'critical'), i * 50)
+        }
+        emitParticle(enemyEl, 'explosion')
+        setTimeout(() => emitParticle(enemyEl, 'spark'), 150)
+
+        // Strong screen shake
+        if (ctx.containerRef.current) {
+          effects.shake(ctx.containerRef.current, { intensity: 10 })
+        }
+
+        // Gothic doom pulse for ultimate
+        effects.doomPulse?.(enemyEl, { intensity: 1.3, color: '#8b0000' })
+      }
+      return true
+    }
+
+    case 'intentWeakened': {
+      const enemyEl = ctx.queryContainer(`[data-target="${event.targetId}"]`)
+      if (enemyEl) {
+        // Intent weakened - blue debuff visual
+        effects.pulse(enemyEl, { color: 'oklch(0.55 0.15 240)', scale: 0.95 })
+        emitParticle(enemyEl, 'block')
+
+        // Show reduction number
+        const rect = enemyEl.getBoundingClientRect()
+        const num: CombatNumber = {
+          id: generateUid(),
+          value: -event.reduction,
+          type: 'intentWeakened',
+          targetId: event.targetId,
+          x: rect.left + rect.width / 2,
+          y: rect.top + rect.height / 4,
+          label: 'Weakened',
+        }
+        ctx.setCombatNumbers((prev) => [...prev, num])
+      }
+      return true
+    }
   }
   return false
 }

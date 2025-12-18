@@ -157,6 +157,42 @@ export function handleGameEvents(event: VisualEvent, ctx: HandlerContext): boole
 
       return true
     }
+
+    case 'delayedEffect': {
+      // Delayed effect countdown - hourglass/timer visual
+      const playerEl = ctx.queryContainer('[data-entity="player"]')
+      if (playerEl) {
+        effects.pulse(playerEl, {
+          color: 'oklch(0.65 0.15 50)',  // Amber/orange for pending
+          scale: 1.03,
+        })
+        emitParticle(playerEl, 'energy')
+      }
+      logger.debug('Visual', `Delayed effect: ${event.turnsRemaining} turns remaining`)
+      return true
+    }
+
+    case 'delayedEffectTrigger': {
+      // Delayed effect fires - dramatic activation
+      const playerEl = ctx.queryContainer('[data-entity="player"]')
+      if (playerEl) {
+        effects.pulse(playerEl, {
+          color: 'oklch(0.7 0.2 40)',  // Bright orange burst
+          scale: 1.1,
+        })
+        // Multi-particle burst
+        emitParticle(playerEl, 'critical')
+        setTimeout(() => emitParticle(playerEl, 'spark'), 50)
+        setTimeout(() => emitParticle(playerEl, 'energy'), 100)
+
+        // Screen shake for dramatic trigger
+        if (ctx.containerRef.current) {
+          effects.shake(ctx.containerRef.current, { intensity: 6 })
+        }
+      }
+      logger.debug('Visual', 'Delayed effect triggered!')
+      return true
+    }
   }
   return false
 }
