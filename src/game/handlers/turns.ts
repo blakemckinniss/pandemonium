@@ -1,10 +1,75 @@
 // Turn management handlers
-import type { RunState, Entity, RelicTrigger } from '../../types'
+import type { RunState, Entity, RelicTrigger, EffectContext } from '../../types'
 import { decayPowers } from '../powers'
 import { drawCardsInternal, emitVisual } from './shared'
 import { getCardDefinition } from '../cards'
 import { getRelicDefinition } from '../relics'
 import { executeEffect } from '../effects/engine'
+
+/**
+ * Process delayed effects that should trigger on turnStart or turnEnd
+ */
+function processDelayedEffects(draft: RunState, trigger: 'turnStart' | 'turnEnd'): void {
+  if (!draft.combat?.delayedEffects) return
+
+  const toExecute: { effects: typeof draft.combat.delayedEffects[0]['effects']; ctx: EffectContext }[] = []
+  const remaining: typeof draft.combat.delayedEffects = []
+
+  for (const delayed of draft.combat.delayedEffects) {
+    if (delayed.trigger !== trigger) {
+      remaining.push(delayed)
+      continue
+    }
+
+    delayed.turnsRemaining -= 1
+
+    if (delayed.turnsRemaining <= 0) {
+      // Ready to trigger
+      toExecute.push({ effects: delayed.effects, ctx: delayed.sourceCtx })
+      emitVisual(draft, { type: 'delayedEffectTrigger' })
+    } else {
+      remaining.push(delayed)
+    }
+  }
+
+  draft.combat.delayedEffects = remaining
+
+  // Execute all triggered effects
+  for (const { effects, ctx } of toExecute) {
+    for (const effect of effects) {
+      executeEffect(draft, effect, ctx)
+    }
+  }
+}
+
+/**
+ * Decay silenced duration on all powers for an entity
+ */
+function decaySilencedPowers(entity: Entity): void {
+  for (const powerId of Object.keys(entity.powers)) {
+    const power = entity.powers[powerId]
+    if (power.silenced && power.silenced > 0) {
+      power.silenced -= 1
+      if (power.silenced <= 0) {
+        delete power.silenced
+      }
+    }
+  }
+}
+
+/**
+ * Clear turn-based unplayable flags from hand cards
+ */
+function clearTurnUnplayable(draft: RunState): void {
+  if (!draft.combat) return
+
+  for (const card of draft.combat.hand) {
+    // Only clear if unplayable is true (turn-based), not 'combat'
+    if (card.unplayable === true) {
+      delete card.unplayable
+    }
+  }
+}
 
 /**
  * Charge hero ultimate based on chargeOn event
@@ -88,8 +153,17 @@ export function handleStartTurn(draft: RunState): void {
     combat.player.block = 0
   }
 
+  // Clear turn-based unplayable flags
+  clearTurnUnplayable(draft)
+
+  // Decay silenced powers for player
+  decaySilencedPowers(combat.player)
+
   // Decay powers at turn start
   decayPowers(combat.player, 'turnStart')
+
+  // Process delayed effects that trigger on turnStart
+  processDelayedEffects(draft, 'turnStart')
 
   // Execute power triggers for player
   if (executePowerTriggers) {
@@ -112,6 +186,9 @@ export function handleEndTurn(draft: RunState): void {
   if (!draft.combat) return
 
   const combat = draft.combat
+
+  // Process delayed effects that trigger on turnEnd
+  processDelayedEffects(draft, 'turnEnd')
 
   // Execute power triggers for player
   if (executePowerTriggers) {
