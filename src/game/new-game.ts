@@ -37,6 +37,7 @@ export interface MonsterTemplate {
   times?: number  // Multi-hit attacks (e.g., 3x4 damage)
   image?: string  // Path to monster portrait
   // Elemental properties
+  element?: import('../types').Element  // Monster's elemental affinity
   vulnerabilities?: import('../types').Element[]
   resistances?: import('../types').Element[]
   innateStatus?: import('../types').ElementalStatus
@@ -133,6 +134,51 @@ export const MONSTERS: Record<string, MonsterTemplate> = {
     innateStatus: 'wet',
     image: '/cards/enemy_water_slime.webp',
   },
+
+  // --- SHADOW CRYPT (Void Element) ---
+
+  skeleton_warrior: {
+    id: 'skeleton_warrior',
+    name: 'Skeleton Warrior',
+    healthRange: [22, 28],
+    damage: 6,
+    resistances: ['void', 'physical'],
+    vulnerabilities: ['fire', 'lightning'],
+    element: 'void',
+    image: '/cards/enemy_skeleton_warrior.webp',
+  },
+  shadow_wraith: {
+    id: 'shadow_wraith',
+    name: 'Shadow Wraith',
+    healthRange: [16, 20],
+    damage: 3,
+    times: 3, // Fast multi-hit: 3x3 damage
+    resistances: ['void', 'physical'],
+    vulnerabilities: ['fire'],
+    element: 'void',
+    image: '/cards/enemy_shadow_wraith.webp',
+  },
+  bone_golem: {
+    id: 'bone_golem',
+    name: 'Bone Golem',
+    healthRange: [55, 65],
+    damage: 12,
+    resistances: ['void', 'physical', 'ice'],
+    vulnerabilities: ['fire', 'lightning'],
+    element: 'void',
+    image: '/cards/enemy_bone_golem.webp',
+  },
+  necromancer: {
+    id: 'necromancer',
+    name: 'Necromancer',
+    healthRange: [40, 48],
+    damage: 7,
+    resistances: ['void'],
+    vulnerabilities: ['fire', 'physical'],
+    element: 'void',
+    innateStatus: 'oiled', // Dark magic aura
+    image: '/cards/enemy_necromancer.webp',
+  },
 }
 
 // ============================================
@@ -191,6 +237,7 @@ export function createEnemy(templateId: string): EnemyEntity {
     intent: { type: 'attack', value: template.damage, times: template.times },
     patternIndex: 0,
     // Elemental properties
+    element: template.element,
     vulnerabilities: template.vulnerabilities,
     resistances: template.resistances,
     innateStatus: template.innateStatus,
