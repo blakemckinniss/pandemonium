@@ -492,3 +492,321 @@ gsap.registerEffect({
   },
   extendTimeline: true,
 })
+
+// ============================================
+// NEW EFFECT ANIMATIONS
+// ============================================
+
+// Mill effect - cards tumbling into discard
+gsap.registerEffect({
+  name: 'millCards',
+  effect: (targets: gsap.TweenTarget) => {
+    const tl = gsap.timeline()
+
+    // Cards tumble and fade
+    tl.to(targets, {
+      x: 100,
+      y: 50,
+      rotation: 45,
+      opacity: 0,
+      scale: 0.6,
+      filter: 'brightness(0.5) blur(2px)',
+      duration: 0.4,
+      stagger: 0.05,
+      ease: 'power2.in',
+    })
+
+    return tl
+  },
+  extendTimeline: true,
+})
+
+// Card modifier applied - glow pulse based on type
+gsap.registerEffect({
+  name: 'cardModifier',
+  effect: (targets: gsap.TweenTarget, config: { modifier?: string }) => {
+    const tl = gsap.timeline()
+
+    const modifierColors: Record<string, { glow: string; filter: string }> = {
+      innate: { glow: '#4ecdc4', filter: 'brightness(1.3) saturate(1.2)' },
+      ethereal: { glow: '#9b59b6', filter: 'brightness(1.2) saturate(0.8) hue-rotate(30deg)' },
+      unplayable: { glow: '#7f8c8d', filter: 'brightness(0.7) saturate(0.5) grayscale(0.5)' },
+    }
+    const style = modifierColors[config.modifier ?? 'innate'] ?? modifierColors.innate
+
+    // Pulse with modifier color
+    tl.to(targets, {
+      filter: style.filter,
+      boxShadow: `0 0 20px ${style.glow}, 0 0 40px ${style.glow}50`,
+      scale: 1.05,
+      duration: 0.2,
+      ease: 'power2.out',
+    })
+    tl.to(targets, {
+      filter: config.modifier === 'unplayable' ? style.filter : 'brightness(1) saturate(1)',
+      boxShadow: config.modifier === 'unplayable' ? `0 0 8px ${style.glow}` : 'none',
+      scale: 1,
+      duration: 0.3,
+      ease: 'power2.inOut',
+    })
+
+    return tl
+  },
+  extendTimeline: true,
+})
+
+// Intent weakened - enemy intent shrinks and dims
+gsap.registerEffect({
+  name: 'intentWeakened',
+  effect: (targets: gsap.TweenTarget) => {
+    const tl = gsap.timeline()
+
+    // Shake and shrink
+    tl.to(targets, {
+      x: -5,
+      duration: 0.05,
+    })
+    tl.to(targets, {
+      x: 5,
+      duration: 0.05,
+    })
+    tl.to(targets, {
+      x: 0,
+      scale: 0.85,
+      filter: 'brightness(0.7) saturate(0.6)',
+      duration: 0.2,
+      ease: 'power2.out',
+    })
+    tl.to(targets, {
+      scale: 1,
+      filter: 'brightness(1) saturate(1)',
+      duration: 0.3,
+      ease: 'power2.inOut',
+    })
+
+    return tl
+  },
+  extendTimeline: true,
+})
+
+// Delayed effect placed - time bomb countdown indicator
+gsap.registerEffect({
+  name: 'delayedEffectPlaced',
+  effect: (targets: gsap.TweenTarget, config: { turnsRemaining?: number }) => {
+    const tl = gsap.timeline()
+    const el = (targets as HTMLElement[])[0] || (targets as HTMLElement)
+    if (!el || !(el instanceof HTMLElement)) return tl
+
+    const rect = el.getBoundingClientRect()
+
+    // Create countdown indicator
+    const indicator = document.createElement('div')
+    indicator.textContent = `⏳${config.turnsRemaining ?? '?'}`
+    indicator.style.cssText = `
+      position: fixed;
+      left: ${rect.left + rect.width / 2}px;
+      top: ${rect.top - 30}px;
+      transform: translateX(-50%);
+      font-size: 18px;
+      font-weight: bold;
+      color: #f39c12;
+      text-shadow: 0 0 10px #f39c12, 0 0 20px #e74c3c;
+      pointer-events: none;
+      z-index: 9999;
+      opacity: 0;
+    `
+    document.body.appendChild(indicator)
+
+    // Pop in and float
+    tl.to(indicator, {
+      opacity: 1,
+      y: -10,
+      duration: 0.3,
+      ease: 'back.out(2)',
+    })
+    tl.to(indicator, {
+      opacity: 0,
+      y: -30,
+      duration: 0.5,
+      delay: 0.5,
+      ease: 'power2.in',
+      onComplete: () => indicator.remove(),
+    })
+
+    // Target pulses with warning
+    tl.to(el, {
+      boxShadow: '0 0 25px #f39c12, 0 0 50px #e74c3c50',
+      duration: 0.2,
+    }, 0)
+    tl.to(el, {
+      boxShadow: 'none',
+      duration: 0.4,
+    })
+
+    return tl
+  },
+  extendTimeline: true,
+})
+
+// Delayed effect triggered - time bomb explodes
+gsap.registerEffect({
+  name: 'delayedEffectTrigger',
+  effect: (targets: gsap.TweenTarget) => {
+    const tl = gsap.timeline()
+    const el = (targets as HTMLElement[])[0] || (targets as HTMLElement)
+    if (!el || !(el instanceof HTMLElement)) return tl
+
+    const rect = el.getBoundingClientRect()
+    const centerX = rect.left + rect.width / 2
+    const centerY = rect.top + rect.height / 2
+
+    // Create explosion container
+    const container = document.createElement('div')
+    container.style.cssText = `
+      position: fixed;
+      left: 0;
+      top: 0;
+      width: 100vw;
+      height: 100vh;
+      pointer-events: none;
+      z-index: 9999;
+    `
+    document.body.appendChild(container)
+
+    // Create explosion rings
+    for (let i = 0; i < 3; i++) {
+      const ring = document.createElement('div')
+      ring.style.cssText = `
+        position: absolute;
+        left: ${centerX}px;
+        top: ${centerY}px;
+        width: 20px;
+        height: 20px;
+        border: 3px solid #f39c12;
+        border-radius: 50%;
+        transform: translate(-50%, -50%);
+        box-shadow: 0 0 15px #e74c3c;
+        opacity: 0;
+      `
+      container.appendChild(ring)
+
+      gsap.to(ring, {
+        width: 150 + i * 40,
+        height: 150 + i * 40,
+        opacity: 0.8,
+        duration: 0.2,
+        delay: i * 0.1,
+        ease: 'power2.out',
+      })
+      gsap.to(ring, {
+        opacity: 0,
+        duration: 0.3,
+        delay: 0.2 + i * 0.1,
+        ease: 'power2.in',
+      })
+    }
+
+    // Flash
+    tl.to(el, {
+      filter: 'brightness(2) saturate(1.5)',
+      scale: 1.1,
+      duration: 0.1,
+    })
+    tl.to(el, {
+      filter: 'brightness(1) saturate(1)',
+      scale: 1,
+      duration: 0.3,
+    })
+
+    // Cleanup
+    tl.add(() => {
+      setTimeout(() => container.remove(), 600)
+    }, 0.5)
+
+    return tl
+  },
+  extendTimeline: true,
+})
+
+// Power silenced - chains/lock effect
+gsap.registerEffect({
+  name: 'powerSilenced',
+  effect: (targets: gsap.TweenTarget) => {
+    const tl = gsap.timeline()
+
+    // Darken and add chain visual
+    tl.to(targets, {
+      filter: 'brightness(0.5) saturate(0.3) grayscale(0.7)',
+      scale: 0.9,
+      duration: 0.2,
+      ease: 'power2.in',
+    })
+
+    // Shake like struggling against chains
+    tl.to(targets, { x: -2, duration: 0.05 })
+    tl.to(targets, { x: 2, duration: 0.05 })
+    tl.to(targets, { x: -1, duration: 0.05 })
+    tl.to(targets, { x: 0, duration: 0.05 })
+
+    return tl
+  },
+  extendTimeline: true,
+})
+
+// Chain lightning bounce - for chain effect
+gsap.registerEffect({
+  name: 'chainBounce',
+  effect: (targets: gsap.TweenTarget, config: { fromX?: number; fromY?: number }) => {
+    const tl = gsap.timeline()
+    const el = (targets as HTMLElement[])[0] || (targets as HTMLElement)
+    if (!el || !(el instanceof HTMLElement)) return tl
+
+    const rect = el.getBoundingClientRect()
+    const toX = rect.left + rect.width / 2
+    const toY = rect.top + rect.height / 2
+    const fromX = config.fromX ?? toX - 100
+    const fromY = config.fromY ?? toY
+
+    // Create lightning bolt
+    const bolt = document.createElement('div')
+    bolt.style.cssText = `
+      position: fixed;
+      left: ${fromX}px;
+      top: ${fromY}px;
+      width: ${Math.hypot(toX - fromX, toY - fromY)}px;
+      height: 4px;
+      background: linear-gradient(90deg, #ffd700 0%, #fff 50%, #ffd700 100%);
+      transform-origin: left center;
+      transform: rotate(${Math.atan2(toY - fromY, toX - fromX)}rad);
+      box-shadow: 0 0 10px #ffd700, 0 0 20px #ff6600;
+      pointer-events: none;
+      z-index: 9999;
+      opacity: 0;
+    `
+    document.body.appendChild(bolt)
+
+    tl.to(bolt, {
+      opacity: 1,
+      duration: 0.05,
+    })
+    tl.to(bolt, {
+      opacity: 0,
+      duration: 0.15,
+      ease: 'power2.out',
+      onComplete: () => bolt.remove(),
+    })
+
+    // Target flash
+    tl.to(el, {
+      filter: 'brightness(1.8) drop-shadow(0 0 15px #ffd700)',
+      duration: 0.08,
+    }, 0.05)
+    tl.to(el, {
+      filter: 'brightness(1) drop-shadow(0 0 0px transparent)',
+      duration: 0.2,
+    })
+
+    return tl
+  },
+  extendTimeline: true,
+})
