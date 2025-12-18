@@ -264,6 +264,12 @@ export function executeLifesteal(
   const damage = resolveValue(effect.amount, draft, ctx)
   const ratio = effect.ratio ?? 1
 
+  // Resolve targets for visual event
+  const damageTargetIds = resolveEntityTargets(effect.target, draft, ctx)
+  const healTargetId = effect.healTarget
+    ? resolveEntityTargets(effect.healTarget, draft, ctx)[0]
+    : ctx.source
+
   // Deal damage
   executeDamage(draft, { type: 'damage', amount: damage, target: effect.target }, ctx)
 
@@ -271,6 +277,17 @@ export function executeLifesteal(
   const healAmount = Math.floor(damage * ratio)
   const healTarget = effect.healTarget ?? 'self'
   executeHeal(draft, { type: 'heal', amount: healAmount, target: healTarget }, ctx)
+
+  // Emit lifesteal visual for soulDrain animation
+  if (damageTargetIds.length > 0 && healTargetId) {
+    emitVisual(draft, {
+      type: 'lifesteal',
+      sourceId: damageTargetIds[0],
+      targetId: healTargetId,
+      damage,
+      heal: healAmount,
+    })
+  }
 }
 
 export function executeDestroyBlock(

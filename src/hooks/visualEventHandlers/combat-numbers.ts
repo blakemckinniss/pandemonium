@@ -129,6 +129,26 @@ export function handleCombatNumberEvents(event: VisualEvent, ctx: HandlerContext
       if (healTarget) emitParticle(healTarget, 'heal')
       return true
     }
+    case 'lifesteal': {
+      // Get source and target positions for soulDrain animation
+      const sourceEl = ctx.queryContainer(`[data-target="${event.sourceId}"]`)
+      const targetEl = ctx.queryContainer(`[data-target="${event.targetId}"]`)
+      if (sourceEl && targetEl) {
+        const sourceRect = sourceEl.getBoundingClientRect()
+        const sourceX = sourceRect.left + sourceRect.width / 2
+        const sourceY = sourceRect.top + sourceRect.height / 2
+
+        // Gothic soul drain effect - wisps flow from damaged enemy to healer
+        effects.soulDrain?.(targetEl, {
+          sourceX,
+          sourceY,
+          color: '#4a7c59', // Sickly green for lifesteal
+        })
+        emitParticle(sourceEl, 'poison')
+        emitParticle(targetEl, 'heal')
+      }
+      return true
+    }
     case 'block': {
       ctx.spawnCombatNumber(event.targetId, event.amount, 'block')
       const blockTarget = ctx.queryContainer(`[data-target="${event.targetId}"]`)

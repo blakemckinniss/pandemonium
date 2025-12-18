@@ -9,6 +9,7 @@ import type { CardTheme } from './targeting'
 export type VisualEvent =
   | { type: 'damage'; targetId: string; amount: number; variant?: 'poison' | 'piercing' | 'combo' | 'chain' | 'execute'; element?: Element; comboName?: string }
   | { type: 'heal'; targetId: string; amount: number }
+  | { type: 'lifesteal'; sourceId: string; targetId: string; damage: number; heal: number }
   | { type: 'block'; targetId: string; amount: number; variant?: 'barrier' }
   | { type: 'draw'; count: number }
   | { type: 'discard'; cardUids: string[] }
