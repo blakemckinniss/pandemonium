@@ -1,5 +1,6 @@
-import { memo, useCallback } from 'react'
+import { memo, useCallback, useRef, useEffect, useState } from 'react'
 import { Card } from '../Card/Card'
+import { gsap } from '../../lib/dragdrop'
 import type { PlayerEntity, EnemyEntity } from '../../types'
 import { getCardDefinition } from '../../game/cards'
 
@@ -12,6 +13,22 @@ interface FieldProps {
 }
 
 export const Field = memo(function Field({ player, enemies, onTargetClick, onUseActivated, onUseUltimate }: FieldProps) {
+  const fieldRef = useRef<HTMLDivElement>(null)
+  const [hasAnimated, setHasAnimated] = useState(false)
+
+  // Combat entry animation - dramatic entrance for all entities
+  useEffect(() => {
+    if (hasAnimated || !fieldRef.current) return
+
+    const effects = gsap.effects as Record<string, (el: Element | NodeListOf<Element>, opts?: object) => void>
+    const entities = fieldRef.current.querySelectorAll('[data-target-type]')
+
+    if (entities.length > 0 && effects.combatEntry) {
+      effects.combatEntry(entities)
+      setHasAnimated(true)
+    }
+  }, [hasAnimated])
+
   const handlePlayerClick = useCallback(() => {
     onTargetClick?.('player')
   }, [onTargetClick])
@@ -31,7 +48,7 @@ export const Field = memo(function Field({ player, enemies, onTargetClick, onUse
   const canUseUltimate = heroCard?.ultimate && player.ultimateReady
 
   return (
-    <div className="Field flex justify-center items-center gap-12 px-4 py-6 overflow-visible">
+    <div ref={fieldRef} className="Field flex justify-center items-center gap-12 px-4 py-6 overflow-visible">
       {/* Player with Hero Abilities */}
       <div className="flex flex-col items-center gap-3">
         <Card

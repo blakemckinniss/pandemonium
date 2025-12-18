@@ -64,11 +64,11 @@ export function CardPileModal({ isOpen, onClose, pileType, cards }: CardPileModa
       size="lg"
     >
       {cards.length === 0 ? (
-        <div className="text-center py-12 text-warm-500">
+        <div className="CardPileModal-empty">
           {config.emptyMessage}
         </div>
       ) : (
-        <div className="CardPileModal-grid">
+        <div className={`CardPileModal-grid CardPileModal--${pileType}`}>
           {sortedGroups.map(({ def, count, upgraded }) => {
             if (!def) return null
             // Get effective definition (applies upgradesTo if upgraded)

@@ -204,6 +204,20 @@ export const Card = memo(function Card({
     return () => clearInterval(interval)
   }, [rarity])
 
+  // Spectral shimmer effect for rare/epic cards (non-WebGL visual enhancement)
+  useEffect(() => {
+    const card = cardRef.current
+    if (!card) return
+    // Only for rare/epic - premium rarities use WebGL shader instead
+    if (rarity !== 'rare' && rarity !== 'epic') return
+
+    const effects = gsap.effects as Record<string, (el: HTMLElement, opts?: object) => gsap.core.Tween>
+    if (!effects.spectralShimmer) return
+
+    const shimmer = effects.spectralShimmer(card, { rarity })
+    return () => { shimmer?.kill() }
+  }, [rarity])
+
   // Check if this rarity needs WebGL shader
   const isPremiumRarity = rarity === 'legendary' || rarity === 'mythic' || rarity === 'ancient'
   const cardDimensions = CARD_DIMENSIONS[variant]

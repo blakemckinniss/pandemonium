@@ -2023,16 +2023,23 @@ h1, .text-title {
   opacity: 0.2;
 }
 
-/* Card Pile Modal Grid */
+/* Card Pile Modal Grid - Gothic Styling */
 .CardPileModal-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
-  gap: 1rem;
+  gap: 1.25rem;
   justify-items: center;
+  padding: 0.5rem;
 }
 
 .CardPileModal-item {
   position: relative;
+  transition: transform 0.2s ease, filter 0.2s ease;
+}
+
+.CardPileModal-item:hover {
+  transform: translateY(-4px);
+  filter: drop-shadow(0 8px 16px oklch(0 0 0 / 0.5));
 }
 
 .CardPileModal-card {
@@ -2044,13 +2051,59 @@ h1, .text-title {
   position: absolute;
   bottom: -8px;
   right: -8px;
-  background: var(--color-energy);
+  background: linear-gradient(135deg, var(--color-gold) 0%, var(--color-gold-dark, oklch(0.55 0.12 70)) 100%);
   color: oklch(0.1 0 0);
-  font-weight: bold;
+  font-family: var(--font-display);
+  font-weight: 700;
   font-size: 0.875rem;
-  padding: 0.25rem 0.5rem;
+  padding: 0.25rem 0.625rem;
   border-radius: 9999px;
-  box-shadow: 0 2px 8px oklch(0 0 0 / 0.4);
+  box-shadow:
+    0 2px 8px oklch(0 0 0 / 0.5),
+    0 0 12px var(--color-gold-glow, oklch(0.7 0.15 70 / 0.4));
+  border: 1px solid oklch(0.8 0.1 70 / 0.5);
+  text-shadow: 0 1px 2px oklch(0 0 0 / 0.3);
+}
+
+/* Pile type-specific accent colors */
+.CardPileModal--draw .CardPileModal-count {
+  background: linear-gradient(135deg, var(--color-energy) 0%, oklch(0.55 0.12 70) 100%);
+  box-shadow:
+    0 2px 8px oklch(0 0 0 / 0.5),
+    0 0 12px oklch(0.7 0.15 70 / 0.4);
+}
+
+.CardPileModal--discard .CardPileModal-count {
+  background: linear-gradient(135deg, oklch(0.55 0.1 25) 0%, oklch(0.4 0.08 25) 100%);
+  box-shadow:
+    0 2px 8px oklch(0 0 0 / 0.5),
+    0 0 12px oklch(0.5 0.15 25 / 0.4);
+}
+
+.CardPileModal--exhaust .CardPileModal-count {
+  background: linear-gradient(135deg, oklch(0.45 0.12 300) 0%, oklch(0.3 0.15 280) 100%);
+  color: oklch(0.9 0 0);
+  box-shadow:
+    0 2px 8px oklch(0 0 0 / 0.5),
+    0 0 12px oklch(0.5 0.2 290 / 0.4);
+}
+
+/* Empty state gothic styling */
+.CardPileModal-empty {
+  text-align: center;
+  padding: 3rem 2rem;
+  color: var(--color-warm-500);
+  font-family: var(--font-prose);
+  font-style: italic;
+}
+
+.CardPileModal-empty::before {
+  content: '◆';
+  display: block;
+  font-size: 1.5rem;
+  color: var(--color-filigree);
+  margin-bottom: 0.75rem;
+  opacity: 0.5;
 }
 
 /* Card Selection Modal Grid */
