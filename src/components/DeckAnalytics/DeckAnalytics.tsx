@@ -98,47 +98,53 @@ export function DeckAnalytics({ cardIds, collapsed = false, onToggleCollapsed }:
   const maxEnergyCurve = Math.max(...Object.values(stats.energyCurve), 1)
 
   return (
-    <div className="DeckAnalytics border-t border-warm-800 pt-3">
+    <div className="DeckAnalytics border-t border-border pt-3 relative">
+      {/* Top ornamental line */}
+      <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-filigree/20 to-transparent" />
+
       {/* Header */}
       <button
         onClick={onToggleCollapsed}
-        className="w-full flex items-center justify-between text-xs uppercase tracking-wide text-warm-500 mb-2 hover:text-warm-400 transition-colors"
+        className="w-full flex items-center justify-between text-xs font-display tracking-widest text-warm-500 mb-3 hover:text-warm-300 transition-colors group"
       >
-        <span className="flex items-center gap-1">
-          <Icon icon="mdi:chart-bar" />
+        <span className="flex items-center gap-2">
+          <Icon icon="mdi:chart-bar" className="text-filigree/60 group-hover:text-filigree transition-colors" />
           Deck Analytics
         </span>
         <Icon
           icon={collapsed ? 'mdi:chevron-down' : 'mdi:chevron-up'}
-          className="text-base"
+          className="text-base text-filigree/40"
         />
       </button>
 
       {!collapsed && (
         <div className="space-y-4">
           {/* Summary Stats */}
-          <div className="flex items-center justify-between text-xs">
-            <span className="text-warm-500">Avg Cost</span>
-            <span className="text-energy font-medium">
+          <div className="flex items-center justify-between text-xs font-ui p-2 bg-surface-alt/30 rounded border border-border/50">
+            <span className="text-warm-500 font-display tracking-wide">Avg Cost</span>
+            <span className="text-energy font-bold">
               {stats.avgEnergy.toFixed(1)} <Icon icon="mdi:lightning-bolt" className="inline text-xs" />
             </span>
           </div>
 
           {/* Energy Curve */}
           <div>
-            <div className="text-xs text-warm-500 mb-1">Energy Curve</div>
-            <div className="flex items-end gap-1 h-12">
+            <div className="text-xs text-warm-500 mb-2 font-display tracking-wide flex items-center gap-2">
+              <span className="w-3 h-px bg-filigree/30" />
+              Energy Curve
+            </div>
+            <div className="flex items-end gap-1 h-12 p-2 bg-surface-alt/20 rounded border border-border/30">
               {[0, 1, 2, 3, 4, 5].map((cost) => {
                 const count = stats.energyCurve[cost] || 0
                 const height = maxEnergyCurve > 0 ? (count / maxEnergyCurve) * 100 : 0
                 return (
                   <div key={cost} className="flex-1 flex flex-col items-center">
                     <div
-                      className="w-full bg-energy/70 rounded-t transition-all duration-200"
+                      className="w-full bg-gradient-to-t from-energy/60 to-energy/90 rounded-t transition-all duration-200 border-t border-x border-energy/30"
                       style={{ height: `${height}%`, minHeight: count > 0 ? '4px' : '0' }}
                       title={`${cost === 5 ? '5+' : cost} cost: ${count} cards`}
                     />
-                    <span className="text-[10px] text-warm-600 mt-1">
+                    <span className="text-[10px] text-warm-500 mt-1 font-ui">
                       {cost === 5 ? '5+' : cost}
                     </span>
                   </div>
@@ -146,10 +152,10 @@ export function DeckAnalytics({ cardIds, collapsed = false, onToggleCollapsed }:
               })}
             </div>
             {/* Count labels */}
-            <div className="flex gap-1 mt-0.5">
+            <div className="flex gap-1 mt-0.5 px-2">
               {[0, 1, 2, 3, 4, 5].map((cost) => (
                 <div key={cost} className="flex-1 text-center">
-                  <span className="text-[9px] text-warm-600">
+                  <span className="text-[9px] text-warm-600 font-ui">
                     {stats.energyCurve[cost] || 0}
                   </span>
                 </div>
@@ -160,8 +166,11 @@ export function DeckAnalytics({ cardIds, collapsed = false, onToggleCollapsed }:
           {/* Theme Distribution */}
           {Object.keys(stats.themeDistribution).length > 0 && (
             <div>
-              <div className="text-xs text-warm-500 mb-1">Card Types</div>
-              <div className="space-y-1">
+              <div className="text-xs text-warm-500 mb-2 font-display tracking-wide flex items-center gap-2">
+                <span className="w-3 h-px bg-filigree/30" />
+                Card Types
+              </div>
+              <div className="space-y-1.5">
                 {(['attack', 'skill', 'power'] as const).map((theme) => {
                   const count = stats.themeDistribution[theme] || 0
                   if (count === 0) return null
@@ -173,16 +182,16 @@ export function DeckAnalytics({ cardIds, collapsed = false, onToggleCollapsed }:
                         className="text-sm"
                         style={{ color: THEME_COLORS[theme] }}
                       />
-                      <div className="flex-1 h-2 bg-warm-800 rounded overflow-hidden">
+                      <div className="flex-1 h-2 bg-surface-alt rounded overflow-hidden border border-border/30">
                         <div
                           className="h-full rounded transition-all duration-200"
                           style={{
                             width: `${pct}%`,
-                            backgroundColor: THEME_COLORS[theme],
+                            background: `linear-gradient(90deg, ${THEME_COLORS[theme]}cc, ${THEME_COLORS[theme]})`,
                           }}
                         />
                       </div>
-                      <span className="text-[10px] text-warm-500 w-8 text-right">
+                      <span className="text-[10px] text-warm-400 w-8 text-right font-ui font-medium">
                         {count}
                       </span>
                     </div>
@@ -195,21 +204,25 @@ export function DeckAnalytics({ cardIds, collapsed = false, onToggleCollapsed }:
           {/* Element Distribution */}
           {Object.keys(stats.elementDistribution).length > 0 && (
             <div>
-              <div className="text-xs text-warm-500 mb-1">Elements</div>
+              <div className="text-xs text-warm-500 mb-2 font-display tracking-wide flex items-center gap-2">
+                <span className="w-3 h-px bg-filigree/30" />
+                Elements
+              </div>
               <div className="flex flex-wrap gap-2">
                 {(Object.entries(stats.elementDistribution) as [Element, number][])
                   .sort((a, b) => b[1] - a[1])
                   .map(([element, count]) => (
                     <div
                       key={element}
-                      className="flex items-center gap-1 px-2 py-0.5 rounded text-xs"
+                      className="flex items-center gap-1 px-2 py-1 rounded text-xs border font-ui"
                       style={{
-                        backgroundColor: `${ELEMENT_COLORS[element]}20`,
+                        backgroundColor: `${ELEMENT_COLORS[element]}15`,
+                        borderColor: `${ELEMENT_COLORS[element]}40`,
                         color: ELEMENT_COLORS[element],
                       }}
                     >
                       <Icon icon={ELEMENT_ICONS[element]} className="text-sm" />
-                      <span>{count}</span>
+                      <span className="font-medium">{count}</span>
                     </div>
                   ))}
               </div>
@@ -311,19 +324,23 @@ function SynergyHints({ cardIds }: { cardIds: string[] }) {
 
   return (
     <div>
-      <div className="text-xs text-warm-500 mb-1">Synergies</div>
-      <div className="space-y-1">
+      <div className="text-xs text-warm-500 mb-2 font-display tracking-wide flex items-center gap-2">
+        <span className="w-3 h-px bg-filigree/30" />
+        Synergies
+      </div>
+      <div className="space-y-1.5">
         {synergies.map((synergy, idx) => (
           <div
             key={idx}
-            className="flex items-center gap-2 text-xs px-2 py-1 rounded"
+            className="flex items-center gap-2 text-xs px-2.5 py-1.5 rounded border font-ui"
             style={{
-              backgroundColor: `${synergy.color}15`,
+              backgroundColor: `${synergy.color}12`,
+              borderColor: `${synergy.color}30`,
               color: synergy.color,
             }}
           >
-            <Icon icon={synergy.icon} />
-            <span>{synergy.text}</span>
+            <Icon icon={synergy.icon} className="text-sm" />
+            <span className="font-medium">{synergy.text}</span>
           </div>
         ))}
       </div>

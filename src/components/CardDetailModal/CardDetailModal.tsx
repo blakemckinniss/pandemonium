@@ -57,20 +57,34 @@ export function CardDetailModal({
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/85 backdrop-blur-sm"
       onClick={onClose}
     >
       <div
-        className="bg-warm-900 border border-warm-700 rounded-xl max-w-2xl w-full mx-4 max-h-[90vh] overflow-hidden flex flex-col"
+        className="panel-gothic max-w-2xl w-full mx-4 max-h-[90vh] overflow-hidden flex flex-col shadow-2xl"
         onClick={(e) => e.stopPropagation()}
+        style={{
+          boxShadow: '0 0 60px oklch(0.3 0.1 50 / 0.3), inset 0 1px 0 oklch(1 0 0 / 0.05)',
+        }}
       >
+        {/* Ornate Corner Accents */}
+        <div className="absolute top-2 left-2 text-filigree/40 text-xs">◆</div>
+        <div className="absolute top-2 right-2 text-filigree/40 text-xs">◆</div>
+        <div className="absolute bottom-2 left-2 text-filigree/40 text-xs">◆</div>
+        <div className="absolute bottom-2 right-2 text-filigree/40 text-xs">◆</div>
+
         {/* Header */}
-        <div className="flex items-center justify-between p-4 border-b border-warm-800">
+        <div className="flex items-center justify-between p-4 border-b border-border relative">
+          {/* Header ornamental line */}
+          <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-filigree/30 to-transparent" />
+
           <div className="flex items-center gap-3">
-            <Icon icon={themeIcon} className="text-2xl text-warm-400" />
+            <div className="p-2 rounded bg-surface-alt border border-border">
+              <Icon icon={themeIcon} className="text-2xl text-filigree" />
+            </div>
             <div>
-              <h2 className="text-xl font-bold text-white">{card.name}</h2>
-              <div className="flex items-center gap-2 text-sm">
+              <h2 className="text-xl font-display tracking-wide text-warm-100">{card.name}</h2>
+              <div className="flex items-center gap-2 text-sm font-ui">
                 <span className={rarityColor}>{card.rarity || 'common'}</span>
                 {elementConfig && (
                   <>
@@ -86,43 +100,46 @@ export function CardDetailModal({
           </div>
           <button
             onClick={onClose}
-            className="p-2 text-warm-400 hover:text-white transition-colors"
+            className="p-2 text-warm-500 hover:text-warm-200 hover:bg-warm-800/50 rounded transition-all"
           >
             <Icon icon="mdi:close" className="text-xl" />
           </button>
         </div>
 
         {/* Content */}
-        <div className="flex-1 overflow-auto p-4">
+        <div className="flex-1 overflow-auto p-5">
           <div className="flex gap-6">
             {/* Card Preview */}
             <div className="flex-shrink-0">
-              <div className="w-48">
+              <div className="w-48 relative">
+                {/* Subtle card glow */}
+                <div className="absolute -inset-2 bg-gradient-to-b from-filigree/5 to-transparent rounded-xl blur-sm" />
                 <Card {...getCardDefProps(card)} variant="hand" />
               </div>
 
               {/* AI Generated Badge */}
               {isAiGenerated && (
-                <div className="mt-3 flex items-center gap-2 px-3 py-2 bg-purple-500/10 border border-purple-500/30 rounded-lg text-sm">
-                  <Icon icon="mdi:robot" className="text-purple-400" />
-                  <span className="text-purple-300">AI Generated</span>
+                <div className="mt-3 flex items-center gap-2 px-3 py-2 bg-element-void-muted/30 border border-element-void/30 rounded text-sm">
+                  <Icon icon="mdi:robot" className="text-element-void" />
+                  <span className="text-element-void font-ui text-xs tracking-wide">AI GENERATED</span>
                 </div>
               )}
             </div>
 
             {/* Details */}
-            <div className="flex-1 space-y-4">
+            <div className="flex-1 space-y-5">
               {/* Energy Cost */}
-              <div className="flex items-center gap-4">
-                <div className="px-4 py-2 bg-energy/20 border border-energy/30 rounded-lg">
-                  <span className="text-2xl font-bold text-energy">
+              <div className="flex items-center gap-3">
+                <div className="px-4 py-2 bg-gradient-to-b from-energy/20 to-energy/10 border border-energy/40 rounded relative overflow-hidden">
+                  <div className="absolute inset-0 bg-gradient-to-t from-transparent to-energy/10" />
+                  <span className="text-2xl font-bold text-energy relative">
                     {typeof card.energy === 'number' ? card.energy : 'X'}
                   </span>
-                  <span className="text-xs text-energy/70 ml-1">ENERGY</span>
+                  <span className="text-xs text-energy/80 ml-1 font-display tracking-wider relative">ENERGY</span>
                 </div>
-                <div className="px-4 py-2 bg-warm-800 rounded-lg">
-                  <span className="text-sm text-warm-400">Target:</span>
-                  <span className="text-sm text-warm-200 ml-2 capitalize">
+                <div className="px-4 py-2 bg-surface-alt border border-border rounded">
+                  <span className="text-xs text-warm-500 font-display tracking-wide">TARGET</span>
+                  <span className="text-sm text-warm-200 ml-2 capitalize font-ui">
                     {card.target?.replace(/([A-Z])/g, ' $1').trim() || 'None'}
                   </span>
                 </div>
@@ -130,10 +147,12 @@ export function CardDetailModal({
 
               {/* Description */}
               <div>
-                <h3 className="text-xs uppercase tracking-wide text-warm-500 mb-2">
+                <h3 className="text-xs font-display tracking-widest text-warm-500 mb-2 flex items-center gap-2">
+                  <span className="w-4 h-px bg-gradient-to-r from-filigree/50 to-transparent" />
                   Description
+                  <span className="flex-1 h-px bg-gradient-to-r from-filigree/20 to-transparent" />
                 </h3>
-                <p className="text-warm-300 leading-relaxed">
+                <p className="text-warm-300 leading-relaxed font-prose text-base">
                   {card.description || 'No description available.'}
                 </p>
               </div>
@@ -141,26 +160,28 @@ export function CardDetailModal({
               {/* Effects Summary */}
               {card.effects && card.effects.length > 0 && (
                 <div>
-                  <h3 className="text-xs uppercase tracking-wide text-warm-500 mb-2">
+                  <h3 className="text-xs font-display tracking-widest text-warm-500 mb-2 flex items-center gap-2">
+                    <span className="w-4 h-px bg-gradient-to-r from-filigree/50 to-transparent" />
                     Effects ({card.effects.length})
+                    <span className="flex-1 h-px bg-gradient-to-r from-filigree/20 to-transparent" />
                   </h3>
                   <div className="space-y-1">
                     {card.effects.slice(0, 5).map((effect, idx) => (
                       <div
                         key={idx}
-                        className="flex items-center gap-2 px-3 py-1.5 bg-warm-800/50 rounded text-sm"
+                        className="flex items-center gap-2 px-3 py-1.5 bg-surface-alt/50 border border-border/50 rounded text-sm"
                       >
-                        <Icon icon="mdi:chevron-right" className="text-warm-500" />
-                        <span className="text-warm-300 capitalize">
+                        <Icon icon="mdi:chevron-right" className="text-filigree/60" />
+                        <span className="text-warm-300 capitalize font-ui">
                           {effect.type}
                           {'amount' in effect && typeof effect.amount === 'number' && (
-                            <span className="text-energy ml-1">({effect.amount})</span>
+                            <span className="text-energy ml-1 font-bold">({effect.amount})</span>
                           )}
                         </span>
                       </div>
                     ))}
                     {card.effects.length > 5 && (
-                      <p className="text-xs text-warm-500 pl-3">
+                      <p className="text-xs text-warm-500 pl-3 font-ui">
                         +{card.effects.length - 5} more effects
                       </p>
                     )}
@@ -171,12 +192,16 @@ export function CardDetailModal({
               {/* Card Tags */}
               {card.tags && card.tags.length > 0 && (
                 <div>
-                  <h3 className="text-xs uppercase tracking-wide text-warm-500 mb-2">Tags</h3>
+                  <h3 className="text-xs font-display tracking-widest text-warm-500 mb-2 flex items-center gap-2">
+                    <span className="w-4 h-px bg-gradient-to-r from-filigree/50 to-transparent" />
+                    Tags
+                    <span className="flex-1 h-px bg-gradient-to-r from-filigree/20 to-transparent" />
+                  </h3>
                   <div className="flex flex-wrap gap-2">
                     {card.tags.map((tag) => (
                       <span
                         key={tag}
-                        className="px-2 py-1 bg-warm-800 text-warm-400 text-xs rounded"
+                        className="px-2 py-1 bg-surface-alt border border-border/50 text-warm-400 text-xs rounded font-ui"
                       >
                         {tag}
                       </span>
@@ -187,14 +212,15 @@ export function CardDetailModal({
 
               {/* Collection Info */}
               {collectionData && (
-                <div className="p-3 bg-warm-800/50 rounded-lg">
-                  <h3 className="text-xs uppercase tracking-wide text-warm-500 mb-2">
+                <div className="p-3 bg-surface-alt/50 border border-border rounded">
+                  <h3 className="text-xs font-display tracking-widest text-warm-500 mb-2 flex items-center gap-2">
+                    <Icon icon="mdi:book-open-variant" className="text-filigree/60" />
                     Collection Info
                   </h3>
-                  <div className="grid grid-cols-2 gap-3 text-sm">
+                  <div className="grid grid-cols-2 gap-3 text-sm font-ui">
                     <div>
                       <span className="text-warm-500">Owned:</span>
-                      <span className="text-energy ml-2 font-medium">
+                      <span className="text-energy ml-2 font-bold">
                         x{collectionData.quantity}
                       </span>
                     </div>
@@ -216,8 +242,8 @@ export function CardDetailModal({
 
               {/* Upgrade Info */}
               {card.upgradesTo && (
-                <div className="p-3 bg-emerald-500/10 border border-emerald-500/30 rounded-lg">
-                  <div className="flex items-center gap-2 text-emerald-400 text-sm">
+                <div className="p-3 bg-heal/10 border border-heal/30 rounded">
+                  <div className="flex items-center gap-2 text-heal text-sm font-display tracking-wide">
                     <Icon icon="mdi:arrow-up-bold" />
                     <span>Can be upgraded</span>
                   </div>
@@ -227,13 +253,13 @@ export function CardDetailModal({
               {/* Special Properties */}
               <div className="flex flex-wrap gap-2">
                 {card.ethereal && (
-                  <span className="px-2 py-1 bg-purple-500/20 text-purple-400 text-xs rounded flex items-center gap-1">
+                  <span className="px-2 py-1 bg-element-void-muted/30 border border-element-void/30 text-element-void text-xs rounded flex items-center gap-1 font-display tracking-wide">
                     <Icon icon="mdi:ghost" />
                     Ethereal
                   </span>
                 )}
                 {card.upgraded && (
-                  <span className="px-2 py-1 bg-emerald-500/20 text-emerald-400 text-xs rounded flex items-center gap-1">
+                  <span className="px-2 py-1 bg-heal/10 border border-heal/30 text-heal text-xs rounded flex items-center gap-1 font-display tracking-wide">
                     <Icon icon="mdi:plus-circle" />
                     Upgraded
                   </span>
@@ -244,10 +270,13 @@ export function CardDetailModal({
         </div>
 
         {/* Footer Actions */}
-        <div className="p-4 border-t border-warm-800 flex justify-end gap-3">
+        <div className="p-4 border-t border-border flex justify-end gap-3 relative">
+          {/* Footer ornamental line */}
+          <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-filigree/20 to-transparent" />
+
           <button
             onClick={onClose}
-            className="px-4 py-2 border border-warm-600 text-warm-400 rounded-lg hover:text-white hover:border-warm-500 transition-colors"
+            className="btn-gothic"
           >
             Close
           </button>
@@ -257,7 +286,7 @@ export function CardDetailModal({
                 onAddToDeck()
                 onClose()
               }}
-              className="px-4 py-2 bg-energy text-warm-900 font-medium rounded-lg hover:bg-energy/90 transition-colors flex items-center gap-2"
+              className="btn-gothic-primary flex items-center gap-2"
             >
               <Icon icon="mdi:plus" />
               Add to Deck
