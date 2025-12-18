@@ -21,8 +21,13 @@ export function handleEnemyActionEvents(event: VisualEvent, ctx: HandlerContext)
           effects.shake(ctx.containerRef.current, { intensity: 12 })
         }
 
-        // Use element-themed shatter effect
-        effects.enemyDeath(enemyEl, { element: event.element })
+        // Gothic bone shatter for void/undead themed enemies
+        if (event.element === 'void') {
+          effects.boneShatter?.(enemyEl)
+        } else {
+          // Use element-themed shatter effect for others
+          effects.enemyDeath(enemyEl, { element: event.element })
+        }
       }
       return true
     }
