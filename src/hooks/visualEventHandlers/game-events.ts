@@ -25,6 +25,11 @@ export function handleGameEvents(event: VisualEvent, ctx: HandlerContext): boole
             setTimeout(() => emitParticle(targetEl, event.element!), 80)
           }
 
+          // Gothic card impact effect - dark tendrils burst on attack targets
+          if (event.theme === 'attack' && event.targetId) {
+            effects.gothicCardImpact?.(targetEl, { theme: event.theme, intensity: 1 })
+          }
+
           // Enhanced card play flash effect
           effects.cardPlayFlash(targetEl, { theme: event.theme })
 
@@ -129,6 +134,9 @@ export function handleGameEvents(event: VisualEvent, ctx: HandlerContext): boole
     }
 
     case 'enemyTurnStart': {
+      // Gothic ominous sweep transition
+      effects.ominousTurnStart?.(null, { isEnemy: true })
+
       // Ominous warning effect
       if (ctx.containerRef.current) {
         effects.enemyTurnStart(ctx.containerRef.current)

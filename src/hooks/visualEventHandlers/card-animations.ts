@@ -81,6 +81,8 @@ export function handleCardAnimationEvents(event: VisualEvent, ctx: HandlerContex
       const playerEl = ctx.queryContainer('[data-target="player"]')
       if (playerEl) {
         emitParticle(playerEl, 'banish')
+        // Gothic abyssal rift effect - void tear consumes the card
+        effects.abyssalRift?.(playerEl)
         effects.pulse(playerEl, {
           color: 'oklch(0.25 0.12 300)',
           scale: 0.95,

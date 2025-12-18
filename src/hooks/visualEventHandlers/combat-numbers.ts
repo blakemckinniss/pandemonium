@@ -23,6 +23,11 @@ export function handleCombatNumberEvents(event: VisualEvent, ctx: HandlerContext
         if (event.element && event.element !== 'physical') {
           emitParticle(damageTarget, event.element)
           setTimeout(() => emitParticle(damageTarget, event.element!), 60)
+
+          // Eldritch burst for void damage - cosmic horror effect
+          if (event.element === 'void') {
+            effects.eldritchBurst?.(damageTarget)
+          }
         }
 
         // Elemental combo particles - dramatic multi-burst
@@ -73,9 +78,16 @@ export function handleCombatNumberEvents(event: VisualEvent, ctx: HandlerContext
             physical: '#ff4757',
           }
           effects.enemyHit(damageTarget, { color: elementColors[event.element ?? 'physical'] })
+
+          // Gothic slash effect for attack damage (scaled by damage amount)
+          const slashCount = isCritical ? 3 : event.amount >= 8 ? 2 : 1
+          effects.darkSlash?.(damageTarget, { count: slashCount, element: event.element ?? 'physical' })
+
           // Stronger shake for higher damage
           if (isCritical) {
             effects.enemyShake(damageTarget, { intensity: 12 })
+            // Doom pulse for devastating hits
+            effects.doomPulse?.(damageTarget, { intensity: 1.2, color: elementColors[event.element ?? 'physical'] })
           } else if (event.amount >= 5) {
             effects.enemyShake(damageTarget)
           }
@@ -84,9 +96,17 @@ export function handleCombatNumberEvents(event: VisualEvent, ctx: HandlerContext
           const intensity = isCritical ? 2 : event.amount >= 8 ? 1.5 : 1
           effects.playerHit(damageTarget, { intensity })
 
+          // Gothic blood splatter for player damage
+          effects.bloodSplatter?.(damageTarget, { intensity })
+
           // Screen edge vignette on player damage
           const vignetteIntensity = isCritical ? 1.5 : event.amount >= 10 ? 1.2 : 1
           effects.damageVignette(damageTarget, { intensity: vignetteIntensity })
+
+          // Doom pulse for heavy player damage
+          if (isCritical || event.amount >= 12) {
+            effects.doomPulse?.(damageTarget, { intensity: vignetteIntensity * 0.8 })
+          }
 
           // Low HP danger warning when below 30%
           if (ctx.combat) {
