@@ -9,7 +9,7 @@ import type { AtomicEffect } from './effects'
 
 // Card Variants
 export type CardVariant = 'player' | 'hand' | 'enemy' | 'room'
-export type CardRarity = 'common' | 'uncommon' | 'rare' | 'ultra-rare' | 'legendary' | 'mythic' | 'ancient'
+export type CardRarity = 'common' | 'uncommon' | 'rare' | 'epic' | 'ultra-rare' | 'legendary' | 'mythic' | 'ancient'
 
 // Card Filtering & Sorting
 export interface CardFilters {
@@ -38,10 +38,11 @@ export const RARITY_ORDER: Record<CardRarity, number> = {
   common: 1,
   uncommon: 2,
   rare: 3,
-  'ultra-rare': 4,
-  legendary: 5,
-  mythic: 6,
-  ancient: 7,
+  epic: 4,
+  'ultra-rare': 5,
+  legendary: 6,
+  mythic: 7,
+  ancient: 8,
 }
 
 // ============================================

@@ -10,12 +10,13 @@ interface CollectionStatsProps {
   onToggleCollapsed?: () => void
 }
 
-const RARITY_ORDER: CardRarity[] = ['common', 'uncommon', 'rare', 'ultra-rare', 'legendary', 'mythic', 'ancient']
+const RARITY_ORDER: CardRarity[] = ['common', 'uncommon', 'rare', 'epic', 'ultra-rare', 'legendary', 'mythic', 'ancient']
 
 const RARITY_COLORS: Record<CardRarity, string> = {
   common: '#9ca3af',
   uncommon: '#22c55e',
   rare: '#3b82f6',
+  epic: '#9333ea',
   'ultra-rare': '#a855f7',
   legendary: '#f59e0b',
   mythic: '#ef4444',
