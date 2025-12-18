@@ -61,30 +61,30 @@ export function CardPreviewModal({
       <div className="flex flex-col items-center gap-6 p-4">
         {/* Card Name with Energy Cost */}
         <div className="text-center">
-          <div className="flex items-center justify-center gap-3 mb-2">
+          <div className="flex items-center justify-center gap-3 mb-3">
             {/* Energy orb */}
-            <div className="w-10 h-10 rounded-full bg-energy text-black text-lg font-bold flex items-center justify-center shadow-lg">
+            <div className="w-11 h-11 rounded-full bg-gradient-to-b from-energy to-energy/80 text-black text-lg font-bold flex items-center justify-center shadow-lg border border-energy/50">
               {energyCost}
             </div>
-            <h2 className="text-2xl font-bold text-white">{card.name}</h2>
+            <h2 className="text-2xl font-display tracking-wide text-warm-100">{card.name}</h2>
           </div>
 
           {/* Badges row */}
           <div className="flex items-center justify-center gap-2 flex-wrap">
             {/* Theme badge */}
-            <span className={`px-2 py-1 rounded text-xs font-medium ${themeConfig.color} bg-surface-alt`}>
+            <span className={`px-2.5 py-1 rounded text-xs font-display tracking-wide ${themeConfig.color} bg-surface-alt border border-border/50`}>
               <Icon icon={themeConfig.icon} className="inline w-3 h-3 mr-1" />
               {themeConfig.label}
             </span>
 
             {/* Rarity badge */}
-            <span className={`px-2 py-1 rounded text-xs font-medium ${rarityConfig.color} ${rarityConfig.bg}`}>
+            <span className={`px-2.5 py-1 rounded text-xs font-display tracking-wide ${rarityConfig.color} ${rarityConfig.bg} border border-current/20`}>
               {rarityConfig.label}
             </span>
 
             {/* Element badge (if not physical) */}
             {element !== 'physical' && (
-              <span className={`px-2 py-1 rounded text-xs font-medium ${elementConfig.color} bg-surface-alt`}>
+              <span className={`px-2.5 py-1 rounded text-xs font-display tracking-wide ${elementConfig.color} bg-surface-alt border border-border/50`}>
                 <Icon icon={elementConfig.icon} className="inline w-3 h-3 mr-1" />
                 {elementConfig.label}
               </span>
@@ -93,29 +93,30 @@ export function CardPreviewModal({
         </div>
 
         {/* Card Art Placeholder */}
-        <div className="w-48 h-32 rounded-lg bg-surface-alt border border-white/10 flex items-center justify-center">
+        <div className="w-48 h-32 rounded bg-surface-alt border border-border flex items-center justify-center relative overflow-hidden">
+          <div className="absolute inset-0 bg-gradient-to-b from-filigree/5 to-transparent" />
           <Icon
             icon={element !== 'physical' ? elementConfig.icon : themeConfig.icon}
-            className={`w-16 h-16 ${element !== 'physical' ? elementConfig.color : themeConfig.color} opacity-60`}
+            className={`w-16 h-16 ${element !== 'physical' ? elementConfig.color : themeConfig.color} opacity-50`}
           />
         </div>
 
         {/* Description */}
         <div className="text-center max-w-sm">
-          <p className="text-warm-300 leading-relaxed">{card.description}</p>
+          <p className="text-warm-300 leading-relaxed font-prose">{card.description}</p>
         </div>
 
         {/* Keywords */}
         {(card.ethereal || hasExhaust) && (
           <div className="flex gap-2">
             {card.ethereal && (
-              <span className="px-3 py-1 rounded-full bg-purple-900/50 text-purple-300 text-xs font-medium flex items-center gap-1">
+              <span className="px-3 py-1 rounded bg-element-void-muted/30 border border-element-void/30 text-element-void text-xs font-display tracking-wide flex items-center gap-1">
                 <Icon icon="game-icons:ghost" className="w-3 h-3" />
                 Ethereal
               </span>
             )}
             {hasExhaust && (
-              <span className="px-3 py-1 rounded-full bg-red-900/50 text-red-300 text-xs font-medium flex items-center gap-1">
+              <span className="px-3 py-1 rounded bg-damage/20 border border-damage/30 text-damage text-xs font-display tracking-wide flex items-center gap-1">
                 <Icon icon="game-icons:fire" className="w-3 h-3" />
                 Exhaust
               </span>
@@ -124,18 +125,18 @@ export function CardPreviewModal({
         )}
 
         {/* Keyword explanations */}
-        <div className="text-xs text-warm-500 text-center space-y-1">
-          {card.ethereal && <p><strong>Ethereal:</strong> If not played, exhausts at end of turn</p>}
-          {hasExhaust && <p><strong>Exhaust:</strong> Removed from deck for this combat</p>}
-          {card.target === 'enemy' && <p><strong>Targeted:</strong> Must select an enemy to play</p>}
-          {theme === 'power' && <p><strong>Power:</strong> Permanent effect for this combat</p>}
+        <div className="text-xs text-warm-500 text-center space-y-1 font-prose italic">
+          {card.ethereal && <p><strong className="font-display not-italic tracking-wide">Ethereal:</strong> If not played, exhausts at end of turn</p>}
+          {hasExhaust && <p><strong className="font-display not-italic tracking-wide">Exhaust:</strong> Removed from deck for this combat</p>}
+          {card.target === 'enemy' && <p><strong className="font-display not-italic tracking-wide">Targeted:</strong> Must select an enemy to play</p>}
+          {theme === 'power' && <p><strong className="font-display not-italic tracking-wide">Power:</strong> Permanent effect for this combat</p>}
         </div>
 
         {/* Action buttons */}
         <div className="flex gap-3 w-full">
           <button
             onClick={onClose}
-            className="flex-1 px-4 py-2 rounded-lg bg-surface-alt text-warm-300 hover:bg-surface hover:text-white transition-colors"
+            className="flex-1 btn-gothic"
           >
             Back
           </button>
@@ -145,7 +146,7 @@ export function CardPreviewModal({
                 onSelect(card)
                 onClose()
               }}
-              className="flex-1 px-4 py-2 rounded-lg bg-heal text-black font-medium hover:bg-green-400 transition-colors"
+              className="flex-1 btn-gothic-primary"
             >
               {selectLabel}
             </button>

@@ -1905,21 +1905,37 @@ h1, .text-title {
   background: transparent;
 }
 
-/* Modal container */
+/* Modal container - Gothic Panel */
 .Modal {
   background: var(--color-surface);
   border: 1px solid var(--color-border);
-  border-radius: 16px;
+  border-radius: 8px;
   width: 90%;
   max-height: 85vh;
   overflow: hidden;
   display: flex;
   flex-direction: column;
+  position: relative;
   box-shadow:
-    0 0 60px oklch(0 0 0 / 0.5),
-    0 0 120px oklch(0.3 0.05 260 / 0.2);
+    0 0 60px oklch(0.3 0.1 50 / 0.3),
+    0 0 120px oklch(0.2 0.08 45 / 0.2),
+    inset 0 1px 0 oklch(1 0 0 / 0.04);
   animation: modal-enter 0.2s ease-out;
 }
+
+/* Ornate corner accents */
+.Modal::before,
+.Modal::after {
+  content: "◆";
+  position: absolute;
+  font-size: 0.6rem;
+  color: var(--color-filigree);
+  opacity: 0.4;
+  z-index: 10;
+  pointer-events: none;
+}
+.Modal::before { top: 0.5rem; left: 0.5rem; }
+.Modal::after { top: 0.5rem; right: 0.5rem; }
 
 @keyframes modal-enter {
   from {
@@ -1939,34 +1955,72 @@ h1, .text-title {
   padding: 1rem 1.5rem;
   border-bottom: 1px solid var(--color-border);
   background: var(--color-surface-alt);
+  position: relative;
+}
+
+/* Header ornamental bottom border */
+.Modal-header::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--color-filigree) 30%, var(--color-filigree) 70%, transparent);
+  opacity: 0.3;
 }
 
 .Modal-title {
-  font-size: 1.25rem;
-  font-weight: 600;
-  color: oklch(0.9 0 0);
+  font-family: var(--font-display);
+  font-size: 1.125rem;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-warm-100);
   margin: 0;
 }
 
 .Modal-close {
   padding: 0.5rem;
   background: transparent;
-  border: none;
-  color: oklch(0.6 0 0);
+  border: 1px solid transparent;
+  color: var(--color-warm-500);
   cursor: pointer;
-  border-radius: 6px;
-  transition: background 0.15s, color 0.15s;
+  border-radius: 4px;
+  transition: all 0.15s;
 }
 
 .Modal-close:hover {
-  background: oklch(0.25 0 0);
-  color: oklch(0.9 0 0);
+  background: var(--color-surface);
+  border-color: var(--color-border);
+  color: var(--color-warm-200);
 }
 
 .Modal-content {
   padding: 1.5rem;
   overflow-y: auto;
   flex: 1;
+}
+
+/* Modal footer styling for buttons */
+.Modal-footer {
+  padding: 1rem 1.5rem;
+  border-top: 1px solid var(--color-border);
+  display: flex;
+  justify-content: center;
+  gap: 0.75rem;
+  position: relative;
+}
+
+.Modal-footer::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--color-filigree) 30%, var(--color-filigree) 70%, transparent);
+  opacity: 0.2;
 }
 
 /* Card Pile Modal Grid */

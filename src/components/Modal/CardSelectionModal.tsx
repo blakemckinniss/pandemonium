@@ -105,15 +105,15 @@ export function CardSelectionModal({
       size="lg"
     >
       {/* Selection hint */}
-      <div className="text-center text-sm text-warm-400 mb-4">
-        {selectionHint}
+      <div className="text-center text-sm text-warm-400 mb-4 font-ui">
+        <span className="font-prose italic">{selectionHint}</span>
         {(mode === 'pick' || mode === 'discover') && (
-          <span className="ml-2 text-energy">
+          <span className="ml-2 text-energy font-bold">
             ({selected.size}/{maxSelect})
           </span>
         )}
         {mode === 'scry' && scryDiscard.size > 0 && (
-          <span className="ml-2 text-damage">
+          <span className="ml-2 text-damage font-bold">
             ({scryDiscard.size} to discard)
           </span>
         )}
@@ -163,7 +163,7 @@ export function CardSelectionModal({
         {allowSkip && (
           <button
             onClick={handleClose}
-            className="px-6 py-2 bg-surface-alt rounded-lg text-warm-300 hover:bg-surface-alt/80 transition"
+            className="btn-gothic"
           >
             Skip
           </button>
@@ -171,7 +171,7 @@ export function CardSelectionModal({
         <button
           onClick={handleConfirm}
           disabled={!canConfirm}
-          className="px-6 py-2 bg-energy text-black font-bold rounded-lg hover:brightness-110 transition disabled:opacity-50 disabled:cursor-not-allowed"
+          className="btn-gothic-primary disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:shadow-none"
         >
           {confirmText}
         </button>
