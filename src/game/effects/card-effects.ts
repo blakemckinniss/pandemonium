@@ -754,3 +754,87 @@ export function executeDelayed(
 
   emitVisual(draft, { type: 'delayedEffect', turnsRemaining: effect.delay })
 }
+
+// --- STATUS CARD EFFECTS ---
+
+export function executeAddStatusCard(
+  draft: RunState,
+  effect: { type: 'addStatusCard'; cardId: string; destination: 'hand' | 'drawPile' | 'discardPile'; count?: EffectValue },
+  ctx: EffectContext
+): void {
+  if (!draft.combat) return
+
+  const count = effect.count ? resolveValue(effect.count, draft, ctx) : 1
+
+  for (let i = 0; i < count; i++) {
+    const newCard: CardInstance = {
+      uid: generateUid(),
+      definitionId: effect.cardId,
+      upgraded: false,
+    }
+
+    switch (effect.destination) {
+      case 'hand':
+        draft.combat.hand.push(newCard)
+        break
+      case 'drawPile':
+        // Add at random position
+        const pos = Math.floor(Math.random() * (draft.combat.drawPile.length + 1))
+        draft.combat.drawPile.splice(pos, 0, newCard)
+        break
+      case 'discardPile':
+        draft.combat.discardPile.push(newCard)
+        break
+    }
+  }
+
+  emitVisual(draft, { type: 'statusCardAdded', cardId: effect.cardId, destination: effect.destination, count })
+}
+
+export function executeRemoveStatusCards(
+  draft: RunState,
+  effect: { type: 'removeStatusCards'; count?: EffectValue; from?: 'hand' | 'drawPile' | 'discardPile' | 'all'; cardType?: string },
+  ctx: EffectContext
+): void {
+  if (!draft.combat) return
+
+  const maxCount = effect.count ? resolveValue(effect.count, draft, ctx) : Infinity
+  const from = effect.from ?? 'all'
+
+  // Status card types to filter
+  const statusPatterns = ['wound', 'dazed', 'burn', 'curse', 'slimed', 'void']
+  const isStatusCard = (cardId: string): boolean => {
+    if (effect.cardType) {
+      return cardId.includes(effect.cardType)
+    }
+    return statusPatterns.some(p => cardId.includes(p))
+  }
+
+  let removed = 0
+
+  const removeFromPile = (pile: CardInstance[]): CardInstance[] => {
+    const kept: CardInstance[] = []
+    for (const card of pile) {
+      if (removed < maxCount && isStatusCard(card.definitionId)) {
+        removed++
+      } else {
+        kept.push(card)
+      }
+    }
+    return kept
+  }
+
+  if (from === 'all' || from === 'hand') {
+    draft.combat.hand = removeFromPile(draft.combat.hand)
+  }
+  if (from === 'all' || from === 'drawPile') {
+    draft.combat.drawPile = removeFromPile(draft.combat.drawPile)
+  }
+  if (from === 'all' || from === 'discardPile') {
+    draft.combat.discardPile = removeFromPile(draft.combat.discardPile)
+  }
+
+  if (removed > 0) {
+    emitVisual(draft, { type: 'statusCardsRemoved', count: removed })
+  }
+}

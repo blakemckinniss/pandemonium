@@ -558,3 +558,140 @@ export function executeWeakenIntent(
     }
   }
 }
+
+// --- MARK TARGET ---
+
+export function executeMarkTarget(
+  draft: RunState,
+  effect: { type: 'markTarget'; target: EntityTarget; duration?: number; bonusDamage?: EffectValue; bonusMultiplier?: number },
+  ctx: EffectContext
+): void {
+  if (!draft.combat) return
+
+  const targetIds = resolveEntityTargets(effect.target, draft, ctx)
+  const duration = effect.duration ?? 1
+
+  for (const targetId of targetIds) {
+    const entity = getEntity(draft.combat, targetId)
+    if (!entity) continue
+
+    // Apply 'marked' power with duration
+    const existingPower = entity.powers.find(p => p.id === 'marked')
+    if (existingPower) {
+      existingPower.duration = Math.max(existingPower.duration ?? 0, duration)
+    } else {
+      entity.powers.push({
+        id: 'marked',
+        amount: effect.bonusMultiplier ? Math.round(effect.bonusMultiplier * 100) : 50, // Store as percentage
+        duration,
+      })
+    }
+    emitVisual(draft, { type: 'markTarget', targetId, duration })
+  }
+}
+
+// --- REFLECT ---
+
+export function executeReflect(
+  draft: RunState,
+  effect: { type: 'reflect'; amount: EffectValue; percentage?: number; duration?: number },
+  ctx: EffectContext
+): void {
+  if (!draft.combat) return
+
+  const amount = resolveValue(effect.amount, draft, ctx)
+  const duration = effect.duration ?? 1
+
+  // Apply 'reflect' power to player
+  const player = draft.combat.player
+  const existingPower = player.powers.find(p => p.id === 'reflect')
+  if (existingPower) {
+    existingPower.amount += amount
+    if (duration !== -1) existingPower.duration = Math.max(existingPower.duration ?? 0, duration)
+  } else {
+    player.powers.push({
+      id: 'reflect',
+      amount,
+      duration: duration === -1 ? undefined : duration,
+    })
+  }
+  emitVisual(draft, { type: 'reflect', targetId: 'player', amount })
+}
+
+// --- AMPLIFY ---
+
+export function executeAmplify(
+  draft: RunState,
+  effect: { type: 'amplify'; multiplier: number; attacks?: number; duration?: number },
+  ctx: EffectContext
+): void {
+  if (!draft.combat) return
+
+  const attacks = effect.attacks ?? 1
+  const multiplierPercent = Math.round(effect.multiplier * 100)
+
+  // Apply 'amplify' power to player
+  const player = draft.combat.player
+  const existingPower = player.powers.find(p => p.id === 'amplify')
+  if (existingPower) {
+    existingPower.amount = Math.max(existingPower.amount, multiplierPercent)
+    existingPower.stacks = (existingPower.stacks ?? 0) + attacks
+  } else {
+    player.powers.push({
+      id: 'amplify',
+      amount: multiplierPercent, // Store multiplier as percentage
+      stacks: attacks,
+    })
+  }
+  emitVisual(draft, { type: 'amplify', targetId: 'player', multiplier: effect.multiplier, attacks })
+}
+
+// --- ENERGY NEXT TURN ---
+
+export function executeEnergyNextTurn(
+  draft: RunState,
+  effect: { type: 'energyNextTurn'; amount: EffectValue },
+  ctx: EffectContext
+): void {
+  if (!draft.combat) return
+
+  const amount = resolveValue(effect.amount, draft, ctx)
+
+  // Store in combat state for next turn processing
+  draft.combat.energyNextTurn = (draft.combat.energyNextTurn ?? 0) + amount
+  emitVisual(draft, { type: 'energyNextTurn', amount })
+}
+
+// --- TEMP MAX ENERGY ---
+
+export function executeTempMaxEnergy(
+  draft: RunState,
+  effect: { type: 'tempMaxEnergy'; amount: EffectValue; duration?: number },
+  ctx: EffectContext
+): void {
+  if (!draft.combat) return
+
+  const amount = resolveValue(effect.amount, draft, ctx)
+  const duration = effect.duration ?? 1
+
+  // Apply temporary max energy power
+  const player = draft.combat.player
+  const existingPower = player.powers.find(p => p.id === 'tempMaxEnergy')
+  if (existingPower) {
+    existingPower.amount += amount
+    if (existingPower.duration !== undefined) {
+      existingPower.duration = Math.max(existingPower.duration, duration)
+    }
+  } else {
+    player.powers.push({
+      id: 'tempMaxEnergy',
+      amount,
+      duration,
+    })
+  }
+
+  // Immediately increase current max energy
+  draft.combat.maxEnergy += amount
+  draft.combat.energy += amount
+  emitVisual(draft, { type: 'tempMaxEnergy', amount })
+}

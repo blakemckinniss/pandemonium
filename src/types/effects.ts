@@ -330,6 +330,59 @@ export interface WeakenIntentEffect {
   target: EntityTarget
 }
 
+export interface MarkTargetEffect {
+  type: 'markTarget'
+  target: EntityTarget
+  duration?: number // Turns marked lasts (default 1)
+  bonusDamage?: EffectValue // Extra damage on marked targets (default +50%)
+  bonusMultiplier?: number // Multiplier instead of flat bonus
+}
+
+// --- DAMAGE MANIPULATION EFFECTS ---
+
+export interface ReflectEffect {
+  type: 'reflect'
+  amount: EffectValue // Flat amount to reflect, OR
+  percentage?: number // Percentage of incoming damage to reflect (0-100)
+  duration?: number // Turns (default 1, -1 for combat)
+}
+
+export interface AmplifyEffect {
+  type: 'amplify'
+  multiplier: number // Damage multiplier (e.g., 1.5 for +50%)
+  attacks?: number // Number of attacks to amplify (default 1)
+  duration?: number // Or duration in turns
+}
+
+// --- RESOURCE MANIPULATION EFFECTS ---
+
+export interface EnergyNextTurnEffect {
+  type: 'energyNextTurn'
+  amount: EffectValue
+}
+
+export interface TempMaxEnergyEffect {
+  type: 'tempMaxEnergy'
+  amount: EffectValue
+  duration?: number // Turns (default 1)
+}
+
+// --- STATUS CARD EFFECTS ---
+
+export interface AddStatusCardEffect {
+  type: 'addStatusCard'
+  cardId: string // 'wound', 'dazed', 'burn', 'curse_*', etc.
+  destination: 'hand' | 'drawPile' | 'discardPile'
+  count?: EffectValue
+}
+
+export interface RemoveStatusCardsEffect {
+  type: 'removeStatusCards'
+  count?: EffectValue // Number to remove (default all)
+  from?: 'hand' | 'drawPile' | 'discardPile' | 'all' // Where to remove from
+  cardType?: 'wound' | 'dazed' | 'burn' | 'curse' | 'status' // Filter type
+}
+
 // --- DELAYED EFFECTS ---
 
 export interface DelayedEffect {
@@ -421,6 +474,16 @@ export type AtomicEffect =
   | SilencePowerEffect
   // Enemy Manipulation
   | WeakenIntentEffect
+  | MarkTargetEffect
+  // Damage Manipulation
+  | ReflectEffect
+  | AmplifyEffect
+  // Resource Manipulation
+  | EnergyNextTurnEffect
+  | TempMaxEnergyEffect
+  // Status Cards
+  | AddStatusCardEffect
+  | RemoveStatusCardsEffect
   // Delayed
   | DelayedEffect
   // Replay

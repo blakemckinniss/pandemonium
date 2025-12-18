@@ -193,6 +193,108 @@ export function handleGameEvents(event: VisualEvent, ctx: HandlerContext): boole
       logger.debug('Visual', 'Delayed effect triggered!')
       return true
     }
+
+    case 'markTarget': {
+      const targetEl = ctx.queryContainer(`[data-target="${event.targetId}"]`)
+      if (targetEl) {
+        // Hunter's mark - red crosshair effect
+        effects.pulse(targetEl, { color: 'oklch(0.6 0.25 25)', scale: 1.08 })
+        emitParticle(targetEl, 'critical')
+        setTimeout(() => emitParticle(targetEl, 'attack'), 80)
+      }
+      logger.debug('Visual', `Target marked: ${event.targetId} for ${event.duration} turns`)
+      return true
+    }
+
+    case 'markExpired': {
+      const targetEl = ctx.queryContainer(`[data-target="${event.targetId}"]`)
+      if (targetEl) {
+        effects.pulse(targetEl, { color: 'oklch(0.5 0.1 0)', scale: 0.95 })
+      }
+      return true
+    }
+
+    case 'reflect': {
+      const targetEl = ctx.queryContainer(`[data-target="${event.targetId}"]`)
+      if (targetEl) {
+        // Mirror/shield effect - cyan shimmer
+        effects.pulse(targetEl, { color: 'oklch(0.7 0.15 200)', scale: 1.05 })
+        emitParticle(targetEl, 'block')
+        setTimeout(() => emitParticle(targetEl, 'spark'), 60)
+      }
+      logger.debug('Visual', `Reflect ${event.amount} damage`)
+      return true
+    }
+
+    case 'amplify': {
+      const targetEl = ctx.queryContainer(`[data-target="${event.targetId}"]`)
+      if (targetEl) {
+        // Power surge - red/orange energy buildup
+        effects.pulse(targetEl, { color: 'oklch(0.65 0.22 40)', scale: 1.1 })
+        emitParticle(targetEl, 'attack')
+        emitParticle(targetEl, 'energy')
+        setTimeout(() => emitParticle(targetEl, 'critical'), 80)
+      }
+      logger.debug('Visual', `Amplify ${event.multiplier}x for ${event.attacks} attacks`)
+      return true
+    }
+
+    case 'amplifyConsumed': {
+      const targetEl = ctx.queryContainer(`[data-target="${event.targetId}"]`)
+      if (targetEl) {
+        effects.pulse(targetEl, { color: 'oklch(0.7 0.2 40)', scale: 1.15 })
+        emitParticle(targetEl, 'critical')
+        emitParticle(targetEl, 'spark')
+      }
+      return true
+    }
+
+    case 'energyNextTurn': {
+      const energyOrb = ctx.queryContainer('[data-energy-orb]')
+      if (energyOrb) {
+        effects.pulse(energyOrb, { color: 'oklch(0.75 0.18 70)' })
+        emitParticle(energyOrb, 'energy')
+      }
+      logger.debug('Visual', `+${event.amount} energy next turn`)
+      return true
+    }
+
+    case 'tempMaxEnergy': {
+      const energyOrb = ctx.queryContainer('[data-energy-orb]')
+      if (energyOrb) {
+        effects.pulse(energyOrb, { color: 'oklch(0.8 0.2 85)', scale: 1.15 })
+        emitParticle(energyOrb, 'gold')
+        emitParticle(energyOrb, 'energy')
+      }
+      logger.debug('Visual', `+${event.amount} max energy`)
+      return true
+    }
+
+    case 'statusCardAdded': {
+      const playerEl = ctx.queryContainer('[data-entity="player"]')
+      if (playerEl) {
+        // Dark corruption effect for status cards
+        effects.pulse(playerEl, { color: 'oklch(0.4 0.15 280)', scale: 0.95 })
+        emitParticle(playerEl, 'poison')
+        effects.shadowCoil?.(playerEl)
+      }
+      logger.debug('Visual', `Added ${event.count}x ${event.cardId} to ${event.destination}`)
+      return true
+    }
+
+    case 'statusCardsRemoved': {
+      const playerEl = ctx.queryContainer('[data-entity="player"]')
+      if (playerEl) {
+        // Cleansing light effect
+        effects.pulse(playerEl, { color: 'oklch(0.8 0.15 85)', scale: 1.08 })
+        for (let i = 0; i < Math.min(event.count, 5); i++) {
+          setTimeout(() => emitParticle(playerEl, 'heal'), i * 50)
+        }
+        emitParticle(playerEl, 'gold')
+      }
+      logger.debug('Visual', `Removed ${event.count} status cards`)
+      return true
+    }
   }
   return false
 }

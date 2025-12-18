@@ -57,6 +57,16 @@ export type VisualEvent =
   | { type: 'delayedEffect'; turnsRemaining: number }
   | { type: 'delayedEffectTrigger' }
   | { type: 'powerSilenced'; targetId: string; powerId: string; duration: number }
+  // Advanced effect visuals
+  | { type: 'markTarget'; targetId: string; duration: number }
+  | { type: 'markExpired'; targetId: string }
+  | { type: 'reflect'; targetId: string; amount: number }
+  | { type: 'amplify'; targetId: string; multiplier: number; attacks: number }
+  | { type: 'amplifyConsumed'; targetId: string }
+  | { type: 'energyNextTurn'; amount: number }
+  | { type: 'tempMaxEnergy'; amount: number }
+  | { type: 'statusCardAdded'; cardId: string; destination: string; count: number }
+  | { type: 'statusCardsRemoved'; count: number }
 
 // ============================================
 // COMBAT NUMBERS (FCT)

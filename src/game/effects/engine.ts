@@ -19,6 +19,11 @@ import {
   executeCounterAttack,
   executeChain,
   executeWeakenIntent,
+  executeMarkTarget,
+  executeReflect,
+  executeAmplify,
+  executeEnergyNextTurn,
+  executeTempMaxEnergy,
   setExecuteEffect as setCombatExecuteEffect,
   setExecutePowerTriggers as setCombatPowerTriggers,
 } from './combat-effects'
@@ -45,6 +50,9 @@ import {
   executeEthereal,
   executeUnplayable,
   executeDelayed,
+  // Status card effects
+  executeAddStatusCard,
+  executeRemoveStatusCards,
   setCardEffectsExecuteEffect,
 } from './card-effects'
 import {
@@ -203,6 +211,23 @@ export function executeEffect(
     case 'weakenIntent':
       executeWeakenIntent(draft, effect, ctx)
       break
+    case 'markTarget':
+      executeMarkTarget(draft, effect, ctx)
+      break
+    // Damage manipulation effects
+    case 'reflect':
+      executeReflect(draft, effect, ctx)
+      break
+    case 'amplify':
+      executeAmplify(draft, effect, ctx)
+      break
+    // Resource manipulation effects
+    case 'energyNextTurn':
+      executeEnergyNextTurn(draft, effect, ctx)
+      break
+    case 'tempMaxEnergy':
+      executeTempMaxEnergy(draft, effect, ctx)
+      break
     // Deck manipulation effects
     case 'mill':
       executeMill(draft, effect, ctx)
@@ -221,6 +246,13 @@ export function executeEffect(
       break
     case 'delayed':
       executeDelayed(draft, effect, ctx)
+      break
+    // Status card effects
+    case 'addStatusCard':
+      executeAddStatusCard(draft, effect, ctx)
+      break
+    case 'removeStatusCards':
+      executeRemoveStatusCards(draft, effect, ctx)
       break
     // Power manipulation effects
     case 'stealPower':
