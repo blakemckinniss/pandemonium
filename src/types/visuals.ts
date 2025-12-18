@@ -50,6 +50,13 @@ export type VisualEvent =
   // Turn transitions
   | { type: 'playerTurnStart' }
   | { type: 'enemyTurnStart' }
+  // New effect visuals
+  | { type: 'mill'; cardUids: string[] }
+  | { type: 'cardModified'; cardUids: string[]; modifier: 'innate' | 'ethereal' | 'unplayable' }
+  | { type: 'intentWeakened'; targetId: string; reduction: number }
+  | { type: 'delayedEffect'; turnsRemaining: number }
+  | { type: 'delayedEffectTrigger' }
+  | { type: 'powerSilenced'; targetId: string; powerId: string; duration: number }
 
 // ============================================
 // COMBAT NUMBERS (FCT)
