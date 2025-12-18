@@ -231,6 +231,114 @@ export interface DiscoverEffect {
   exhaust?: boolean // If true, the added card exhausts when played
 }
 
+// --- ADVANCED COMBAT EFFECTS ---
+
+export interface ExecuteEffect {
+  type: 'execute'
+  amount: EffectValue // Base damage
+  target?: EntityTarget
+  threshold: number // HP percentage (e.g., 0.5 = 50% HP)
+  bonusMultiplier: number // Damage multiplier when below threshold (e.g., 2 = double)
+  element?: Element
+}
+
+export interface SplashEffect {
+  type: 'splash'
+  amount: EffectValue // Damage to primary target
+  splashAmount: EffectValue // Damage to secondary targets
+  target: EntityTarget // Primary target
+  splashTargets?: 'all_enemies' | 'adjacent' // Who gets splash (default all_enemies)
+  element?: Element
+}
+
+export interface RecoilEffect {
+  type: 'recoil'
+  amount: EffectValue // Damage dealt to self
+  target?: EntityTarget // Who takes recoil (default self)
+}
+
+export interface CounterAttackEffect {
+  type: 'counterAttack'
+  amount: EffectValue // Damage when triggered
+  duration?: number // Turns active (default 1)
+  triggersRemaining?: number // Max triggers (default unlimited)
+}
+
+export interface ChainEffect {
+  type: 'chain'
+  amount: EffectValue // Base damage
+  bounces: number // Number of times to bounce
+  decay?: number // Damage reduction per bounce (0-1, default 0.2 = 20% less each)
+  element?: Element
+}
+
+// --- DECK MANIPULATION EFFECTS ---
+
+export interface MillEffect {
+  type: 'mill'
+  amount: EffectValue // Cards to discard from deck
+  target?: 'drawPile' | 'enemy' // Whose deck (default drawPile, enemy for enemy mill)
+}
+
+export interface CreateRandomCardEffect {
+  type: 'createRandomCard'
+  filter?: CardFilter
+  pool?: 'all' | 'common' | 'uncommon' | 'rare' | 'attack' | 'skill' | 'power'
+  destination: 'hand' | 'drawPile' | 'discardPile'
+  count?: EffectValue
+  upgraded?: boolean
+}
+
+export interface InnateEffect {
+  type: 'innate'
+  target: CardTarget | FilteredCardTarget
+}
+
+export interface EtherealEffect {
+  type: 'ethereal'
+  target: CardTarget | FilteredCardTarget
+}
+
+export interface UnplayableEffect {
+  type: 'unplayable'
+  target: CardTarget | FilteredCardTarget
+  duration?: 'turn' | 'combat' // Default turn
+}
+
+// --- POWER MANIPULATION EFFECTS ---
+
+export interface StealPowerEffect {
+  type: 'stealPower'
+  powerId?: string // Specific power, or omit to steal random buff
+  from: EntityTarget
+  to?: EntityTarget // Default self
+  amount?: EffectValue // Stacks to steal (default all)
+}
+
+export interface SilencePowerEffect {
+  type: 'silencePower'
+  powerId?: string // Specific power, or omit to silence all
+  target: EntityTarget
+  duration?: number // Turns to silence (default 1)
+}
+
+// --- ENEMY MANIPULATION EFFECTS ---
+
+export interface WeakenIntentEffect {
+  type: 'weakenIntent'
+  amount: EffectValue // Reduce intent damage by this amount
+  target: EntityTarget
+}
+
+// --- DELAYED EFFECTS ---
+
+export interface DelayedEffect {
+  type: 'delayed'
+  delay: number // Turns until effect triggers
+  effects: AtomicEffect[] // Effects to execute when triggered
+  trigger?: 'turnStart' | 'turnEnd' // When to check (default turnStart)
+}
+
 // --- META EFFECTS (Composition) ---
 
 export interface ConditionalEffect {
@@ -274,6 +382,12 @@ export type AtomicEffect =
   | DestroyBlockEffect
   | MaxHealthEffect
   | SetHealthEffect
+  // Advanced Combat
+  | ExecuteEffect
+  | SplashEffect
+  | RecoilEffect
+  | CounterAttackEffect
+  | ChainEffect
   // Resource
   | EnergyEffect
   | GoldEffect
@@ -293,10 +407,22 @@ export type AtomicEffect =
   | ModifyCostEffect
   | DiscoverEffect
   | BanishEffect
+  // Deck Manipulation
+  | MillEffect
+  | CreateRandomCardEffect
+  | InnateEffect
+  | EtherealEffect
+  | UnplayableEffect
   // Power
   | ApplyPowerEffect
   | RemovePowerEffect
   | TransferPowerEffect
+  | StealPowerEffect
+  | SilencePowerEffect
+  // Enemy Manipulation
+  | WeakenIntentEffect
+  // Delayed
+  | DelayedEffect
   // Replay
   | ReplayCardEffect
   | PlayTopCardEffect

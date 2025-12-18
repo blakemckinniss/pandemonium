@@ -48,7 +48,9 @@ export interface PowerDefinition {
 export interface Power {
   id: string
   amount: number
+  stacks?: number // Alias for amount (some effects use stacks terminology)
   duration?: number
+  silenced?: number // Turns remaining where this power is silenced (triggers disabled)
 }
 
 export type Powers = Record<string, Power>

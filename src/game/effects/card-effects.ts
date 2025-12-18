@@ -579,3 +579,178 @@ export function executeDiscover(
     copies: effect.copies,
   }
 }
+
+// --- DECK MANIPULATION EFFECTS ---
+
+export function executeMill(
+  draft: RunState,
+  effect: { type: 'mill'; amount: EffectValue; target?: 'drawPile' | 'enemy' },
+  ctx: EffectContext
+): void {
+  if (!draft.combat) return
+
+  const count = resolveValue(effect.amount, draft, ctx)
+  const milledCards: string[] = []
+
+  // Mill from player's draw pile
+  for (let i = 0; i < count && draft.combat.drawPile.length > 0; i++) {
+    const card = draft.combat.drawPile.pop()!
+    draft.combat.discardPile.push(card)
+    milledCards.push(card.uid)
+  }
+
+  if (milledCards.length > 0) {
+    emitVisual(draft, { type: 'mill', cardUids: milledCards })
+  }
+}
+
+export function executeCreateRandomCard(
+  draft: RunState,
+  effect: {
+    type: 'createRandomCard'
+    filter?: import('../../types').CardFilter
+    pool?: 'all' | 'common' | 'uncommon' | 'rare' | 'attack' | 'skill' | 'power'
+    destination: 'hand' | 'drawPile' | 'discardPile'
+    count?: EffectValue
+    upgraded?: boolean
+  },
+  ctx: EffectContext
+): void {
+  if (!draft.combat) return
+
+  const count = effect.count ? resolveValue(effect.count, draft, ctx) : 1
+  const allCards = getAllCards()
+
+  // Filter by pool
+  let candidates = allCards.filter((card) => {
+    if (effect.pool) {
+      switch (effect.pool) {
+        case 'common': return card.rarity === 'common'
+        case 'uncommon': return card.rarity === 'uncommon'
+        case 'rare': return card.rarity === 'rare'
+        case 'attack': return card.theme === 'attack'
+        case 'skill': return card.theme === 'skill'
+        case 'power': return card.theme === 'power'
+        case 'all':
+        default: return true
+      }
+    }
+    return true
+  })
+
+  // Apply additional filter
+  if (effect.filter?.theme) {
+    const themes = Array.isArray(effect.filter.theme) ? effect.filter.theme : [effect.filter.theme]
+    candidates = candidates.filter((c) => themes.includes(c.theme))
+  }
+
+  if (candidates.length === 0) return
+
+  for (let i = 0; i < count; i++) {
+    const randomCard = candidates[Math.floor(Math.random() * candidates.length)]
+    const instance: CardInstance = {
+      uid: generateUid(),
+      definitionId: randomCard.id,
+      upgraded: effect.upgraded ?? false,
+    }
+
+    const pile = draft.combat[effect.destination]
+    pile.push(instance)
+
+    emitVisual(draft, {
+      type: 'addCard',
+      cardId: randomCard.id,
+      destination: effect.destination,
+      count: 1,
+    })
+  }
+}
+
+export function executeInnate(
+  draft: RunState,
+  effect: { type: 'innate'; target: CardTarget | FilteredCardTarget },
+  ctx: EffectContext
+): void {
+  if (!draft.combat) return
+
+  const cards = resolveCardTarget(effect.target, draft, ctx)
+
+  for (const card of cards) {
+    // Find card in any pile and mark as innate
+    const findAndMark = (pile: CardInstance[]) => {
+      const found = pile.find((c) => c.uid === card.uid)
+      if (found) {
+        found.innate = true
+        return true
+      }
+      return false
+    }
+
+    findAndMark(draft.combat.hand) ||
+    findAndMark(draft.combat.drawPile) ||
+    findAndMark(draft.combat.discardPile)
+  }
+
+  emitVisual(draft, { type: 'cardModified', cardUids: cards.map(c => c.uid), modifier: 'innate' })
+}
+
+export function executeEthereal(
+  draft: RunState,
+  effect: { type: 'ethereal'; target: CardTarget | FilteredCardTarget },
+  ctx: EffectContext
+): void {
+  if (!draft.combat) return
+
+  const cards = resolveCardTarget(effect.target, draft, ctx)
+
+  for (const card of cards) {
+    const handCard = draft.combat.hand.find((c) => c.uid === card.uid)
+    if (handCard) {
+      handCard.ethereal = true
+    }
+  }
+
+  emitVisual(draft, { type: 'cardModified', cardUids: cards.map(c => c.uid), modifier: 'ethereal' })
+}
+
+export function executeUnplayable(
+  draft: RunState,
+  effect: { type: 'unplayable'; target: CardTarget | FilteredCardTarget; duration?: 'turn' | 'combat' },
+  ctx: EffectContext
+): void {
+  if (!draft.combat) return
+
+  const cards = resolveCardTarget(effect.target, draft, ctx)
+  const duration = effect.duration ?? 'turn'
+
+  for (const card of cards) {
+    const handCard = draft.combat.hand.find((c) => c.uid === card.uid)
+    if (handCard) {
+      handCard.unplayable = duration === 'combat' ? 'combat' : true
+    }
+  }
+
+  emitVisual(draft, { type: 'cardModified', cardUids: cards.map(c => c.uid), modifier: 'unplayable' })
+}
+
+export function executeDelayed(
+  draft: RunState,
+  effect: { type: 'delayed'; delay: number; effects: AtomicEffect[]; trigger?: 'turnStart' | 'turnEnd' },
+  ctx: EffectContext
+): void {
+  if (!draft.combat) return
+
+  // Store delayed effect for later execution
+  if (!draft.combat.delayedEffects) {
+    draft.combat.delayedEffects = []
+  }
+
+  draft.combat.delayedEffects.push({
+    turnsRemaining: effect.delay,
+    effects: effect.effects,
+    trigger: effect.trigger ?? 'turnStart',
+    sourceCtx: { ...ctx },
+  })
+
+  emitVisual(draft, { type: 'delayedEffect', turnsRemaining: effect.delay })
+}

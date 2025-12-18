@@ -379,3 +379,182 @@ export function executeSetHealth(
     }
   }
 }
+
+// --- ADVANCED COMBAT EFFECTS ---
+
+export function executeExecute(
+  draft: RunState,
+  effect: { type: 'execute'; amount: EffectValue; target?: EntityTarget; threshold: number; bonusMultiplier: number; element?: Element },
+  ctx: EffectContext
+): void {
+  if (!draft.combat) return
+
+  const baseDamage = resolveValue(effect.amount, draft, ctx)
+  const target = effect.target ?? 'enemy'
+  const targetIds = resolveEntityTargets(target, draft, ctx)
+
+  for (const targetId of targetIds) {
+    const entity = getEntityById(targetId, draft)
+    if (!entity) continue
+
+    const hpPercent = entity.currentHealth / entity.maxHealth
+    const damage = hpPercent <= effect.threshold
+      ? Math.floor(baseDamage * effect.bonusMultiplier)
+      : baseDamage
+
+    // Use the damage effect internally
+    executeDamage(draft, {
+      type: 'damage',
+      amount: damage,
+      target: { type: 'specific', id: targetId },
+      element: effect.element,
+    }, ctx)
+
+    if (hpPercent <= effect.threshold) {
+      emitVisual(draft, { type: 'damage', targetId, amount: damage, variant: 'execute' })
+    }
+  }
+}
+
+export function executeSplash(
+  draft: RunState,
+  effect: { type: 'splash'; amount: EffectValue; splashAmount: EffectValue; target: EntityTarget; splashTargets?: 'all_enemies' | 'adjacent'; element?: Element },
+  ctx: EffectContext
+): void {
+  if (!draft.combat) return
+
+  const primaryDamage = resolveValue(effect.amount, draft, ctx)
+  const splashDamage = resolveValue(effect.splashAmount, draft, ctx)
+  const primaryTargetIds = resolveEntityTargets(effect.target, draft, ctx)
+
+  // Deal primary damage
+  for (const targetId of primaryTargetIds) {
+    executeDamage(draft, {
+      type: 'damage',
+      amount: primaryDamage,
+      target: { type: 'specific', id: targetId },
+      element: effect.element,
+    }, ctx)
+  }
+
+  // Deal splash damage to others
+  const splashTargetType = effect.splashTargets ?? 'all_enemies'
+  if (splashTargetType === 'all_enemies') {
+    const otherEnemies = draft.combat.enemies.filter(e =>
+      e.currentHealth > 0 && !primaryTargetIds.includes(e.id)
+    )
+    for (const enemy of otherEnemies) {
+      executeDamage(draft, {
+        type: 'damage',
+        amount: splashDamage,
+        target: { type: 'specific', id: enemy.id },
+        element: effect.element,
+      }, ctx)
+      emitVisual(draft, { type: 'damage', targetId: enemy.id, amount: splashDamage, variant: 'chain' })
+    }
+  }
+}
+
+export function executeRecoil(
+  draft: RunState,
+  effect: { type: 'recoil'; amount: EffectValue; target?: EntityTarget },
+  ctx: EffectContext
+): void {
+  if (!draft.combat) return
+
+  const damage = resolveValue(effect.amount, draft, ctx)
+  const target = effect.target ?? 'self'
+  const targetIds = resolveEntityTargets(target, draft, ctx)
+
+  for (const targetId of targetIds) {
+    const entity = getEntityById(targetId, draft)
+    if (!entity) continue
+
+    // Apply damage directly (bypasses block for self-damage)
+    entity.currentHealth = Math.max(0, entity.currentHealth - damage)
+    emitVisual(draft, { type: 'damage', targetId, amount: damage, variant: 'piercing' })
+  }
+}
+
+export function executeCounterAttack(
+  draft: RunState,
+  effect: { type: 'counterAttack'; amount: EffectValue; duration?: number; triggersRemaining?: number },
+  ctx: EffectContext
+): void {
+  if (!draft.combat) return
+
+  const damage = resolveValue(effect.amount, draft, ctx)
+  const duration = effect.duration ?? 1
+
+  // Apply as a power that triggers onAttacked
+  const player = draft.combat.player
+  const existingCounter = player.powers['counterAttack']
+  const newStacks = existingCounter ? (existingCounter.stacks ?? 0) + damage : damage
+
+  player.powers['counterAttack'] = {
+    stacks: newStacks,
+    duration,
+  }
+
+  emitVisual(draft, { type: 'powerApply', targetId: player.id, powerId: 'counterAttack', amount: damage })
+}
+
+export function executeChain(
+  draft: RunState,
+  effect: { type: 'chain'; amount: EffectValue; bounces: number; decay?: number; element?: Element },
+  ctx: EffectContext
+): void {
+  if (!draft.combat) return
+
+  let damage = resolveValue(effect.amount, draft, ctx)
+  const decayRate = effect.decay ?? 0.2
+  const enemies = draft.combat.enemies.filter(e => e.currentHealth > 0)
+
+  if (enemies.length === 0) return
+
+  // Hit enemies in sequence with decaying damage
+  const bounceCount = Math.min(effect.bounces, enemies.length)
+  for (let i = 0; i < bounceCount; i++) {
+    const targetEnemy = enemies[i % enemies.length]
+
+    executeDamage(draft, {
+      type: 'damage',
+      amount: Math.floor(damage),
+      target: { type: 'specific', id: targetEnemy.id },
+      element: effect.element,
+    }, ctx)
+
+    emitVisual(draft, {
+      type: 'damage',
+      targetId: targetEnemy.id,
+      amount: Math.floor(damage),
+      variant: 'chain',
+      element: effect.element,
+    })
+
+    // Decay damage for next bounce
+    damage = damage * (1 - decayRate)
+  }
+}
+
+export function executeWeakenIntent(
+  draft: RunState,
+  effect: { type: 'weakenIntent'; amount: EffectValue; target: EntityTarget },
+  ctx: EffectContext
+): void {
+  if (!draft.combat) return
+
+  const reduction = resolveValue(effect.amount, draft, ctx)
+  const targetIds = resolveEntityTargets(effect.target, draft, ctx)
+
+  for (const targetId of targetIds) {
+    const enemy = draft.combat.enemies.find(e => e.id === targetId)
+    if (!enemy || !enemy.intent) continue
+
+    // Reduce intent value
+    if (enemy.intent.value !== undefined) {
+      enemy.intent.value = Math.max(0, enemy.intent.value - reduction)
+      emitVisual(draft, { type: 'intentWeakened', targetId, reduction })
+    }
+  }
+}

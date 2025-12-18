@@ -78,6 +78,25 @@ export type {
   RandomEffect,
   SequenceEffect,
   ForEachEffect,
+  // Advanced Combat
+  ExecuteEffect,
+  SplashEffect,
+  RecoilEffect,
+  CounterAttackEffect,
+  ChainEffect,
+  // Deck Manipulation
+  MillEffect,
+  CreateRandomCardEffect,
+  InnateEffect,
+  EtherealEffect,
+  UnplayableEffect,
+  // Power Manipulation
+  StealPowerEffect,
+  SilencePowerEffect,
+  // Enemy Manipulation
+  WeakenIntentEffect,
+  // Delayed
+  DelayedEffect,
   AtomicEffect,
   AtomicEffectType,
   EffectContext,
@@ -158,6 +177,7 @@ export type {
   CombatState,
   RunStats,
   RunState,
+  DelayedEffectEntry,
 } from './combat'
 
 // Visuals

@@ -100,3 +100,99 @@ export function executeTransferPower(
     }
   }
 }
+
+export function executeStealPower(
+  draft: RunState,
+  effect: { type: 'stealPower'; powerId?: string; from: EntityTarget; to?: EntityTarget; amount?: EffectValue },
+  ctx: EffectContext
+): void {
+  if (!draft.combat) return
+
+  const fromIds = resolveEntityTargets(effect.from, draft, ctx)
+  const toIds = resolveEntityTargets(effect.to ?? 'self', draft, ctx)
+
+  for (const fromId of fromIds) {
+    const fromEntity = getEntityById(fromId, draft)
+    if (!fromEntity) continue
+
+    // If no specific powerId, steal a random buff (positive power)
+    let powerIdToSteal = effect.powerId
+    if (!powerIdToSteal) {
+      const buffIds = Object.keys(fromEntity.powers).filter(id => {
+        // Consider strength, dexterity, etc. as buffs to steal
+        const buffs = ['strength', 'dexterity', 'artifact', 'metallicize', 'platedArmor', 'regen']
+        return buffs.includes(id) && (fromEntity.powers[id]?.stacks ?? 0) > 0
+      })
+      if (buffIds.length === 0) continue
+      powerIdToSteal = buffIds[Math.floor(Math.random() * buffIds.length)]
+    }
+
+    const power = fromEntity.powers[powerIdToSteal]
+    if (!power) continue
+
+    const stealAmount = effect.amount ? resolveValue(effect.amount, draft, ctx) : (power.stacks ?? 1)
+
+    // Remove from source
+    removePowerFromEntity(fromEntity, powerIdToSteal, stealAmount)
+    emitVisual(draft, {
+      type: 'powerRemove',
+      targetId: fromId,
+      powerId: powerIdToSteal,
+    })
+
+    // Apply to thief
+    for (const toId of toIds) {
+      const toEntity = getEntityById(toId, draft)
+      if (!toEntity) continue
+
+      applyPowerToEntity(toEntity, powerIdToSteal, stealAmount)
+      emitVisual(draft, {
+        type: 'powerApply',
+        targetId: toId,
+        powerId: powerIdToSteal,
+        amount: stealAmount,
+      })
+    }
+  }
+}
+
+export function executeSilencePower(
+  draft: RunState,
+  effect: { type: 'silencePower'; powerId?: string; target: EntityTarget; duration?: number },
+  ctx: EffectContext
+): void {
+  if (!draft.combat) return
+
+  const targetIds = resolveEntityTargets(effect.target, draft, ctx)
+  const duration = effect.duration ?? 1
+
+  for (const targetId of targetIds) {
+    const entity = getEntityById(targetId, draft)
+    if (!entity) continue
+
+    if (effect.powerId) {
+      // Silence specific power
+      const power = entity.powers[effect.powerId]
+      if (power) {
+        power.silenced = duration
+        emitVisual(draft, {
+          type: 'powerSilenced',
+          targetId,
+          powerId: effect.powerId,
+          duration,
+        })
+      }
+    } else {
+      // Silence all powers
+      for (const powerId of Object.keys(entity.powers)) {
+        entity.powers[powerId].silenced = duration
+      }
+      emitVisual(draft, {
+        type: 'powerSilenced',
+        targetId,
+        powerId: 'all',
+        duration,
+      })
+    }
+  }
+}

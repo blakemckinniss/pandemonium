@@ -165,4 +165,6 @@ export interface CardInstance {
   retained?: boolean // Card stays in hand at end of turn
   ethereal?: boolean // Card exhausts if not played by end of turn
   costModifier?: number // Temporary cost adjustment (negative = cheaper)
+  innate?: boolean // Card draws at start of combat
+  unplayable?: boolean | 'combat' // Card cannot be played (true = this turn, 'combat' = all combat)
 }

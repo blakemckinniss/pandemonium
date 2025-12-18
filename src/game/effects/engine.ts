@@ -12,6 +12,13 @@ import {
   executeDestroyBlock,
   executeMaxHealth,
   executeSetHealth,
+  // Advanced combat effects
+  executeExecute,
+  executeSplash,
+  executeRecoil,
+  executeCounterAttack,
+  executeChain,
+  executeWeakenIntent,
   setExecuteEffect as setCombatExecuteEffect,
   setExecutePowerTriggers as setCombatPowerTriggers,
 } from './combat-effects'
@@ -31,12 +38,21 @@ import {
   executePlayTopCard,
   executeGold,
   executeDiscover,
+  // Deck manipulation effects
+  executeMill,
+  executeCreateRandomCard,
+  executeInnate,
+  executeEthereal,
+  executeUnplayable,
+  executeDelayed,
   setCardEffectsExecuteEffect,
 } from './card-effects'
 import {
   executeApplyPower,
   executeRemovePower,
   executeTransferPower,
+  executeStealPower,
+  executeSilencePower,
 } from './power-effects'
 import {
   executeConditional,
@@ -167,6 +183,51 @@ export function executeEffect(
       break
     case 'forEach':
       executeForEach(draft, effect, ctx)
+      break
+    // Advanced combat effects
+    case 'execute':
+      executeExecute(draft, effect, ctx)
+      break
+    case 'splash':
+      executeSplash(draft, effect, ctx)
+      break
+    case 'recoil':
+      executeRecoil(draft, effect, ctx)
+      break
+    case 'counterAttack':
+      executeCounterAttack(draft, effect, ctx)
+      break
+    case 'chain':
+      executeChain(draft, effect, ctx)
+      break
+    case 'weakenIntent':
+      executeWeakenIntent(draft, effect, ctx)
+      break
+    // Deck manipulation effects
+    case 'mill':
+      executeMill(draft, effect, ctx)
+      break
+    case 'createRandomCard':
+      executeCreateRandomCard(draft, effect, ctx)
+      break
+    case 'innate':
+      executeInnate(draft, effect, ctx)
+      break
+    case 'ethereal':
+      executeEthereal(draft, effect, ctx)
+      break
+    case 'unplayable':
+      executeUnplayable(draft, effect, ctx)
+      break
+    case 'delayed':
+      executeDelayed(draft, effect, ctx)
+      break
+    // Power manipulation effects
+    case 'stealPower':
+      executeStealPower(draft, effect, ctx)
+      break
+    case 'silencePower':
+      executeSilencePower(draft, effect, ctx)
       break
   }
 }

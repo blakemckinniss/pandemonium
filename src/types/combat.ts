@@ -8,6 +8,15 @@ import type { RelicInstance } from './relics'
 import type { RoomCard } from './rooms'
 import type { VisualEvent } from './visuals'
 import type { CardTarget, FilteredCardTarget } from './targeting'
+import type { AtomicEffect, EffectContext } from './effects'
+
+// Delayed effect storage
+export interface DelayedEffectEntry {
+  turnsRemaining: number
+  effects: AtomicEffect[]
+  trigger: 'turnStart' | 'turnEnd'
+  sourceCtx: EffectContext
+}
 
 export type TurnPhase = 'playerTurn' | 'enemyTurn' | 'victory' | 'defeat'
 export type GamePhase = 'menu' | 'roomSelect' | 'combat' | 'reward' | 'campfire' | 'treasure' | 'dungeonComplete' | 'gameOver'
@@ -60,6 +69,7 @@ export interface CombatState {
   lastPlayedCard?: CardInstance // Most recently played card this turn
   visualQueue: VisualEvent[]
   pendingSelection?: PendingSelection
+  delayedEffects?: DelayedEffectEntry[] // Effects scheduled to trigger in future turns
 }
 
 export interface RunStats {
