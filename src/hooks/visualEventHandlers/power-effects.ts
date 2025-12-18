@@ -13,6 +13,8 @@ export function handlePowerEffectEvents(event: VisualEvent, ctx: HandlerContext)
 
         // Use enhanced buff/debuff effects
         if (isDebuff) {
+          // Gothic shadow coil effect - dark tendrils wrap around target
+          effects.shadowCoil?.(targetEl)
           effects.debuffApply(targetEl)
           emitParticle(targetEl, 'poison')
         } else {

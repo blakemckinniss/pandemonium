@@ -73,6 +73,11 @@ export function handleCardAnimationEvents(event: VisualEvent, ctx: HandlerContex
       }
       if (exhaustAnims.length > 0) {
         ctx.setPendingAnimations((prev) => [...prev, ...exhaustAnims])
+        // Gothic abyssal rift effect - void tear for exhaust
+        const playerEl = ctx.queryContainer('[data-target="player"]')
+        if (playerEl) {
+          effects.abyssalRift?.(playerEl)
+        }
       }
       return true
     }
