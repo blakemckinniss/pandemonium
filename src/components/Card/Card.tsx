@@ -177,13 +177,13 @@ export const Card = memo(function Card({
   }, [variant, playable, disabled, theme])
 
   const displayName = upgraded ? `${name}+` : name
-  // Derive power-based aura classes for entities
+  // Derive power-based aura classes for entities (box-shadow based, no pseudo-elements)
   const powerClasses = (() => {
     if (!powers || (variant !== 'player' && variant !== 'enemy')) return []
     const entries = Object.entries(powers)
     if (entries.length === 0) return []
 
-    const result: string[] = ['has-powers']
+    const result: string[] = []
 
     // Check for buffs vs debuffs
     const debuffIds = ['weak', 'vulnerable', 'frail', 'poison', 'burning', 'frozen', 'wet', 'oiled']
