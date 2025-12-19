@@ -47,8 +47,23 @@ function FloatingNumber({ number, onComplete }: FloatingNumberProps) {
   useEffect(() => {
     if (!ref.current) return
 
-    ;(gsap.effects as Record<string, (el: Element, opts: object) => void>).floatNumber(ref.current as unknown as Element, { onComplete })
-  }, [onComplete])
+    // Determine if this is a critical hit for enhanced animation
+    const isCritical = number.type === 'damage' && (
+      number.variant === 'execute' ||
+      number.variant === 'combo' ||
+      (number.comboName && number.comboName.includes('CRITICAL'))
+    )
+
+    ;(gsap.effects as Record<string, (el: Element, opts: object) => void>).floatNumber(
+      ref.current as unknown as Element,
+      {
+        onComplete,
+        type: number.type,
+        variant: number.variant,
+        isCritical,
+      }
+    )
+  }, [onComplete, number.type, number.variant, number.comboName])
 
   // Determine color class based on type and element
   let colorClass: string

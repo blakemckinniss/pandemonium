@@ -4,22 +4,146 @@ import gsap from 'gsap'
 // UI ANIMATIONS
 // ============================================
 
-// Floating combat number
+// Floating combat number - type-aware animations
 gsap.registerEffect({
   name: 'floatNumber',
-  effect: (targets: gsap.TweenTarget, config: { onComplete?: () => void }) => {
-    return gsap.fromTo(
-      targets,
-      { y: 0, opacity: 1, scale: 0.5 },
-      {
-        y: -80,
+  effect: (targets: gsap.TweenTarget, config: {
+    onComplete?: () => void
+    type?: 'damage' | 'heal' | 'block' | 'gold' | 'combo' | 'preview' | 'maxHealth' | 'intentWeakened'
+    variant?: string
+    isCritical?: boolean
+  }) => {
+    const tl = gsap.timeline({ onComplete: config.onComplete })
+    const el = (targets as HTMLElement[])[0] || targets
+
+    // Default animation params
+    let startScale = 0.5
+    let endScale = 1.4
+    let yOffset = -70
+    let xOffset = 0
+    let duration = 1.0
+    let ease = 'power2.out'
+    let rotation = 0
+    let hasImpactPunch = false
+
+    // Critical hit / execute / combo - dramatic punch
+    if (config.isCritical || config.variant === 'execute' || config.variant === 'combo') {
+      startScale = 0.3
+      endScale = 2.2
+      yOffset = -100
+      duration = 1.4
+      ease = 'elastic.out(1.2, 0.5)'
+      hasImpactPunch = true
+    }
+    // Chain damage - quick successive hits
+    else if (config.variant === 'chain') {
+      startScale = 0.6
+      endScale = 1.3
+      yOffset = -50
+      xOffset = (Math.random() - 0.5) * 40
+      duration = 0.8
+      ease = 'power3.out'
+    }
+    // Piercing - sharp upward thrust
+    else if (config.variant === 'piercing') {
+      startScale = 0.4
+      endScale = 1.6
+      yOffset = -90
+      duration = 0.9
+      ease = 'power4.out'
+      rotation = -5 + Math.random() * 10
+    }
+    // Block - horizontal slide with shield feel
+    else if (config.type === 'block') {
+      startScale = 0.7
+      endScale = 1.3
+      yOffset = -30
+      xOffset = 40
+      duration = 0.9
+      ease = 'back.out(1.5)'
+    }
+    // Heal - gentle rise with bounce
+    else if (config.type === 'heal') {
+      startScale = 0.6
+      endScale = 1.5
+      yOffset = -60
+      duration = 1.1
+      ease = 'back.out(2)'
+    }
+    // Gold - coin toss arc
+    else if (config.type === 'gold') {
+      startScale = 0.5
+      endScale = 1.4
+      yOffset = -50
+      xOffset = 20
+      duration = 1.0
+      ease = 'power2.out'
+      rotation = 15
+    }
+    // Combo counter - big and bold
+    else if (config.type === 'combo') {
+      startScale = 0.2
+      endScale = 2.0
+      yOffset = -80
+      duration = 1.3
+      ease = 'elastic.out(1, 0.4)'
+      hasImpactPunch = true
+    }
+    // Preview damage - subtle
+    else if (config.type === 'preview') {
+      startScale = 0.8
+      endScale = 1.1
+      yOffset = -40
+      duration = 0.7
+      ease = 'power1.out'
+    }
+
+    // Impact punch for dramatic hits
+    if (hasImpactPunch) {
+      gsap.set(el, { scale: startScale, opacity: 1, y: 0, x: 0, rotation: 0 })
+
+      // Punch in
+      tl.to(el, {
+        scale: endScale * 1.3,
+        y: yOffset * 0.3,
+        duration: 0.12,
+        ease: 'power4.out',
+      })
+      // Settle and float
+      tl.to(el, {
+        scale: endScale,
+        y: yOffset,
+        x: xOffset,
+        rotation,
+        duration: duration * 0.4,
+        ease,
+      })
+      // Fade out
+      tl.to(el, {
         opacity: 0,
-        scale: 1.8,
-        duration: 1.2,
-        ease: 'power2.out',
-        onComplete: config.onComplete,
-      }
-    )
+        y: yOffset - 20,
+        scale: endScale * 0.9,
+        duration: duration * 0.4,
+        ease: 'power2.in',
+      })
+    } else {
+      // Standard float animation
+      tl.fromTo(
+        el,
+        { y: 0, x: 0, opacity: 1, scale: startScale, rotation: 0 },
+        {
+          y: yOffset,
+          x: xOffset,
+          opacity: 0,
+          scale: endScale,
+          rotation,
+          duration,
+          ease,
+        }
+      )
+    }
+
+    return tl
   },
   extendTimeline: true,
 })
@@ -282,6 +406,102 @@ gsap.registerEffect({
       duration: 0.4,
       ease: 'power2.out',
       onComplete: () => vignette.remove(),
+    })
+
+    return tl
+  },
+  extendTimeline: true,
+})
+
+// Shield block flash - metallic clang effect
+gsap.registerEffect({
+  name: 'shieldBlock',
+  effect: (targets: gsap.TweenTarget, config: { amount?: number }) => {
+    const tl = gsap.timeline()
+    const el = (targets as HTMLElement[])[0] || (targets as HTMLElement)
+    if (!el || !(el instanceof HTMLElement)) return tl
+
+    const rect = el.getBoundingClientRect()
+    const centerX = rect.left + rect.width / 2
+    const centerY = rect.top + rect.height / 2
+    const intensity = Math.min((config.amount ?? 5) / 10, 1.5) // Scale with block amount
+
+    // Create shield flash overlay
+    const flash = document.createElement('div')
+    flash.style.cssText = `
+      position: fixed;
+      left: ${centerX - 40}px;
+      top: ${centerY - 40}px;
+      width: 80px;
+      height: 80px;
+      background: radial-gradient(circle, rgba(100, 180, 255, 0.8) 0%, rgba(60, 130, 200, 0.4) 40%, transparent 70%);
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 9998;
+      opacity: 0;
+      transform: scale(0.5);
+    `
+    document.body.appendChild(flash)
+
+    // Flash burst
+    tl.to(flash, {
+      opacity: 1,
+      scale: 1.5 * intensity,
+      duration: 0.08,
+      ease: 'power3.out',
+    })
+    tl.to(flash, {
+      opacity: 0,
+      scale: 2 * intensity,
+      duration: 0.25,
+      ease: 'power2.out',
+      onComplete: () => flash.remove(),
+    })
+
+    // Create metallic sparks
+    const sparkCount = Math.floor(4 + intensity * 4)
+    for (let i = 0; i < sparkCount; i++) {
+      const spark = document.createElement('div')
+      const angle = (i / sparkCount) * 360 + Math.random() * 30
+      const rad = (angle * Math.PI) / 180
+
+      spark.style.cssText = `
+        position: fixed;
+        left: ${centerX}px;
+        top: ${centerY}px;
+        width: 6px;
+        height: 2px;
+        background: linear-gradient(90deg, #fff, #88ccff);
+        border-radius: 1px;
+        pointer-events: none;
+        z-index: 9999;
+        transform-origin: left center;
+        transform: rotate(${angle}deg);
+        box-shadow: 0 0 4px #66aaff;
+      `
+      document.body.appendChild(spark)
+
+      gsap.to(spark, {
+        x: Math.cos(rad) * (30 + Math.random() * 20) * intensity,
+        y: Math.sin(rad) * (30 + Math.random() * 20) * intensity,
+        opacity: 0,
+        duration: 0.3,
+        ease: 'power2.out',
+        onComplete: () => spark.remove(),
+      })
+    }
+
+    // Entity recoil (pushed back slightly)
+    tl.to(el, {
+      x: -8 * intensity,
+      filter: 'brightness(1.4) drop-shadow(0 0 15px rgba(100, 180, 255, 0.8))',
+      duration: 0.06,
+    }, 0)
+    tl.to(el, {
+      x: 0,
+      filter: 'brightness(1) drop-shadow(0 0 0px transparent)',
+      duration: 0.2,
+      ease: 'power2.out',
     })
 
     return tl

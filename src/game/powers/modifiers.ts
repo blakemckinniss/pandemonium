@@ -31,6 +31,12 @@ export function applyOutgoingDamageModifiers(
     }
   }
 
+  // Amplify: multiplies damage (amount = multiplier as %, e.g., 200 = 2x)
+  const amplify = attacker.powers['amplify']
+  if (amplify && amplify.amount > 0) {
+    damage = Math.floor(damage * (amplify.amount / 100))
+  }
+
   return Math.max(0, damage)
 }
 
@@ -58,6 +64,12 @@ export function applyIncomingDamageModifiers(
     if (vulnDef?.modifiers?.incomingDamage) {
       damage = Math.floor(damage * vulnDef.modifiers.incomingDamage)
     }
+  }
+
+  // Marked: percentage bonus damage (amount = %, e.g., 50 = +50% damage)
+  const marked = defender.powers['marked']
+  if (marked && marked.amount > 0) {
+    damage = Math.floor(damage * (1 + marked.amount / 100))
   }
 
   return Math.max(0, damage)

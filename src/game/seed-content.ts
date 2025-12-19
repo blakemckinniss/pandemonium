@@ -3,7 +3,7 @@
 
 import { generateBaseEnemySet } from './card-generator'
 import { generateBaseDungeonSet } from './dungeon-generator'
-import { registerCard } from './cards'
+import { registerCardUnsafe } from './cards'
 import { db, saveDungeonDeck } from '../stores/db'
 import { logger } from '../lib/logger'
 
@@ -30,7 +30,7 @@ export async function seedBaseContent(): Promise<SeedResult> {
     logger.info('Seed', 'Generating enemies...')
     const enemies = await generateBaseEnemySet()
     for (const enemy of enemies) {
-      registerCard(enemy)
+      registerCardUnsafe(enemy)
       result.enemies++
     }
     logger.info('Seed', `Registered ${result.enemies} enemies`)

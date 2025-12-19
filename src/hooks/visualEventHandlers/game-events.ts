@@ -117,6 +117,9 @@ export function handleGameEvents(event: VisualEvent, ctx: HandlerContext): boole
     }
 
     case 'playerTurnStart': {
+      // Dramatic turn banner
+      effects.playerTurnBanner?.(null, {})
+
       // Energizing pulse on player and field
       const playerEl = ctx.queryContainer('[data-entity="player"]')
       if (playerEl) {
@@ -134,6 +137,9 @@ export function handleGameEvents(event: VisualEvent, ctx: HandlerContext): boole
     }
 
     case 'enemyTurnStart': {
+      // Dramatic enemy turn banner
+      effects.enemyTurnBanner?.(null, {})
+
       // Gothic ominous sweep transition
       effects.ominousTurnStart?.(null, { isEnemy: true })
 

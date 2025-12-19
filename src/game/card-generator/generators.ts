@@ -4,7 +4,7 @@
 
 import { chatCompletion, GROQ_MODEL } from '../../lib/groq'
 import { saveGeneratedCard } from '../../stores/db'
-import { registerCard, getCardDefinition } from '../cards'
+import { registerCard, registerCardUnsafe, getCardDefinition, isValidCard } from '../cards'
 import type { CardDefinition, CardTheme } from '../../types'
 import { generateUid } from '../../lib/utils'
 import { logger } from '../../lib/logger'
@@ -72,8 +72,8 @@ export async function generateRandomCard(
   // Save to IndexedDB
   await saveGeneratedCard(definition, GROQ_MODEL, userPrompt)
 
-  // Register in card registry for immediate use
-  registerCard(definition)
+  // Register in card registry for immediate use (unsafe - may lack image until art generation)
+  registerCardUnsafe(definition)
 
   // Optionally generate card art
   if (options?.generateArt) {
@@ -301,16 +301,29 @@ export async function generateBaseEnemySet(): Promise<CardDefinition[]> {
 // ============================================
 
 export async function loadGeneratedCardsIntoRegistry(): Promise<number> {
-  const { getAllGeneratedCards } = await import('../../stores/db')
+  const { getAllGeneratedCards, deleteGeneratedCard } = await import('../../stores/db')
   const records = await getAllGeneratedCards()
 
   let loaded = 0
+  let purged = 0
   for (const record of records) {
     // Skip if already registered
     if (getCardDefinition(record.cardId)) continue
 
-    registerCard(record.definition)
+    // Self-regulate: purge corrupt cards missing required metadata
+    if (!isValidCard(record.definition)) {
+      console.warn(`[CardGenerator] Purging corrupt card from DB: ${record.cardId}`)
+      await deleteGeneratedCard(record.cardId)
+      purged++
+      continue
+    }
+
+    registerCardUnsafe(record.definition)
     loaded++
+  }
+
+  if (purged > 0) {
+    console.info(`[CardGenerator] Purged ${purged} corrupt cards from IndexedDB`)
   }
 
   return loaded

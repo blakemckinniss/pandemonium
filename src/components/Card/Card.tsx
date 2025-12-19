@@ -56,7 +56,7 @@ const ELEMENT_CONFIG: Record<Element, { icon: string; color: string; bg: string 
   physical: { icon: 'game-icons:sword-wound', color: 'text-warm-300', bg: 'bg-warm-600' },
   fire: { icon: 'game-icons:fire', color: 'text-orange-400', bg: 'bg-orange-900' },
   ice: { icon: 'game-icons:snowflake-1', color: 'text-cyan-400', bg: 'bg-cyan-900' },
-  lightning: { icon: 'game-icons:lightning-bolt', color: 'text-yellow-300', bg: 'bg-yellow-900' },
+  lightning: { icon: 'game-icons:lightning-helix', color: 'text-yellow-300', bg: 'bg-yellow-900' },
   void: { icon: 'game-icons:portal', color: 'text-purple-400', bg: 'bg-purple-900' },
 }
 

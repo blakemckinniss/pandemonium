@@ -6,8 +6,80 @@ import type { CardDefinition, CardInstance } from '../types'
 
 const cardRegistry = new Map<string, CardDefinition>()
 
-export function registerCard(card: CardDefinition): void {
+// Required fields for each card theme
+const REQUIRED_FIELDS_BY_THEME: Record<string, (keyof CardDefinition)[]> = {
+  attack: ['id', 'name', 'description', 'energy', 'theme', 'target', 'effects', 'image', 'element'],
+  skill: ['id', 'name', 'description', 'energy', 'theme', 'target', 'effects', 'image', 'element'],
+  power: ['id', 'name', 'description', 'energy', 'theme', 'target', 'effects', 'image', 'element'],
+  curse: ['id', 'name', 'description', 'energy', 'theme', 'target', 'effects', 'element'],
+  status: ['id', 'name', 'description', 'energy', 'theme', 'target', 'effects', 'element'],
+  hero: ['id', 'name', 'description', 'theme', 'image', 'heroStats', 'element'],
+  enemy: ['id', 'name', 'description', 'theme', 'image', 'enemyStats', 'element'],
+}
+
+/**
+ * Validate a card has all required metadata for its theme.
+ * Returns list of missing fields, or empty array if valid.
+ */
+export function validateCard(card: CardDefinition): string[] {
+  const requiredFields = REQUIRED_FIELDS_BY_THEME[card.theme] ?? []
+  const missing: string[] = []
+
+  for (const field of requiredFields) {
+    const value = card[field]
+    if (value === undefined || value === null || value === '') {
+      missing.push(field)
+    }
+  }
+
+  return missing
+}
+
+/**
+ * Check if a card is valid (has all required metadata).
+ */
+export function isValidCard(card: CardDefinition): boolean {
+  return validateCard(card).length === 0
+}
+
+/**
+ * Register a card. Rejects corrupt cards missing required metadata.
+ * Returns true if registered, false if rejected.
+ */
+export function registerCard(card: CardDefinition): boolean {
+  const missing = validateCard(card)
+  if (missing.length > 0) {
+    console.warn(
+      `[CardRegistry] Rejected corrupt card "${card.id}" (${card.theme}): missing ${missing.join(', ')}`
+    )
+    return false
+  }
   cardRegistry.set(card.id, card)
+  return true
+}
+
+/**
+ * Force-register a card without validation (use sparingly).
+ * For AI-generated cards still awaiting image generation.
+ */
+export function registerCardUnsafe(card: CardDefinition): void {
+  cardRegistry.set(card.id, card)
+}
+
+/**
+ * Purge all invalid cards from the registry.
+ * Returns array of purged card IDs.
+ */
+export function purgeInvalidCards(): string[] {
+  const purged: string[] = []
+  for (const [id, card] of cardRegistry) {
+    if (!isValidCard(card)) {
+      cardRegistry.delete(id)
+      purged.push(id)
+      console.warn(`[CardRegistry] Purged corrupt card: ${id}`)
+    }
+  }
+  return purged
 }
 
 export function getCardDefinition(id: string): CardDefinition | undefined {
@@ -84,7 +156,9 @@ export function getEffectiveCardDef(card: CardInstance): CardDefinition | undefi
 // in the player's collection (IndexedDB).
 // ============================================
 
-registerCard({
+// Built-in cards use registerCardUnsafe - they're developer-curated, not AI-generated
+// The validated registerCard() is for AI-generated cards that must have images
+registerCardUnsafe({
   id: 'strike',
   name: 'Strike',
   description: 'Deal 6 damage.',
@@ -92,6 +166,7 @@ registerCard({
   theme: 'attack',
   target: 'enemy',
   rarity: 'common',
+  element: 'physical',
   effects: [{ type: 'damage', amount: 6 }],
   upgradesTo: {
     name: 'Strike+',
@@ -100,7 +175,7 @@ registerCard({
   },
 })
 
-registerCard({
+registerCardUnsafe({
   id: 'defend',
   name: 'Defend',
   description: 'Gain 5 Block.',
@@ -108,6 +183,7 @@ registerCard({
   theme: 'skill',
   target: 'self',
   rarity: 'common',
+  element: 'physical',
   effects: [{ type: 'block', amount: 5 }],
   upgradesTo: {
     name: 'Defend+',
@@ -116,7 +192,7 @@ registerCard({
   },
 })
 
-registerCard({
+registerCardUnsafe({
   id: 'bash',
   name: 'Bash',
   description: 'Deal 8 damage. Apply 2 Vulnerable.',
@@ -124,6 +200,7 @@ registerCard({
   theme: 'attack',
   target: 'enemy',
   rarity: 'common',
+  element: 'physical',
   effects: [
     { type: 'damage', amount: 8 },
     { type: 'applyPower', powerId: 'vulnerable', amount: 2 },
@@ -144,7 +221,7 @@ registerCard({
 // Additional heroes are AI-generated (~2% pack rate).
 // ============================================
 
-registerCard({
+registerCardUnsafe({
   id: 'hero_ironclad',
   name: 'Ironclad',
   description: 'A battle-hardened warrior who draws strength from combat.',
@@ -178,7 +255,7 @@ registerCard({
   effects: [], // Heroes don't have normal card effects
 })
 
-registerCard({
+registerCardUnsafe({
   id: 'hero_pyromancer',
   name: 'Pyromancer',
   description: 'A master of flames who burns enemies over time.',
@@ -224,7 +301,7 @@ registerCard({
 
 // --- POWER CARDS ---
 
-registerCard({
+registerCardUnsafe({
   id: 'inflame',
   name: 'Inflame',
   description: 'Gain 2 Strength.',
@@ -236,7 +313,7 @@ registerCard({
   effects: [{ type: 'applyPower', powerId: 'strength', amount: 2, target: 'self' }],
 })
 
-registerCard({
+registerCardUnsafe({
   id: 'demon_form',
   name: 'Demon Form',
   description: 'At the start of each turn, gain 2 Strength.',
@@ -248,7 +325,7 @@ registerCard({
   effects: [{ type: 'applyPower', powerId: 'demonForm', amount: 2, target: 'self' }],
 })
 
-registerCard({
+registerCardUnsafe({
   id: 'metallicize',
   name: 'Metallicize',
   description: 'At the end of your turn, gain 3 Block.',
@@ -260,7 +337,7 @@ registerCard({
   effects: [{ type: 'applyPower', powerId: 'metallicize', amount: 3, target: 'self' }],
 })
 
-registerCard({
+registerCardUnsafe({
   id: 'noxious_fumes',
   name: 'Noxious Fumes',
   description: 'At the start of your turn, apply 2 Poison to ALL enemies.',
@@ -274,7 +351,7 @@ registerCard({
 
 // --- ATTACK CARDS ---
 
-registerCard({
+registerCardUnsafe({
   id: 'pommel_strike',
   name: 'Pommel Strike',
   description: 'Deal 9 damage. Draw 1 card.',
@@ -289,7 +366,7 @@ registerCard({
   ],
 })
 
-registerCard({
+registerCardUnsafe({
   id: 'cleave',
   name: 'Cleave',
   description: 'Deal 8 damage to ALL enemies.',
@@ -301,7 +378,7 @@ registerCard({
   effects: [{ type: 'damage', amount: 8, target: 'allEnemies' }],
 })
 
-registerCard({
+registerCardUnsafe({
   id: 'twin_strike',
   name: 'Twin Strike',
   description: 'Deal 5 damage twice.',
@@ -316,7 +393,7 @@ registerCard({
   ],
 })
 
-registerCard({
+registerCardUnsafe({
   id: 'heavy_blade',
   name: 'Heavy Blade',
   description: 'Deal 14 damage.',
@@ -328,7 +405,7 @@ registerCard({
   effects: [{ type: 'damage', amount: 14 }],
 })
 
-registerCard({
+registerCardUnsafe({
   id: 'fireball',
   name: 'Fireball',
   description: 'Deal 12 damage. Apply 3 Burning.',
@@ -343,7 +420,7 @@ registerCard({
   ],
 })
 
-registerCard({
+registerCardUnsafe({
   id: 'frost_bolt',
   name: 'Frost Bolt',
   description: 'Deal 8 damage. Apply 2 Frozen.',
@@ -358,7 +435,7 @@ registerCard({
   ],
 })
 
-registerCard({
+registerCardUnsafe({
   id: 'lightning_strike',
   name: 'Lightning Strike',
   description: 'Deal 7 damage to a random enemy 3 times.',
@@ -374,7 +451,7 @@ registerCard({
   ],
 })
 
-registerCard({
+registerCardUnsafe({
   id: 'void_rend',
   name: 'Void Rend',
   description: 'Deal 10 damage. Apply 3 Weak.',
@@ -391,7 +468,7 @@ registerCard({
 
 // --- SKILL CARDS ---
 
-registerCard({
+registerCardUnsafe({
   id: 'shrug_it_off',
   name: 'Shrug It Off',
   description: 'Gain 8 Block. Draw 1 card.',
@@ -406,7 +483,7 @@ registerCard({
   ],
 })
 
-registerCard({
+registerCardUnsafe({
   id: 'armaments',
   name: 'Armaments',
   description: 'Gain 5 Block. Upgrade a card in your hand.',
@@ -421,7 +498,7 @@ registerCard({
   ],
 })
 
-registerCard({
+registerCardUnsafe({
   id: 'true_grit',
   name: 'True Grit',
   description: 'Gain 7 Block. Exhaust a card in your hand.',
@@ -436,7 +513,7 @@ registerCard({
   ],
 })
 
-registerCard({
+registerCardUnsafe({
   id: 'ice_barrier',
   name: 'Ice Barrier',
   description: 'Gain 12 Block. Apply 1 Frozen to yourself.',
@@ -451,7 +528,7 @@ registerCard({
   ],
 })
 
-registerCard({
+registerCardUnsafe({
   id: 'second_wind',
   name: 'Second Wind',
   description: 'Gain 12 Block. Exhaust a card in your hand.',
@@ -466,7 +543,7 @@ registerCard({
   ],
 })
 
-registerCard({
+registerCardUnsafe({
   id: 'bloodletting',
   name: 'Bloodletting',
   description: 'Lose 3 HP. Gain 2 Energy.',
@@ -481,7 +558,7 @@ registerCard({
   ],
 })
 
-registerCard({
+registerCardUnsafe({
   id: 'battle_trance',
   name: 'Battle Trance',
   description: 'Draw 3 cards. You cannot draw additional cards this turn.',
@@ -502,7 +579,7 @@ registerCard({
 // featuring enhanced WebGL holographic effects
 // ============================================
 
-registerCard({
+registerCardUnsafe({
   id: 'phoenix_rebirth',
   name: 'Phoenix Rebirth',
   description: 'Deal 15 damage. Apply 5 Burning. Heal 8 HP.',
@@ -518,7 +595,7 @@ registerCard({
   ],
 })
 
-registerCard({
+registerCardUnsafe({
   id: 'glacial_fortress',
   name: 'Glacial Fortress',
   description: 'Gain 25 Block. Apply 3 Frozen to ALL enemies.',
@@ -533,7 +610,7 @@ registerCard({
   ],
 })
 
-registerCard({
+registerCardUnsafe({
   id: 'storm_avatar',
   name: 'Storm Avatar',
   description: 'Gain 3 Strength. Deal 24 damage to ALL enemies.',
@@ -548,7 +625,7 @@ registerCard({
   ],
 })
 
-registerCard({
+registerCardUnsafe({
   id: 'void_embrace',
   name: 'Void Embrace',
   description: 'Draw 5 cards. Apply 5 Vulnerable to an enemy.',
@@ -563,7 +640,7 @@ registerCard({
   ],
 })
 
-registerCard({
+registerCardUnsafe({
   id: 'primordial_inferno',
   name: 'Primordial Inferno',
   description: 'Deal 50 damage. Apply 10 Burning.',
@@ -578,7 +655,7 @@ registerCard({
   ],
 })
 
-registerCard({
+registerCardUnsafe({
   id: 'cosmic_singularity',
   name: 'Cosmic Singularity',
   description: 'Deal 99 damage to an enemy.',

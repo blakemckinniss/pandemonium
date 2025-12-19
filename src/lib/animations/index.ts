@@ -10,6 +10,7 @@ import './card-animations'
 import './entity-animations'
 import './ui-animations'
 import './gothic-effects'
+import './combat-feedback'
 
 // Export utilities
 export { killAllTweens, getElementCenter } from './utils'

@@ -9,13 +9,17 @@ export function handleResourceEffectEvents(event: VisualEvent, ctx: HandlerConte
     case 'energy': {
       const energyOrb = ctx.queryContainer('[data-energy-orb]')
       if (energyOrb) {
-        effects.energyPulse(energyOrb, {
-          color: event.delta > 0
-            ? 'oklch(0.7 0.15 70)'
-            : 'oklch(0.4 0.1 70)',
-        })
         if (event.delta > 0) {
+          // Energy gain - use burst effect for significant gains
+          if (event.delta >= 2) {
+            effects.energyGain?.(energyOrb, { amount: event.delta })
+          } else {
+            effects.energyPulse(energyOrb, { color: 'oklch(0.7 0.15 70)' })
+          }
           emitParticle(energyOrb, 'energy')
+        } else {
+          // Energy spend - subtle drain effect
+          effects.energySpend?.(energyOrb, { amount: Math.abs(event.delta) })
         }
       }
       return true

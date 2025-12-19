@@ -126,7 +126,13 @@ export function handleCombatNumberEvents(event: VisualEvent, ctx: HandlerContext
     case 'heal': {
       ctx.spawnCombatNumber(event.targetId, event.amount, 'heal')
       const healTarget = ctx.queryContainer(`[data-target="${event.targetId}"]`)
-      if (healTarget) emitParticle(healTarget, 'heal')
+      if (healTarget) {
+        emitParticle(healTarget, 'heal')
+        // Enhanced heal pulse for significant healing (5+)
+        if (event.amount >= 5) {
+          effects.healPulse?.(healTarget, { amount: event.amount })
+        }
+      }
       return true
     }
     case 'lifesteal': {
@@ -152,7 +158,13 @@ export function handleCombatNumberEvents(event: VisualEvent, ctx: HandlerContext
     case 'block': {
       ctx.spawnCombatNumber(event.targetId, event.amount, 'block')
       const blockTarget = ctx.queryContainer(`[data-target="${event.targetId}"]`)
-      if (blockTarget) emitParticle(blockTarget, 'block')
+      if (blockTarget) {
+        emitParticle(blockTarget, 'block')
+        // Enhanced shield flash for significant blocks
+        if (event.amount >= 5) {
+          effects.shieldBlock?.(blockTarget, { amount: event.amount })
+        }
+      }
       return true
     }
   }

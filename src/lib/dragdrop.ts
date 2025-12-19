@@ -1,5 +1,18 @@
 import { Draggable, gsap } from './animations'
 
+// Typed state stored on Draggable instance during drag operations
+interface DragState {
+  originalZIndex: string
+  handCardWrapper: HTMLElement | null
+  originalWrapperZIndex: string
+  originalWrapperTransform: string
+  startX: number
+  startY: number
+}
+
+// Draggable with our custom state
+type DraggableWithState = Draggable & { _dragState?: DragState }
+
 const DRAG_CLASS = 'is-dragging'
 const OVER_CLASS = 'is-dragOver'
 const DRAG_Z_INDEX = 99999 // Ensure dragged card is always on top
@@ -56,26 +69,23 @@ export function enableDragDrop(config: DragDropConfig): void {
         // We need to boost z-index on the wrapper, not just the card
         const handCardWrapper = cardEl.closest('.HandCard') as HTMLElement | null
 
-        // Store original styles and boost to top
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-explicit-any
-        ;(this as any).originalZIndex = cardEl.style.zIndex
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-explicit-any
-        ;(this as any).handCardWrapper = handCardWrapper
+        // Store original styles in typed state
+        const draggable = this as DraggableWithState
+        draggable._dragState = {
+          originalZIndex: cardEl.style.zIndex,
+          handCardWrapper,
+          originalWrapperZIndex: handCardWrapper?.style.zIndex ?? '',
+          originalWrapperTransform: handCardWrapper?.style.transform ?? '',
+          startX: this.x,
+          startY: this.y,
+        }
+
+        // Boost to top
         if (handCardWrapper) {
-          // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-explicit-any
-          ;(this as any).originalWrapperZIndex = handCardWrapper.style.zIndex
-          // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-explicit-any
-          ;(this as any).originalWrapperTransform = handCardWrapper.style.transform
           handCardWrapper.style.zIndex = String(DRAG_Z_INDEX)
           handCardWrapper.style.transform = 'none' // Remove transform to escape stacking context
         }
         cardEl.style.zIndex = String(DRAG_Z_INDEX)
-
-        // Store start position (Draggable tracks these internally)
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-explicit-any
-        ;(this as any).startX = this.x
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-explicit-any
-        ;(this as any).startY = this.y
       },
 
       onDrag(this: Draggable) {
@@ -96,21 +106,15 @@ export function enableDragDrop(config: DragDropConfig): void {
         const cardEl = this.target as HTMLElement
         cardEl.classList.remove(DRAG_CLASS)
 
-        // Restore original z-index
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-explicit-any
-        const originalZ = (this as any).originalZIndex as string | undefined
-        cardEl.style.zIndex = originalZ || ''
+        // Restore original styles from typed state
+        const draggable = this as DraggableWithState
+        const state = draggable._dragState
+        cardEl.style.zIndex = state?.originalZIndex ?? ''
 
         // Restore wrapper styles
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-explicit-any
-        const handCardWrapper = (this as any).handCardWrapper as HTMLElement | null
-        if (handCardWrapper) {
-          // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-explicit-any
-          const originalWrapperZ = (this as any).originalWrapperZIndex as string | undefined
-          // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-explicit-any
-          const originalWrapperTransform = (this as any).originalWrapperTransform as string | undefined
-          handCardWrapper.style.zIndex = originalWrapperZ || ''
-          handCardWrapper.style.transform = originalWrapperTransform || ''
+        if (state?.handCardWrapper) {
+          state.handCardWrapper.style.zIndex = state.originalWrapperZIndex
+          state.handCardWrapper.style.transform = state.originalWrapperTransform
         }
 
         const cardTarget = getCardTarget(cardEl)
