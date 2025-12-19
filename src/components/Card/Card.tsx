@@ -504,27 +504,36 @@ interface PowerIndicatorsProps {
   powers: Powers
 }
 
-// Power indicators matching intent badge styling for unified card design
+// Power indicators using PowerToken icon-stack pattern
 const PowerIndicatorsVertical = memo(function PowerIndicatorsVertical({ powers }: PowerIndicatorsProps) {
   const entries = Object.entries(powers)
   if (entries.length === 0) return null
 
   return (
-    <div className="flex flex-col items-end gap-1">
-      {entries.slice(0, 4).map(([id, power]) => {
+    <div className="flex flex-col items-end gap-1.5 pr-1">
+      {entries.slice(0, 5).map(([id, power]) => {
         const config = POWER_ICONS[id] || { icon: 'game-icons:uncertainty', color: 'text-gray-400' }
+        const isDebuff = config.isDebuff ?? false
+
+        // Determine token modifier class
+        let modifierClass = isDebuff ? 'PowerToken--debuff' : 'PowerToken--buff'
+        if (id === 'burning') modifierClass = 'PowerToken--fire'
+        else if (id === 'frozen') modifierClass = 'PowerToken--ice'
+        else if (id === 'charged') modifierClass = 'PowerToken--lightning'
+        else if (id === 'poison') modifierClass = 'PowerToken--poison'
+
         return (
           <PowerTooltip key={id} powerId={id} power={power}>
-            <div className="px-2 py-1 rounded bg-surface-alt/90 text-sm flex items-center gap-1">
-              <Icon icon={config.icon} className={config.color} />
-              <span className={`font-medium ${config.isDebuff ? 'text-damage' : config.color}`}>{power.amount}</span>
+            <div className={`PowerToken ${modifierClass}`}>
+              <Icon icon={config.icon} className={`PowerToken-icon ${config.color}`} />
+              <span className="PowerToken-count">{power.amount}</span>
             </div>
           </PowerTooltip>
         )
       })}
-      {entries.length > 4 && (
-        <div className="px-2 py-1 rounded bg-surface-alt/90 text-sm font-medium text-muted">
-          +{entries.length - 4}
+      {entries.length > 5 && (
+        <div className="PowerToken PowerToken--more">
+          +{entries.length - 5}
         </div>
       )}
     </div>

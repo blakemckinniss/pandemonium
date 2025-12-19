@@ -596,8 +596,8 @@ export function GameScreen({ deckId, heroId, dungeonDeckId, onReturnToMenu }: Ga
       <CombatNumbers numbers={combatNumbers} onComplete={removeCombatNumber} />
       <UnlockNotification unlocks={pendingUnlocks} onComplete={handleUnlocksDismissed} />
 
-      {/* Top-right UI cluster - consolidated combat info */}
-      <div className="absolute top-4 right-4 z-10 flex flex-col items-end gap-2">
+      {/* Combat HUD - top-right consolidated info panel */}
+      <div className="absolute top-4 right-4 z-10 CombatHUD">
         <button
           onClick={handleEndTurn}
           disabled={!isPlayerTurn || isAnimating}
@@ -606,47 +606,56 @@ export function GameScreen({ deckId, heroId, dungeonDeckId, onReturnToMenu }: Ga
         >
           End Turn
         </button>
-        {/* Row 1: Room + Turn + Gold */}
-        <div className="flex gap-2">
-          <div className="Chip">
-            <Icon icon="game-icons:dungeon-gate" className="text-warm-400" />
-            <span>{currentRoom?.name ?? 'Unknown Room'}</span>
-            <span className="text-warm-500 ml-1">({deckRemaining} left)</span>
+
+        {/* Row 1: Room info */}
+        <div className="CombatHUD-row">
+          <div className="HudStat">
+            <Icon icon="game-icons:dungeon-gate" className="HudStat-icon text-warm-400" />
+            <span className="HudStat-value">{currentRoom?.name ?? 'Unknown'}</span>
           </div>
-          <div className="Chip">
-            <Icon icon="game-icons:hourglass" className="text-warm-400" />
-            <span>Turn {combat.turn}</span>
-          </div>
-          <div className="Chip">
-            <Icon icon="game-icons:two-coins" className="text-gold" />
-            <span>{state.gold}</span>
+          <div className="HudStat">
+            <Icon icon="game-icons:stack" className="HudStat-icon text-warm-500" />
+            <span className="HudStat-value">{deckRemaining}</span>
           </div>
         </div>
-        {/* Row 2: Deck piles */}
-        <div className="flex gap-2">
+
+        {/* Row 2: Turn + Gold */}
+        <div className="CombatHUD-row">
+          <div className="HudStat">
+            <Icon icon="game-icons:hourglass" className="HudStat-icon text-warm-400" />
+            <span className="HudStat-value">{combat.turn}</span>
+          </div>
+          <div className="HudStat HudStat--gold">
+            <Icon icon="game-icons:two-coins" className="HudStat-icon text-gold" />
+            <span className="HudStat-value">{state.gold}</span>
+          </div>
+        </div>
+
+        {/* Row 3: Deck piles */}
+        <div className="CombatHUD-row">
           <div
-            className="Chip PileIndicator"
+            className="HudStat HudStat--clickable"
             data-deck-pile
             onClick={() => setPileModalOpen('draw')}
           >
-            <Icon icon="game-icons:card-pickup" className="text-warm-400" />
-            <span>{combat.drawPile.length}</span>
+            <Icon icon="game-icons:card-pickup" className="HudStat-icon text-warm-400" />
+            <span className="HudStat-value">{combat.drawPile.length}</span>
           </div>
           <div
-            className="Chip PileIndicator"
+            className="HudStat HudStat--clickable"
             data-discard-pile
             onClick={() => setPileModalOpen('discard')}
           >
-            <Icon icon="game-icons:card-discard" className="text-warm-400" />
-            <span>{combat.discardPile.length}</span>
+            <Icon icon="game-icons:card-discard" className="HudStat-icon text-warm-400" />
+            <span className="HudStat-value">{combat.discardPile.length}</span>
           </div>
           {combat.exhaustPile.length > 0 && (
             <div
-              className="Chip PileIndicator"
+              className="HudStat HudStat--clickable"
               onClick={() => setPileModalOpen('exhaust')}
             >
-              <Icon icon="game-icons:card-burn" className="text-damage" />
-              <span>{combat.exhaustPile.length}</span>
+              <Icon icon="game-icons:card-burn" className="HudStat-icon text-damage" />
+              <span className="HudStat-value">{combat.exhaustPile.length}</span>
             </div>
           )}
         </div>
