@@ -833,7 +833,15 @@ export function GachaReveal({ cards, onComplete, onSkip }: GachaRevealProps) {
 
       {/* Cards grid (revealing/complete phases) */}
       {(phase === 'revealing' || phase === 'complete' || phase === 'burst') && (
-        <div className="flex flex-wrap justify-center items-start gap-6 max-w-6xl px-8 py-6">
+        <div
+          className="w-full max-w-6xl px-4 sm:px-6 lg:px-8 py-4 sm:py-6"
+        >
+          <div
+            className="grid gap-4 sm:gap-5 lg:gap-6 justify-items-center"
+            style={{
+              gridTemplateColumns: 'repeat(auto-fit, minmax(130px, 1fr))',
+            }}
+          >
           {sortedCards.map((card, index) => {
             const rarity = card.rarity || 'common'
             const colors = RARITY_COLORS[rarity] || RARITY_COLORS.common
@@ -843,7 +851,7 @@ export function GachaReveal({ cards, onComplete, onSkip }: GachaRevealProps) {
               <div
                 key={`${card.id}-${index}`}
                 ref={(el) => { cardRefs.current[index] = el }}
-                className="w-36 flex-shrink-0 transform-gpu"
+                className="w-full max-w-[160px] transform-gpu"
                 style={{
                   opacity: 0,
                   transform: 'rotateY(180deg) scale(0.5)',
@@ -898,6 +906,7 @@ export function GachaReveal({ cards, onComplete, onSkip }: GachaRevealProps) {
               </div>
             )
           })}
+          </div>
         </div>
       )}
 

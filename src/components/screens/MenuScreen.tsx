@@ -593,7 +593,7 @@ function CollectionTab({
               filteredCount={filteredCards.length}
             />
           </div>
-          <div className="flex-1 overflow-auto p-6">
+          <div className="flex-1 overflow-auto p-4 sm:p-6 lg:p-8">
             <CardGrid cards={filteredCards} onAddCard={onAddCard} onViewCard={onViewCard} />
           </div>
         </div>
@@ -738,7 +738,7 @@ function BuildTab({
             filteredCount={filteredCards.length}
           />
         </div>
-        <div className="flex-1 overflow-auto p-6">
+        <div className="flex-1 overflow-auto p-4 sm:p-6 lg:p-8">
           <p className="text-xs text-warm-500 mb-4">Click to add to deck · Right-click to view details</p>
           <CardGrid cards={filteredCards} onAddCard={onAddCard} onViewCard={onViewCard} />
         </div>
@@ -826,27 +826,49 @@ function PacksTab({
         )}
 
         {revealedCards.length > 0 && (
-          <div className="max-w-6xl mx-auto">
+          <div className="w-full max-w-6xl mx-auto px-4 sm:px-6">
             <h3 className="text-sm font-medium text-warm-400 mb-4 flex items-center gap-2">
               <Icon icon="mdi:star" className="text-energy" />
               Pack Contents ({revealedCards.length} cards)
             </h3>
-            <div className="flex flex-wrap justify-center gap-4">
-              {revealedCards.map((card, idx) => (
-                <div key={`${card.id}-${idx}`} className="w-36 flex-shrink-0 flex flex-col">
-                  <Card {...getCardDefProps(card)} variant="hand" playable />
-                  <div className="text-center mt-2">
-                    <span className={`text-xs font-semibold uppercase tracking-wide px-2 py-0.5 rounded ${
-                      card.rarity === 'legendary' ? 'text-orange-400 bg-orange-400/10'
-                        : card.rarity === 'rare' ? 'text-yellow-400 bg-yellow-400/10'
-                        : card.rarity === 'uncommon' ? 'text-blue-400 bg-blue-400/10'
-                        : 'text-warm-400 bg-warm-700/50'
-                    }`}>
-                      {card.rarity}
-                    </span>
+            <div className="grid gap-4 sm:gap-5 lg:gap-6" style={{
+              gridTemplateColumns: 'repeat(auto-fit, minmax(130px, 1fr))',
+            }}>
+              {revealedCards.map((card, idx) => {
+                const glowColor = card.rarity === 'legendary' ? 'rgba(249,115,22,0.5)'
+                  : card.rarity === 'rare' ? 'rgba(234,179,8,0.4)'
+                  : card.rarity === 'uncommon' ? 'rgba(59,130,246,0.4)'
+                  : 'rgba(156,163,175,0.3)'
+                return (
+                  <div key={`${card.id}-${idx}`} className="relative p-1">
+                    <div
+                      className="flex flex-col transition-all duration-300 ease-out
+                                 hover:scale-105 hover:z-20 rounded-lg cursor-pointer"
+                      style={{
+                        transformOrigin: 'center',
+                      }}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.boxShadow = `0 0 25px 5px ${glowColor}`
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.boxShadow = 'none'
+                      }}
+                    >
+                      <Card {...getCardDefProps(card)} variant="hand" playable />
+                      <div className="text-center mt-2">
+                        <span className={`text-xs font-semibold uppercase tracking-wide px-2 py-0.5 rounded ${
+                          card.rarity === 'legendary' ? 'text-orange-400 bg-orange-400/10'
+                            : card.rarity === 'rare' ? 'text-yellow-400 bg-yellow-400/10'
+                            : card.rarity === 'uncommon' ? 'text-blue-400 bg-blue-400/10'
+                            : 'text-warm-400 bg-warm-700/50'
+                        }`}>
+                          {card.rarity}
+                        </span>
+                      </div>
+                    </div>
                   </div>
-                </div>
-              ))}
+                )
+              })}
             </div>
           </div>
         )}
@@ -887,21 +909,28 @@ function CardGrid({
   }
 
   return (
-    <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 2xl:grid-cols-7 gap-3">
+    <div className="grid gap-4 sm:gap-5 lg:gap-6" style={{
+      gridTemplateColumns: 'repeat(auto-fit, minmax(130px, 1fr))',
+    }}>
       {cards.map(({ def, quantity }) => (
-        <button
-          key={def.id}
-          onClick={() => onAddCard(def.id)}
-          onContextMenu={(e) => { e.preventDefault(); onViewCard(def) }}
-          className="group transition-transform hover:scale-105 relative"
-        >
-          <Card {...getCardDefProps(def)} variant="hand" playable />
-          {quantity > 1 && (
-            <span className="absolute top-2 right-2 bg-energy text-warm-900 text-xs font-bold px-2 py-1 rounded-full">
-              x{quantity}
-            </span>
-          )}
-        </button>
+        <div key={def.id} className="relative p-1">
+          <button
+            onClick={() => onAddCard(def.id)}
+            onContextMenu={(e) => { e.preventDefault(); onViewCard(def) }}
+            className="group relative w-full transition-all duration-300 ease-out
+                       hover:scale-105 hover:z-20
+                       hover:shadow-[0_0_25px_5px_rgba(251,191,36,0.4)]
+                       rounded-lg"
+            style={{ transformOrigin: 'center' }}
+          >
+            <Card {...getCardDefProps(def)} variant="hand" playable />
+            {quantity > 1 && (
+              <span className="absolute top-2 right-2 bg-energy text-warm-900 text-xs font-bold px-2 py-1 rounded-full shadow-md z-10">
+                x{quantity}
+              </span>
+            )}
+          </button>
+        </div>
       ))}
     </div>
   )
