@@ -78,7 +78,7 @@ gsap.registerEffect({
   name: 'cardSelectionEnter',
   effect: (targets: gsap.TweenTarget) => {
     const tl = gsap.timeline()
-    const cards = gsap.utils.toArray(targets) as HTMLElement[]
+    const cards = gsap.utils.toArray<gsap.TweenTarget>(targets)
 
     cards.forEach((card, i) => {
       const angle = (i - (cards.length - 1) / 2) * 3
@@ -110,7 +110,7 @@ gsap.registerEffect({
   name: 'cardPileEnter',
   effect: (targets: gsap.TweenTarget) => {
     const tl = gsap.timeline()
-    const cards = gsap.utils.toArray(targets) as HTMLElement[]
+    const cards = gsap.utils.toArray<gsap.TweenTarget>(targets)
 
     cards.forEach((card, i) => {
       gsap.set(card, { opacity: 0, y: -30, x: -20 })
@@ -138,7 +138,7 @@ gsap.registerEffect({
   name: 'rewardReveal',
   effect: (targets: gsap.TweenTarget) => {
     const tl = gsap.timeline()
-    const items = gsap.utils.toArray(targets) as HTMLElement[]
+    const items = gsap.utils.toArray<gsap.TweenTarget>(targets)
 
     items.forEach((item, i) => {
       gsap.set(item, { scale: 0, opacity: 0, rotation: -10 })

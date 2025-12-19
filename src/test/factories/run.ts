@@ -156,11 +156,10 @@ export class RunBuilder {
     this.combatBuilder = CombatBuilder.new()
 
     // Return extended combat builder that can build the run directly
-    const self = this
     return Object.assign(this.combatBuilder, {
-      buildRun(): RunState {
-        self.options.combat = self.combatBuilder!.build()
-        return createRunState(self.options)
+      buildRun: (): RunState => {
+        this.options.combat = this.combatBuilder!.build()
+        return createRunState(this.options)
       },
     })
   }

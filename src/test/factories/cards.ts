@@ -71,15 +71,15 @@ export const DECKS = {
   ]),
 
   /** All strikes */
-  allStrikes: (count = 5) => createDeck(Array(count).fill('strike')),
+  allStrikes: (count = 5) => createDeck(Array<string>(count).fill('strike')),
 
   /** All defends */
-  allDefends: (count = 5) => createDeck(Array(count).fill('defend')),
+  allDefends: (count = 5) => createDeck(Array<string>(count).fill('defend')),
 
   /** Mixed deck */
   mixed: (strikes = 3, defends = 2) => createDeck([
-    ...Array(strikes).fill('strike'),
-    ...Array(defends).fill('defend'),
+    ...Array<string>(strikes).fill('strike'),
+    ...Array<string>(defends).fill('defend'),
   ]),
 
   /** Empty deck */

@@ -142,8 +142,8 @@ export function validateHero(hero: Partial<CardDefinition>): ValidatedHero {
     description: hero.ultimate.description || 'Ultimate ability',
     effects: hero.ultimate.effects.map(validateEffect),
     chargesRequired: clamp(hero.ultimate.chargesRequired ?? 4, 3, 6),
-    chargeOn: validChargeOn.includes(hero.ultimate.chargeOn as typeof validChargeOn[number])
-      ? hero.ultimate.chargeOn as typeof validChargeOn[number]
+    chargeOn: validChargeOn.includes(hero.ultimate.chargeOn)
+      ? hero.ultimate.chargeOn
       : 'turnStart',
   }
 
@@ -190,9 +190,9 @@ export function validateEnemy(data: Record<string, unknown>): ValidatedEnemy {
   }
 
   const enemyAbility: NonNullable<CardDefinition['enemyAbility']> = {
-    id: String(rawAbility.id || 'ability'),
-    name: String(rawAbility.name || 'Attack'),
-    description: String(rawAbility.description || 'A special attack'),
+    id: typeof rawAbility.id === 'string' ? rawAbility.id : 'ability',
+    name: typeof rawAbility.name === 'string' ? rawAbility.name : 'Attack',
+    description: typeof rawAbility.description === 'string' ? rawAbility.description : 'A special attack',
     effects: (rawAbility.effects as AtomicEffect[]).map(validateEffect),
     energyCost: clamp(Number(rawAbility.energyCost) || 1, 1, 4),
     cooldown: rawAbility.cooldown ? clamp(Number(rawAbility.cooldown), 0, 5) : undefined,
@@ -208,9 +208,9 @@ export function validateEnemy(data: Record<string, unknown>): ValidatedEnemy {
       : 'lowHealth'
 
     enemyUltimate = {
-      id: String(rawUltimate.id || 'ultimate'),
-      name: String(rawUltimate.name || 'Desperation'),
-      description: String(rawUltimate.description || 'A desperate attack'),
+      id: typeof rawUltimate.id === 'string' ? rawUltimate.id : 'ultimate',
+      name: typeof rawUltimate.name === 'string' ? rawUltimate.name : 'Desperation',
+      description: typeof rawUltimate.description === 'string' ? rawUltimate.description : 'A desperate attack',
       effects: (rawUltimate.effects as AtomicEffect[]).map(validateEffect),
       trigger,
       triggerValue: clamp(Number(rawUltimate.triggerValue) || 30, 10, 100),
@@ -219,7 +219,7 @@ export function validateEnemy(data: Record<string, unknown>): ValidatedEnemy {
 
   return {
     name: data.name,
-    description: String(data.description || `A dangerous ${data.name}.`),
+    description: typeof data.description === 'string' ? data.description : `A dangerous ${String(data.name)}.`,
     element: validateElement(data.element),
     enemyStats,
     enemyAbility,

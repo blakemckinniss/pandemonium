@@ -1067,19 +1067,60 @@ h1, .text-title {
   outline-offset: 6px;
 }
 
-/* Health bar - taller with text inside */
+/* Health bar - dynamic color based on HP percentage */
 .HealthBar {
+  --hp-hue: 120;
+  --hp-saturation: 75%;
+  --hp-lightness: 45%;
   height: 20px;
-  background: oklch(0.15 0 0);
+  background: oklch(0.12 0 0);
   border-radius: 4px;
   overflow: hidden;
   position: relative;
+  border: 1px solid oklch(0.25 0 0);
+  box-shadow: inset 0 1px 3px oklch(0 0 0 / 0.4);
 }
 
 .HealthBar-fill {
   height: 100%;
-  background: linear-gradient(to right, oklch(0.4 0.15 20), oklch(0.55 0.18 20));
-  transition: width 0.3s ease-out;
+  /* Use HSL for smooth color interpolation: green → yellow → red */
+  background: linear-gradient(
+    to right,
+    hsl(var(--hp-hue) var(--hp-saturation) calc(var(--hp-lightness) - 8%)),
+    hsl(var(--hp-hue) var(--hp-saturation) var(--hp-lightness))
+  );
+  box-shadow:
+    inset 0 1px 0 hsl(var(--hp-hue) 60% 65% / 0.4),
+    0 0 8px hsl(var(--hp-hue) var(--hp-saturation) var(--hp-lightness) / 0.3);
+  transition:
+    width 0.3s ease-out,
+    background 0.4s ease-out,
+    box-shadow 0.4s ease-out;
+}
+
+/* Low health warning state (25-50%) */
+.HealthBar--low .HealthBar-fill {
+  box-shadow:
+    inset 0 1px 0 hsl(var(--hp-hue) 60% 65% / 0.4),
+    0 0 10px hsl(var(--hp-hue) var(--hp-saturation) var(--hp-lightness) / 0.5);
+}
+
+/* Critical health state (<25%) - pulsing glow */
+.HealthBar--critical .HealthBar-fill {
+  animation: healthPulse 1s ease-in-out infinite;
+}
+
+@keyframes healthPulse {
+  0%, 100% {
+    box-shadow:
+      inset 0 1px 0 hsl(var(--hp-hue) 60% 65% / 0.4),
+      0 0 8px hsl(var(--hp-hue) 85% 50% / 0.6);
+  }
+  50% {
+    box-shadow:
+      inset 0 1px 0 hsl(var(--hp-hue) 60% 65% / 0.4),
+      0 0 16px hsl(var(--hp-hue) 90% 55% / 0.8);
+  }
 }
 
 .HealthBar-block {
@@ -1636,6 +1677,21 @@ h1, .text-title {
   100% { background-position: 200% 0; }
 }
 
+/* Turn transition shimmer */
+@keyframes shimmer {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(200%); }
+}
+
+.animate-shimmer {
+  animation: shimmer 1.5s ease-in-out;
+}
+
+/* Radial gradient utility for turn transitions */
+.bg-gradient-radial {
+  background: radial-gradient(ellipse at center, var(--tw-gradient-stops));
+}
+
 .Card.Card--ultra-rare {
   animation: ultra-rare-glow 1.8s ease-in-out infinite;
   position: relative;
@@ -1940,21 +1996,6 @@ h1, .text-title {
 .EnergyOrb {
   animation: energy-orb-glow 2s ease-in-out infinite;
 }
-
-/* Health bar glow effect when low */
-@keyframes health-critical {
-  0%, 100% {
-    box-shadow: 0 0 8px oklch(0.55 0.18 20 / 0.4);
-  }
-  50% {
-    box-shadow: 0 0 15px oklch(0.65 0.2 20 / 0.6);
-  }
-}
-
-.HealthBar--critical {
-  animation: health-critical 1s ease-in-out infinite;
-}
-
 /* Power badge glow on apply */
 @keyframes power-apply {
   0% {

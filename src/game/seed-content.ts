@@ -35,7 +35,7 @@ export async function seedBaseContent(): Promise<SeedResult> {
     }
     logger.info('Seed', `Registered ${result.enemies} enemies`)
   } catch (error) {
-    const msg = `Enemy generation failed: ${error}`
+    const msg = `Enemy generation failed: ${error instanceof Error ? error.message : String(error)}`
     logger.error('Seed', msg)
     result.errors.push(msg)
   }
@@ -50,7 +50,7 @@ export async function seedBaseContent(): Promise<SeedResult> {
     }
     logger.info('Seed', `Saved ${result.dungeons} dungeons`)
   } catch (error) {
-    const msg = `Dungeon generation failed: ${error}`
+    const msg = `Dungeon generation failed: ${error instanceof Error ? error.message : String(error)}`
     logger.error('Seed', msg)
     result.errors.push(msg)
   }

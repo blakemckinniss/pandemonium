@@ -686,9 +686,11 @@ export function executeInnate(
       return false
     }
 
-    findAndMark(draft.combat.hand) ||
-    findAndMark(draft.combat.drawPile) ||
-    findAndMark(draft.combat.discardPile)
+    if (!findAndMark(draft.combat.hand)) {
+      if (!findAndMark(draft.combat.drawPile)) {
+        findAndMark(draft.combat.discardPile)
+      }
+    }
   }
 
   emitVisual(draft, { type: 'cardModified', cardUids: cards.map(c => c.uid), modifier: 'innate' })
@@ -777,11 +779,12 @@ export function executeAddStatusCard(
       case 'hand':
         draft.combat.hand.push(newCard)
         break
-      case 'drawPile':
+      case 'drawPile': {
         // Add at random position
         const pos = Math.floor(Math.random() * (draft.combat.drawPile.length + 1))
         draft.combat.drawPile.splice(pos, 0, newCard)
         break
+      }
       case 'discardPile':
         draft.combat.discardPile.push(newCard)
         break

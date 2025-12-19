@@ -187,8 +187,8 @@ function validateDungeon(
     // Generate default rooms if missing
     return {
       name: data.name,
-      description: String(data.description || `A mysterious dungeon called ${data.name}.`),
-      theme: String(data.theme || 'Unknown'),
+      description: typeof data.description === 'string' ? data.description : `A mysterious dungeon called ${String(data.name)}.`,
+      theme: typeof data.theme === 'string' ? data.theme : 'Unknown',
       difficulty,
       rooms: generateDefaultRooms(targetRoomCount, difficulty),
     }
@@ -216,13 +216,16 @@ function validateDungeon(
       }
     }
 
+    const roomId = typeof room.id === 'string' ? room.id : `room_${String(index + 1).padStart(2, '0')}`
+    const enemyTier = typeof room.enemyTier === 'number' ? room.enemyTier : getTierForDifficulty(difficulty, roomType)
+
     return {
-      id: String(room.id || `room_${String(index + 1).padStart(2, '0')}`),
+      id: roomId,
       type: roomType,
       // Map enemyTier to actual enemy card IDs - will be resolved at runtime
       // For now we store the tier as a hint in enemyCardIds format
       enemyCardIds: roomType === 'combat' || roomType === 'elite' || roomType === 'boss'
-        ? [`tier_${room.enemyTier || getTierForDifficulty(difficulty, roomType)}`]
+        ? [`tier_${enemyTier}`]
         : undefined,
       modifiers: modifiers.length > 0 ? modifiers : undefined,
     }
@@ -237,8 +240,8 @@ function validateDungeon(
 
   return {
     name: data.name,
-    description: String(data.description || `A mysterious dungeon called ${data.name}.`),
-    theme: String(data.theme || 'Unknown'),
+    description: typeof data.description === 'string' ? data.description : `A mysterious dungeon called ${String(data.name)}.`,
+    theme: typeof data.theme === 'string' ? data.theme : 'Unknown',
     difficulty,
     rooms,
   }

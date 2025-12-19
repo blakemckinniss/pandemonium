@@ -219,7 +219,7 @@ export function executeEffect(
       executeReflect(draft, effect, ctx)
       break
     case 'amplify':
-      executeAmplify(draft, effect, ctx)
+      executeAmplify(draft, effect)
       break
     // Resource manipulation effects
     case 'energyNextTurn':

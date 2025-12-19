@@ -112,7 +112,7 @@ export function useVisualEventProcessor({
       spawnCombatNumber,
     }
     processEvent(event, ctx)
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+   
   }, [combat, spawnCombatNumber, queryContainer, queryHand, containerRef, setTriggeredRelicId])
 
   // Process visual event queue

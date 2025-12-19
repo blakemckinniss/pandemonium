@@ -262,7 +262,7 @@ export const Card = memo(function Card({
       {/* WebGL Holographic shader for premium rarities */}
       {isPremiumRarity && (
         <RarityShader
-          rarity={rarity as 'legendary' | 'mythic' | 'ancient'}
+          rarity={rarity}
           element={element}
           width={cardDimensions.width}
           height={cardDimensions.height}
@@ -416,12 +416,47 @@ interface HealthBarProps {
   block?: number
 }
 
+/**
+ * Get HP bar color using HSL interpolation: green (healthy) → yellow (mid) → red (critical)
+ * Hue: 120 (green) → 60 (yellow) → 0 (red)
+ */
+function getHealthColor(percent: number): { hue: number; saturation: number; lightness: number } {
+  // Clamp to 0-100
+  const p = Math.max(0, Math.min(100, percent))
+
+  // Hue: 0% → 0 (red), 50% → 45 (yellow-orange), 100% → 120 (green)
+  // Use a slight curve to make yellow region more visible
+  const hue = p <= 50
+    ? (p / 50) * 45  // 0-50% maps to red-yellow (0-45)
+    : 45 + ((p - 50) / 50) * 75  // 50-100% maps to yellow-green (45-120)
+
+  // Saturation: slightly higher at extremes for visual pop
+  const saturation = 75 + Math.abs(p - 50) * 0.3
+
+  // Lightness: slightly brighter in mid-range for visibility
+  const lightness = 42 + (1 - Math.abs(p - 50) / 50) * 8
+
+  return { hue, saturation, lightness }
+}
+
 function HealthBar({ current, max, block = 0 }: HealthBarProps) {
   const healthPercent = Math.max(0, Math.min(100, (current / max) * 100))
   const blockPercent = Math.max(0, Math.min(100, (block / max) * 100))
 
+  const color = getHealthColor(healthPercent)
+  const isCritical = healthPercent <= 25
+  const isLow = healthPercent <= 50
+
   return (
-    <div className="HealthBar">
+    <div
+      className={`HealthBar ${isCritical ? 'HealthBar--critical' : ''} ${isLow && !isCritical ? 'HealthBar--low' : ''}`}
+      style={{
+        '--hp-hue': color.hue,
+        '--hp-saturation': `${color.saturation}%`,
+        '--hp-lightness': `${color.lightness}%`,
+        '--hp-percent': healthPercent,
+      } as React.CSSProperties}
+    >
       <div className="HealthBar-fill" style={{ width: `${healthPercent}%` }} />
       {block > 0 && (
         <div className="HealthBar-block" style={{ width: `${blockPercent}%` }} />

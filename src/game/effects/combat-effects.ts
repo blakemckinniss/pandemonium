@@ -534,7 +534,7 @@ export function executeChain(
     const targetEnemy = enemies[i % enemies.length]
 
     // Apply incoming modifiers per target
-    let finalDamage = Math.floor(applyIncomingDamageModifiers(currentDamage, targetEnemy))
+    const finalDamage = Math.floor(applyIncomingDamageModifiers(currentDamage, targetEnemy))
 
     applyDamageInternal(draft, targetEnemy.id, finalDamage)
 
@@ -636,8 +636,7 @@ export function executeReflect(
 
 export function executeAmplify(
   draft: RunState,
-  effect: { type: 'amplify'; multiplier: number; attacks?: number; duration?: number },
-  _ctx: EffectContext
+  effect: { type: 'amplify'; multiplier: number; attacks?: number; duration?: number }
 ): void {
   if (!draft.combat) return
 

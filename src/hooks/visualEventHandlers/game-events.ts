@@ -75,7 +75,7 @@ export function handleGameEvents(event: VisualEvent, ctx: HandlerContext): boole
           const flash = document.createElement('div')
           flash.style.cssText = 'position:fixed;inset:0;background:oklch(0.8 0.15 70);pointer-events:none;z-index:100'
           document.body.appendChild(flash)
-          import('gsap').then(({ gsap }) => {
+          void import('gsap').then(({ gsap }) => {
             gsap.fromTo(flash, { opacity: 0.4 }, { opacity: 0, duration: 0.3, onComplete: () => flash.remove() })
           })
         }

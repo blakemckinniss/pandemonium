@@ -458,7 +458,7 @@ export const RarityShader = memo(function RarityShader({
     scene.add(mesh)
 
     // Animation loop
-    let startTime = performance.now()
+    const startTime = performance.now()
     const animate = () => {
       const elapsed = (performance.now() - startTime) / 1000
       material.uniforms.uTime.value = elapsed

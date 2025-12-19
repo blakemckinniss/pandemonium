@@ -4,7 +4,6 @@
  */
 
 import gsap from 'gsap'
-import type { CardRarity } from '../types'
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // RARITY CONFIGURATIONS - Escalating drama per tier
@@ -158,7 +157,7 @@ const REVEAL_CONFIGS: Record<string, RevealConfig> = {
   },
 }
 
-export function getRevealConfig(rarity: CardRarity | string): RevealConfig {
+export function getRevealConfig(rarity: string): RevealConfig {
   return REVEAL_CONFIGS[rarity] || REVEAL_CONFIGS.common
 }
 
@@ -318,7 +317,7 @@ export function createSilhouetteTimeline(cardEl: HTMLElement): gsap.core.Timelin
  */
 export function createCardRevealTimeline(
   cardEl: HTMLElement,
-  rarity: CardRarity | string,
+  rarity: string,
   callbacks?: {
     onRevealStart?: () => void
     onRevealComplete?: () => void
@@ -388,7 +387,7 @@ export function createCardRevealTimeline(
  */
 export function createRarityHintTimeline(
   cardEl: HTMLElement,
-  rarity: CardRarity | string
+  rarity: string
 ): gsap.core.Timeline {
   const config = getRevealConfig(rarity)
   const tl = gsap.timeline()
@@ -768,7 +767,7 @@ export function createRealityBreakTimeline(
 /**
  * Sort cards by rarity for reveal order (commons first, legendary last)
  */
-export function sortCardsForReveal<T extends { rarity?: CardRarity | string }>(cards: T[]): T[] {
+export function sortCardsForReveal<T extends { rarity?: string }>(cards: T[]): T[] {
   const rarityOrder: Record<string, number> = {
     common: 1,
     uncommon: 2,
@@ -789,7 +788,7 @@ export function sortCardsForReveal<T extends { rarity?: CardRarity | string }>(c
 /**
  * Check if rarity is "special" (rare or above)
  */
-export function isSpecialRarity(rarity: CardRarity | string): boolean {
+export function isSpecialRarity(rarity: string): boolean {
   const config = getRevealConfig(rarity)
   return config.celebrationTier > 0
 }
@@ -797,7 +796,7 @@ export function isSpecialRarity(rarity: CardRarity | string): boolean {
 /**
  * Get total reveal duration for a set of cards
  */
-export function getTotalRevealDuration(rarities: (CardRarity | string)[]): number {
+export function getTotalRevealDuration(rarities: string[]): number {
   return rarities.reduce((total, rarity) => {
     const config = getRevealConfig(rarity)
     return total + config.duration + config.pauseBefore + 0.4
@@ -807,7 +806,7 @@ export function getTotalRevealDuration(rarities: (CardRarity | string)[]): numbe
 /**
  * Get highest rarity in a set (for pack preview hints)
  */
-export function getHighestRarity(rarities: (CardRarity | string)[]): string {
+export function getHighestRarity(rarities: string[]): string {
   const order = ['common', 'uncommon', 'rare', 'ultra-rare', 'legendary', 'mythic', 'ancient']
   let highest = 'common'
 

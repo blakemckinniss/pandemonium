@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/no-unsafe-argument */
+ 
 import { describe, it, expect } from 'vitest'
 import {
   checkElementalCombo,

@@ -67,7 +67,7 @@ export function enableDragDrop(config: DragDropConfig): void {
 
         // The HandCard wrapper has transform which creates a stacking context
         // We need to boost z-index on the wrapper, not just the card
-        const handCardWrapper = cardEl.closest('.HandCard') as HTMLElement | null
+        const handCardWrapper = cardEl.closest<HTMLElement>('.HandCard')
 
         // Store original styles in typed state
         const draggable = this as DraggableWithState
@@ -222,7 +222,7 @@ function playCardAnimation(
 ): void {
   // Keep card above field entities during animation
   // The wrapper's transform creates a stacking context, so we must boost it too
-  const handCardWrapper = cardEl.closest('.HandCard') as HTMLElement | null
+  const handCardWrapper = cardEl.closest<HTMLElement>('.HandCard')
   if (handCardWrapper) {
     handCardWrapper.style.zIndex = String(DRAG_Z_INDEX)
     handCardWrapper.style.transform = 'none'

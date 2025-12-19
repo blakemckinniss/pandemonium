@@ -1,4 +1,5 @@
 import type { CardDefinition, CardInstance } from '../types'
+import { logger } from '../lib/logger'
 
 // ============================================
 // CARD REGISTRY
@@ -49,9 +50,7 @@ export function isValidCard(card: CardDefinition): boolean {
 export function registerCard(card: CardDefinition): boolean {
   const missing = validateCard(card)
   if (missing.length > 0) {
-    console.warn(
-      `[CardRegistry] Rejected corrupt card "${card.id}" (${card.theme}): missing ${missing.join(', ')}`
-    )
+    logger.warn('CardRegistry', `Rejected corrupt card "${card.id}" (${card.theme}): missing ${missing.join(', ')}`)
     return false
   }
   cardRegistry.set(card.id, card)
@@ -76,7 +75,7 @@ export function purgeInvalidCards(): string[] {
     if (!isValidCard(card)) {
       cardRegistry.delete(id)
       purged.push(id)
-      console.warn(`[CardRegistry] Purged corrupt card: ${id}`)
+      logger.warn('CardRegistry', `Purged corrupt card: ${id}`)
     }
   }
   return purged

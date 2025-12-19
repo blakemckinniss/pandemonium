@@ -18,7 +18,7 @@ interface RoomHandlersConfig {
 
 export interface RoomHandlers {
   handleSelectRoom: (roomUid: string) => void
-  handleRestart: () => void
+  handleRestart: () => Promise<void>
   handleUnlocksDismissed: () => void
 }
 
