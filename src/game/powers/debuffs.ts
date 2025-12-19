@@ -57,4 +57,15 @@ export const DEBUFF_POWERS: PowerDefinition[] = [
     removeAtZero: true,
     isDebuff: true,
   },
+  {
+    id: 'marked',
+    name: 'Marked',
+    description: 'Takes {amount}% more damage from attacks. {duration} turn(s).',
+    stackBehavior: 'intensity',
+    // Note: Damage bonus calculated specially based on amount (stored as percentage)
+    // Applied via applyIncomingDamageModifiers when checking for 'marked' power
+    decayOn: 'turnEnd',
+    removeAtZero: true,
+    isDebuff: true,
+  },
 ]

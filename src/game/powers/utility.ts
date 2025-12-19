@@ -132,4 +132,14 @@ export const UTILITY_POWERS: PowerDefinition[] = [
       },
     ],
   },
+  {
+    id: 'tempMaxEnergy',
+    name: 'Temporary Energy',
+    description: 'Max energy increased by {amount}. Expires at turn start.',
+    stackBehavior: 'intensity',
+    // Note: Energy increase applied immediately in executeTempMaxEnergy
+    // Decrease handled at turn start via decay
+    decayOn: 'turnStart',
+    removeAtZero: true,
+  },
 ]

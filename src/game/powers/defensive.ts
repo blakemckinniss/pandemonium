@@ -96,4 +96,25 @@ export const DEFENSIVE_POWERS: PowerDefinition[] = [
     stackBehavior: 'intensity',
     // Note: Block preservation handled in turn start logic
   },
+  {
+    id: 'reflect',
+    name: 'Reflect',
+    description: 'When attacked, deal {amount} damage back to attacker. {duration} turn(s).',
+    stackBehavior: 'duration',
+    triggers: [
+      {
+        event: 'onAttacked',
+        effects: [
+          {
+            type: 'damage',
+            amount: { type: 'scaled', base: 0, perUnit: 1, source: 'powerStacks' },
+            target: 'source', // Damage the attacker
+            piercing: true,
+          },
+        ],
+      },
+    ],
+    decayOn: 'turnStart',
+    removeAtZero: true,
+  },
 ]

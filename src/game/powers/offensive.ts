@@ -120,4 +120,26 @@ export const OFFENSIVE_POWERS: PowerDefinition[] = [
       },
     ],
   },
+  {
+    id: 'amplify',
+    name: 'Amplify',
+    description: 'Your next {amount} attack(s) deal double damage.',
+    stackBehavior: 'intensity',
+    // Note: Damage multiplier applied via applyOutgoingDamageModifiers
+    // Consumes 1 stack per attack (handled in modifier application)
+    triggers: [
+      {
+        event: 'onAttack',
+        effects: [
+          {
+            type: 'removePower',
+            powerId: 'amplify',
+            amount: 1,
+            target: 'self',
+          },
+        ],
+      },
+    ],
+    removeAtZero: true,
+  },
 ]
