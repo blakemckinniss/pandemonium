@@ -431,21 +431,32 @@ function PlayTab({
       {availableHeroes.length > 0 && (
         <div className="mb-8">
           <p className="section-header">Select Hero</p>
-          <div className="flex gap-3 flex-wrap justify-center max-w-2xl">
+          <div className="flex gap-4 flex-wrap justify-center max-w-3xl">
             {availableHeroes.map((hero) => (
-              <button
+              <div
                 key={hero.id}
                 onClick={() => setSelectedHeroId(hero.id)}
-                className={`selection-btn ${selectedHeroId === hero.id ? 'selection-btn--selected' : ''}`}
+                className="cursor-pointer transition-all duration-200 hover:opacity-100"
+                style={selectedHeroId === hero.id ? {
+                  filter: 'drop-shadow(0 0 12px rgba(255, 200, 100, 0.6))',
+                  transform: 'scale(1.05)',
+                } : {
+                  opacity: 0.75,
+                }}
               >
-                <Icon icon="mdi:shield-account" className="text-2xl opacity-70" />
-                <span className="selection-btn__label">{hero.name}</span>
+                <Card
+                  variant="hand"
+                  {...getCardDefProps(hero)}
+                />
+                {/* Hero stats below card */}
                 {hero.heroStats && (
-                  <span className="selection-btn__meta">
-                    {hero.heroStats.health} HP · {hero.heroStats.energy} Energy
-                  </span>
+                  <div className="mt-2 text-center text-sm text-warm-400">
+                    <span className="text-heal">{hero.heroStats.health} HP</span>
+                    <span className="mx-2">·</span>
+                    <span className="text-energy">{hero.heroStats.energy} Energy</span>
+                  </div>
                 )}
-              </button>
+              </div>
             ))}
           </div>
         </div>
@@ -815,20 +826,21 @@ function PacksTab({
         )}
 
         {revealedCards.length > 0 && (
-          <div className="max-w-4xl mx-auto">
+          <div className="max-w-6xl mx-auto">
             <h3 className="text-sm font-medium text-warm-400 mb-4 flex items-center gap-2">
               <Icon icon="mdi:star" className="text-energy" />
               Pack Contents ({revealedCards.length} cards)
             </h3>
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-4">
+            <div className="flex flex-wrap justify-center gap-4">
               {revealedCards.map((card, idx) => (
-                <div key={`${card.id}-${idx}`} className="transform transition-all">
+                <div key={`${card.id}-${idx}`} className="w-36 flex-shrink-0 flex flex-col">
                   <Card {...getCardDefProps(card)} variant="hand" playable />
-                  <div className="text-center mt-1">
-                    <span className={`text-xs font-medium ${
-                      card.rarity === 'rare' ? 'text-yellow-400'
-                        : card.rarity === 'uncommon' ? 'text-blue-400'
-                        : 'text-warm-400'
+                  <div className="text-center mt-2">
+                    <span className={`text-xs font-semibold uppercase tracking-wide px-2 py-0.5 rounded ${
+                      card.rarity === 'legendary' ? 'text-orange-400 bg-orange-400/10'
+                        : card.rarity === 'rare' ? 'text-yellow-400 bg-yellow-400/10'
+                        : card.rarity === 'uncommon' ? 'text-blue-400 bg-blue-400/10'
+                        : 'text-warm-400 bg-warm-700/50'
                     }`}>
                       {card.rarity}
                     </span>
