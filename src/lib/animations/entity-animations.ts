@@ -73,6 +73,54 @@ gsap.registerEffect({
   extendTimeline: true,
 })
 
+// Screen shake for heavy damage - intensity-based camera shake
+gsap.registerEffect({
+  name: 'screenShake',
+  effect: (targets: gsap.TweenTarget, config: { intensity?: number }) => {
+    const intensity = config.intensity ?? 1
+    const tl = gsap.timeline()
+
+    // Calculate shake parameters based on intensity
+    const xAmount = 8 * intensity
+    const yAmount = 4 * intensity
+    const rotAmount = 0.5 * intensity
+    const duration = 0.03 + 0.01 * intensity
+    const repeats = Math.min(6, 3 + Math.floor(intensity))
+
+    // Chaotic multi-axis shake
+    tl.to(targets, {
+      x: `+=${xAmount}`,
+      y: `-=${yAmount}`,
+      rotation: rotAmount,
+      duration,
+      ease: 'power2.out',
+    })
+
+    for (let i = 0; i < repeats; i++) {
+      const decay = 1 - i / (repeats + 1)
+      tl.to(targets, {
+        x: `${i % 2 === 0 ? '-' : '+'}=${xAmount * decay}`,
+        y: `${i % 2 === 0 ? '+' : '-'}=${yAmount * decay}`,
+        rotation: (i % 2 === 0 ? -1 : 1) * rotAmount * decay,
+        duration: duration * (1 + decay * 0.5),
+        ease: 'power2.inOut',
+      })
+    }
+
+    // Return to origin
+    tl.to(targets, {
+      x: 0,
+      y: 0,
+      rotation: 0,
+      duration: 0.1,
+      ease: 'power2.out',
+    })
+
+    return tl
+  },
+  extendTimeline: true,
+})
+
 // Low HP danger warning - pulsing red glow
 gsap.registerEffect({
   name: 'healthDanger',

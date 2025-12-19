@@ -50,22 +50,28 @@ export function handleCombatNumberEvents(event: VisualEvent, ctx: HandlerContext
               setTimeout(() => emitParticle(damageTarget, particle), i * 50)
             })
           }
-          // Extra screen shake for combos
-          if (ctx.containerRef.current) {
-            effects.shake(ctx.containerRef.current, { intensity: 10 })
-          }
         }
 
         // Critical hits get extra particle burst
         if (isCritical) {
           emitParticle(damageTarget, 'critical')
           emitParticle(damageTarget, 'spark')
-          // Screen shake for critical
-          if (ctx.containerRef.current) {
-            effects.shake(ctx.containerRef.current, { intensity: 8 })
-          }
         } else {
           emitParticle(damageTarget, 'spark')
+        }
+
+        // Screen shake scales with damage - devastating hits get dramatic shake
+        if (ctx.containerRef.current) {
+          if (event.amount >= 25) {
+            // Devastating damage - intense screen shake
+            effects.screenShake?.(ctx.containerRef.current, { intensity: 2.5 })
+          } else if (event.amount >= 15) {
+            // Heavy damage - strong shake
+            effects.screenShake?.(ctx.containerRef.current, { intensity: 1.5 })
+          } else if (event.amount >= 10 || event.comboName) {
+            // Moderate damage or combo - medium shake
+            effects.screenShake?.(ctx.containerRef.current, { intensity: 1 })
+          }
         }
 
         // Hit flash and shake for enemies
