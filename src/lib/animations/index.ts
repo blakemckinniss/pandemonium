@@ -11,6 +11,7 @@ import './entity-animations'
 import './ui-animations'
 import './gothic-effects'
 import './combat-feedback'
+import './screen-transitions'
 
 // Export utilities
 export { killAllTweens, getElementCenter } from './utils'

@@ -9,6 +9,7 @@ import { RoomSelect } from '../DungeonDeck/RoomSelect'
 import { RewardScreen } from './RewardScreen'
 import { CampfireScreen } from './CampfireScreen'
 import { TreasureScreen } from './TreasureScreen'
+import { PhaseWrapper } from '../ScreenTransition'
 import { UnlockNotification } from '../UnlockNotification/UnlockNotification'
 import { ParticleEffects } from '../ParticleEffects/ParticleEffects'
 import { emitParticle } from '../ParticleEffects/emitParticle'
@@ -452,38 +453,44 @@ export function GameScreen({ deckId, heroId, dungeonDeckId, onReturnToMenu }: Ga
   // Room selection phase
   if (state.gamePhase === 'roomSelect') {
     return (
-      <RoomSelect
-        choices={state.roomChoices}
-        floor={state.floor}
-        onSelectRoom={handleSelectRoom}
-      />
+      <PhaseWrapper phase="roomSelect" className="h-screen">
+        <RoomSelect
+          choices={state.roomChoices}
+          floor={state.floor}
+          onSelectRoom={handleSelectRoom}
+        />
+      </PhaseWrapper>
     )
   }
 
   // Reward phase
   if (state.gamePhase === 'reward') {
     return (
-      <RewardScreen
-        floor={state.floor}
-        gold={state.gold}
-        ownedRelicIds={state.relics.map((r) => r.definitionId)}
-        onAddCard={rewardHandlers.handleAddCard}
-        onAddRelic={rewardHandlers.handleAddRelic}
-        onSkip={rewardHandlers.handleSkipReward}
-      />
+      <PhaseWrapper phase="reward" className="h-screen">
+        <RewardScreen
+          floor={state.floor}
+          gold={state.gold}
+          ownedRelicIds={state.relics.map((r) => r.definitionId)}
+          onAddCard={rewardHandlers.handleAddCard}
+          onAddRelic={rewardHandlers.handleAddRelic}
+          onSkip={rewardHandlers.handleSkipReward}
+        />
+      </PhaseWrapper>
     )
   }
 
   // Campfire phase
   if (state.gamePhase === 'campfire') {
     return (
-      <CampfireScreen
-        hero={state.hero}
-        deck={state.deck}
-        onRest={campfireHandlers.handleCampfireRest}
-        onSmith={campfireHandlers.handleCampfireSmith}
-        onSkip={campfireHandlers.handleCampfireSkip}
-      />
+      <PhaseWrapper phase="campfire" className="h-screen">
+        <CampfireScreen
+          hero={state.hero}
+          deck={state.deck}
+          onRest={campfireHandlers.handleCampfireRest}
+          onSmith={campfireHandlers.handleCampfireSmith}
+          onSkip={campfireHandlers.handleCampfireSkip}
+        />
+      </PhaseWrapper>
     )
   }
 
@@ -491,72 +498,78 @@ export function GameScreen({ deckId, heroId, dungeonDeckId, onReturnToMenu }: Ga
   if (state.gamePhase === 'treasure') {
     const isLargeTreasure = currentRoomId === 'treasure_large'
     return (
-      <TreasureScreen
-        floor={state.floor}
-        isLargeTreasure={isLargeTreasure}
-        ownedRelicIds={state.relics.map((r) => r.definitionId)}
-        onSelectRelic={treasureHandlers.handleTreasureSelectRelic}
-        onSkip={treasureHandlers.handleTreasureSkip}
-      />
+      <PhaseWrapper phase="treasure" className="h-screen">
+        <TreasureScreen
+          floor={state.floor}
+          isLargeTreasure={isLargeTreasure}
+          ownedRelicIds={state.relics.map((r) => r.definitionId)}
+          onSelectRelic={treasureHandlers.handleTreasureSelectRelic}
+          onSkip={treasureHandlers.handleTreasureSkip}
+        />
+      </PhaseWrapper>
     )
   }
 
   // Dungeon complete (boss defeated)
   if (state.gamePhase === 'dungeonComplete') {
     return (
-      <div className="h-screen flex flex-col items-center justify-center bg-gradient-to-b from-amber-900/20 to-warm-900">
-        <UnlockNotification unlocks={pendingUnlocks} onComplete={handleUnlocksDismissed} />
-        <div className="text-center">
-          <div className="text-6xl mb-4">👑</div>
-          <h1 className="text-5xl font-bold text-energy mb-4">Dungeon Conquered!</h1>
-          <p className="text-xl text-warm-300 mb-6">You have defeated the dungeon boss!</p>
+      <PhaseWrapper phase="dungeonComplete">
+        <div className="h-screen flex flex-col items-center justify-center bg-gradient-to-b from-amber-900/20 to-warm-900">
+          <UnlockNotification unlocks={pendingUnlocks} onComplete={handleUnlocksDismissed} />
+          <div className="text-center">
+            <div className="text-6xl mb-4">👑</div>
+            <h1 className="text-5xl font-bold text-energy mb-4">Dungeon Conquered!</h1>
+            <p className="text-xl text-warm-300 mb-6">You have defeated the dungeon boss!</p>
 
-          <div className="bg-warm-800/50 rounded-xl p-6 mb-8 border border-energy/30">
-            <h2 className="text-2xl font-bold text-energy mb-4">Rewards</h2>
-            <div className="flex items-center justify-center gap-2 text-3xl">
-              <Icon icon="mdi:gold" className="text-energy" />
-              <span className="text-energy font-bold">+{dungeonReward ?? 0}</span>
+            <div className="bg-warm-800/50 rounded-xl p-6 mb-8 border border-energy/30">
+              <h2 className="text-2xl font-bold text-energy mb-4">Rewards</h2>
+              <div className="flex items-center justify-center gap-2 text-3xl">
+                <Icon icon="mdi:gold" className="text-energy" />
+                <span className="text-energy font-bold">+{dungeonReward ?? 0}</span>
+              </div>
+              <p className="text-warm-400 mt-2">Total Gold: {state.gold}</p>
             </div>
-            <p className="text-warm-400 mt-2">Total Gold: {state.gold}</p>
-          </div>
 
-          <div className="text-sm text-warm-500 mb-8 space-y-1">
-            <p>Floors Cleared: {state.floor}</p>
+            <div className="text-sm text-warm-500 mb-8 space-y-1">
+              <p>Floors Cleared: {state.floor}</p>
+              <p>Enemies Slain: {state.stats.enemiesKilled}</p>
+              <p>Damage Dealt: {state.stats.damageDealt}</p>
+            </div>
+
+            <button
+              onClick={handleRestart}
+              className="px-8 py-3 bg-energy text-black font-bold rounded-lg text-lg hover:brightness-110 transition"
+            >
+              Return to Menu
+            </button>
+          </div>
+        </div>
+      </PhaseWrapper>
+    )
+  }
+
+  // Game over (defeat - player died)
+  if (state.gamePhase === 'gameOver') {
+    return (
+      <PhaseWrapper phase="gameOver">
+        <div className="h-screen flex flex-col items-center justify-center bg-gradient-to-b from-warm-900 to-warm-900">
+          <UnlockNotification unlocks={pendingUnlocks} onComplete={handleUnlocksDismissed} />
+          <h1 className="text-5xl font-bold text-heal mb-4">Dungeon Cleared!</h1>
+          <p className="text-xl text-warm-400 mb-2">You conquered all {state.floor} floors</p>
+          <p className="text-lg text-energy mb-4">Final Gold: {state.gold}</p>
+          <div className="text-sm text-warm-500 mb-8 space-y-1 text-center">
             <p>Enemies Slain: {state.stats.enemiesKilled}</p>
             <p>Damage Dealt: {state.stats.damageDealt}</p>
+            <p>Cards Played: {state.stats.cardsPlayed}</p>
           </div>
-
           <button
             onClick={handleRestart}
             className="px-8 py-3 bg-energy text-black font-bold rounded-lg text-lg hover:brightness-110 transition"
           >
-            Return to Menu
+            New Run
           </button>
         </div>
-      </div>
-    )
-  }
-
-  // Game over (win)
-  if (state.gamePhase === 'gameOver') {
-    return (
-      <div className="h-screen flex flex-col items-center justify-center bg-gradient-to-b from-warm-900 to-warm-900">
-        <UnlockNotification unlocks={pendingUnlocks} onComplete={handleUnlocksDismissed} />
-        <h1 className="text-5xl font-bold text-heal mb-4">Dungeon Cleared!</h1>
-        <p className="text-xl text-warm-400 mb-2">You conquered all {state.floor} floors</p>
-        <p className="text-lg text-energy mb-4">Final Gold: {state.gold}</p>
-        <div className="text-sm text-warm-500 mb-8 space-y-1 text-center">
-          <p>Enemies Slain: {state.stats.enemiesKilled}</p>
-          <p>Damage Dealt: {state.stats.damageDealt}</p>
-          <p>Cards Played: {state.stats.cardsPlayed}</p>
-        </div>
-        <button
-          onClick={handleRestart}
-          className="px-8 py-3 bg-energy text-black font-bold rounded-lg text-lg hover:brightness-110 transition"
-        >
-          New Run
-        </button>
-      </div>
+      </PhaseWrapper>
     )
   }
 
