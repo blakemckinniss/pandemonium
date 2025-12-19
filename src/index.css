@@ -1121,6 +1121,142 @@ h1, .text-title {
   border-color: oklch(0.4 0.15 20);
 }
 
+/* ============================================
+   STATUS EFFECT AURAS
+   ============================================ */
+
+/* Base aura for entities with any powers */
+.Card--player.has-powers,
+.Card--enemy.has-powers {
+  position: relative;
+}
+
+.Card--player.has-powers::before,
+.Card--enemy.has-powers::before {
+  content: '';
+  position: absolute;
+  inset: -6px;
+  border-radius: 16px;
+  opacity: 0.6;
+  pointer-events: none;
+  z-index: -1;
+  animation: status-aura-pulse 2s ease-in-out infinite;
+}
+
+@keyframes status-aura-pulse {
+  0%, 100% { opacity: 0.4; transform: scale(1); }
+  50% { opacity: 0.7; transform: scale(1.02); }
+}
+
+/* Buff aura - golden glow */
+.Card--player.has-buffs::before,
+.Card--enemy.has-buffs::before {
+  background: radial-gradient(
+    ellipse at center,
+    oklch(0.7 0.15 90 / 0.3) 0%,
+    oklch(0.6 0.12 85 / 0.15) 50%,
+    transparent 70%
+  );
+  box-shadow:
+    0 0 20px oklch(0.6 0.15 90 / 0.3),
+    0 0 40px oklch(0.5 0.12 85 / 0.15);
+}
+
+/* Debuff aura - sickly red/purple */
+.Card--player.has-debuffs::before,
+.Card--enemy.has-debuffs::before {
+  background: radial-gradient(
+    ellipse at center,
+    oklch(0.5 0.18 25 / 0.3) 0%,
+    oklch(0.4 0.15 320 / 0.15) 50%,
+    transparent 70%
+  );
+  box-shadow:
+    0 0 20px oklch(0.5 0.18 25 / 0.3),
+    0 0 40px oklch(0.4 0.15 320 / 0.15);
+  animation: status-aura-pulse 1.5s ease-in-out infinite;
+}
+
+/* Mixed buffs and debuffs - swirling effect */
+.Card--player.has-buffs.has-debuffs::before,
+.Card--enemy.has-buffs.has-debuffs::before {
+  background: conic-gradient(
+    from 0deg,
+    oklch(0.6 0.15 90 / 0.25) 0deg,
+    oklch(0.5 0.18 25 / 0.25) 90deg,
+    oklch(0.6 0.15 90 / 0.25) 180deg,
+    oklch(0.5 0.18 25 / 0.25) 270deg,
+    oklch(0.6 0.15 90 / 0.25) 360deg
+  );
+  animation: status-aura-swirl 4s linear infinite;
+}
+
+@keyframes status-aura-swirl {
+  0% { transform: rotate(0deg) scale(1); opacity: 0.5; }
+  50% { transform: rotate(180deg) scale(1.03); opacity: 0.7; }
+  100% { transform: rotate(360deg) scale(1); opacity: 0.5; }
+}
+
+/* Elemental status auras */
+.Card.has-burning::after {
+  content: '';
+  position: absolute;
+  inset: -4px;
+  border-radius: 14px;
+  background: radial-gradient(ellipse at bottom, oklch(0.6 0.25 35 / 0.4) 0%, transparent 60%);
+  animation: burning-aura 0.8s ease-in-out infinite alternate;
+  pointer-events: none;
+  z-index: -1;
+}
+
+@keyframes burning-aura {
+  0% { opacity: 0.5; transform: scaleY(1); }
+  100% { opacity: 0.8; transform: scaleY(1.1); }
+}
+
+.Card.has-frozen::after {
+  content: '';
+  position: absolute;
+  inset: -4px;
+  border-radius: 14px;
+  background: radial-gradient(ellipse at center, oklch(0.7 0.12 220 / 0.3) 0%, transparent 70%);
+  box-shadow: 0 0 15px oklch(0.6 0.15 220 / 0.4);
+  pointer-events: none;
+  z-index: -1;
+}
+
+.Card.has-charged::after {
+  content: '';
+  position: absolute;
+  inset: -4px;
+  border-radius: 14px;
+  background: radial-gradient(ellipse at center, oklch(0.8 0.2 95 / 0.3) 0%, transparent 60%);
+  animation: charged-aura 0.3s ease-in-out infinite alternate;
+  pointer-events: none;
+  z-index: -1;
+}
+
+@keyframes charged-aura {
+  0% { opacity: 0.4; box-shadow: 0 0 10px oklch(0.8 0.2 95 / 0.3); }
+  100% { opacity: 0.8; box-shadow: 0 0 25px oklch(0.9 0.25 95 / 0.5); }
+}
+
+.Card.has-poison::after {
+  content: '';
+  position: absolute;
+  inset: -4px;
+  border-radius: 14px;
+  background: radial-gradient(ellipse at center, oklch(0.5 0.2 140 / 0.3) 0%, transparent 60%);
+  animation: poison-aura 2s ease-in-out infinite;
+  pointer-events: none;
+  z-index: -1;
+}
+
+@keyframes poison-aura {
+  0%, 100% { opacity: 0.4; }
+  50% { opacity: 0.7; }
+}
+
 /* Combat numbers (FCT) */
 .CombatNumber {
   position: absolute;

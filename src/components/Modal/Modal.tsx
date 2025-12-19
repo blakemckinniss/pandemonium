@@ -1,5 +1,6 @@
-import { useEffect, useRef, type ReactNode } from 'react'
+import { useEffect, useRef, useState, type ReactNode } from 'react'
 import { Icon } from '@iconify/react'
+import { gsap } from '../../lib/animations'
 
 interface ModalProps {
   isOpen: boolean
@@ -11,17 +12,41 @@ interface ModalProps {
 
 export function Modal({ isOpen, onClose, title, children, size = 'md' }: ModalProps) {
   const dialogRef = useRef<HTMLDialogElement>(null)
+  const contentRef = useRef<HTMLDivElement>(null)
+  const [isAnimating, setIsAnimating] = useState(false)
+  const [isVisible, setIsVisible] = useState(false)
 
   useEffect(() => {
     const dialog = dialogRef.current
-    if (!dialog) return
+    const content = contentRef.current
+    if (!dialog || !content) return
 
-    if (isOpen) {
+    if (isOpen && !isVisible) {
+      // Opening animation
       dialog.showModal()
-    } else {
-      dialog.close()
+      setIsVisible(true)
+      setIsAnimating(true)
+
+      gsap.effects.modalBackdropIn(dialog)
+      gsap.effects.modalEnter(content, {
+        onComplete: () => setIsAnimating(false),
+      })
+    } else if (!isOpen && isVisible) {
+      // Closing animation
+      setIsAnimating(true)
+
+      const tl = gsap.timeline({
+        onComplete: () => {
+          dialog.close()
+          setIsVisible(false)
+          setIsAnimating(false)
+        },
+      })
+
+      tl.add(gsap.effects.modalExit(content), 0)
+      tl.add(gsap.effects.modalBackdropOut(dialog), 0)
     }
-  }, [isOpen])
+  }, [isOpen, isVisible])
 
   // Handle backdrop click
   const handleBackdropClick = (e: React.MouseEvent) => {
@@ -48,15 +73,15 @@ export function Modal({ isOpen, onClose, title, children, size = 'md' }: ModalPr
     xl: 'max-w-6xl',
   }
 
-  if (!isOpen) return null
+  if (!isOpen && !isVisible) return null
 
   return (
     <dialog
       ref={dialogRef}
-      onClick={handleBackdropClick}
+      onClick={isAnimating ? undefined : handleBackdropClick}
       className="Modal-backdrop"
     >
-      <div className={`Modal ${sizeClasses[size]}`}>
+      <div ref={contentRef} className={`Modal ${sizeClasses[size]}`}>
         {/* Header */}
         <div className="Modal-header">
           <h2 className="Modal-title">{title}</h2>

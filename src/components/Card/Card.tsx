@@ -177,6 +177,31 @@ export const Card = memo(function Card({
   }, [variant, playable, disabled, theme])
 
   const displayName = upgraded ? `${name}+` : name
+  // Derive power-based aura classes for entities
+  const powerClasses = (() => {
+    if (!powers || (variant !== 'player' && variant !== 'enemy')) return []
+    const entries = Object.entries(powers)
+    if (entries.length === 0) return []
+
+    const result: string[] = ['has-powers']
+
+    // Check for buffs vs debuffs
+    const debuffIds = ['weak', 'vulnerable', 'frail', 'poison', 'burning', 'frozen', 'wet', 'oiled']
+    const hasBuffs = entries.some(([id]) => !debuffIds.includes(id))
+    const hasDebuffs = entries.some(([id]) => debuffIds.includes(id))
+
+    if (hasBuffs) result.push('has-buffs')
+    if (hasDebuffs) result.push('has-debuffs')
+
+    // Elemental status auras
+    if (powers.burning) result.push('has-burning')
+    if (powers.frozen) result.push('has-frozen')
+    if (powers.charged) result.push('has-charged')
+    if (powers.poison) result.push('has-poison')
+
+    return result
+  })()
+
   const classes = [
     'Card',
     `Card--${variant}`,
@@ -186,6 +211,7 @@ export const Card = memo(function Card({
     upgraded && 'Card--upgraded',
     playable && 'is-playable',
     disabled && 'is-disabled',
+    ...powerClasses,
     className,
   ]
     .filter(Boolean)
