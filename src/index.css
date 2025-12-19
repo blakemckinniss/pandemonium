@@ -2211,6 +2211,50 @@ h1, .text-title {
   color: oklch(0.5 0 0);
 }
 
+/* Stack change animations */
+@keyframes powertoken-pulse-up {
+  0% { transform: scale(1); }
+  25% { transform: scale(1.25); }
+  50% { transform: scale(1.1); }
+  100% { transform: scale(1); }
+}
+
+@keyframes powertoken-pulse-down {
+  0% { transform: scale(1); opacity: 1; }
+  25% { transform: scale(0.85); opacity: 0.7; }
+  50% { transform: scale(0.95); opacity: 0.9; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+@keyframes powertoken-flash {
+  0%, 100% { filter: brightness(1); }
+  50% { filter: brightness(1.5); }
+}
+
+.PowerToken--pulse-up {
+  animation: powertoken-pulse-up 0.4s ease-out, powertoken-flash 0.4s ease-out;
+}
+
+.PowerToken--pulse-down {
+  animation: powertoken-pulse-down 0.4s ease-out;
+}
+
+/* Generic pulse for any change */
+.PowerToken--pulse {
+  animation: powertoken-pulse-up 0.3s ease-out;
+}
+
+/* Count badge specific animations */
+@keyframes count-pop {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.4); }
+  100% { transform: scale(1); }
+}
+
+.PowerToken-count--changed {
+  animation: count-pop 0.3s ease-out;
+}
+
 /* Combat HUD panel wrapper */
 .CombatHUD {
   display: flex;

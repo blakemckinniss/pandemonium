@@ -504,9 +504,34 @@ interface PowerIndicatorsProps {
   powers: Powers
 }
 
-// Power indicators using PowerToken icon-stack pattern
+// Power indicators using PowerToken icon-stack pattern with stack change animations
 const PowerIndicatorsVertical = memo(function PowerIndicatorsVertical({ powers }: PowerIndicatorsProps) {
   const entries = Object.entries(powers)
+  const prevAmountsRef = useRef<Record<string, number>>({})
+  const [animatingPowers, setAnimatingPowers] = useState<Record<string, 'up' | 'down'>>({})
+
+  // Detect stack changes and trigger animations
+  useEffect(() => {
+    const newAnimations: Record<string, 'up' | 'down'> = {}
+
+    for (const [id, power] of entries) {
+      const prevAmount = prevAmountsRef.current[id]
+      if (prevAmount !== undefined && prevAmount !== power.amount) {
+        newAnimations[id] = power.amount > prevAmount ? 'up' : 'down'
+      }
+    }
+
+    // Update previous amounts for next comparison
+    prevAmountsRef.current = Object.fromEntries(entries.map(([id, p]) => [id, p.amount]))
+
+    if (Object.keys(newAnimations).length > 0) {
+      setAnimatingPowers(newAnimations)
+      // Clear animations after they complete (400ms matches CSS duration)
+      const timer = setTimeout(() => setAnimatingPowers({}), 400)
+      return () => clearTimeout(timer)
+    }
+  }, [entries])
+
   if (entries.length === 0) return null
 
   return (
@@ -522,11 +547,15 @@ const PowerIndicatorsVertical = memo(function PowerIndicatorsVertical({ powers }
         else if (id === 'charged') modifierClass = 'PowerToken--lightning'
         else if (id === 'poison') modifierClass = 'PowerToken--poison'
 
+        // Add animation class if this power just changed
+        const animClass = animatingPowers[id] ? `PowerToken--pulse-${animatingPowers[id]}` : ''
+        const countAnimClass = animatingPowers[id] ? 'PowerToken-count--changed' : ''
+
         return (
           <PowerTooltip key={id} powerId={id} power={power}>
-            <div className={`PowerToken ${modifierClass}`}>
+            <div className={`PowerToken ${modifierClass} ${animClass}`}>
               <Icon icon={config.icon} className={`PowerToken-icon ${config.color}`} />
-              <span className="PowerToken-count">{power.amount}</span>
+              <span className={`PowerToken-count ${countAnimClass}`}>{power.amount}</span>
             </div>
           </PowerTooltip>
         )
