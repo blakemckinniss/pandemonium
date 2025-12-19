@@ -49,6 +49,7 @@ export const MONSTERS: Record<string, MonsterTemplate> = {
     name: 'Acid Slime',
     healthRange: [8, 12],
     damage: 5,
+    element: 'physical',
     image: '/cards/enemy_slime.webp',
   },
   cultist: {
@@ -56,6 +57,7 @@ export const MONSTERS: Record<string, MonsterTemplate> = {
     name: 'Cultist',
     healthRange: [48, 54],
     damage: 6,
+    element: 'void',
     image: '/cards/enemy_cultist.webp',
   },
   jaw_worm: {
@@ -63,6 +65,7 @@ export const MONSTERS: Record<string, MonsterTemplate> = {
     name: 'Jaw Worm',
     healthRange: [40, 44],
     damage: 11,
+    element: 'physical',
     image: '/cards/enemy_jaw_worm.webp',
   },
   spike_slime: {
@@ -71,6 +74,7 @@ export const MONSTERS: Record<string, MonsterTemplate> = {
     healthRange: [28, 32],
     damage: 5,
     times: 2,  // Attacks twice: 2x5 damage
+    element: 'physical',
     image: '/cards/enemy_spike_slime.webp',
   },
   gremlin_nob: {
@@ -79,6 +83,7 @@ export const MONSTERS: Record<string, MonsterTemplate> = {
     healthRange: [82, 86],
     damage: 8,
     times: 3,  // Attacks three times: 3x8 damage
+    element: 'physical',
     image: '/cards/enemy_gremlin_nob.webp',
   },
 
@@ -89,6 +94,7 @@ export const MONSTERS: Record<string, MonsterTemplate> = {
     name: 'Fire Imp',
     healthRange: [18, 24],
     damage: 7,
+    element: 'fire',
     resistances: ['fire'],
     vulnerabilities: ['ice'],
     innateStatus: 'burning', // Burns itself but deals fire damage
@@ -99,6 +105,7 @@ export const MONSTERS: Record<string, MonsterTemplate> = {
     name: 'Frost Elemental',
     healthRange: [30, 36],
     damage: 5,
+    element: 'ice',
     resistances: ['ice'],
     vulnerabilities: ['fire'],
     innateStatus: 'frozen',
@@ -109,6 +116,7 @@ export const MONSTERS: Record<string, MonsterTemplate> = {
     name: 'Storm Sprite',
     healthRange: [14, 18],
     damage: 4,
+    element: 'lightning',
     resistances: ['lightning'],
     vulnerabilities: ['physical'],
     innateStatus: 'charged',
@@ -119,6 +127,7 @@ export const MONSTERS: Record<string, MonsterTemplate> = {
     name: 'Void Cultist',
     healthRange: [35, 42],
     damage: 8,
+    element: 'void',
     resistances: ['void'],
     vulnerabilities: ['lightning'],
     innateStatus: 'oiled',
@@ -129,6 +138,7 @@ export const MONSTERS: Record<string, MonsterTemplate> = {
     name: 'Water Slime',
     healthRange: [20, 26],
     damage: 4,
+    element: 'ice',
     resistances: ['ice', 'physical'],
     vulnerabilities: ['lightning', 'fire'],
     innateStatus: 'wet',

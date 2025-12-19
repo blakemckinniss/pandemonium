@@ -54,6 +54,25 @@ export function CampfireScreen({ hero, deck, onRest, onSmith, onSkip }: Campfire
     )
   }, [mode])
 
+  // Animate choice buttons appearing
+  useEffect(() => {
+    if (mode !== 'choice' || !containerRef.current) return
+    const buttons = containerRef.current.querySelectorAll('.campfire-option')
+    gsap.fromTo(
+      buttons,
+      { y: 40, opacity: 0, scale: 0.9 },
+      {
+        y: 0,
+        opacity: 1,
+        scale: 1,
+        duration: 0.4,
+        stagger: 0.1,
+        ease: 'back.out(1.3)',
+        delay: 0.2,
+      }
+    )
+  }, [mode])
+
   const handleSmithConfirm = () => {
     if (selectedCard) {
       onSmith(selectedCard)
@@ -106,7 +125,7 @@ export function CampfireScreen({ hero, deck, onRest, onSmith, onSkip }: Campfire
           <button
             onClick={handleSmithConfirm}
             disabled={!selectedCard}
-            className="px-8 py-3 bg-energy text-black font-bold rounded-lg hover:brightness-110 transition disabled:opacity-50 disabled:cursor-not-allowed"
+            className="px-8 py-3 bg-energy text-black font-bold rounded-lg hover:brightness-110 transition disabled:grayscale disabled:opacity-60 disabled:cursor-not-allowed"
           >
             Upgrade
           </button>
@@ -134,7 +153,7 @@ export function CampfireScreen({ hero, deck, onRest, onSmith, onSkip }: Campfire
         {/* Rest option */}
         <button
           onClick={onRest}
-          className="group flex flex-col items-center p-6 bg-surface border-2 border-warm-700 rounded-xl hover:border-heal hover:bg-surface-alt transition-all w-48"
+          className="campfire-option group flex flex-col items-center p-6 bg-surface border-2 border-warm-700 rounded-xl hover:border-heal hover:bg-surface-alt transition-all w-48"
         >
           <Icon
             icon="game-icons:health-potion"
@@ -149,7 +168,7 @@ export function CampfireScreen({ hero, deck, onRest, onSmith, onSkip }: Campfire
         <button
           onClick={() => setMode('smith')}
           disabled={upgradeableCards.length === 0}
-          className="group flex flex-col items-center p-6 bg-surface border-2 border-warm-700 rounded-xl hover:border-energy hover:bg-surface-alt transition-all w-48 disabled:opacity-50 disabled:cursor-not-allowed"
+          className="campfire-option group flex flex-col items-center p-6 bg-surface border-2 border-warm-700 rounded-xl hover:border-energy hover:bg-surface-alt transition-all w-48 disabled:grayscale disabled:opacity-60 disabled:cursor-not-allowed"
         >
           <Icon
             icon="game-icons:anvil"

@@ -15,7 +15,7 @@ import { ParticleEffects } from '../ParticleEffects/ParticleEffects'
 import { emitParticle } from '../ParticleEffects/emitParticle'
 import { CardPileModal, type PileType } from '../Modal/CardPileModal'
 import { CardSelectionModal } from '../Modal/CardSelectionModal'
-import { RelicBar } from '../RelicBar/RelicBar'
+import { StatusSidebar } from '../StatusSidebar/StatusSidebar'
 import type { RunState } from '../../types'
 import { getCardDefinition } from '../../game/cards'
 import { createNewRun } from '../../game/new-game'
@@ -596,7 +596,7 @@ export function GameScreen({ deckId, heroId, dungeonDeckId, onReturnToMenu }: Ga
       <CombatNumbers numbers={combatNumbers} onComplete={removeCombatNumber} />
       <UnlockNotification unlocks={pendingUnlocks} onComplete={handleUnlocksDismissed} />
 
-      {/* Top-right UI cluster */}
+      {/* Top-right UI cluster - consolidated combat info */}
       <div className="absolute top-4 right-4 z-10 flex flex-col items-end gap-2">
         <button
           onClick={handleEndTurn}
@@ -606,7 +606,13 @@ export function GameScreen({ deckId, heroId, dungeonDeckId, onReturnToMenu }: Ga
         >
           End Turn
         </button>
+        {/* Row 1: Room + Turn + Gold */}
         <div className="flex gap-2">
+          <div className="Chip">
+            <Icon icon="game-icons:dungeon-gate" className="text-warm-400" />
+            <span>{currentRoom?.name ?? 'Unknown Room'}</span>
+            <span className="text-warm-500 ml-1">({deckRemaining} left)</span>
+          </div>
           <div className="Chip">
             <Icon icon="game-icons:hourglass" className="text-warm-400" />
             <span>Turn {combat.turn}</span>
@@ -616,15 +622,7 @@ export function GameScreen({ deckId, heroId, dungeonDeckId, onReturnToMenu }: Ga
             <span>{state.gold}</span>
           </div>
         </div>
-      </div>
-
-      {/* Top-left room info */}
-      <div className="absolute top-4 left-4 z-10 flex flex-col gap-2">
-        <div className="Chip">
-          <Icon icon="game-icons:dungeon-gate" className="text-warm-400" />
-          <span>{currentRoom?.name ?? 'Unknown Room'}</span>
-          <span className="text-warm-500 ml-1">({deckRemaining} left)</span>
-        </div>
+        {/* Row 2: Deck piles */}
         <div className="flex gap-2">
           <div
             className="Chip PileIndicator"
@@ -652,11 +650,15 @@ export function GameScreen({ deckId, heroId, dungeonDeckId, onReturnToMenu }: Ga
             </div>
           )}
         </div>
-        {/* Relic bar */}
-        {state.relics.length > 0 && (
-          <RelicBar relics={state.relics} triggeredRelicId={triggeredRelicId ?? undefined} />
-        )}
       </div>
+
+      {/* Status sidebar - relics & powers */}
+      <StatusSidebar
+        relics={state.relics}
+        player={combat.player}
+        enemies={combat.enemies}
+        triggeredRelicId={triggeredRelicId ?? undefined}
+      />
 
       {/* Combat field - centered */}
       <div className="flex-1 flex flex-col justify-center items-center overflow-visible">

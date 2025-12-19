@@ -1163,6 +1163,606 @@ h1, .text-title {
 }
 
 /* ============================================
+   STATUS CHIPS - Enhanced buff/debuff display
+   ============================================ */
+
+.StatusChip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.375rem 0.625rem;
+  border-radius: 0.5rem;
+  background: oklch(0.15 0.02 250 / 0.95);
+  border: 1px solid oklch(0.35 0.05 250);
+  font-size: 0.75rem;
+  font-family: var(--font-display);
+  cursor: help;
+  transition: all 0.15s ease;
+  backdrop-filter: blur(4px);
+  box-shadow: 0 2px 4px oklch(0 0 0 / 0.3);
+}
+
+.StatusChip:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px oklch(0 0 0 / 0.4);
+}
+
+.StatusChip--buff {
+  background: linear-gradient(135deg, oklch(0.2 0.08 145 / 0.9), oklch(0.15 0.05 145 / 0.95));
+  border-color: oklch(0.45 0.12 145);
+  box-shadow: 0 2px 4px oklch(0 0 0 / 0.3), inset 0 1px 0 oklch(0.5 0.1 145 / 0.2);
+}
+
+.StatusChip--buff:hover {
+  border-color: oklch(0.55 0.15 145);
+  box-shadow: 0 4px 12px oklch(0.5 0.15 145 / 0.3), inset 0 1px 0 oklch(0.5 0.1 145 / 0.3);
+}
+
+.StatusChip--debuff {
+  background: linear-gradient(135deg, oklch(0.2 0.1 25 / 0.9), oklch(0.15 0.08 25 / 0.95));
+  border-color: oklch(0.45 0.15 25);
+  box-shadow: 0 2px 4px oklch(0 0 0 / 0.3), inset 0 1px 0 oklch(0.5 0.12 25 / 0.2);
+}
+
+.StatusChip--debuff:hover {
+  border-color: oklch(0.55 0.18 25);
+  box-shadow: 0 4px 12px oklch(0.5 0.18 25 / 0.3), inset 0 1px 0 oklch(0.5 0.12 25 / 0.3);
+}
+
+.StatusChip--overflow {
+  background: oklch(0.25 0 0 / 0.9);
+  border-color: oklch(0.4 0 0);
+  font-weight: 600;
+  color: oklch(0.7 0 0);
+}
+
+.StatusChip-icon {
+  width: 1rem;
+  height: 1rem;
+  flex-shrink: 0;
+}
+
+.StatusChip-name {
+  font-weight: 500;
+  color: oklch(0.9 0.02 250);
+  white-space: nowrap;
+  text-shadow: 0 1px 2px oklch(0 0 0 / 0.5);
+}
+
+.StatusChip-stacks {
+  font-weight: 700;
+  font-size: 0.8125rem;
+  padding: 0.125rem 0.375rem;
+  border-radius: 0.25rem;
+  background: oklch(0.1 0 0 / 0.6);
+  color: oklch(0.95 0.05 85);
+  min-width: 1.25rem;
+  text-align: center;
+}
+
+.StatusChip--buff .StatusChip-stacks {
+  color: oklch(0.85 0.12 145);
+}
+
+.StatusChip--debuff .StatusChip-stacks {
+  color: oklch(0.85 0.15 25);
+}
+
+.StatusChip-duration {
+  display: flex;
+  align-items: center;
+  gap: 0.125rem;
+  font-size: 0.625rem;
+  color: oklch(0.6 0 0);
+  margin-left: 0.125rem;
+}
+
+/* StatusChipBar layout */
+.StatusChipBar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.StatusChipBar--horizontal {
+  flex-direction: row;
+}
+
+.StatusChipBar--vertical {
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.StatusChipBar-section {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.375rem;
+}
+
+.StatusChipBar-section--buffs {
+  /* Optional: visual grouping for buffs */
+}
+
+.StatusChipBar-section--debuffs {
+  /* Optional: visual grouping for debuffs */
+}
+
+/* ============================================
+   RELIC CHIPS - Enhanced relic display
+   ============================================ */
+
+.RelicChip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.375rem 0.625rem;
+  border-radius: 0.5rem;
+  font-size: 0.75rem;
+  font-family: var(--font-display);
+  cursor: help;
+  transition: all 0.15s ease;
+  backdrop-filter: blur(4px);
+  box-shadow: 0 2px 4px oklch(0 0 0 / 0.3);
+}
+
+.RelicChip:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px oklch(0 0 0 / 0.4);
+}
+
+/* Rarity-based styling */
+.RelicChip--common {
+  background: linear-gradient(135deg, oklch(0.25 0.03 55 / 0.9), oklch(0.2 0.02 55 / 0.95));
+  border: 1px solid oklch(0.45 0.06 55);
+}
+
+.RelicChip--common:hover {
+  border-color: oklch(0.55 0.08 55);
+  box-shadow: 0 4px 12px oklch(0.45 0.08 55 / 0.3);
+}
+
+.RelicChip--uncommon {
+  background: linear-gradient(135deg, oklch(0.22 0.08 250 / 0.9), oklch(0.18 0.06 250 / 0.95));
+  border: 1px solid oklch(0.5 0.12 250);
+}
+
+.RelicChip--uncommon:hover {
+  border-color: oklch(0.6 0.15 250);
+  box-shadow: 0 4px 12px oklch(0.5 0.15 250 / 0.3);
+}
+
+.RelicChip--rare {
+  background: linear-gradient(135deg, oklch(0.28 0.12 85 / 0.9), oklch(0.22 0.1 85 / 0.95));
+  border: 1px solid oklch(0.6 0.15 85);
+}
+
+.RelicChip--rare:hover {
+  border-color: oklch(0.7 0.18 85);
+  box-shadow: 0 4px 12px oklch(0.6 0.18 85 / 0.35);
+}
+
+.RelicChip--boss {
+  background: linear-gradient(135deg, oklch(0.25 0.12 25 / 0.9), oklch(0.2 0.1 25 / 0.95));
+  border: 1px solid oklch(0.55 0.18 25);
+}
+
+.RelicChip--boss:hover {
+  border-color: oklch(0.65 0.2 25);
+  box-shadow: 0 4px 12px oklch(0.55 0.2 25 / 0.35);
+}
+
+.RelicChip-icon {
+  width: 1.125rem;
+  height: 1.125rem;
+  flex-shrink: 0;
+}
+
+.RelicChip--common .RelicChip-icon { color: oklch(0.75 0.06 55); }
+.RelicChip--uncommon .RelicChip-icon { color: oklch(0.75 0.12 250); }
+.RelicChip--rare .RelicChip-icon { color: oklch(0.8 0.15 85); }
+.RelicChip--boss .RelicChip-icon { color: oklch(0.75 0.18 25); }
+
+.RelicChip-name {
+  font-weight: 500;
+  color: oklch(0.9 0.02 250);
+  white-space: nowrap;
+  text-shadow: 0 1px 2px oklch(0 0 0 / 0.5);
+  max-width: 6rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.RelicChip-counter {
+  font-weight: 700;
+  font-size: 0.6875rem;
+  padding: 0.0625rem 0.3125rem;
+  border-radius: 0.25rem;
+  background: oklch(0.1 0 0 / 0.6);
+  color: oklch(0.9 0.1 85);
+}
+
+/* Relic bar container */
+.RelicChipBar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+/* Triggered relic animation */
+@keyframes relic-triggered {
+  0% { transform: scale(1); }
+  25% { transform: scale(1.15); }
+  50% { transform: scale(1.05); }
+  100% { transform: scale(1); }
+}
+
+.RelicChip.is-triggered {
+  animation: relic-triggered 0.4s ease-out;
+}
+
+/* Relic tooltip */
+.RelicTooltip {
+  position: absolute;
+  bottom: calc(100% + 0.5rem);
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 100;
+  min-width: 12rem;
+  max-width: 16rem;
+  padding: 0.75rem;
+  border-radius: 0.5rem;
+  background: oklch(0.12 0.02 250 / 0.98);
+  border: 1px solid oklch(0.35 0.05 250);
+  box-shadow: 0 8px 24px oklch(0 0 0 / 0.5);
+  backdrop-filter: blur(8px);
+  pointer-events: none;
+  animation: tooltip-fade-in 0.15s ease-out;
+}
+
+@keyframes tooltip-fade-in {
+  from { opacity: 0; transform: translateX(-50%) translateY(4px); }
+  to { opacity: 1; transform: translateX(-50%) translateY(0); }
+}
+
+.RelicTooltip-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid oklch(0.3 0.03 250);
+}
+
+.RelicTooltip-name {
+  flex: 1;
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 0.875rem;
+  color: oklch(0.95 0.03 250);
+}
+
+.RelicTooltip-rarity {
+  font-size: 0.625rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  padding: 0.125rem 0.375rem;
+  border-radius: 0.25rem;
+}
+
+.RelicTooltip-rarity--common {
+  background: oklch(0.3 0.04 55);
+  color: oklch(0.75 0.06 55);
+}
+
+.RelicTooltip-rarity--uncommon {
+  background: oklch(0.25 0.08 250);
+  color: oklch(0.75 0.12 250);
+}
+
+.RelicTooltip-rarity--rare {
+  background: oklch(0.3 0.1 85);
+  color: oklch(0.85 0.15 85);
+}
+
+.RelicTooltip-rarity--boss {
+  background: oklch(0.28 0.12 25);
+  color: oklch(0.8 0.18 25);
+}
+
+.RelicTooltip-desc {
+  font-size: 0.75rem;
+  line-height: 1.4;
+  color: oklch(0.75 0.02 250);
+}
+
+.RelicTooltip-counter {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  margin-top: 0.5rem;
+  padding-top: 0.5rem;
+  border-top: 1px solid oklch(0.3 0.03 250);
+  font-size: 0.6875rem;
+  color: oklch(0.7 0.08 85);
+}
+
+/* Ensure RelicChip has relative positioning for tooltip */
+.RelicChip {
+  position: relative;
+}
+
+/* ============================================
+   STATUS SIDEBAR - Left side status panel
+   ============================================ */
+
+.StatusSidebar {
+  position: absolute;
+  top: 7rem;
+  left: 1rem;
+  z-index: 20;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  max-width: 12rem;
+}
+
+/* Relic tooltip styling */
+.RelicTooltipWrapper {
+  position: relative;
+}
+
+.RelicTooltip {
+  position: absolute;
+  left: 100%;
+  top: 50%;
+  transform: translateY(-50%);
+  margin-left: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  background: oklch(0.12 0.02 250 / 0.95);
+  border: 1px solid oklch(0.3 0.04 250);
+  border-radius: 0.5rem;
+  backdrop-filter: blur(8px);
+  min-width: 10rem;
+  max-width: 16rem;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.15s, visibility 0.15s;
+  z-index: 100;
+  pointer-events: none;
+}
+
+.RelicTooltipWrapper:hover .RelicTooltip {
+  opacity: 1;
+  visibility: visible;
+}
+
+.RelicTooltip-name {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 0.8125rem;
+  color: oklch(0.95 0.03 85);
+  margin-bottom: 0.125rem;
+}
+
+.RelicTooltip-rarity {
+  font-size: 0.625rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: oklch(0.6 0.05 250);
+  margin-bottom: 0.375rem;
+}
+
+.RelicTooltip-desc {
+  font-size: 0.75rem;
+  color: oklch(0.8 0.02 250);
+  line-height: 1.4;
+}
+
+/* Sidebar sections - sleek borderless design */
+.SidebarSection {
+  background: transparent;
+  padding: 0.375rem 0;
+}
+
+.SidebarSection-header {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  margin-bottom: 0.375rem;
+  padding-bottom: 0.25rem;
+  border-bottom: 1px solid oklch(0.3 0.02 250 / 0.4);
+}
+
+.SidebarSection-label {
+  flex: 1;
+  font-family: var(--font-display);
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: oklch(0.85 0.03 250);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.SidebarSection-hp {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  color: oklch(0.7 0.1 145);
+}
+
+.SidebarSection--enemy .SidebarSection-hp {
+  color: oklch(0.7 0.12 25);
+}
+
+.SidebarSection-chips {
+  display: flex;
+  flex-direction: column;
+  gap: 0.375rem;
+}
+
+/* Sidebar chips - slim borderless design */
+.SidebarChip {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.375rem;
+  background: oklch(0.12 0.02 250 / 0.6);
+  border: none;
+  font-size: 0.75rem;
+  font-family: var(--font-display);
+  cursor: help;
+  transition: all 0.15s ease;
+  position: relative;
+}
+
+.SidebarChip:hover {
+  background: oklch(0.18 0.03 250 / 0.8);
+}
+
+/* Buff styling */
+.SidebarChip--buff {
+  background: oklch(0.15 0.04 145 / 0.5);
+}
+
+.SidebarChip--buff:hover {
+  background: oklch(0.2 0.06 145 / 0.7);
+}
+
+/* Debuff styling */
+.SidebarChip--debuff {
+  background: oklch(0.15 0.06 25 / 0.5);
+}
+
+.SidebarChip--debuff:hover {
+  background: oklch(0.2 0.08 25 / 0.7);
+}
+
+/* Relic rarity styling - subtle tints */
+.SidebarChip--common {
+  background: oklch(0.18 0.02 55 / 0.5);
+}
+
+.SidebarChip--uncommon {
+  background: oklch(0.16 0.04 250 / 0.5);
+}
+
+.SidebarChip--rare {
+  background: oklch(0.18 0.06 85 / 0.5);
+}
+
+.SidebarChip--boss {
+  background: oklch(0.16 0.06 25 / 0.5);
+}
+
+.SidebarChip-icon {
+  width: 1.125rem;
+  height: 1.125rem;
+  flex-shrink: 0;
+}
+
+/* Relic icon colors by rarity */
+.SidebarChip--common .SidebarChip-icon { color: oklch(0.7 0.05 55); }
+.SidebarChip--uncommon .SidebarChip-icon { color: oklch(0.7 0.1 250); }
+.SidebarChip--rare .SidebarChip-icon { color: oklch(0.8 0.12 85); }
+.SidebarChip--boss .SidebarChip-icon { color: oklch(0.75 0.15 25); }
+
+.SidebarChip-name {
+  flex: 1;
+  font-weight: 500;
+  color: oklch(0.9 0.02 250);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  text-shadow: 0 1px 2px oklch(0 0 0 / 0.5);
+}
+
+.SidebarChip-count {
+  font-weight: 700;
+  font-size: 0.875rem;
+  padding: 0.125rem 0.5rem;
+  border-radius: 0.25rem;
+  background: oklch(0.08 0 0 / 0.6);
+  color: oklch(0.95 0.05 85);
+  min-width: 1.5rem;
+  text-align: center;
+}
+
+.SidebarChip--buff .SidebarChip-count {
+  color: oklch(0.85 0.1 145);
+}
+
+.SidebarChip--debuff .SidebarChip-count {
+  color: oklch(0.85 0.12 25);
+}
+
+.SidebarChip-duration {
+  display: flex;
+  align-items: center;
+  gap: 0.125rem;
+  font-size: 0.625rem;
+  color: oklch(0.55 0 0);
+  margin-left: 0.125rem;
+}
+
+/* Triggered relic animation */
+.SidebarChip.is-triggered {
+  animation: sidebar-chip-trigger 0.5s ease-out;
+}
+
+@keyframes sidebar-chip-trigger {
+  0% { transform: translateX(0); }
+  20% { transform: translateX(8px); box-shadow: 0 0 16px oklch(0.8 0.15 85 / 0.6); }
+  40% { transform: translateX(4px); }
+  100% { transform: translateX(0); box-shadow: none; }
+}
+
+/* ============================================
+   POWER INDICATORS - Small icons on entity cards
+   ============================================ */
+
+.PowerIndicators {
+  display: flex;
+  gap: 0.25rem;
+}
+
+.PowerIndicators--vertical {
+  flex-direction: column;
+  position: absolute;
+  top: 0.5rem;
+  left: -2rem;
+}
+
+.PowerIndicator {
+  display: flex;
+  align-items: center;
+  gap: 0.125rem;
+  padding: 0.125rem 0.25rem;
+  background: oklch(0.08 0 0 / 0.7);
+  border-radius: 0.25rem;
+  cursor: help;
+}
+
+.PowerIndicator-icon {
+  width: 0.875rem;
+  height: 0.875rem;
+  flex-shrink: 0;
+}
+
+.PowerIndicator-count {
+  font-size: 0.625rem;
+  font-weight: 700;
+  color: oklch(0.9 0 0);
+  min-width: 0.625rem;
+  text-align: center;
+}
+
+.PowerIndicator--more {
+  font-size: 0.5rem;
+  color: oklch(0.6 0 0);
+  padding: 0.125rem;
+}
+
+/* ============================================
    STATUS EFFECT AURAS (box-shadow only, no pseudo-elements)
    ============================================ */
 
@@ -1739,21 +2339,31 @@ h1, .text-title {
 .Card.Card--common.Card--element-physical,
 .Card.Card--uncommon.Card--element-physical { border-color: var(--color-element-physical); }
 
-/* Element emblem styling */
+/* Element emblem styling - flows in flex containers, hand cards use wrapper */
 .Card__element-emblem {
-  position: absolute;
-  top: 0.375rem;
-  right: 0.375rem;
-  width: 2rem;
-  height: 2rem;
-  border-radius: 6px;
+  width: 1.5rem;
+  height: 1.5rem;
+  border-radius: 5px;
   display: flex;
   align-items: center;
   justify-content: center;
   box-shadow:
-    0 2px 6px oklch(0 0 0 / 0.5),
+    0 1px 4px oklch(0 0 0 / 0.5),
     inset 0 1px 0 oklch(1 0 0 / 0.15);
+  flex-shrink: 0;
+}
+
+/* Hand cards: element emblem positioned absolutely via wrapper */
+.Card--hand .Card__element-emblem-wrapper {
+  position: absolute;
+  top: 0.375rem;
+  right: 0.375rem;
   z-index: 10;
+}
+
+.Card--hand .Card__element-emblem {
+  width: 1.75rem;
+  height: 1.75rem;
 }
 
 .Card__element-emblem--physical {

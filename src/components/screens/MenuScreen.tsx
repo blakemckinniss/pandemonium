@@ -677,7 +677,7 @@ function BuildTab({
             type="text"
             value={deckName}
             onChange={(e) => setDeckName(e.target.value)}
-            className="w-full px-3 py-2 bg-warm-800 border border-warm-700 rounded text-sm text-warm-200 mb-3"
+            className="w-full px-3 py-2 bg-warm-800 border border-warm-700 rounded text-sm text-warm-200 mb-3 transition-all focus:border-energy focus:ring-2 focus:ring-energy/30 focus:outline-none"
             placeholder="Deck name"
           />
           <div className="space-y-1 mb-4">
@@ -713,7 +713,7 @@ function BuildTab({
           <button
             onClick={() => void onSaveDeck()}
             disabled={currentDeck.length === 0}
-            className="w-full px-4 py-2 bg-energy text-warm-900 font-medium rounded disabled:opacity-50"
+            className="w-full px-4 py-2 bg-energy text-warm-900 font-medium rounded disabled:grayscale disabled:opacity-60 disabled:cursor-not-allowed"
           >
             <Icon icon="mdi:content-save" className="inline mr-2" />
             {editingDeckId ? 'Update Deck' : 'Save Deck'}
@@ -803,7 +803,7 @@ function PacksTab({
           <button
             onClick={onOpenPack}
             disabled={isGenerating}
-            className="px-6 py-2 bg-energy text-warm-900 font-medium rounded disabled:opacity-50 flex items-center gap-2"
+            className="px-6 py-2 bg-energy text-warm-900 font-medium rounded disabled:grayscale disabled:opacity-60 disabled:cursor-not-allowed flex items-center gap-2"
           >
             {isGenerating ? (
               <>

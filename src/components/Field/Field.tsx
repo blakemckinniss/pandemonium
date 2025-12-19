@@ -27,16 +27,16 @@ export const Field = memo(function Field({ player, enemies, onTargetClick, onUse
   const enemyRectsRef = useRef<Map<string, DOMRect>>(new Map())
 
   // Track enemy positions continuously for death animation
+  // NOTE: We UPDATE positions but don't clear old ones - dead enemy rects
+  // must persist until the death detection effect reads them
   useEffect(() => {
     if (!fieldRef.current) return
-    const rects = new Map<string, DOMRect>()
     enemies.forEach(enemy => {
       const el = fieldRef.current?.querySelector(`[data-target="${enemy.id}"]`)
       if (el) {
-        rects.set(enemy.id, el.getBoundingClientRect())
+        enemyRectsRef.current.set(enemy.id, el.getBoundingClientRect())
       }
     })
-    enemyRectsRef.current = rects
   }, [enemies])
 
   // Detect enemy deaths and add to dying overlay
@@ -52,6 +52,8 @@ export const Field = memo(function Field({ player, enemies, onTargetClick, onUse
         .map(enemy => {
           const rect = enemyRectsRef.current.get(enemy.id)
           if (rect) {
+            // Clean up the rect after capturing - no longer needed
+            enemyRectsRef.current.delete(enemy.id)
             return { enemy, rect, startTime: now }
           }
           return null
@@ -116,6 +118,7 @@ export const Field = memo(function Field({ player, enemies, onTargetClick, onUse
           energy={player.energy}
           maxEnergy={player.maxEnergy}
           image={player.image}
+          element={heroCard?.element}
           className="Target"
           data-target-type="player"
           onClick={handlePlayerClick}
@@ -237,6 +240,7 @@ const DyingEnemyOverlay = memo(function DyingEnemyOverlay({
         powers={{}}
         intent={undefined}
         image={enemy.image}
+        element={enemy.element}
       />
     </div>
   )
@@ -264,6 +268,7 @@ const EnemyCard = memo(function EnemyCard({
       powers={enemy.powers}
       intent={enemy.intent}
       image={enemy.image}
+      element={enemy.element}
       className="Target"
       data-target-type="enemy"
       data-target={enemy.id}

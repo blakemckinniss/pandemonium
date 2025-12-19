@@ -285,10 +285,12 @@ export const Card = memo(function Card({
         </div>
       )}
 
-      {/* Element emblem (hand cards) */}
+      {/* Element emblem (hand cards) - wrapped for absolute positioning */}
       {variant === 'hand' && element && (
-        <div className={`Card__element-emblem Card__element-emblem--${element}`}>
-          <Icon icon={ELEMENT_CONFIG[element].icon} className={`w-4 h-4 ${ELEMENT_CONFIG[element].color}`} />
+        <div className="Card__element-emblem-wrapper">
+          <div className={`Card__element-emblem Card__element-emblem--${element}`}>
+            <Icon icon={ELEMENT_CONFIG[element].icon} className={`w-3.5 h-3.5 ${ELEMENT_CONFIG[element].color}`} />
+          </div>
         </div>
       )}
 
@@ -308,9 +310,15 @@ export const Card = memo(function Card({
         </div>
       )}
 
-      {/* Top-right info column (intent + powers) for player/enemy */}
+      {/* Top-right info column (element + intent + powers) for player/enemy */}
       {(variant === 'player' || variant === 'enemy') && (
         <div className="absolute top-2 right-2 flex flex-col items-end gap-1 z-10">
+          {/* Element icon (both player and enemy) */}
+          {element && (
+            <div className={`Card__element-emblem Card__element-emblem--${element}`}>
+              <Icon icon={ELEMENT_CONFIG[element].icon} className={`w-3 h-3 ${ELEMENT_CONFIG[element].color}`} />
+            </div>
+          )}
           {/* Intent badge (enemies only) */}
           {variant === 'enemy' && intent && (
             <div className="px-2 py-1 rounded bg-surface-alt/90 text-sm flex items-center gap-1">
@@ -474,63 +482,51 @@ function HealthBar({ current, max, block = 0 }: HealthBarProps) {
   )
 }
 
-// Power icon mapping
+// Small power icon mapping for entity cards
 const POWER_ICONS: Record<string, { icon: string; color: string; isDebuff?: boolean }> = {
-  // Debuffs (red)
-  vulnerable: { icon: 'game-icons:broken-shield', color: 'text-damage', isDebuff: true },
-  weak: { icon: 'game-icons:muscle-down', color: 'text-damage', isDebuff: true },
-  frail: { icon: 'game-icons:cracked-shield', color: 'text-damage', isDebuff: true },
-  poison: { icon: 'game-icons:poison-bottle', color: 'text-damage', isDebuff: true },
-  // Elemental statuses (debuffs with element colors)
-  burning: { icon: 'game-icons:fire', color: 'text-orange-400', isDebuff: true },
-  wet: { icon: 'game-icons:water-drop', color: 'text-cyan-400', isDebuff: true },
-  frozen: { icon: 'game-icons:frozen-orb', color: 'text-cyan-300', isDebuff: true },
-  charged: { icon: 'game-icons:lightning-storm', color: 'text-yellow-300', isDebuff: true },
-  oiled: { icon: 'game-icons:oil-drum', color: 'text-purple-400', isDebuff: true },
-  // Buffs (green/blue)
-  strength: { icon: 'game-icons:biceps', color: 'text-heal' },
-  dexterity: { icon: 'game-icons:sprint', color: 'text-heal' },
-  regen: { icon: 'game-icons:healing', color: 'text-heal' },
-  thorns: { icon: 'game-icons:thorns', color: 'text-block' },
-  metallicize: { icon: 'game-icons:metal-plate', color: 'text-block' },
-  platedArmor: { icon: 'game-icons:shoulder-armor', color: 'text-block' },
-  ritual: { icon: 'game-icons:pentagram-rose', color: 'text-heal' },
-  anger: { icon: 'game-icons:enrage', color: 'text-damage' },
-  // Replay powers
-  doubleTap: { icon: 'game-icons:double-shot', color: 'text-energy' },
-  mayhem: { icon: 'game-icons:chaos', color: 'text-energy' },
-  echoForm: { icon: 'game-icons:echo-ripples', color: 'text-energy' },
-  burst: { icon: 'game-icons:fast-forward-button', color: 'text-energy' },
-  // Defensive
-  intangible: { icon: 'game-icons:ghost', color: 'text-purple-300' },
-  barricade: { icon: 'game-icons:castle', color: 'text-block' },
-  noxiousFumes: { icon: 'game-icons:poison-gas', color: 'text-green-400' },
+  strength: { icon: 'game-icons:muscle-up', color: 'text-red-400' },
+  rage: { icon: 'game-icons:enrage', color: 'text-orange-400' },
+  berserk: { icon: 'game-icons:angry-eyes', color: 'text-red-500' },
+  block: { icon: 'game-icons:shield', color: 'text-blue-400' },
+  armor: { icon: 'game-icons:chest-armor', color: 'text-slate-300' },
+  thorns: { icon: 'game-icons:thorn-helix', color: 'text-amber-500' },
+  regeneration: { icon: 'game-icons:healing', color: 'text-green-400' },
+  dexterity: { icon: 'game-icons:cat', color: 'text-emerald-400' },
+  vulnerable: { icon: 'game-icons:broken-shield', color: 'text-orange-500', isDebuff: true },
+  weak: { icon: 'game-icons:arm-sling', color: 'text-lime-500', isDebuff: true },
+  frail: { icon: 'game-icons:cracked-shield', color: 'text-cyan-500', isDebuff: true },
+  poison: { icon: 'game-icons:poison-bottle', color: 'text-green-500', isDebuff: true },
+  burning: { icon: 'game-icons:fire', color: 'text-orange-500', isDebuff: true },
+  frozen: { icon: 'game-icons:frozen-block', color: 'text-cyan-400', isDebuff: true },
 }
 
 interface PowerIndicatorsProps {
   powers: Powers
 }
 
-// Power indicators in vertical column for top-right layout
+// Power indicators matching intent badge styling for unified card design
 const PowerIndicatorsVertical = memo(function PowerIndicatorsVertical({ powers }: PowerIndicatorsProps) {
   const entries = Object.entries(powers)
   if (entries.length === 0) return null
 
   return (
-    <div className="flex flex-col gap-1">
-      {entries.map(([id, power]) => {
-        const config = POWER_ICONS[id] || { icon: 'game-icons:uncertainty', color: 'text-warm-400' }
+    <div className="flex flex-col items-end gap-1">
+      {entries.slice(0, 4).map(([id, power]) => {
+        const config = POWER_ICONS[id] || { icon: 'game-icons:uncertainty', color: 'text-gray-400' }
         return (
           <PowerTooltip key={id} powerId={id} power={power}>
-            <div
-              className={`PowerBadge ${config.isDebuff ? 'PowerBadge--debuff' : 'PowerBadge--buff'}`}
-            >
-              <Icon icon={config.icon} className={`w-4 h-4 ${config.color}`} />
-              <span className="text-xs font-bold">{power.amount}</span>
+            <div className="px-2 py-1 rounded bg-surface-alt/90 text-sm flex items-center gap-1">
+              <Icon icon={config.icon} className={config.color} />
+              <span className={`font-medium ${config.isDebuff ? 'text-damage' : config.color}`}>{power.amount}</span>
             </div>
           </PowerTooltip>
         )
       })}
+      {entries.length > 4 && (
+        <div className="px-2 py-1 rounded bg-surface-alt/90 text-sm font-medium text-muted">
+          +{entries.length - 4}
+        </div>
+      )}
     </div>
   )
 })

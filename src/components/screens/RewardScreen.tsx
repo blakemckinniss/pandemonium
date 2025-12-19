@@ -144,15 +144,38 @@ export function RewardScreen({ floor, gold, ownedRelicIds, onAddCard, onAddRelic
     )
   }, [cardChoices])
 
+  // Animate reward items (gold, relic) appearing
+  useEffect(() => {
+    const rewardsRow = document.querySelector('.RewardsRow')
+    if (!rewardsRow) return
+
+    const items = rewardsRow.querySelectorAll('.RewardItem')
+    if (items.length === 0) return
+
+    gsap.fromTo(
+      items,
+      { scale: 0, opacity: 0, rotation: -10 },
+      {
+        scale: 1,
+        opacity: 1,
+        rotation: 0,
+        duration: 0.4,
+        stagger: 0.12,
+        ease: 'back.out(2)',
+        delay: 0.3, // After title appears
+      }
+    )
+  }, [relicChoice])
+
   return (
     <div className="RewardScreen h-screen flex flex-col items-center justify-center bg-gradient-to-b from-warm-900 to-warm-900">
       <h1 className="text-4xl font-bold mb-2 text-heal">Victory!</h1>
       <p className="text-warm-400 mb-8">Floor {floor} cleared</p>
 
       {/* Rewards row */}
-      <div className="flex gap-4 mb-8">
+      <div className="RewardsRow flex gap-4 mb-8">
         {/* Gold reward */}
-        <div className="px-6 py-3 bg-surface rounded-lg border border-energy">
+        <div className="RewardItem px-6 py-3 bg-surface rounded-lg border border-energy">
           <span className="text-energy text-xl">+{goldReward} Gold</span>
           <span className="text-warm-500 ml-2">(Total: {gold + goldReward})</span>
         </div>
@@ -161,7 +184,7 @@ export function RewardScreen({ floor, gold, ownedRelicIds, onAddCard, onAddRelic
         {relicChoice && (
           <button
             onClick={() => onAddRelic(relicChoice.id)}
-            className="group px-4 py-3 bg-surface rounded-lg border border-purple-500 hover:bg-purple-900/30 transition-colors flex items-center gap-3"
+            className="RewardItem group px-4 py-3 bg-surface rounded-lg border border-purple-500 hover:bg-purple-900/30 transition-colors flex items-center gap-3"
           >
             <div className="w-10 h-10 rounded-lg bg-purple-900/50 flex items-center justify-center">
               <Icon icon="game-icons:gem-pendant" className="w-6 h-6 text-purple-400" />

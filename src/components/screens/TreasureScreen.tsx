@@ -1,8 +1,9 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { Icon } from '@iconify/react'
 import type { RelicDefinition } from '../../types'
 import { getAllRelics } from '../../game/relics'
 import { RELIC_ICONS } from '../../config/relic-icons'
+import { gsap } from '../../lib/animations'
 
 const RARITY_COLORS: Record<string, string> = {
   common: 'border-warm-400 bg-warm-800/50',
@@ -34,6 +35,7 @@ export function TreasureScreen({
   onSkip,
 }: TreasureScreenProps) {
   const [relicChoices, setRelicChoices] = useState<RelicDefinition[]>([])
+  const containerRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     const allRelics = getAllRelics().filter((r) => !ownedRelicIds.includes(r.id))
@@ -84,6 +86,26 @@ export function TreasureScreen({
     setRelicChoices(choices)
   }, [isLargeTreasure, ownedRelicIds])
 
+  // Animate relic choices appearing with stagger
+  useEffect(() => {
+    if (!containerRef.current || relicChoices.length === 0) return
+
+    const relics = containerRef.current.querySelectorAll('.TreasureRelic')
+    gsap.fromTo(
+      relics,
+      { y: 60, opacity: 0, scale: 0.8, rotateY: -15 },
+      {
+        y: 0,
+        opacity: 1,
+        scale: 1,
+        rotateY: 0,
+        duration: 0.5,
+        stagger: 0.15,
+        ease: 'back.out(1.4)',
+      }
+    )
+  }, [relicChoices])
+
   return (
     <div className="TreasureScreen h-screen flex flex-col items-center justify-center bg-gradient-to-b from-purple-950 to-warm-900">
       <div className="text-6xl mb-4">{isLargeTreasure ? '👑' : '💎'}</div>
@@ -95,7 +117,7 @@ export function TreasureScreen({
       {relicChoices.length === 0 ? (
         <p className="text-warm-500 mb-8">No relics available</p>
       ) : (
-        <div className="flex gap-6 mb-8">
+        <div ref={containerRef} className="flex gap-6 mb-8">
           {relicChoices.map((relic) => {
             const icon = RELIC_ICONS[relic.id] ?? 'game-icons:gem-pendant'
             const rarityClass = RARITY_COLORS[relic.rarity] ?? RARITY_COLORS.common
@@ -105,7 +127,7 @@ export function TreasureScreen({
               <button
                 key={relic.id}
                 onClick={() => onSelectRelic(relic.id)}
-                className={`group relative p-6 rounded-xl border-2 ${rarityClass} hover:scale-105 hover:brightness-110 transition-all min-w-48`}
+                className={`TreasureRelic group relative p-6 rounded-xl border-2 ${rarityClass} hover:scale-105 hover:brightness-110 transition-all min-w-48`}
               >
                 <div className="flex flex-col items-center gap-3">
                   <div className="w-16 h-16 rounded-full bg-black/30 flex items-center justify-center">
