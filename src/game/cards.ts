@@ -680,7 +680,8 @@ registerCardUnsafe({
   image: '/cards/enemy_boss_necromancer.webp',
   enemyStats: {
     healthRange: [80, 100],
-    damage: 12,
+    baseDamage: 12,
+    energy: 3,
     element: 'void',
     resistances: ['void'],
     vulnerabilities: ['fire', 'physical'],
@@ -709,7 +710,8 @@ registerCardUnsafe({
   image: '/cards/enemy_boss_heart.webp',
   enemyStats: {
     healthRange: [120, 150],
-    damage: 8,
+    baseDamage: 8,
+    energy: 4,
     element: 'void',
   },
   enemyAbility: {
