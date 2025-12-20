@@ -5,6 +5,7 @@ import { createNewRun, createEnemiesFromRoom } from '../game/new-game'
 import { getRoomDefinition } from '../content/rooms'
 import { selectRoom as selectLockedRoom, completeRoom as completeLockedRoom, drawRoomChoices as drawLockedRoomChoices } from '../game/run-lock'
 import { useRunLockStore } from '../stores/runLockStore'
+import { startCombatPrefetch, stopCombatPrefetch } from '../game/card-cache'
 
 interface RoomHandlersConfig {
   setState: React.Dispatch<React.SetStateAction<RunState | null>>
@@ -123,12 +124,18 @@ export function useRoomHandlers({
       prevHealthRef.current = {}
       lastTurnRef.current = 0
 
+      // Start prefetching cards in background for rewards
+      startCombatPrefetch()
+
       return newState
     })
   }, [setState, setCurrentRoomId, prevHealthRef, lastTurnRef])
 
   // Called after completing a room (combat victory, campfire rest, treasure claimed)
   const handleRoomComplete = useCallback((params: RoomCompleteParams) => {
+    // Stop prefetching when combat ends
+    stopCombatPrefetch()
+
     const hasActiveRun = useRunLockStore.getState().hasActiveRun()
     if (hasActiveRun) {
       // Mark room complete in lock store

@@ -452,6 +452,7 @@ export function GameScreen({ deckId, heroId, dungeonDeckId, selectedModifierIds,
         }
       }
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- containerRef is a stable ref
   }, [state?.combat?.phase])
 
   // Defeat animation
@@ -807,7 +808,7 @@ export function GameScreen({ deckId, heroId, dungeonDeckId, selectedModifierIds,
       const store = useMetaStore.getState()
       store.addGold(rewards.gold)
       // Return to menu
-      roomHandlers.handleRestart()
+      void roomHandlers.handleRestart()
     }
 
     return (
@@ -841,7 +842,7 @@ export function GameScreen({ deckId, heroId, dungeonDeckId, selectedModifierIds,
             <p>Cards Played: {state.stats.cardsPlayed}</p>
           </div>
           <button
-            onClick={roomHandlers.handleRestart}
+            onClick={() => void roomHandlers.handleRestart()}
             className="px-8 py-3 bg-energy text-black font-bold rounded-lg text-lg hover:brightness-110 transition"
           >
             New Run
@@ -994,7 +995,7 @@ export function GameScreen({ deckId, heroId, dungeonDeckId, selectedModifierIds,
                 <p>Cards Played: {state.stats.cardsPlayed}</p>
               </div>
               <button
-                onClick={roomHandlers.handleRestart}
+                onClick={() => void roomHandlers.handleRestart()}
                 className="px-8 py-3 bg-energy text-black font-bold rounded-lg text-lg hover:brightness-110 transition"
               >
                 Try Again

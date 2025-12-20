@@ -112,13 +112,13 @@ export function MenuScreen({ onStartRun }: MenuScreenProps) {
       const allHeroes = getAllHeroes()
       setAvailableHeroes(allHeroes)
     }
-    loadData()
+    void loadData()
   }, [])
 
   // Validate selected deck against collection
   useEffect(() => {
     if (!selectedDeckId) {
-      setDeckValidation({ valid: true, missing: [] })
+      setDeckValidation({ valid: true, missing: [] }) // eslint-disable-line react-hooks/set-state-in-effect
       return
     }
     const deck = customDecks.find((d) => d.deckId === selectedDeckId)
@@ -308,7 +308,7 @@ export function MenuScreen({ onStartRun }: MenuScreenProps) {
             onLoadDeck={handleLoadDeck}
             seeding={seeding}
             seeded={seeded}
-            onSeedContent={handleSeedContent}
+            onSeedContent={() => void handleSeedContent()}
           />
         )}
 
@@ -346,10 +346,10 @@ export function MenuScreen({ onStartRun }: MenuScreenProps) {
             setAnalyticsCollapsed={setAnalyticsCollapsed}
             onAddCard={handleAddCard}
             onRemoveCard={handleRemoveCard}
-            onSaveDeck={handleSaveDeck}
+            onSaveDeck={() => void handleSaveDeck()}
             onClearDeck={handleClearDeck}
             onLoadDeck={handleLoadDeck}
-            onDeleteDeck={handleDeleteDeck}
+            onDeleteDeck={(id) => void handleDeleteDeck(id)}
             onViewCard={setSelectedCard}
           />
         )}
@@ -365,9 +365,9 @@ export function MenuScreen({ onStartRun }: MenuScreenProps) {
             revealedCards={revealedCards}
             showGacha={showGacha}
             pendingCards={pendingCards}
-            onOpenPack={handleOpenPack}
-            onGachaComplete={handleGachaComplete}
-            onGachaSkip={handleGachaComplete}
+            onOpenPack={() => void handleOpenPack()}
+            onGachaComplete={() => void handleGachaComplete()}
+            onGachaSkip={() => void handleGachaComplete()}
           />
         )}
       </main>

@@ -1,7 +1,10 @@
 import { useRef, useEffect, useState, type ReactNode } from 'react'
-// useState used for isTransitioning state
 import { gsap } from '../../lib/animations'
 import type { GamePhase } from '../../types'
+
+// Type for registered GSAP effects
+type GsapEffect = (target: gsap.TweenTarget, config?: object) => gsap.core.Tween | gsap.core.Timeline
+type GsapEffects = Record<string, GsapEffect>
 
 interface ScreenTransitionProps {
   phase: GamePhase
@@ -38,9 +41,10 @@ export function ScreenTransition({ phase, children }: ScreenTransitionProps) {
     }
 
     setIsTransitioning(true)
+    const effects = gsap.effects as GsapEffects
 
     // Fade out current content
-    gsap.effects.screenFadeOut(container, {
+    effects.screenFadeOut(container, {
       duration: 0.2,
       onComplete: () => {
         prevPhaseRef.current = phase
@@ -50,13 +54,13 @@ export function ScreenTransition({ phase, children }: ScreenTransitionProps) {
           // Fade in new content with phase-specific animation
           const enterEffect = phaseEnterEffects[phase] || 'screenFadeIn'
 
-          if (gsap.effects[enterEffect]) {
-            gsap.effects[enterEffect](container, {
+          if (effects[enterEffect]) {
+            effects[enterEffect](container, {
               onComplete: () => setIsTransitioning(false),
             })
           } else {
             // Fallback to basic fade
-            gsap.effects.screenFadeIn(container, {
+            effects.screenFadeIn(container, {
               onComplete: () => setIsTransitioning(false),
             })
           }
@@ -76,8 +80,9 @@ export function ScreenTransition({ phase, children }: ScreenTransitionProps) {
     if (!container) return
 
     const enterEffect = phaseEnterEffects[phase] || 'screenFadeIn'
-    if (gsap.effects[enterEffect]) {
-      gsap.effects[enterEffect](container, {})
+    const effects = gsap.effects as GsapEffects
+    if (effects[enterEffect]) {
+      effects[enterEffect](container, {})
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []) // Only on mount

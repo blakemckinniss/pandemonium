@@ -84,7 +84,7 @@ export function RewardScreen({ floor, gold, goldMultiplier = 1, ownedRelicIds, o
     if (pool.length === 0) pool = allRelics
 
     const relic = pool[Math.floor(Math.random() * pool.length)]
-    setRelicChoice(relic)
+    setRelicChoice(relic) // eslint-disable-line react-hooks/set-state-in-effect -- Intentional initialization from random selection
   }, [ownedRelicIds])
 
   // Retry loading cards

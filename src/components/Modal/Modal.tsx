@@ -28,7 +28,7 @@ export function Modal({ isOpen, onClose, title, children, size = 'md' }: ModalPr
     if (isOpen && !isVisible) {
       // Opening animation - setState calls intentionally sync with modal open state
       dialog.showModal()
-      setIsVisible(true)
+      setIsVisible(true) // eslint-disable-line react-hooks/set-state-in-effect
       setIsAnimating(true)
 
       const effects = gsap.effects as GsapEffects

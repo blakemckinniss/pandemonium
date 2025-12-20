@@ -49,9 +49,10 @@ export const StreakDisplay = memo(function StreakDisplay({
       ease: 'sine.inOut',
     })
 
+    const container = containerRef.current
     return () => {
-      if (containerRef.current) {
-        gsap.killTweensOf(containerRef.current)
+      if (container) {
+        gsap.killTweensOf(container)
       }
     }
   }, [streak.currentStreak])

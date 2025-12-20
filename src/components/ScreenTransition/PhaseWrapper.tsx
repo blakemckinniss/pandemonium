@@ -2,6 +2,10 @@ import { useRef, useEffect, type ReactNode } from 'react'
 import { gsap } from '../../lib/animations'
 import type { GamePhase } from '../../types'
 
+// Type for registered GSAP effects
+type GsapEffect = (target: gsap.TweenTarget, config?: object) => gsap.core.Tween | gsap.core.Timeline
+type GsapEffects = Record<string, GsapEffect>
+
 interface PhaseWrapperProps {
   phase: GamePhase
   children: ReactNode
@@ -36,11 +40,12 @@ export function PhaseWrapper({ phase, children, className = '' }: PhaseWrapperPr
     const enterEffect = phaseEnterEffects[phase] || 'screenFadeIn'
 
     // Apply entrance animation
-    if (gsap.effects[enterEffect]) {
-      gsap.effects[enterEffect](container, {})
+    const effects = gsap.effects as GsapEffects
+    if (effects[enterEffect]) {
+      effects[enterEffect](container, {})
     } else {
       // Fallback
-      gsap.effects.screenFadeIn(container, {})
+      effects.screenFadeIn(container, {})
     }
 
     return () => {
