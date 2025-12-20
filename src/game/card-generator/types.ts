@@ -27,6 +27,12 @@ export interface HeroGenerationOptions {
   generateArt?: boolean // Generate hero art via image service
 }
 
+export interface RelicGenerationOptions {
+  rarity?: 'common' | 'uncommon' | 'rare' | 'boss'
+  trigger?: 'onCombatStart' | 'onCombatEnd' | 'onTurnStart' | 'onTurnEnd' | 'onCardPlay' | 'onAttack' | 'onKill' | 'onDamaged' | 'passive'
+  hint?: string // Creative direction hint
+}
+
 export interface PackConfig {
   size: number // Cards per pack
   rarityWeights: {

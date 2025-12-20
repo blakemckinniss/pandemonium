@@ -2,8 +2,9 @@
 // VALIDATION FUNCTIONS
 // ============================================
 
-import type { CardDefinition, CardTheme, AtomicEffect } from '../../types'
+import type { CardDefinition, CardTheme, AtomicEffect, RelicDefinition, RelicRarity, RelicTrigger } from '../../types'
 import { clamp, generateDescription } from './helpers'
+import { AtomicEffectSchema } from './schemas/effects'
 
 export interface ValidatedHero {
   name: string
@@ -23,6 +24,14 @@ export interface ValidatedEnemy {
   enemyStats: NonNullable<CardDefinition['enemyStats']>
   enemyAbility: NonNullable<CardDefinition['enemyAbility']>
   enemyUltimate?: CardDefinition['enemyUltimate']
+}
+
+export interface ValidatedRelic {
+  name: string
+  description: string
+  rarity: RelicRarity
+  trigger: RelicTrigger
+  effects: AtomicEffect[]
 }
 
 export function validateCard(card: Partial<CardDefinition>): Omit<CardDefinition, 'id'> {
@@ -54,17 +63,17 @@ export function validateCard(card: Partial<CardDefinition>): Omit<CardDefinition
 }
 
 export function validateEffect(effect: AtomicEffect): AtomicEffect {
-  // Basic validation - ensure required fields exist
-  if (!effect.type) {
-    throw new Error('Effect must have a type')
+  // Use Zod schema for validation
+  const result = AtomicEffectSchema.safeParse(effect)
+
+  if (!result.success) {
+    const errorMessages = result.error.errors
+      .map((e) => `${e.path.join('.')}: ${e.message}`)
+      .join('; ')
+    throw new Error(`Invalid effect: ${errorMessages}`)
   }
 
-  // Coerce amounts to numbers
-  if ('amount' in effect && typeof effect.amount !== 'number') {
-    (effect as { amount: number }).amount = Number(effect.amount) || 1
-  }
-
-  return effect
+  return result.data as AtomicEffect
 }
 
 export function validateTheme(theme: unknown): CardTheme {
@@ -231,4 +240,41 @@ export function difficultyToRarity(difficulty: number): CardDefinition['rarity']
   if (difficulty >= 3) return 'rare'
   if (difficulty >= 2) return 'uncommon'
   return 'common'
+}
+
+export function validateRelicRarity(rarity: unknown): RelicRarity {
+  const valid: RelicRarity[] = ['common', 'uncommon', 'rare', 'boss']
+  if (typeof rarity === 'string' && valid.includes(rarity as RelicRarity)) {
+    return rarity as RelicRarity
+  }
+  return 'common'
+}
+
+export function validateRelicTrigger(trigger: unknown): RelicTrigger {
+  const valid: RelicTrigger[] = [
+    'onCombatStart', 'onCombatEnd', 'onTurnStart', 'onTurnEnd',
+    'onCardPlay', 'onAttack', 'onKill', 'onDamaged', 'onHeal', 'onBlock', 'passive'
+  ]
+  if (typeof trigger === 'string' && valid.includes(trigger as RelicTrigger)) {
+    return trigger as RelicTrigger
+  }
+  return 'onCombatStart'
+}
+
+export function validateRelic(data: Record<string, unknown>): ValidatedRelic {
+  if (!data.name || typeof data.name !== 'string') {
+    throw new Error('Relic must have a name')
+  }
+
+  if (!data.effects || !Array.isArray(data.effects) || data.effects.length === 0) {
+    throw new Error('Relic must have at least one effect')
+  }
+
+  return {
+    name: data.name,
+    description: typeof data.description === 'string' ? data.description : `A mysterious relic.`,
+    rarity: validateRelicRarity(data.rarity),
+    trigger: validateRelicTrigger(data.trigger),
+    effects: (data.effects as AtomicEffect[]).map(validateEffect),
+  }
 }

@@ -5,19 +5,23 @@
 import { chatCompletion, GROQ_MODEL } from '../../lib/groq'
 import { saveGeneratedCard } from '../../stores/db'
 import { registerCard, registerCardUnsafe, getCardDefinition, isValidCard } from '../cards'
-import type { CardDefinition, CardTheme } from '../../types'
+import type { CardDefinition, CardTheme, RelicDefinition, RelicRarity } from '../../types'
 import { generateUid } from '../../lib/utils'
 import { logger } from '../../lib/logger'
-import { SYSTEM_PROMPT, HERO_SYSTEM_PROMPT, ENEMY_SYSTEM_PROMPT } from './prompts'
-import { parseCardResponse, parseHeroResponse, parseEnemyResponse } from './parsing'
-import { validateCard, validateHero, validateEnemy, difficultyToRarity } from './validation'
+import { SYSTEM_PROMPT, HERO_SYSTEM_PROMPT, ENEMY_SYSTEM_PROMPT, RELIC_SYSTEM_PROMPT } from './prompts'
+import { parseCardResponse, parseHeroResponse, parseEnemyResponse, parseRelicResponse } from './parsing'
+import { validateCard, validateHero, validateEnemy, validateRelic, difficultyToRarity } from './validation'
+import { validateGeneratedCard, formatValidationResult } from './validators'
 import { pickRandom, rarityToNum, themeToNum } from './helpers'
 import { generateCardArtIfAvailable } from './art'
-import type { GenerationOptions, HeroGenerationOptions, EnemyGenerationOptions } from './types'
+import type { GenerationOptions, HeroGenerationOptions, EnemyGenerationOptions, RelicGenerationOptions } from './types'
+import { registerRelic } from '../relics'
 
 // ============================================
 // CARD GENERATION
 // ============================================
+
+const MAX_GENERATION_RETRIES = 3
 
 export async function generateRandomCard(
   options?: GenerationOptions
@@ -45,17 +49,65 @@ export async function generateRandomCard(
 
   const userPrompt = parts.join(' ')
 
-  // Call Groq
-  const response = await chatCompletion(SYSTEM_PROMPT, userPrompt, {
-    temperature: 0.8,
-    maxTokens: 512,
-  })
+  // Retry loop for validation failures
+  let lastError: Error | null = null
+  let validated: ReturnType<typeof validateCard> | null = null
 
-  // Parse response
-  const parsed = parseCardResponse(response)
+  for (let attempt = 1; attempt <= MAX_GENERATION_RETRIES; attempt++) {
+    try {
+      // Call Groq (slightly higher temperature on retries for variety)
+      const response = await chatCompletion(SYSTEM_PROMPT, userPrompt, {
+        temperature: 0.8 + (attempt - 1) * 0.05,
+        maxTokens: 512,
+      })
 
-  // Validate and fix
-  const validated = validateCard(parsed)
+      // Parse response
+      const parsed = parseCardResponse(response)
+
+      // Validate and fix (basic validation with coercion)
+      const attemptValidated = validateCard(parsed)
+
+      // Full 3-layer validation (schema + registry + semantic)
+      const fullValidation = validateGeneratedCard({
+        id: 'pending',
+        ...attemptValidated,
+      })
+
+      if (!fullValidation.success) {
+        const errorDetails = formatValidationResult(fullValidation)
+        if (attempt < MAX_GENERATION_RETRIES) {
+          logger.warn('CardGen', `Attempt ${attempt}/${MAX_GENERATION_RETRIES} failed validation, retrying...\n${errorDetails}`)
+          continue // Retry with new generation
+        }
+        logger.error('CardGen', `Generated card failed validation after ${MAX_GENERATION_RETRIES} attempts:\n${errorDetails}`)
+        throw new Error(`Generated card failed validation: ${JSON.stringify(fullValidation.errors)}`)
+      }
+
+      // Log warnings if any (but don't fail)
+      if (fullValidation.warnings.length > 0) {
+        logger.warn('CardGen', `Generated card has warnings: ${fullValidation.warnings.map(w => w.message).join(', ')}`)
+      }
+
+      // Success - store validated card and break
+      validated = attemptValidated
+      if (attempt > 1) {
+        logger.info('CardGen', `Card generated successfully on attempt ${attempt}`)
+      }
+      break
+    } catch (err) {
+      lastError = err instanceof Error ? err : new Error(String(err))
+      if (attempt < MAX_GENERATION_RETRIES) {
+        logger.warn('CardGen', `Attempt ${attempt}/${MAX_GENERATION_RETRIES} failed: ${lastError.message}, retrying...`)
+        continue
+      }
+      throw lastError
+    }
+  }
+
+  // TypeScript guard - validated should be set if we reach here
+  if (!validated) {
+    throw lastError ?? new Error('Card generation failed unexpectedly')
+  }
 
   // Generate unique ID
   const cardId = `generated_${generateUid()}`
@@ -114,15 +166,41 @@ export async function generateHero(
 
   const userPrompt = parts.join(' ')
 
-  // Call Groq with hero system prompt
-  const response = await chatCompletion(HERO_SYSTEM_PROMPT, userPrompt, {
-    temperature: 0.9, // Higher creativity for unique heroes
-    maxTokens: 768,
-  })
+  // Retry loop for validation failures
+  let lastError: Error | null = null
+  let validated: ReturnType<typeof validateHero> | null = null
 
-  // Parse and validate
-  const parsed = parseHeroResponse(response)
-  const validated = validateHero(parsed)
+  for (let attempt = 1; attempt <= MAX_GENERATION_RETRIES; attempt++) {
+    try {
+      // Call Groq with hero system prompt (slightly higher temperature on retries)
+      const response = await chatCompletion(HERO_SYSTEM_PROMPT, userPrompt, {
+        temperature: 0.9 + (attempt - 1) * 0.03,
+        maxTokens: 768,
+      })
+
+      // Parse and validate
+      const parsed = parseHeroResponse(response)
+      validated = validateHero(parsed)
+
+      // Success - break out of retry loop
+      if (attempt > 1) {
+        logger.info('HeroGen', `Hero generated successfully on attempt ${attempt}`)
+      }
+      break
+    } catch (err) {
+      lastError = err instanceof Error ? err : new Error(String(err))
+      if (attempt < MAX_GENERATION_RETRIES) {
+        logger.warn('HeroGen', `Attempt ${attempt}/${MAX_GENERATION_RETRIES} failed: ${lastError.message}, retrying...`)
+        continue
+      }
+      throw lastError
+    }
+  }
+
+  // TypeScript guard - validated should be set if we reach here
+  if (!validated) {
+    throw lastError ?? new Error('Hero generation failed unexpectedly')
+  }
 
   // Generate unique ID
   const heroId = `hero_generated_${generateUid()}`
@@ -198,15 +276,41 @@ export async function generateEnemyCard(
 
   const userPrompt = parts.join(' ')
 
-  // Call Groq with enemy system prompt
-  const response = await chatCompletion(ENEMY_SYSTEM_PROMPT, userPrompt, {
-    temperature: 0.85,
-    maxTokens: 768,
-  })
+  // Retry loop for validation failures
+  let lastError: Error | null = null
+  let validated: ReturnType<typeof validateEnemy> | null = null
 
-  // Parse and validate
-  const parsed = parseEnemyResponse(response)
-  const validated = validateEnemy(parsed)
+  for (let attempt = 1; attempt <= MAX_GENERATION_RETRIES; attempt++) {
+    try {
+      // Call Groq with enemy system prompt (slightly higher temperature on retries)
+      const response = await chatCompletion(ENEMY_SYSTEM_PROMPT, userPrompt, {
+        temperature: 0.85 + (attempt - 1) * 0.03,
+        maxTokens: 768,
+      })
+
+      // Parse and validate
+      const parsed = parseEnemyResponse(response)
+      validated = validateEnemy(parsed)
+
+      // Success - break out of retry loop
+      if (attempt > 1) {
+        logger.info('EnemyGen', `Enemy generated successfully on attempt ${attempt}`)
+      }
+      break
+    } catch (err) {
+      lastError = err instanceof Error ? err : new Error(String(err))
+      if (attempt < MAX_GENERATION_RETRIES) {
+        logger.warn('EnemyGen', `Attempt ${attempt}/${MAX_GENERATION_RETRIES} failed: ${lastError.message}, retrying...`)
+        continue
+      }
+      throw lastError
+    }
+  }
+
+  // TypeScript guard - validated should be set if we reach here
+  if (!validated) {
+    throw lastError ?? new Error('Enemy generation failed unexpectedly')
+  }
 
   // Generate unique ID
   const enemyId = `enemy_${validated.name.toLowerCase().replace(/[^a-z0-9]/g, '_')}_${generateUid().slice(0, 6)}`
@@ -327,4 +431,86 @@ export async function loadGeneratedCardsIntoRegistry(): Promise<number> {
   }
 
   return loaded
+}
+
+// ============================================
+// RELIC GENERATION
+// ============================================
+
+/**
+ * Generate a random relic via AI.
+ * Relics are passive items that trigger effects during combat.
+ */
+export async function generateRelic(
+  options?: RelicGenerationOptions
+): Promise<RelicDefinition> {
+  // Build user prompt
+  const parts: string[] = ['Generate a unique relic.']
+
+  const rarity = options?.rarity ?? pickRandom(['common', 'uncommon', 'rare'] as RelicRarity[])
+  parts.push(`Rarity: ${rarity}.`)
+
+  if (options?.trigger) {
+    parts.push(`Trigger: ${options.trigger}.`)
+  }
+
+  if (options?.hint) {
+    parts.push(`Theme hint: ${options.hint}`)
+  }
+
+  const userPrompt = parts.join(' ')
+
+  // Retry loop for validation failures
+  let lastError: Error | null = null
+  let validated: ReturnType<typeof validateRelic> | null = null
+
+  for (let attempt = 1; attempt <= MAX_GENERATION_RETRIES; attempt++) {
+    try {
+      // Call Groq with relic system prompt
+      const response = await chatCompletion(RELIC_SYSTEM_PROMPT, userPrompt, {
+        temperature: 0.85 + (attempt - 1) * 0.03,
+        maxTokens: 512,
+      })
+
+      // Parse and validate
+      const parsed = parseRelicResponse(response)
+      validated = validateRelic(parsed)
+
+      // Success - break out of retry loop
+      if (attempt > 1) {
+        logger.info('RelicGen', `Relic generated successfully on attempt ${attempt}`)
+      }
+      break
+    } catch (err) {
+      lastError = err instanceof Error ? err : new Error(String(err))
+      if (attempt < MAX_GENERATION_RETRIES) {
+        logger.warn('RelicGen', `Attempt ${attempt}/${MAX_GENERATION_RETRIES} failed: ${lastError.message}, retrying...`)
+        continue
+      }
+      throw lastError
+    }
+  }
+
+  // TypeScript guard - validated should be set if we reach here
+  if (!validated) {
+    throw lastError ?? new Error('Relic generation failed unexpectedly')
+  }
+
+  // Generate unique ID
+  const relicId = `relic_generated_${generateUid()}`
+  const definition: RelicDefinition = {
+    id: relicId,
+    name: validated.name,
+    description: validated.description,
+    rarity: validated.rarity,
+    trigger: validated.trigger,
+    effects: validated.effects,
+  }
+
+  // Register in relic registry
+  registerRelic(definition)
+
+  logger.info('RelicGen', `Generated relic: ${definition.name} (${definition.rarity}, ${definition.trigger})`)
+
+  return definition
 }
