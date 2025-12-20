@@ -67,10 +67,11 @@ export function validateEffect(effect: AtomicEffect): AtomicEffect {
   const result = AtomicEffectSchema.safeParse(effect)
 
   if (!result.success) {
-    const errorMessages = result.error.errors
-      .map((e) => `${e.path.join('.')}: ${e.message}`)
+    const issues = result.error?.issues ?? result.error?.errors ?? []
+    const errorMessages = issues
+      .map((e: { path: (string | number)[]; message: string }) => `${e.path.join('.')}: ${e.message}`)
       .join('; ')
-    throw new Error(`Invalid effect: ${errorMessages}`)
+    throw new Error(`Invalid effect: ${errorMessages || JSON.stringify(effect)}`)
   }
 
   return result.data as AtomicEffect
