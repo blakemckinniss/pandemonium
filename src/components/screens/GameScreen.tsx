@@ -27,6 +27,7 @@ import { gsap } from '../../lib/animations'
 import { enableDragDrop, disableDragDrop } from '../../lib/dragdrop'
 import { useMetaStore, checkUnlocks } from '../../stores/metaStore'
 import { saveRun, getCustomDeckById, getDungeonDeck } from '../../stores/db'
+import { useRunLockStore } from '../../stores/runLockStore'
 import { useCampfireHandlers } from '../../hooks/useCampfireHandlers'
 import { useTreasureHandlers } from '../../hooks/useTreasureHandlers'
 import { useRewardHandlers } from '../../hooks/useRewardHandlers'
@@ -36,6 +37,7 @@ import { useVisualEventProcessor } from '../../hooks/useVisualEventProcessor'
 import { useCombatActions } from '../../hooks/useCombatActions'
 import { useRoomHandlers } from '../../hooks/useRoomHandlers'
 import { lockInRun } from '../../game/run-lock'
+import { resolveModifiers } from '../../game/modifier-resolver'
 import { registerDebugAPI, unregisterDebugAPI } from '../../test/debug'
 
 interface GameScreenProps {
@@ -102,6 +104,12 @@ export function GameScreen({ deckId, heroId, dungeonDeckId, selectedModifierIds,
     onReturnToMenu,
   })
 
+  // Get active modifiers from run-lock store for gold multiplier
+  const lockedRun = useRunLockStore((s) => s.lockedRun)
+  const goldMultiplier = lockedRun?.activeModifiers
+    ? resolveModifiers(lockedRun.activeModifiers).goldMultiplier
+    : 1
+
   // Extracted handlers with run-lock integration
   const getCurrentRoomUid = useCallback(() => state?.currentRoomUid, [state?.currentRoomUid])
   const campfireHandlers = useCampfireHandlers({
@@ -118,6 +126,7 @@ export function GameScreen({ deckId, heroId, dungeonDeckId, selectedModifierIds,
     setState,
     getCurrentRoomUid,
     onRoomComplete: roomHandlers.handleRoomComplete,
+    goldMultiplier,
   })
   const selectionHandlers = useSelectionHandlers(setState, state?.combat?.pendingSelection)
 
@@ -540,6 +549,7 @@ export function GameScreen({ deckId, heroId, dungeonDeckId, selectedModifierIds,
         <RewardScreen
           floor={state.floor}
           gold={state.gold}
+          goldMultiplier={goldMultiplier}
           ownedRelicIds={state.relics.map((r) => r.definitionId)}
           onAddCard={rewardHandlers.handleAddCard}
           onAddRelic={rewardHandlers.handleAddRelic}

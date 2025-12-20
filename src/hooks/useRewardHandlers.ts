@@ -11,6 +11,7 @@ export interface RewardHandlersConfig {
   setState: SetState
   getCurrentRoomUid: () => string | undefined
   onRoomComplete?: (params: RoomCompleteParams) => void
+  goldMultiplier?: number
 }
 
 export interface RewardHandlers {
@@ -23,10 +24,11 @@ export function useRewardHandlers({
   setState,
   getCurrentRoomUid,
   onRoomComplete,
+  goldMultiplier = 1,
 }: RewardHandlersConfig): RewardHandlers {
   const handleAddCard = useCallback((cardId: string) => {
     const roomUid = getCurrentRoomUid()
-    const goldReward = 15 + Math.floor(Math.random() * 10)
+    const goldReward = Math.floor((15 + Math.floor(Math.random() * 10)) * goldMultiplier)
 
     setState((prev) => {
       if (!prev) return prev
@@ -70,11 +72,11 @@ export function useRewardHandlers({
     if (onRoomComplete && roomUid) {
       onRoomComplete({ roomUid, goldEarned: goldReward })
     }
-  }, [setState, getCurrentRoomUid, onRoomComplete])
+  }, [setState, getCurrentRoomUid, onRoomComplete, goldMultiplier])
 
   const handleSkipReward = useCallback(() => {
     const roomUid = getCurrentRoomUid()
-    const goldReward = 15 + Math.floor(Math.random() * 10)
+    const goldReward = Math.floor((15 + Math.floor(Math.random() * 10)) * goldMultiplier)
 
     setState((prev) => {
       if (!prev) return prev
@@ -113,11 +115,11 @@ export function useRewardHandlers({
     if (onRoomComplete && roomUid) {
       onRoomComplete({ roomUid, goldEarned: goldReward })
     }
-  }, [setState, getCurrentRoomUid, onRoomComplete])
+  }, [setState, getCurrentRoomUid, onRoomComplete, goldMultiplier])
 
   const handleAddRelic = useCallback((relicId: string) => {
     const roomUid = getCurrentRoomUid()
-    const goldReward = 15 + Math.floor(Math.random() * 10)
+    const goldReward = Math.floor((15 + Math.floor(Math.random() * 10)) * goldMultiplier)
 
     setState((prev) => {
       if (!prev) return prev
@@ -161,7 +163,7 @@ export function useRewardHandlers({
     if (onRoomComplete && roomUid) {
       onRoomComplete({ roomUid, goldEarned: goldReward })
     }
-  }, [setState, getCurrentRoomUid, onRoomComplete])
+  }, [setState, getCurrentRoomUid, onRoomComplete, goldMultiplier])
 
   return {
     handleAddCard,

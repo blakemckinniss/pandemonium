@@ -11,17 +11,19 @@ import { generateRandomCard } from '../../game/card-generator'
 interface RewardScreenProps {
   floor: number
   gold: number
+  goldMultiplier?: number
   ownedRelicIds: string[]
   onAddCard: (cardId: string) => void
   onAddRelic: (relicId: string) => void
   onSkip: () => void
 }
 
-export function RewardScreen({ floor, gold, ownedRelicIds, onAddCard, onAddRelic, onSkip }: RewardScreenProps) {
+export function RewardScreen({ floor, gold, goldMultiplier = 1, ownedRelicIds, onAddCard, onAddRelic, onSkip }: RewardScreenProps) {
   const containerRef = useRef<HTMLDivElement>(null)
   const [cardChoices, setCardChoices] = useState<CardDefinition[]>([])
   const [relicChoice, setRelicChoice] = useState<RelicDefinition | null>(null)
-  const [goldReward] = useState(() => 15 + Math.floor(Math.random() * 10))
+  // Apply gold multiplier from modifiers
+  const [goldReward] = useState(() => Math.floor((15 + Math.floor(Math.random() * 10)) * goldMultiplier))
   const [isGenerating, setIsGenerating] = useState(false)
   const [generationError, setGenerationError] = useState<string | null>(null)
   const [previewCard, setPreviewCard] = useState<CardDefinition | null>(null)
