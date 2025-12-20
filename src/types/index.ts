@@ -249,6 +249,7 @@ export type {
   RunRecoveryInfo,
   RunResult,
   RunRewards,
+  DungeonRewards,
   AbandonPenalty,
 } from './run-lock'
 

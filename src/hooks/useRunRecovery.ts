@@ -30,16 +30,9 @@ export interface RunRecoveryActions {
  * Hook for recovering locked runs after browser close.
  *
  * Usage:
- * ```tsx
- * const { state, actions } = useRunRecovery({
- *   onResume: (info) => { /* restore game state */ },
- *   onAbandon: () => { /* handle abandon */ },
- * })
- *
- * if (state.showRecoveryPrompt && state.recoveryInfo) {
- *   return <RecoveryModal info={state.recoveryInfo} ... />
- * }
- * ```
+ * Call this hook and check state.showRecoveryPrompt to determine
+ * if a recovery modal should be shown. Use actions.resumeRun or
+ * actions.abandonRecovery to handle user choice.
  */
 export function useRunRecovery(options: {
   /** Called when user chooses to resume */
@@ -141,20 +134,20 @@ export function formatRecoveryInfo(info: RunRecoveryInfo): {
 
   let timeAgo: string
   if (days > 0) {
-    timeAgo = `${days} day${days > 1 ? 's' : ''} ago`
+    timeAgo = days + ' day' + (days > 1 ? 's' : '') + ' ago'
   } else if (hours > 0) {
-    timeAgo = `${hours} hour${hours > 1 ? 's' : ''} ago`
+    timeAgo = hours + ' hour' + (hours > 1 ? 's' : '') + ' ago'
   } else if (minutes > 0) {
-    timeAgo = `${minutes} minute${minutes > 1 ? 's' : ''} ago`
+    timeAgo = minutes + ' minute' + (minutes > 1 ? 's' : '') + ' ago'
   } else {
     timeAgo = 'just now'
   }
 
   return {
-    title: `Continue Run?`,
+    title: 'Continue Run?',
     subtitle: info.dungeonName,
-    progress: `Floor ${info.floor} • ${progressPercent}% complete`,
-    timeAgo: `Last played ${timeAgo}`,
+    progress: 'Floor ' + info.floor + ' \u2022 ' + progressPercent + '% complete',
+    timeAgo: 'Last played ' + timeAgo,
   }
 }
 

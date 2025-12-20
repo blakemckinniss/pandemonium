@@ -2,7 +2,7 @@
 // MODIFIER GENERATION FUNCTIONS
 // ============================================
 
-import { chatCompletion, GROQ_MODEL } from '../../lib/groq'
+import { chatCompletion } from '../../lib/groq'
 import type {
   ModifierDefinition,
   ModifierCategory,
@@ -90,15 +90,19 @@ function validateAndCoerceModifier(
   const category = coerceModifierCategory(parsed.category)
   const rarity = coerceModifierRarity(parsed.rarity)
   const durability = coerceDurability(parsed.durability)
+
+  // Combine danger and reward effects into single effects array
   const dangerEffects = coerceModifierEffects(parsed.dangerEffects)
   const rewardEffects = coerceModifierEffects(parsed.rewardEffects)
+  const effects = [...dangerEffects, ...rewardEffects]
 
-  if (dangerEffects.length === 0) {
-    throw new Error('Modifier must have at least one danger effect')
+  // Also accept direct effects array
+  if (effects.length === 0 && parsed.effects) {
+    effects.push(...coerceModifierEffects(parsed.effects))
   }
 
-  if (rewardEffects.length === 0) {
-    throw new Error('Modifier must have at least one reward effect')
+  if (effects.length === 0) {
+    throw new Error('Modifier must have at least one effect')
   }
 
   const dangerValue = typeof parsed.dangerValue === 'number' ? parsed.dangerValue : 10
@@ -112,8 +116,7 @@ function validateAndCoerceModifier(
     dangerValue,
     rewardValue,
     durability,
-    dangerEffects,
-    rewardEffects,
+    effects,
   }
 }
 

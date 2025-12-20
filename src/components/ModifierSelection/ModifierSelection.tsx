@@ -2,11 +2,18 @@ import { memo, useState, useEffect, useRef } from 'react'
 import { Icon } from '@iconify/react'
 import { gsap } from '../../lib/animations'
 import { ModifierCard } from '../ModifierCard/ModifierCard'
-import type { ModifierDefinition, OwnedModifier } from '../../types'
-import { calculateHeatGeneration } from '../../game/heat'
+import type { ModifierDefinition } from '../../types'
+import { calculateModifierHeat } from '../../game/heat'
+
+// Extended type for selection UI - combines owned data with definition
+interface SelectableModifier {
+  definitionId: string
+  definition: ModifierDefinition
+  quantity: number
+}
 
 interface ModifierSelectionProps {
-  availableModifiers: OwnedModifier[]
+  availableModifiers: SelectableModifier[]
   selectedIds: string[]
   maxSelections?: number
   currentHeat?: number
@@ -28,9 +35,9 @@ export const ModifierSelection = memo(function ModifierSelection({
   const [previewModifier, setPreviewModifier] = useState<ModifierDefinition | null>(null)
 
   // Calculate projected heat for selected modifiers
-  const selectedModifiers = availableModifiers.filter(m => selectedIds.includes(m.id))
+  const selectedModifiers = availableModifiers.filter(m => selectedIds.includes(m.definitionId))
   const projectedHeat = selectedModifiers.reduce((sum, mod) => {
-    return sum + calculateHeatGeneration(mod.definition, selectedModifiers.length)
+    return sum + calculateModifierHeat(mod.definition)
   }, currentHeat)
 
   // Heat warning thresholds
@@ -53,7 +60,7 @@ export const ModifierSelection = memo(function ModifierSelection({
     if (!acc[cat]) acc[cat] = []
     acc[cat].push(mod)
     return acc
-  }, {} as Record<string, OwnedModifier[]>)
+  }, {} as Record<string, SelectableModifier[]>)
 
   const categoryOrder = ['catalyst', 'omen', 'edict', 'seal']
   const sortedCategories = categoryOrder.filter(cat => byCategory[cat]?.length > 0)
@@ -116,15 +123,15 @@ export const ModifierSelection = memo(function ModifierSelection({
                     {category}s
                   </h3>
                   <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-                    {byCategory[category].map(owned => (
+                    {byCategory[category].map(selectable => (
                       <ModifierCard
-                        key={owned.id}
-                        modifier={owned.definition}
+                        key={selectable.definitionId}
+                        modifier={selectable.definition}
                         variant="selection"
-                        isSelected={selectedIds.includes(owned.id)}
-                        isDisabled={!selectedIds.includes(owned.id) && selectedIds.length >= maxSelections}
-                        onClick={() => onToggle(owned.id)}
-                        onPreview={() => setPreviewModifier(owned.definition)}
+                        isSelected={selectedIds.includes(selectable.definitionId)}
+                        isDisabled={!selectedIds.includes(selectable.definitionId) && selectedIds.length >= maxSelections}
+                        onClick={() => onToggle(selectable.definitionId)}
+                        onPreview={() => setPreviewModifier(selectable.definition)}
                       />
                     ))}
                   </div>

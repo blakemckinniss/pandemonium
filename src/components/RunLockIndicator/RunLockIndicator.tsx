@@ -66,10 +66,14 @@ export const RunLockIndicator = memo(function RunLockIndicator({
   // Calculate recovery info for display
   const recoveryInfo = {
     runId: run.runId,
-    status: run.status,
-    progress: run.progress,
+    dungeonName: run.dungeonDeckId,
+    difficulty: 1,
+    floor: run.progress.floor,
+    totalRooms: run.progress.totalRooms,
+    roomsRemaining: run.progress.roomsRemaining,
+    activeModifierCount: run.activeModifiers.length,
     lockedAt: run.lockedAt,
-    modifierCount: run.activeModifiers.length,
+    lastUpdatedAt: Date.now(),
   }
   const displayInfo = formatRecoveryInfo(recoveryInfo)
 
@@ -86,7 +90,7 @@ export const RunLockIndicator = memo(function RunLockIndicator({
       >
         <Icon icon={config.icon} className={`w-4 h-4 ${config.color}`} />
         <span className="text-sm text-warm-200">
-          Floor {run.progress.currentFloor}/{run.progress.totalFloors}
+          Floor {run.progress.floor} • {run.progress.roomsRemaining} left
         </span>
         {status === 'active' && (
           <Icon icon="game-icons:play-button" className="w-3 h-3 text-energy" />
@@ -123,7 +127,7 @@ export const RunLockIndicator = memo(function RunLockIndicator({
           <div className="h-2 bg-warm-800 rounded-full overflow-hidden">
             <div
               className="h-full bg-gradient-to-r from-energy to-heal rounded-full transition-all"
-              style={{ width: `${(run.progress.currentFloor / run.progress.totalFloors) * 100}%` }}
+              style={{ width: `${run.progress.totalRooms > 0 ? ((run.progress.totalRooms - run.progress.roomsRemaining) / run.progress.totalRooms) * 100 : 0}%` }}
             />
           </div>
         </div>
@@ -131,7 +135,7 @@ export const RunLockIndicator = memo(function RunLockIndicator({
         {/* Info */}
         <div className="flex items-center justify-between text-xs text-warm-500 mb-3">
           <span>{run.activeModifiers.length} modifier{run.activeModifiers.length !== 1 ? 's' : ''}</span>
-          <span>Rooms cleared: {run.progress.roomsCleared}</span>
+          <span>Rooms cleared: {run.progress.roomsCleared.length}</span>
         </div>
 
         {/* Actions */}

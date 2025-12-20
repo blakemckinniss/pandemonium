@@ -7,7 +7,6 @@
 import type {
   RunProgress,
   RunRewards,
-  StreakMilestone,
   StreakMilestoneReward,
   ModifierInstance,
   HeatState,

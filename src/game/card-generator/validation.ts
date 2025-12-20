@@ -2,7 +2,7 @@
 // VALIDATION FUNCTIONS
 // ============================================
 
-import type { CardDefinition, CardTheme, AtomicEffect, RelicDefinition, RelicRarity, RelicTrigger } from '../../types'
+import type { CardDefinition, CardTheme, AtomicEffect, RelicRarity, RelicTrigger } from '../../types'
 import { clamp, generateDescription } from './helpers'
 import { AtomicEffectSchema } from './schemas/effects'
 
@@ -67,9 +67,10 @@ export function validateEffect(effect: AtomicEffect): AtomicEffect {
   const result = AtomicEffectSchema.safeParse(effect)
 
   if (!result.success) {
-    const issues = result.error?.issues ?? result.error?.errors ?? []
+    // Zod v4: error.issues is the array of issues
+    const issues = result.error?.issues ?? []
     const errorMessages = issues
-      .map((e: { path: (string | number)[]; message: string }) => `${e.path.join('.')}: ${e.message}`)
+      .map((e: { path: PropertyKey[]; message: string }) => `${String(e.path.join('.'))}: ${e.message}`)
       .join('; ')
     throw new Error(`Invalid effect: ${errorMessages || JSON.stringify(effect)}`)
   }
@@ -254,7 +255,7 @@ export function validateRelicRarity(rarity: unknown): RelicRarity {
 export function validateRelicTrigger(trigger: unknown): RelicTrigger {
   const valid: RelicTrigger[] = [
     'onCombatStart', 'onCombatEnd', 'onTurnStart', 'onTurnEnd',
-    'onCardPlay', 'onAttack', 'onKill', 'onDamaged', 'onHeal', 'onBlock', 'passive'
+    'onCardPlayed', 'onAttack', 'onKill', 'onDamaged', 'onHeal', 'onGoldGained', 'passive'
   ]
   if (typeof trigger === 'string' && valid.includes(trigger as RelicTrigger)) {
     return trigger as RelicTrigger

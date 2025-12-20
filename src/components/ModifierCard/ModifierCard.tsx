@@ -57,7 +57,7 @@ export const ModifierCard = memo(function ModifierCard({
   onPreview,
 }: ModifierCardProps) {
   const cardRef = useRef<HTMLDivElement>(null)
-  const [showTooltip, setShowTooltip] = useState(false)
+  const [_showTooltip, setShowTooltip] = useState(false)
 
   const category = CATEGORY_CONFIG[modifier.category] ?? CATEGORY_CONFIG.catalyst
   const rarityBorder = RARITY_BORDER[modifier.rarity] ?? RARITY_BORDER.common
@@ -69,7 +69,7 @@ export const ModifierCard = memo(function ModifierCard({
   const isBalanced = balanceRatio >= 0.85 && balanceRatio <= 1.15
 
   // Remaining uses for fragile modifiers
-  const remainingUses = instance?.remainingUses ?? (modifier.durability.type === 'fragile' ? modifier.durability.uses : undefined)
+  const remainingUses = instance?.usesRemaining ?? (modifier.durability.type === 'fragile' ? modifier.durability.uses : undefined)
 
   // Selection animation
   useEffect(() => {

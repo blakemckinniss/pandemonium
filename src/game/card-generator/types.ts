@@ -29,7 +29,7 @@ export interface HeroGenerationOptions {
 
 export interface RelicGenerationOptions {
   rarity?: 'common' | 'uncommon' | 'rare' | 'boss'
-  trigger?: 'onCombatStart' | 'onCombatEnd' | 'onTurnStart' | 'onTurnEnd' | 'onCardPlay' | 'onAttack' | 'onKill' | 'onDamaged' | 'passive'
+  trigger?: 'onCombatStart' | 'onCombatEnd' | 'onTurnStart' | 'onTurnEnd' | 'onCardPlayed' | 'onAttack' | 'onKill' | 'onDamaged' | 'onHeal' | 'onGoldGained' | 'passive'
   hint?: string // Creative direction hint
 }
 

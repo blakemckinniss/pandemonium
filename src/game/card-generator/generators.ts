@@ -555,7 +555,7 @@ export async function generateRelicSet(
   // Available triggers for variety
   const allTriggers: RelicTrigger[] = [
     'onCombatStart', 'onCombatEnd', 'onTurnStart', 'onTurnEnd',
-    'onCardPlay', 'onAttack', 'onKill', 'onDamaged', 'onHeal', 'onBlock', 'passive'
+    'onCardPlayed', 'onAttack', 'onKill', 'onDamaged', 'onHeal', 'onGoldGained', 'passive'
   ]
 
   // Build weighted rarity pool

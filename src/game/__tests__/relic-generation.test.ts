@@ -1,6 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { generateRelic } from '../card-generator/generators'
-import type { RelicDefinition } from '../../types'
 
 // Mock the Groq API
 vi.mock('../../lib/groq', () => ({
@@ -61,22 +60,22 @@ describe('Relic Generation', () => {
     expect(relic.trigger).toBe('onTurnStart')
   })
 
-  it('generates a valid rare relic with onCardPlay trigger', async () => {
+  it('generates a valid rare relic with onCardPlayed trigger', async () => {
     const { chatCompletion } = await import('../../lib/groq')
     const mockRelic = {
       name: 'Quicksilver Gauntlet',
       description: 'Whenever you play an Attack, deal 2 damage to a random enemy.',
       rarity: 'rare',
-      trigger: 'onCardPlay',
+      trigger: 'onCardPlayed',
       effects: [{ type: 'damage', amount: 2, target: 'randomEnemy' }],
     }
     vi.mocked(chatCompletion).mockResolvedValue(JSON.stringify(mockRelic))
 
-    const relic = await generateRelic({ rarity: 'rare', trigger: 'onCardPlay' })
+    const relic = await generateRelic({ rarity: 'rare', trigger: 'onCardPlayed' })
 
     expect(relic.name).toBe('Quicksilver Gauntlet')
     expect(relic.rarity).toBe('rare')
-    expect(relic.trigger).toBe('onCardPlay')
+    expect(relic.trigger).toBe('onCardPlayed')
   })
 
   it('handles JSON wrapped in markdown code blocks', async () => {

@@ -282,9 +282,7 @@ export function validateModifierSemantic(mod: Partial<ModifierDefinition>): Vali
   }
 
   // Effect count check by rarity
-  const dangerCount = mod.dangerEffects?.length ?? 0
-  const rewardCount = mod.rewardEffects?.length ?? 0
-  const totalEffects = dangerCount + rewardCount
+  const totalEffects = mod.effects?.length ?? 0
 
   const maxEffects: Record<ModifierRarity, number> = {
     common: 4,
@@ -383,7 +381,9 @@ export function coerceDurability(value: unknown): ModifierDurability {
   if (value && typeof value === 'object') {
     const dur = value as Record<string, unknown>
     if (dur.type === 'fragile' && typeof dur.uses === 'number') {
-      return { type: 'fragile', uses: Math.max(1, Math.min(10, dur.uses)) }
+      const uses = Math.max(1, Math.min(10, dur.uses))
+      const maxUses = typeof dur.maxUses === 'number' ? dur.maxUses : uses
+      return { type: 'fragile', uses, maxUses }
     }
     if (dur.type === 'permanent') {
       return { type: 'permanent' }
