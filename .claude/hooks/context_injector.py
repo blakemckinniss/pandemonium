@@ -11,31 +11,39 @@ import sys
 from typing import Optional
 
 # File pattern to memory/context mapping
+# Now includes skills and agents for better discoverability
 CONTEXT_MAP = {
     # Effects system
     "game/effects/": {
         "memories": ["effects_engine", "effects_library_expanded"],
         "hint": "Effects use `executeEffect()`. Add new types to `AtomicEffect` union in types/index.ts",
+        "skill": "effect-authoring",
+        "agent": "effect-debugger",
     },
     # Power system
     "game/powers": {
         "memories": ["power_system_detailed"],
         "hint": "Powers use `registerPower()`. Stack behaviors: intensity|duration|replace",
+        "skill": "power-creation",
     },
     # Action handlers
     "game/handlers/": {
         "memories": ["action_handlers"],
         "hint": "Handlers modify draft state via Immer. Return draft, don't spread.",
+        "agent": "game-reviewer",
     },
     # Card definitions
     "game/cards.ts": {
         "memories": ["card_generator"],
         "hint": "Cards need unique IDs. Effects are declarative arrays. Check CARDS array for patterns.",
+        "skill": "card-creation",
+        "agent": "balance-analyzer",
     },
     # Types
     "types/index.ts": {
         "memories": ["codebase_structure"],
         "hint": "ALL types go here. Use union types for effects. Export everything.",
+        "skill": "effect-authoring",
     },
     # Components
     "components/": {
@@ -66,21 +74,31 @@ CONTEXT_MAP = {
     "game/elements.ts": {
         "memories": ["elemental_system"],
         "hint": "5 elements with combo system. Affinities: resist/weak/immune.",
+        "skill": "power-creation",
     },
     # Relics
     "game/relics.ts": {
         "memories": ["relic_system"],
         "hint": "Relics use trigger events + AtomicEffect arrays. Same effect system as cards.",
+        "skill": "effect-authoring",
     },
     # Selection effects
     "game/selection-effects.ts": {
         "memories": ["selection_effects"],
         "hint": "Selection effects pause combat. Set pendingSelection, resolve via action.",
+        "skill": "effect-authoring",
     },
     # Dungeon/rooms
     "dungeon": {
         "memories": ["dungeon_system"],
         "hint": "Rooms in content/rooms.ts. DungeonDeck shuffles room cards.",
+        "skill": "room-design",
+    },
+    # Room definitions
+    "content/rooms": {
+        "memories": ["dungeon_system"],
+        "hint": "Define rooms with monsters, type, and rewards.",
+        "skill": "room-design",
     },
     # Stores
     "stores/": {
@@ -91,11 +109,24 @@ CONTEXT_MAP = {
     "__tests__/": {
         "memories": [],
         "hint": "Use fake-indexeddb for Dexie. Mock GSAP. Test via applyAction().",
+        "agent": "test-writer",
     },
     # Modifiers
     "modifier": {
         "memories": [],
         "hint": "Modifiers alter run params. Applied via modifier-resolver.ts.",
+    },
+    # Image generation
+    "services/image-gen": {
+        "memories": ["image_generation"],
+        "hint": "ComfyUI integration for card/room art.",
+        "skill": "image-gen",
+    },
+    # Public card images
+    "public/cards": {
+        "memories": [],
+        "hint": "Card images as WebP. Generate via image-gen service.",
+        "skill": "image-gen",
     },
 }
 
@@ -152,6 +183,15 @@ def main():
 
         if context.get("hint"):
             parts.append(f"💡 **Pattern**: {context['hint']}")
+
+        # Suggest relevant skills and agents
+        suggestions = []
+        if context.get("skill"):
+            suggestions.append(f"skill:`{context['skill']}`")
+        if context.get("agent"):
+            suggestions.append(f"agent:`{context['agent']}`")
+        if suggestions:
+            parts.append(f"🎯 **Available**: {', '.join(suggestions)}")
 
         if parts:
             message = "\n".join(parts)
