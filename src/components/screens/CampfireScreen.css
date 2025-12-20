@@ -1,0 +1,116 @@
+/* CampfireScreen Component Styles */
+/* Auto-extracted from index.css */
+
+@keyframes firelight-flicker {
+  0%, 100% {
+    opacity: 0.4;
+    transform: scale(1);
+  }
+  25% {
+    opacity: 0.5;
+    transform: scale(1.02);
+  }
+  50% {
+    opacity: 0.35;
+    transform: scale(0.98);
+  }
+  75% {
+    opacity: 0.45;
+    transform: scale(1.01);
+  }
+}
+
+.CampfireScreen {
+  background:
+    radial-gradient(ellipse at 50% 70%, oklch(0.20 0.08 35 / 0.4) 0%, transparent 45%),
+    radial-gradient(ellipse at 50% 100%, oklch(0.25 0.12 30 / 0.3) 0%, transparent 50%),
+    linear-gradient(180deg, oklch(0.08 0.01 35) 0%, oklch(0.06 0.008 30) 100%);
+  position: relative;
+}
+
+.CampfireScreen::before {
+  content: "";
+  position: absolute;
+  bottom: 20%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 300px;
+  height: 300px;
+  background: radial-gradient(circle, oklch(0.50 0.20 35 / 0.3) 0%, transparent 70%);
+  border-radius: 50%;
+  animation: firelight-flicker 3s ease-in-out infinite;
+  pointer-events: none;
+}
+
+.CampfireScreen__title {
+  font-family: var(--font-display);
+  font-size: 2rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: oklch(0.75 0.12 45);
+  text-shadow:
+    0 0 20px oklch(0.60 0.15 40 / 0.4),
+    0 2px 4px oklch(0 0 0 / 0.5);
+  position: relative;
+  z-index: 1;
+}
+
+.CampfireAction {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1.5rem 2rem;
+  background: linear-gradient(180deg, oklch(0.15 0.02 38 / 0.9) 0%, oklch(0.12 0.015 35 / 0.95) 100%);
+  border: 2px solid oklch(0.28 0.03 42);
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  position: relative;
+  z-index: 1;
+}
+
+.CampfireAction:hover {
+  border-color: oklch(0.50 0.10 45);
+  background: linear-gradient(180deg, oklch(0.20 0.03 42 / 0.95) 0%, oklch(0.15 0.025 38 / 0.98) 100%);
+  box-shadow:
+    0 8px 24px oklch(0.45 0.12 40 / 0.25),
+    0 0 30px oklch(0.50 0.10 40 / 0.15);
+  transform: translateY(-4px);
+}
+
+.CampfireAction__icon {
+  font-size: 3rem;
+  filter: drop-shadow(0 4px 8px oklch(0 0 0 / 0.4));
+}
+
+.CampfireAction__label {
+  font-family: var(--font-display);
+  font-weight: 500;
+  font-size: 1.1rem;
+  letter-spacing: 0.04em;
+  color: oklch(0.78 0.04 48);
+}
+
+.CampfireAction__desc {
+  font-family: var(--font-body);
+  font-size: 0.85rem;
+  color: oklch(0.55 0.02 45);
+  text-align: center;
+  max-width: 150px;
+}
+
+.CampfireAction--rest:hover {
+  border-color: oklch(0.50 0.12 145);
+  box-shadow:
+    0 8px 24px oklch(0.45 0.12 145 / 0.25),
+    0 0 30px oklch(0.50 0.10 145 / 0.15);
+}
+
+.CampfireAction--smith:hover {
+  border-color: oklch(0.55 0.15 160);
+  box-shadow:
+    0 8px 24px oklch(0.50 0.14 160 / 0.25),
+    0 0 30px oklch(0.55 0.12 160 / 0.15);
+}

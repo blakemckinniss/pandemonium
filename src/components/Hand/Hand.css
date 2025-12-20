@@ -1,0 +1,19 @@
+/* Hand Component Styles */
+/* Auto-extracted from index.css */
+
+.HandCard {
+  /* Start hidden for deal animation - GSAP will reveal */
+  opacity: 0;
+  transform: translateX(-50vw) translateY(-100px) rotate(-25deg) scale(0.5);
+  transition: none; /* GSAP controls all transforms */
+}
+
+.HandCard.is-dealt {
+  opacity: 1;
+  transform: rotate(var(--fan-rotation, 0deg));
+  transition: transform 0.15s ease-out;
+}
+
+.HandCard.is-dealt:hover {
+  transform: rotate(var(--fan-rotation, 0deg)) translateY(-16px);
+}

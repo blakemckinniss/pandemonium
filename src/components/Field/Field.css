@@ -1,0 +1,713 @@
+/* Field Component Styles */
+/* Auto-extracted from index.css */
+
+@keyframes healthPulse {
+  0%, 100% {
+    box-shadow:
+      inset 0 1px 0 hsl(var(--hp-hue) 60% 65% / 0.4),
+      0 0 8px hsl(var(--hp-hue) 85% 50% / 0.6);
+  }
+  50% {
+    box-shadow:
+      inset 0 1px 0 hsl(var(--hp-hue) 60% 65% / 0.4),
+      0 0 16px hsl(var(--hp-hue) 90% 55% / 0.8);
+  }
+}
+
+@keyframes powertoken-pulse-up {
+  0% { transform: scale(1); }
+  25% { transform: scale(1.25); }
+  50% { transform: scale(1.1); }
+  100% { transform: scale(1); }
+}
+
+@keyframes powertoken-pulse-down {
+  0% { transform: scale(1); opacity: 1; }
+  25% { transform: scale(0.85); opacity: 0.7; }
+  50% { transform: scale(0.95); opacity: 0.9; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+@keyframes count-pop {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.4); }
+  100% { transform: scale(1); }
+}
+
+@keyframes energy-orb-glow {
+  0%, 100% {
+    box-shadow:
+      0 0 12px oklch(0.3 0 0 / 0.6),
+      0 0 24px oklch(0.2 0 0 / 0.3),
+      inset 0 0 8px oklch(0.5 0 0 / 0.3);
+  }
+  50% {
+    box-shadow:
+      0 0 18px oklch(0.4 0 0 / 0.7),
+      0 0 36px oklch(0.3 0 0 / 0.4),
+      inset 0 0 12px oklch(0.6 0 0 / 0.4);
+  }
+}
+
+@keyframes power-apply {
+  0% {
+    transform: scale(1.3);
+    box-shadow: 0 0 20px currentColor;
+  }
+  100% {
+    transform: scale(1);
+    box-shadow: none;
+  }
+}
+
+@keyframes activated-ready {
+  0%, 100% {
+    box-shadow:
+      0 2px 12px oklch(0.5 0.18 250 / 0.5),
+      0 0 20px oklch(0.4 0.15 250 / 0.3),
+      inset 0 1px 0 oklch(0.6 0.1 250 / 0.3);
+  }
+  50% {
+    box-shadow:
+      0 2px 16px oklch(0.55 0.2 250 / 0.6),
+      0 0 30px oklch(0.45 0.18 250 / 0.4),
+      inset 0 1px 0 oklch(0.7 0.12 250 / 0.4);
+  }
+}
+
+@keyframes ultimate-ready {
+  0%, 100% {
+    background: linear-gradient(135deg, oklch(0.7 0.2 85), oklch(0.55 0.18 75));
+    box-shadow:
+      0 0 20px oklch(0.65 0.2 85 / 0.6),
+      0 0 40px oklch(0.55 0.18 85 / 0.4),
+      0 0 60px oklch(0.45 0.15 85 / 0.2),
+      inset 0 1px 0 oklch(0.9 0.15 85 / 0.5);
+  }
+  50% {
+    background: linear-gradient(135deg, oklch(0.75 0.22 85), oklch(0.6 0.2 75));
+    box-shadow:
+      0 0 30px oklch(0.7 0.22 85 / 0.7),
+      0 0 55px oklch(0.6 0.2 85 / 0.5),
+      0 0 80px oklch(0.5 0.18 85 / 0.3),
+      inset 0 1px 0 oklch(0.95 0.18 85 / 0.6);
+  }
+}
+
+@keyframes charge-tick {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.1);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+@keyframes energy-orb-ready {
+  0%, 100% { box-shadow: inset 0 2px 6px oklch(0 0 0 / 0.5), 0 0 15px oklch(0.65 0.18 70 / 0.3); }
+  50% { box-shadow: inset 0 2px 6px oklch(0 0 0 / 0.5), 0 0 25px oklch(0.70 0.20 70 / 0.45); }
+}
+
+.HealthBar {
+  --hp-hue: 120;
+  --hp-saturation: 75%;
+  --hp-lightness: 45%;
+  height: 20px;
+  background: oklch(0.12 0 0);
+  border-radius: 4px;
+  overflow: hidden;
+  position: relative;
+  border: 1px solid oklch(0.25 0 0);
+  box-shadow: inset 0 1px 3px oklch(0 0 0 / 0.4);
+}
+
+.HealthBar-fill {
+  height: 100%;
+  /* Use HSL for smooth color interpolation: green → yellow → red */
+  background: linear-gradient(
+    to right,
+    hsl(var(--hp-hue) var(--hp-saturation) calc(var(--hp-lightness) - 8%)),
+    hsl(var(--hp-hue) var(--hp-saturation) var(--hp-lightness))
+  );
+  box-shadow:
+    inset 0 1px 0 hsl(var(--hp-hue) 60% 65% / 0.4),
+    0 0 8px hsl(var(--hp-hue) var(--hp-saturation) var(--hp-lightness) / 0.3);
+  transition:
+    width 0.3s ease-out,
+    background 0.4s ease-out,
+    box-shadow 0.4s ease-out;
+}
+
+.HealthBar--low .HealthBar-fill {
+  box-shadow:
+    inset 0 1px 0 hsl(var(--hp-hue) 60% 65% / 0.4),
+    0 0 10px hsl(var(--hp-hue) var(--hp-saturation) var(--hp-lightness) / 0.5);
+}
+
+.HealthBar--critical .HealthBar-fill {
+  animation: healthPulse 1s ease-in-out infinite;
+}
+
+.HealthBar-block {
+  position: absolute;
+  top: 0;
+  right: 0;
+  height: 100%;
+  background: var(--color-block);
+}
+
+.HealthBar-text {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: white;
+  text-shadow: 1px 1px 2px oklch(0 0 0 / 0.8);
+}
+
+.PowerBadge {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  padding: 2px 6px;
+  border-radius: 4px;
+  background: oklch(0.2 0 0 / 0.9);
+  border: 1px solid oklch(0.3 0 0);
+}
+
+.PowerBadge--buff {
+  border-color: oklch(0.4 0.1 145);
+}
+
+.PowerBadge--debuff {
+  border-color: oklch(0.4 0.15 20);
+}
+
+.PowerIndicators {
+  display: flex;
+  gap: 0.25rem;
+}
+
+.PowerIndicators--vertical {
+  flex-direction: column;
+  position: absolute;
+  top: 0.5rem;
+  left: -2rem;
+}
+
+.PowerIndicator {
+  display: flex;
+  align-items: center;
+  gap: 0.125rem;
+  padding: 0.125rem 0.25rem;
+  background: oklch(0.08 0 0 / 0.7);
+  border-radius: 0.25rem;
+  cursor: help;
+}
+
+.PowerIndicator-icon {
+  width: 0.875rem;
+  height: 0.875rem;
+  flex-shrink: 0;
+}
+
+.PowerIndicator-count {
+  font-size: 0.625rem;
+  font-weight: 700;
+  color: oklch(0.9 0 0);
+  min-width: 0.625rem;
+  text-align: center;
+}
+
+.PowerIndicator--more {
+  font-size: 0.5rem;
+  color: oklch(0.6 0 0);
+  padding: 0.125rem;
+}
+
+.EnergyOrb {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 30% 30%, oklch(0.35 0 0), oklch(0.12 0 0));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  font-size: 1rem;
+  color: oklch(0.95 0 0);
+  box-shadow: 0 0 12px oklch(0.3 0 0 / 0.6);
+  border: 1px solid oklch(0.5 0 0 / 0.3);
+}
+
+.HudStat {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  font-family: var(--font-ui, 'Geist', system-ui, sans-serif);
+  background: oklch(0.12 0.015 30 / 0.9);
+  border: 1px solid oklch(0.25 0.02 30);
+  color: oklch(0.75 0 0);
+  backdrop-filter: blur(4px);
+}
+
+.HudStat-icon {
+  width: 0.875rem;
+  height: 0.875rem;
+  opacity: 0.8;
+}
+
+.HudStat-value {
+  font-variant-numeric: tabular-nums;
+}
+
+.HudStat--gold .HudStat-value {
+  color: var(--color-gold, oklch(0.8 0.15 85));
+}
+
+.HudStat--clickable {
+  cursor: pointer;
+  transition: background 0.15s, transform 0.1s;
+}
+
+.HudStat--clickable:hover {
+  background: oklch(0.16 0.02 30 / 0.95);
+  transform: scale(1.02);
+}
+
+.PowerToken {
+  position: relative;
+  width: 1.5rem;
+  height: 1.5rem;
+  border-radius: 5px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: oklch(0.15 0.02 30 / 0.9);
+  border: 1px solid oklch(0.3 0.02 30);
+  cursor: help;
+  transition: transform 0.15s, box-shadow 0.15s;
+}
+
+.PowerToken:hover {
+  transform: scale(1.1);
+  z-index: 10;
+}
+
+.PowerToken-icon {
+  width: 1rem;
+  height: 1rem;
+}
+
+.PowerToken-count {
+  position: absolute;
+  right: -0.375rem;
+  top: -0.375rem;
+  min-width: 0.875rem;
+  height: 0.875rem;
+  padding: 0 0.1875rem;
+  border-radius: 0.4375rem;
+  font-size: 0.625rem;
+  font-weight: 700;
+  font-family: var(--font-ui, 'Geist', system-ui, sans-serif);
+  font-variant-numeric: tabular-nums;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: oklch(0.2 0 0);
+  border: 1px solid oklch(0.35 0 0);
+  color: oklch(0.9 0 0);
+}
+
+.PowerToken--buff {
+  border-color: oklch(0.4 0.1 145 / 0.6);
+  box-shadow: 0 0 6px oklch(0.5 0.15 145 / 0.3);
+}
+
+.PowerToken--buff .PowerToken-count {
+  background: oklch(0.35 0.12 145);
+  border-color: oklch(0.5 0.15 145);
+  color: oklch(0.95 0.02 145);
+}
+
+.PowerToken--debuff {
+  border-color: oklch(0.4 0.12 25 / 0.6);
+  box-shadow: 0 0 6px oklch(0.5 0.18 25 / 0.3);
+}
+
+.PowerToken--debuff .PowerToken-count {
+  background: oklch(0.35 0.15 25);
+  border-color: oklch(0.5 0.18 25);
+  color: oklch(0.95 0.02 25);
+}
+
+.PowerToken--fire {
+  border-color: oklch(0.5 0.18 40 / 0.6);
+  box-shadow: 0 0 8px oklch(0.6 0.2 40 / 0.4);
+}
+
+.PowerToken--ice {
+  border-color: oklch(0.5 0.12 220 / 0.6);
+  box-shadow: 0 0 8px oklch(0.6 0.15 220 / 0.4);
+}
+
+.PowerToken--lightning {
+  border-color: oklch(0.6 0.15 85 / 0.6);
+  box-shadow: 0 0 8px oklch(0.7 0.18 85 / 0.4);
+}
+
+.PowerToken--poison {
+  border-color: oklch(0.45 0.15 145 / 0.6);
+  box-shadow: 0 0 8px oklch(0.5 0.18 145 / 0.4);
+}
+
+.PowerToken--more {
+  background: oklch(0.12 0.01 30 / 0.8);
+  border-style: dashed;
+  font-size: 0.625rem;
+  font-weight: 600;
+  color: oklch(0.5 0 0);
+}
+
+.PowerToken--pulse-up {
+  animation: powertoken-pulse-up 0.4s ease-out, powertoken-flash 0.4s ease-out;
+}
+
+.PowerToken--pulse-down {
+  animation: powertoken-pulse-down 0.4s ease-out;
+}
+
+.PowerToken--pulse {
+  animation: powertoken-pulse-up 0.3s ease-out;
+}
+
+.PowerToken-count--changed {
+  animation: count-pop 0.3s ease-out;
+}
+
+.CombatHUD {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.5rem;
+  padding: 0.5rem;
+  border-radius: 8px;
+  background: oklch(0.08 0.01 30 / 0.85);
+  border: 1px solid oklch(0.2 0.015 30);
+  backdrop-filter: blur(8px);
+}
+
+.CombatHUD-row {
+  display: flex;
+  gap: 0.375rem;
+}
+
+.EndTurnBtn {
+  padding: 0.5rem 1.25rem;
+  background: var(--color-energy);
+  color: oklch(0.1 0 0);
+  font-weight: 600;
+  font-size: 0.875rem;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  transition: filter 0.15s, opacity 0.15s;
+}
+
+.EndTurnBtn:hover:not(:disabled) {
+  filter: brightness(1.1);
+}
+
+.EndTurnBtn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.EnergyOrb {
+  animation: energy-orb-glow 2s ease-in-out infinite;
+}
+
+.PowerBadge.is-new {
+  animation: power-apply 0.4s ease-out forwards;
+}
+
+.PileIndicator {
+  cursor: pointer;
+  transition: background 0.15s, transform 0.15s;
+}
+
+.PileIndicator:hover {
+  background: var(--color-surface-alt);
+  transform: scale(1.05);
+}
+
+.HeroAbilityBtn {
+  padding: 0.375rem 0.75rem;
+  border-radius: 8px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s ease-out;
+  position: relative;
+  overflow: hidden;
+}
+
+.HeroAbilityBtn--activated {
+  background: linear-gradient(135deg, oklch(0.45 0.18 250), oklch(0.35 0.15 260));
+  color: oklch(0.95 0 0);
+  box-shadow:
+    0 2px 8px oklch(0.4 0.15 250 / 0.4),
+    inset 0 1px 0 oklch(0.6 0.1 250 / 0.3);
+}
+
+.HeroAbilityBtn--activated:hover:not(:disabled) {
+  background: linear-gradient(135deg, oklch(0.5 0.2 250), oklch(0.4 0.17 260));
+  transform: translateY(-1px);
+  box-shadow:
+    0 4px 12px oklch(0.45 0.18 250 / 0.5),
+    inset 0 1px 0 oklch(0.7 0.12 250 / 0.4);
+}
+
+.HeroAbilityBtn--activated.is-ready {
+  animation: activated-ready 2s ease-in-out infinite;
+}
+
+.HeroAbilityBtn--ultimate {
+  background: linear-gradient(135deg, oklch(0.35 0.08 70), oklch(0.25 0.05 60));
+  color: oklch(0.6 0 0);
+  box-shadow: 0 2px 6px oklch(0 0 0 / 0.3);
+}
+
+.HeroAbilityBtn--ultimate.is-ready {
+  color: oklch(0.1 0 0);
+  animation: ultimate-ready 1.5s ease-in-out infinite;
+}
+
+.HeroAbilityBtn--ultimate.is-ready:hover {
+  transform: translateY(-2px) scale(1.05);
+}
+
+.HeroAbilityBtn--ultimate.is-charging {
+  animation: charge-tick 0.3s ease-out;
+}
+
+.HeroAbilityBtn:disabled {
+  background: oklch(0.25 0 0);
+  color: oklch(0.45 0 0);
+  cursor: not-allowed;
+  box-shadow: none;
+  transform: none;
+}
+
+.HeroAbilityBtn__icon {
+  margin-right: 0.25rem;
+  font-size: 0.875rem;
+}
+
+.HeroAbilityBtn__charges {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.125rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.PileIndicator {
+  background: linear-gradient(135deg, oklch(0.16 0.015 42) 0%, oklch(0.12 0.01 38) 100%);
+  border: 1px solid oklch(0.28 0.025 45);
+  border-radius: 8px;
+  font-family: var(--font-display);
+  font-size: 0.7rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: oklch(0.60 0.03 48);
+  transition: all 0.2s ease;
+}
+
+.PileIndicator:hover {
+  background: linear-gradient(135deg, oklch(0.20 0.02 45) 0%, oklch(0.15 0.015 40) 100%);
+  border-color: oklch(0.35 0.04 50);
+  color: oklch(0.75 0.04 52);
+  box-shadow: 0 2px 12px oklch(0.5 0.1 55 / 0.2);
+}
+
+.EndTurnBtn {
+  font-family: var(--font-display);
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  background: linear-gradient(180deg, var(--color-accent-warm) 0%, oklch(0.55 0.15 52) 100%);
+  color: oklch(0.12 0.02 40);
+  border: 2px solid oklch(0.70 0.16 58);
+  box-shadow:
+    0 4px 16px oklch(0.55 0.14 55 / 0.35),
+    inset 0 1px 0 oklch(1 0 0 / 0.2);
+  transition: all 0.2s ease;
+}
+
+.EndTurnBtn:hover:not(:disabled) {
+  background: linear-gradient(180deg, oklch(0.72 0.18 58) 0%, var(--color-accent-warm) 100%);
+  box-shadow:
+    0 6px 24px oklch(0.55 0.15 55 / 0.45),
+    inset 0 1px 0 oklch(1 0 0 / 0.25);
+  transform: translateY(-2px);
+}
+
+.EndTurnBtn:disabled {
+  background: oklch(0.25 0.02 40);
+  border-color: oklch(0.30 0.02 42);
+  color: oklch(0.45 0.02 45);
+  box-shadow: none;
+}
+
+.EnemyIntent {
+  font-family: var(--font-display);
+  font-size: 0.8rem;
+  letter-spacing: 0.03em;
+  padding: 0.25rem 0.5rem;
+  background: oklch(0.15 0.02 25 / 0.9);
+  border: 1px solid oklch(0.35 0.08 25);
+  border-radius: 6px;
+  color: oklch(0.70 0.12 25);
+  box-shadow: 0 2px 8px oklch(0.4 0.15 25 / 0.3);
+}
+
+.EnemyIntent--attack {
+  border-color: oklch(0.45 0.15 20);
+  color: oklch(0.75 0.18 20);
+}
+
+.EnemyIntent--defend {
+  border-color: oklch(0.40 0.10 240);
+  color: oklch(0.70 0.12 240);
+}
+
+.EnemyIntent--buff {
+  border-color: oklch(0.45 0.12 145);
+  color: oklch(0.70 0.14 145);
+}
+
+.EndTurnBtn {
+  position: relative;
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 0.9rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  padding: 0.75rem 2rem;
+  background:
+    linear-gradient(180deg, oklch(0.70 0.16 55) 0%, oklch(0.58 0.18 50) 50%, oklch(0.52 0.15 48) 100%);
+  color: oklch(0.12 0.02 40);
+  border: 2px solid oklch(0.75 0.15 55);
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  box-shadow:
+    0 4px 12px oklch(0.55 0.15 55 / 0.4),
+    inset 0 1px 0 oklch(1 0 0 / 0.3),
+    inset 0 -2px 0 oklch(0 0 0 / 0.15);
+  text-shadow: 0 1px 0 oklch(1 0 0 / 0.3);
+}
+
+.EndTurnBtn::before {
+  content: '';
+  position: absolute;
+  inset: 2px;
+  background: linear-gradient(180deg, oklch(1 0 0 / 0.15) 0%, transparent 40%);
+  border-radius: 4px;
+  pointer-events: none;
+}
+
+.EndTurnBtn:hover:not(:disabled) {
+  background:
+    linear-gradient(180deg, oklch(0.75 0.18 55) 0%, oklch(0.65 0.20 52) 50%, oklch(0.58 0.17 50) 100%);
+  border-color: oklch(0.80 0.18 55);
+  box-shadow:
+    0 6px 20px oklch(0.60 0.18 55 / 0.5),
+    inset 0 1px 0 oklch(1 0 0 / 0.4);
+  transform: translateY(-1px);
+}
+
+.EndTurnBtn:disabled {
+  background: linear-gradient(180deg, oklch(0.28 0.02 45) 0%, oklch(0.22 0.015 42) 100%);
+  border-color: oklch(0.32 0.02 45);
+  color: oklch(0.45 0.02 48);
+  box-shadow: none;
+  cursor: not-allowed;
+}
+
+.EnergyOrb {
+  position: relative;
+  width: 44px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background:
+    radial-gradient(ellipse at 30% 30%, oklch(0.25 0.03 40) 0%, oklch(0.12 0.02 35) 100%);
+  border: 2px solid oklch(0.35 0.04 45);
+  border-radius: 50%;
+  font-family: var(--font-ui);
+  font-weight: 700;
+  font-size: 1rem;
+  color: oklch(0.85 0.03 55);
+  box-shadow:
+    inset 0 2px 6px oklch(0 0 0 / 0.5),
+    0 2px 8px oklch(0 0 0 / 0.4);
+}
+
+.EnergyOrb::before {
+  content: '';
+  position: absolute;
+  inset: 4px;
+  background: radial-gradient(ellipse at 40% 35%, oklch(0.40 0.08 55 / 0.6) 0%, transparent 50%);
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+.EnergyOrb--full {
+  border-color: oklch(0.65 0.18 70);
+  color: var(--color-energy);
+  animation: energy-orb-ready 2s ease-in-out infinite;
+}
+
+.PileIndicator {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.5rem 0.75rem;
+  background: linear-gradient(180deg, oklch(0.16 0.02 38) 0%, oklch(0.12 0.015 35) 100%);
+  border: 1px solid oklch(0.28 0.025 42);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.PileIndicator:hover {
+  border-color: oklch(0.40 0.04 50);
+  background: linear-gradient(180deg, oklch(0.20 0.025 40) 0%, oklch(0.15 0.02 38) 100%);
+}
+
+.PileIndicator__icon { font-size: 1.25rem; opacity: 0.7; }
+
+.PileIndicator--draw .PileIndicator__icon { color: oklch(0.60 0.12 230); }
+
+.PileIndicator--discard .PileIndicator__icon { color: oklch(0.55 0.10 25); }
+
+.PileIndicator__count {
+  font-family: var(--font-ui);
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: oklch(0.75 0.03 50);
+}

@@ -1,0 +1,140 @@
+/* Modal Component Styles */
+/* Auto-extracted from index.css */
+
+@keyframes modal-enter {
+  from {
+    opacity: 0;
+    transform: scale(0.95) translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+.Modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: oklch(0 0 0 / 0.85);
+  backdrop-filter: blur(4px);
+  border: none;
+  padding: 0;
+  margin: auto;
+  max-width: 100vw;
+  max-height: 100vh;
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.Modal-backdrop::backdrop {
+  background: transparent;
+}
+
+.Modal {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  width: 90%;
+  max-height: 85vh;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  box-shadow:
+    0 0 60px oklch(0.3 0.1 50 / 0.3),
+    0 0 120px oklch(0.2 0.08 45 / 0.2),
+    inset 0 1px 0 oklch(1 0 0 / 0.04);
+  animation: modal-enter 0.2s ease-out;
+}
+
+.Modal::before,
+
+.Modal::after {
+  content: "◆";
+  position: absolute;
+  font-size: 0.6rem;
+  color: var(--color-filigree);
+  opacity: 0.4;
+  z-index: 10;
+  pointer-events: none;
+}
+
+.Modal::before { top: 0.5rem; left: 0.5rem; }
+
+.Modal::after { top: 0.5rem; right: 0.5rem; }
+
+.Modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem 1.5rem;
+  border-bottom: 1px solid var(--color-border);
+  background: var(--color-surface-alt);
+  position: relative;
+}
+
+.Modal-header::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--color-filigree) 30%, var(--color-filigree) 70%, transparent);
+  opacity: 0.3;
+}
+
+.Modal-title {
+  font-family: var(--font-display);
+  font-size: 1.125rem;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-warm-100);
+  margin: 0;
+}
+
+.Modal-close {
+  padding: 0.5rem;
+  background: transparent;
+  border: 1px solid transparent;
+  color: var(--color-warm-500);
+  cursor: pointer;
+  border-radius: 4px;
+  transition: all 0.15s;
+}
+
+.Modal-close:hover {
+  background: var(--color-surface);
+  border-color: var(--color-border);
+  color: var(--color-warm-200);
+}
+
+.Modal-content {
+  padding: 1.5rem;
+  overflow-y: auto;
+  flex: 1;
+}
+
+.Modal-footer {
+  padding: 1rem 1.5rem;
+  border-top: 1px solid var(--color-border);
+  display: flex;
+  justify-content: center;
+  gap: 0.75rem;
+  position: relative;
+}
+
+.Modal-footer::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--color-filigree) 30%, var(--color-filigree) 70%, transparent);
+  opacity: 0.2;
+}

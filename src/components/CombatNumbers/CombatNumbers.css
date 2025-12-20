@@ -1,0 +1,122 @@
+/* CombatNumbers Component Styles */
+/* Auto-extracted from index.css */
+
+@keyframes preview-pulse {
+  from { transform: scale(1); }
+  to { transform: scale(1.1); }
+}
+
+@keyframes combo-pulse {
+  0% { transform: scale(1.5); opacity: 0; }
+  50% { transform: scale(1.1); }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+.CombatNumber {
+  position: absolute;
+  font-weight: bold;
+  font-size: 2rem;
+  pointer-events: none;
+  text-shadow: 2px 2px 6px oklch(0 0 0 / 0.9);
+}
+
+.CombatNumber--damage { color: var(--color-damage); }
+
+.CombatNumber--heal { color: var(--color-heal); }
+
+.CombatNumber--block { color: var(--color-block); }
+
+.CombatNumber--gold {
+  color: oklch(0.8 0.18 85);
+  text-shadow: 0 0 8px oklch(0.7 0.2 85), 2px 2px 6px oklch(0 0 0 / 0.9);
+}
+
+.CombatNumber--combo {
+  color: oklch(0.85 0.2 60);
+  font-size: 2.5rem;
+  text-shadow: 0 0 10px oklch(0.7 0.25 60), 2px 2px 6px oklch(0 0 0 / 0.9);
+}
+
+.CombatNumber--chain {
+  color: oklch(0.85 0.15 85);
+  font-size: 1.5rem;
+}
+
+.CombatNumber--execute {
+  color: oklch(0.65 0.25 25);
+  font-size: 3rem;
+  text-shadow: 0 0 15px oklch(0.5 0.3 25), 2px 2px 6px oklch(0 0 0 / 0.9);
+}
+
+.CombatNumber--piercing {
+  color: oklch(0.75 0.12 300);
+}
+
+.CombatNumber--poison {
+  color: oklch(0.6 0.2 140);
+}
+
+.CombatNumber--preview {
+  color: oklch(0.7 0.2 25);
+  font-size: 1.25rem;
+  opacity: 0.85;
+  text-shadow: 0 0 8px oklch(0.5 0.25 25), 2px 2px 4px oklch(0 0 0 / 0.8);
+  animation: preview-pulse 0.4s ease-in-out infinite alternate;
+}
+
+.CombatNumber--preview-multi {
+  color: oklch(0.75 0.25 25);
+  font-size: 1.5rem;
+  opacity: 0.9;
+  text-shadow: 0 0 12px oklch(0.6 0.3 25), 2px 2px 6px oklch(0 0 0 / 0.9);
+  animation: preview-pulse 0.3s ease-in-out infinite alternate;
+}
+
+.CombatNumber--multi {
+  color: oklch(0.8 0.2 40);
+}
+
+.CombatNumber--maxHealth-gain {
+  color: oklch(0.7 0.18 145);
+  text-shadow: 0 0 8px oklch(0.6 0.2 145), 2px 2px 6px oklch(0 0 0 / 0.9);
+}
+
+.CombatNumber--maxHealth-lose {
+  color: oklch(0.65 0.22 25);
+  text-shadow: 0 0 8px oklch(0.5 0.25 25), 2px 2px 6px oklch(0 0 0 / 0.9);
+}
+
+.CombatNumber__combo-label {
+  display: block;
+  font-size: 0.875rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: oklch(0.9 0.15 60);
+  margin-bottom: 0.25rem;
+}
+
+.CombatNumber__label {
+  display: block;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  opacity: 0.9;
+  margin-bottom: 0.125rem;
+}
+
+.CombatNumber--combo-counter {
+  color: oklch(0.9 0.2 50);
+  font-size: 2.5rem;
+  text-shadow:
+    0 0 20px oklch(0.7 0.25 30),
+    0 0 40px oklch(0.6 0.2 50),
+    2px 2px 6px oklch(0 0 0 / 0.9);
+  animation: combo-pulse 0.3s ease-out;
+}
+
+.CombatNumber__combo-prefix {
+  font-size: 1rem;
+  letter-spacing: 0.1em;
+  opacity: 0.9;
+  vertical-align: middle;
+}
