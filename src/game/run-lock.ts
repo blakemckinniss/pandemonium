@@ -12,9 +12,11 @@ import type {
   PlayerSnapshot,
   RunProgress,
   AbandonPenalty,
+  RunState,
 } from '../types'
 import { useRunLockStore } from '../stores/runLockStore'
 import { calculateTotalHeat } from './heat'
+import { createCardInstance } from './actions'
 
 // ============================================
 // VALIDATION
@@ -316,4 +318,70 @@ export function hasActiveRun(): boolean {
  */
 export function getCurrentStreak(): number {
   return useRunLockStore.getState().streak.currentStreak
+}
+
+// ============================================
+// RUN RESTORATION
+// ============================================
+
+/**
+ * Restore a RunState from a locked run.
+ * Used for browser recovery after close/refresh.
+ */
+export function restoreRunFromLocked(): RunState | null {
+  const { lockedRun } = useRunLockStore.getState()
+
+  if (!lockedRun || lockedRun.status !== 'active') {
+    return null
+  }
+
+  const { playerSnapshot, progress, currentRelics, currentDeck, dungeonDeckCurrent, roomChoices, dungeonDeckId } =
+    lockedRun
+
+  // Reconstruct deck as CardInstance[]
+  const deck = currentDeck.map((cardId) => createCardInstance(cardId))
+
+  // Reconstruct hero state
+  const hero = {
+    heroCardId: playerSnapshot.heroId,
+    currentHealth: playerSnapshot.currentHealth,
+    maxHealth: playerSnapshot.maxHealth,
+    id: playerSnapshot.heroId,
+  }
+
+  // Reconstruct run stats from progress
+  const stats = {
+    cardsPlayed: progress.cardsPlayed,
+    damageDealt: progress.damageDealt,
+    damageTaken: progress.damageTaken,
+    enemiesKilled: progress.enemiesKilled,
+    goldEarned: progress.goldEarned,
+    floorsCleared: progress.floor - 1,
+    relicsCollected: currentRelics.length,
+  }
+
+  // Build the RunState
+  const runState: RunState = {
+    gamePhase: 'roomSelect',
+    floor: progress.floor,
+    hero,
+    deck,
+    relics: currentRelics,
+    combat: null,
+    dungeonDeck: dungeonDeckCurrent,
+    roomChoices: roomChoices.length > 0 ? roomChoices : dungeonDeckCurrent.slice(0, Math.min(3, dungeonDeckCurrent.length)),
+    gold: playerSnapshot.gold + progress.goldEarned,
+    stats,
+    dungeonDeckId,
+  }
+
+  // If we restored with no room choices, draw them now
+  if (roomChoices.length === 0 && dungeonDeckCurrent.length > 0) {
+    const drawResult = drawRoomChoices()
+    if (drawResult.success && drawResult.choices) {
+      runState.roomChoices = drawResult.choices
+    }
+  }
+
+  return runState
 }

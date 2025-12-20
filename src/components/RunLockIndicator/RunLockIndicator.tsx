@@ -67,6 +67,8 @@ export const RunLockIndicator = memo(function RunLockIndicator({
   const recoveryInfo = {
     runId: run.runId,
     dungeonName: run.dungeonDeckId,
+    dungeonDeckId: run.dungeonDeckId,
+    heroId: run.playerSnapshot.heroId,
     difficulty: 1,
     floor: run.progress.floor,
     totalRooms: run.progress.totalRooms,

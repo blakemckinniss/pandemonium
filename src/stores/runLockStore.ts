@@ -240,6 +240,8 @@ export const useRunLockStore = create<RunLockStoreState>()(
         return {
           runId: lockedRun.runId,
           dungeonName: lockedRun.dungeonDeckId, // TODO: Resolve to actual name
+          dungeonDeckId: lockedRun.dungeonDeckId,
+          heroId: lockedRun.playerSnapshot.heroId,
           difficulty: lockedRun.heatAtStart,
           floor: lockedRun.progress.floor,
           totalRooms: lockedRun.progress.totalRooms,

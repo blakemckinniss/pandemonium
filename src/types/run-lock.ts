@@ -148,6 +148,8 @@ export interface LockedRunState {
 export interface RunRecoveryInfo {
   runId: string
   dungeonName: string
+  dungeonDeckId: string
+  heroId: string
   difficulty: number
   floor: number
   totalRooms: number

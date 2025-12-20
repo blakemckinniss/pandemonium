@@ -41,10 +41,11 @@ interface GameScreenProps {
   deckId?: string | null
   heroId?: string
   dungeonDeckId?: string
+  initialState?: RunState | null
   onReturnToMenu?: () => void
 }
 
-export function GameScreen({ deckId, heroId, dungeonDeckId, onReturnToMenu }: GameScreenProps) {
+export function GameScreen({ deckId, heroId, dungeonDeckId, initialState, onReturnToMenu }: GameScreenProps) {
   const [state, setState] = useState<RunState | null>(null)
   const [pendingUnlocks, setPendingUnlocks] = useState<string[]>([])
   const [currentRoomId, setCurrentRoomId] = useState<string | null>(null)
@@ -120,6 +121,12 @@ export function GameScreen({ deckId, heroId, dungeonDeckId, onReturnToMenu }: Ga
 
   // Initialize game
   useEffect(() => {
+    // If restoring from a locked run, use the initial state directly
+    if (initialState) {
+      setState(initialState)
+      return
+    }
+
     async function init() {
       let customCardIds: string[] | undefined
 
@@ -147,7 +154,7 @@ export function GameScreen({ deckId, heroId, dungeonDeckId, onReturnToMenu }: Ga
       })
     }
     void init()
-  }, [deckId, heroId, dungeonDeckId])
+  }, [deckId, heroId, dungeonDeckId, initialState])
 
   // Register debug API in development
   useEffect(() => {
