@@ -15,6 +15,7 @@ function App() {
   const [selectedDeckId, setSelectedDeckId] = useState<string | null>(null)
   const [selectedHeroId, setSelectedHeroId] = useState<string>('hero_ironclad')
   const [selectedDungeonId, setSelectedDungeonId] = useState<string | undefined>(undefined)
+  const [selectedModifierIds, setSelectedModifierIds] = useState<string[]>([])
   const [restoredRunState, setRestoredRunState] = useState<RunState | null>(null)
 
   // Handle run recovery from browser close
@@ -49,10 +50,11 @@ function App() {
 
   if (!ready) return null
 
-  const handleStartRun = (deckId: string | null, heroId: string, dungeonDeckId?: string) => {
+  const handleStartRun = (deckId: string | null, heroId: string, dungeonDeckId?: string, modifierIds?: string[]) => {
     setSelectedDeckId(deckId)
     setSelectedHeroId(heroId)
     setSelectedDungeonId(dungeonDeckId)
+    setSelectedModifierIds(modifierIds ?? [])
     setCurrentScreen('game')
   }
 
@@ -60,6 +62,7 @@ function App() {
     setSelectedDeckId(null)
     setSelectedHeroId('hero_ironclad')
     setSelectedDungeonId(undefined)
+    setSelectedModifierIds([])
     setRestoredRunState(null)
     setCurrentScreen('menu')
   }
@@ -72,6 +75,7 @@ function App() {
           deckId={selectedDeckId}
           heroId={selectedHeroId}
           dungeonDeckId={selectedDungeonId}
+          selectedModifierIds={selectedModifierIds}
           initialState={restoredRunState}
           onReturnToMenu={handleReturnToMenu}
         />

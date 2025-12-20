@@ -1,10 +1,11 @@
 // Room and dungeon handlers
-import type { RunState } from '../../types'
+import type { RunState, ModifierInstance } from '../../types'
 import {
   completeDungeonDeck,
   updateOwnedDungeonDeck,
   getOwnedDungeonDeck,
 } from '../../stores/db'
+import { applyGoldMultiplier } from '../modifier-resolver'
 
 export function handleSelectRoom(draft: RunState, roomUid: string): void {
   const room = draft.roomChoices.find((r) => r.uid === roomUid)
@@ -64,13 +65,15 @@ function calculateAbandonCost(
  * Handle when player defeats the final boss and beats the dungeon.
  * - Awards gold based on difficulty
  * - Marks dungeon as 'beaten' in player's collection
- * - Returns the gold reward amount
+ * - Returns the gold reward amount (with modifier multipliers applied)
  */
 export async function handleDungeonBeaten(
   state: RunState,
-  difficulty: number = 3
+  difficulty: number = 3,
+  modifiers: ModifierInstance[] = []
 ): Promise<{ goldReward: number }> {
-  const goldReward = calculateDungeonReward(difficulty, state.floor)
+  const baseReward = calculateDungeonReward(difficulty, state.floor)
+  const goldReward = applyGoldMultiplier(baseReward, modifiers)
 
   // Update dungeon ownership status if tracking
   if (state.dungeonDeckId) {

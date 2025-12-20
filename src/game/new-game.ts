@@ -1,10 +1,11 @@
-import type { RunState, HeroDefinition, EnemyEntity } from '../types'
+import type { RunState, HeroDefinition, EnemyEntity, ModifierInstance } from '../types'
 import { createCardInstance } from './actions'
 import { generateUid, randomInt } from '../lib/utils'
 import { createDungeonDeck, createDungeonDeckFromDefinition, drawRoomChoices } from './dungeon-deck'
 import { getRoomDefinition } from '../content/rooms'
 import { getCardDefinition, getEnemyCardById } from './cards'
 import { getDungeonDeck } from '../stores/db'
+import { applyEnemyStatModifiers, getPlayerStatModifications } from './modifier-resolver'
 
 // ============================================
 // HERO DEFINITIONS
@@ -195,12 +196,15 @@ export const MONSTERS: Record<string, MonsterTemplate> = {
 // FACTORY FUNCTIONS
 // ============================================
 
-export function createEnemy(templateId: string): EnemyEntity {
+export function createEnemy(templateId: string, modifiers: ModifierInstance[] = []): EnemyEntity {
   // First, check if templateId is an enemy card
   const enemyCard = getEnemyCardById(templateId)
   if (enemyCard?.enemyStats) {
     const { healthRange, baseDamage, energy, element, vulnerabilities, resistances, innateStatus } = enemyCard.enemyStats
-    const health = randomInt(healthRange[0], healthRange[1])
+    const baseHealth = randomInt(healthRange[0], healthRange[1])
+
+    // Apply modifier effects to stats
+    const { health, damage } = applyEnemyStatModifiers(baseHealth, baseDamage, modifiers)
 
     return {
       id: generateUid(),
@@ -211,7 +215,7 @@ export function createEnemy(templateId: string): EnemyEntity {
       block: 0,
       barrier: 0,
       powers: {},
-      intent: { type: 'attack', value: baseDamage },
+      intent: { type: 'attack', value: damage },
       patternIndex: 0,
       // Energy pool (like heroes)
       energy: energy,
@@ -233,7 +237,10 @@ export function createEnemy(templateId: string): EnemyEntity {
     throw new Error(`Unknown monster: ${templateId}`)
   }
 
-  const health = randomInt(template.healthRange[0], template.healthRange[1])
+  const baseHealth = randomInt(template.healthRange[0], template.healthRange[1])
+
+  // Apply modifier effects to stats
+  const { health, damage } = applyEnemyStatModifiers(baseHealth, template.damage, modifiers)
 
   return {
     id: generateUid(),
@@ -244,7 +251,7 @@ export function createEnemy(templateId: string): EnemyEntity {
     block: 0,
     barrier: 0,
     powers: {},
-    intent: { type: 'attack', value: template.damage, times: template.times },
+    intent: { type: 'attack', value: damage, times: template.times },
     patternIndex: 0,
     // Elemental properties
     element: template.element,
@@ -288,7 +295,8 @@ function resolveHero(heroId: string): { def: HeroDefinition; heroCardId?: string
 export async function createNewRun(
   heroId: string = 'hero_ironclad',
   customCardIds?: string[],
-  dungeonDeckId?: string
+  dungeonDeckId?: string,
+  modifiers: ModifierInstance[] = []
 ): Promise<RunState> {
   const { def: hero, heroCardId } = resolveHero(heroId)
 
@@ -296,7 +304,12 @@ export async function createNewRun(
   const cardIds = customCardIds ?? hero.starterDeck
   const deck = cardIds.map((cardId) => createCardInstance(cardId))
 
+  // Apply player stat modifications from modifiers
+  const statMods = getPlayerStatModifications(modifiers)
+  const modifiedHealth = Math.max(1, hero.health + statMods.healthDelta)
+
   // Create dungeon deck: load from definition if ID provided, otherwise generate random
+  // Pass modifiers for room distribution effects
   let dungeonDeck
   if (dungeonDeckId) {
     const definition = await getDungeonDeck(dungeonDeckId)
@@ -304,10 +317,10 @@ export async function createNewRun(
       dungeonDeck = createDungeonDeckFromDefinition(definition)
     } else {
       // Fallback to random if dungeon not found
-      dungeonDeck = createDungeonDeck()
+      dungeonDeck = createDungeonDeck(modifiers)
     }
   } else {
-    dungeonDeck = createDungeonDeck()
+    dungeonDeck = createDungeonDeck(modifiers)
   }
   const { choices, remaining } = drawRoomChoices(dungeonDeck, 3)
 
@@ -316,9 +329,13 @@ export async function createNewRun(
     floor: 1,
     hero: {
       ...hero,
-      currentHealth: hero.health,
-      maxHealth: hero.health,
+      currentHealth: modifiedHealth,
+      maxHealth: modifiedHealth,
       heroCardId, // Reference to hero card for abilities
+      // Store stat deltas for combat initialization
+      strengthBonus: statMods.strengthDelta,
+      energyBonus: statMods.energyDelta,
+      drawBonus: statMods.drawDelta,
     },
     deck,
     relics: [],

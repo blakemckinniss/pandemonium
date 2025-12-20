@@ -13,7 +13,9 @@ export function handleStartCombat(draft: RunState, enemies: EnemyEntity[]): void
 
   // Get hero stats from hero card or fallback to legacy fields
   const heroName = heroCard?.name ?? draft.hero.name ?? 'Hero'
-  const heroEnergy = heroCard?.heroStats?.energy ?? draft.hero.energy ?? 3
+  const baseEnergy = heroCard?.heroStats?.energy ?? draft.hero.energy ?? 3
+  // Apply modifier energy bonus (from Dungeon Deck modifiers)
+  const heroEnergy = baseEnergy + (draft.hero.energyBonus ?? 0)
   const heroImage = heroCard?.image ?? draft.hero.image
 
   draft.combat = {
@@ -53,6 +55,15 @@ export function handleStartCombat(draft: RunState, enemies: EnemyEntity[]): void
   }
 
   draft.gamePhase = 'combat'
+
+  // Apply modifier strength bonus (from Dungeon Deck modifiers)
+  const strengthBonus = draft.hero.strengthBonus ?? 0
+  if (strengthBonus !== 0 && draft.combat) {
+    draft.combat.player.powers['strength'] = {
+      id: 'strength',
+      amount: strengthBonus
+    }
+  }
 
   // Execute relic triggers for combat start
   executeRelicTriggers(draft, 'onCombatStart')

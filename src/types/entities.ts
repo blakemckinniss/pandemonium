@@ -90,4 +90,8 @@ export interface HeroState {
   energy?: number
   image?: string
   starterDeck?: string[]
+  // Modifier bonuses (from Dungeon Deck modifiers)
+  strengthBonus?: number
+  energyBonus?: number
+  drawBonus?: number
 }

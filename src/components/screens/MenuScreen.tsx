@@ -25,6 +25,8 @@ import { CardDetailModal } from '../CardDetailModal'
 import { DeckAnalytics } from '../DeckAnalytics'
 import { CollectionStats } from '../CollectionStats'
 import { GachaReveal } from '../PackOpening'
+import { ModifierSelection } from '../ModifierSelection/ModifierSelection'
+import { useMetaStore } from '../../stores/metaStore'
 
 type HubTab = 'play' | 'collection' | 'build' | 'packs'
 
@@ -38,7 +40,7 @@ const INITIAL_FILTERS: CardFilters = {
 }
 
 interface MenuScreenProps {
-  onStartRun: (deckId: string | null, heroId: string, dungeonDeckId?: string) => void
+  onStartRun: (deckId: string | null, heroId: string, dungeonDeckId?: string, selectedModifierIds?: string[]) => void
   onDeckBuilder?: () => void // Kept for backwards compat but not used
 }
 
@@ -419,12 +421,64 @@ function PlayTab({
   selectedDungeonId: string | undefined
   setSelectedDungeonId: (id: string | undefined) => void
   deckValidation: { valid: boolean; missing: string[] }
-  onStartRun: (deckId: string | null, heroId: string, dungeonDeckId?: string) => void
+  onStartRun: (deckId: string | null, heroId: string, dungeonDeckId?: string, selectedModifierIds?: string[]) => void
   onLoadDeck: (deck: CustomDeckRecord) => void
   seeding: boolean
   seeded: boolean
   onSeedContent: () => void
 }) {
+  // Modifier selection state
+  const [showModifierSelection, setShowModifierSelection] = useState(false)
+  const [selectedModifierIds, setSelectedModifierIds] = useState<string[]>([])
+
+  // Get owned modifiers and definitions from meta store
+  const ownedModifiers = useMetaStore((s) => s.ownedModifiers)
+  const modifierDefinitions = useMetaStore((s) => s.modifierDefinitions)
+  const currentHeat = useMetaStore((s) => s.heat.current)
+
+  // Build selectable modifiers list (owned with quantity > 0)
+  const availableModifiers = useMemo(() => {
+    return ownedModifiers
+      .filter((owned) => owned.quantity > 0)
+      .map((owned) => {
+        const definition = modifierDefinitions.find((d) => d.id === owned.definitionId)
+        if (!definition) return null
+        return {
+          definitionId: owned.definitionId,
+          definition,
+          quantity: owned.quantity,
+        }
+      })
+      .filter(Boolean) as { definitionId: string; definition: import('../../types').ModifierDefinition; quantity: number }[]
+  }, [ownedModifiers, modifierDefinitions])
+
+  const handleToggleModifier = (modifierId: string) => {
+    setSelectedModifierIds((prev) =>
+      prev.includes(modifierId)
+        ? prev.filter((id) => id !== modifierId)
+        : [...prev, modifierId]
+    )
+  }
+
+  const handleConfirmModifiers = () => {
+    setShowModifierSelection(false)
+    onStartRun(selectedDeckId, selectedHeroId, selectedDungeonId, selectedModifierIds)
+  }
+
+  const handleCancelModifiers = () => {
+    setShowModifierSelection(false)
+    setSelectedModifierIds([])
+  }
+
+  const handleBeginRun = () => {
+    // If player has modifiers, show selection modal
+    if (availableModifiers.length > 0) {
+      setShowModifierSelection(true)
+    } else {
+      // No modifiers owned, start directly
+      onStartRun(selectedDeckId, selectedHeroId, selectedDungeonId, [])
+    }
+  }
   return (
     <div className="flex-1 flex flex-col items-center justify-center p-8">
       {/* Hero Selection */}
@@ -526,13 +580,26 @@ function PlayTab({
 
       {/* Start Button */}
       <button
-        onClick={() => onStartRun(selectedDeckId, selectedHeroId, selectedDungeonId)}
+        onClick={handleBeginRun}
         disabled={!deckValidation.valid}
         className="action-btn-primary"
       >
         <Icon icon="mdi:play" className="inline mr-2 text-xl" />
         Begin Your Descent
       </button>
+
+      {/* Modifier Selection Modal */}
+      {showModifierSelection && (
+        <ModifierSelection
+          availableModifiers={availableModifiers}
+          selectedIds={selectedModifierIds}
+          maxSelections={3}
+          currentHeat={currentHeat}
+          onToggle={handleToggleModifier}
+          onConfirm={handleConfirmModifiers}
+          onCancel={handleCancelModifiers}
+        />
+      )}
 
       {/* Dev: Seed Content */}
       {import.meta.env.DEV && (

@@ -176,9 +176,12 @@ export function handleStartTurn(draft: RunState): void {
   // Charge hero ultimate if chargeOn is 'turnStart'
   chargeHeroUltimate(draft, 'turnStart')
 
-  // Draw cards (use hero's drawPerTurn if available)
+  // Draw cards (use hero's drawPerTurn if available, plus modifier bonus)
   const heroCard = combat.player.heroCardId ? getCardDefinition(combat.player.heroCardId) : null
-  const drawAmount = heroCard?.heroStats?.drawPerTurn ?? 5
+  const baseDrawAmount = heroCard?.heroStats?.drawPerTurn ?? 5
+  // Apply modifier draw bonus (from Dungeon Deck modifiers)
+  const drawBonus = draft.hero.drawBonus ?? 0
+  const drawAmount = Math.max(1, baseDrawAmount + drawBonus)
   drawCardsInternal(combat, drawAmount)
 }
 

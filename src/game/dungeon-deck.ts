@@ -1,6 +1,7 @@
-import type { RoomCard, RoomType, DungeonDeckDefinition, DungeonRoom } from '../types'
+import type { RoomCard, RoomType, DungeonDeckDefinition, DungeonRoom, ModifierInstance } from '../types'
 import { getRoomsByType } from '../content/rooms'
 import { generateUid } from '../lib/utils'
+import { getModifiedRoomCounts } from './modifier-resolver'
 
 // Dungeon structure: how many rooms of each type per act
 interface DungeonTemplate {
@@ -20,14 +21,21 @@ const ACT_1_TEMPLATE: DungeonTemplate = {
 }
 
 /**
- * Create a shuffled dungeon deck for a new run
+ * Create a shuffled dungeon deck for a new run.
+ * Optional modifiers can adjust room distribution.
  */
-export function createDungeonDeck(): RoomCard[] {
+export function createDungeonDeck(modifiers: ModifierInstance[] = []): RoomCard[] {
   const deck: RoomCard[] = []
+
+  // Apply modifier effects to room counts
+  const template = getModifiedRoomCounts(
+    ACT_1_TEMPLATE as Record<RoomType, number>,
+    modifiers
+  )
 
   // Add combat rooms
   const combatRooms = getRoomsByType('combat')
-  for (let i = 0; i < ACT_1_TEMPLATE.combat; i++) {
+  for (let i = 0; i < (template.combat ?? ACT_1_TEMPLATE.combat); i++) {
     const room = combatRooms[i % combatRooms.length]
     deck.push({
       uid: generateUid(),
@@ -38,7 +46,7 @@ export function createDungeonDeck(): RoomCard[] {
 
   // Add elite rooms
   const eliteRooms = getRoomsByType('elite')
-  for (let i = 0; i < ACT_1_TEMPLATE.elite; i++) {
+  for (let i = 0; i < (template.elite ?? ACT_1_TEMPLATE.elite); i++) {
     const room = eliteRooms[i % eliteRooms.length]
     deck.push({
       uid: generateUid(),
@@ -49,7 +57,7 @@ export function createDungeonDeck(): RoomCard[] {
 
   // Add campfire rooms
   const campfireRooms = getRoomsByType('campfire')
-  for (let i = 0; i < ACT_1_TEMPLATE.campfire; i++) {
+  for (let i = 0; i < (template.campfire ?? ACT_1_TEMPLATE.campfire); i++) {
     const room = campfireRooms[i % campfireRooms.length]
     deck.push({
       uid: generateUid(),
@@ -60,7 +68,7 @@ export function createDungeonDeck(): RoomCard[] {
 
   // Add treasure rooms
   const treasureRooms = getRoomsByType('treasure')
-  for (let i = 0; i < ACT_1_TEMPLATE.treasure; i++) {
+  for (let i = 0; i < (template.treasure ?? ACT_1_TEMPLATE.treasure); i++) {
     const room = treasureRooms[i % treasureRooms.length]
     deck.push({
       uid: generateUid(),

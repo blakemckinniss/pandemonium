@@ -16,7 +16,8 @@ import { emitParticle } from '../ParticleEffects/emitParticle'
 import { CardPileModal, type PileType } from '../Modal/CardPileModal'
 import { CardSelectionModal } from '../Modal/CardSelectionModal'
 import { StatusSidebar } from '../StatusSidebar/StatusSidebar'
-import type { RunState } from '../../types'
+import type { RunState, ModifierInstance } from '../../types'
+import { generateUid } from '../../lib/utils'
 import { getCardDefinition } from '../../game/cards'
 import { createNewRun } from '../../game/new-game'
 import { getRoomDefinition } from '../../content/rooms'
@@ -41,11 +42,12 @@ interface GameScreenProps {
   deckId?: string | null
   heroId?: string
   dungeonDeckId?: string
+  selectedModifierIds?: string[]
   initialState?: RunState | null
   onReturnToMenu?: () => void
 }
 
-export function GameScreen({ deckId, heroId, dungeonDeckId, initialState, onReturnToMenu }: GameScreenProps) {
+export function GameScreen({ deckId, heroId, dungeonDeckId, selectedModifierIds, initialState, onReturnToMenu }: GameScreenProps) {
   const [state, setState] = useState<RunState | null>(null)
   const [pendingUnlocks, setPendingUnlocks] = useState<string[]>([])
   const [currentRoomId, setCurrentRoomId] = useState<string | null>(null)
@@ -135,14 +137,45 @@ export function GameScreen({ deckId, heroId, dungeonDeckId, initialState, onRetu
         if (deck) customCardIds = deck.cardIds
       }
 
-      const newRun = await createNewRun(heroId ?? 'hero_ironclad', customCardIds, dungeonDeckId)
+      // Convert modifier IDs to instances BEFORE creating run (so effects apply)
+      const modifierInstances: ModifierInstance[] = []
+      const modifierIds = selectedModifierIds ?? []
+
+      if (modifierIds.length > 0) {
+        const { getModifierDefinition, consumeModifier } = useMetaStore.getState()
+
+        for (const defId of modifierIds) {
+          const definition = getModifierDefinition(defId)
+          if (!definition) continue
+
+          // Consume modifier from player's inventory
+          consumeModifier(defId)
+
+          // Create instance with proper usesRemaining for fragile modifiers
+          const instance: ModifierInstance = {
+            uid: generateUid(),
+            definitionId: defId,
+            appliedAt: Date.now(),
+          }
+
+          // Set usesRemaining for fragile modifiers
+          if (definition.durability.type === 'fragile') {
+            instance.usesRemaining = definition.durability.uses
+          }
+
+          modifierInstances.push(instance)
+        }
+      }
+
+      // Create run WITH modifiers so effects are applied
+      const newRun = await createNewRun(heroId ?? 'hero_ironclad', customCardIds, dungeonDeckId, modifierInstances)
       setState(newRun)
 
       // Lock the run for browser persistence
       lockInRun({
         dungeonDeckId: dungeonDeckId ?? 'random',
         dungeonDeck: newRun.dungeonDeck,
-        modifiers: [], // No modifiers selected yet
+        modifiers: modifierInstances,
         player: {
           heroId: heroId ?? 'hero_ironclad',
           gold: newRun.gold,
@@ -154,7 +187,7 @@ export function GameScreen({ deckId, heroId, dungeonDeckId, initialState, onRetu
       })
     }
     void init()
-  }, [deckId, heroId, dungeonDeckId, initialState])
+  }, [deckId, heroId, dungeonDeckId, selectedModifierIds, initialState])
 
   // Register debug API in development
   useEffect(() => {
