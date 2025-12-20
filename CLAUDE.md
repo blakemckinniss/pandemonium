@@ -443,6 +443,44 @@ This project has 56+ Serena memories documenting:
 
 Use `mcp__serena__list_memories` and `mcp__serena__read_memory` to access.
 
+## Local Claude Extensions
+
+Project-specific skills, agents, and hooks in `.claude/`.
+
+### Skills (`.claude/skills/`)
+
+Skills provide focused context for specific tasks. Claude invokes them automatically based on semantic matching.
+
+| Skill | Purpose | Triggers |
+|-------|---------|----------|
+| `card-creation` | Card syntax, effects, balance guidelines | "create card", "add card", "card doesn't work" |
+| `effect-authoring` | Extend effects engine, AtomicEffect types | "add effect", "new effect type", "effect not working" |
+| `power-creation` | Power definitions, stack behaviors, triggers | "create power", "add buff", "debuff system" |
+| `image-gen` | ComfyUI integration, prompt engineering | "generate image", "card art", "missing image" |
+| `room-design` | Dungeon rooms, monster spawns, rewards | "create room", "dungeon design", "add encounter" |
+
+### Agents (`.claude/agents/`)
+
+Specialized subagents for complex tasks. Invoke via Task tool or let Claude delegate automatically.
+
+| Agent | Purpose | Model |
+|-------|---------|-------|
+| `game-reviewer` | Review game logic changes, state mutations, balance | haiku |
+| `effect-debugger` | Debug effect execution, wrong targets, incorrect amounts | sonnet |
+| `test-writer` | Write Vitest tests for game mechanics | sonnet |
+| `balance-analyzer` | Analyze card/power balance, damage efficiency | haiku |
+
+### Hooks (`.claude/hooks/`)
+
+Automatic context injection and validation on tool use.
+
+| Hook | Type | Purpose |
+|------|------|---------|
+| `context_injector.py` | PostToolUse | Suggests relevant Serena memories, skills, agents based on file patterns |
+| `effect_validator.py` | PreToolUse | Validates effect patterns, warns about Immer anti-patterns |
+| `test_reminder.py` | PostToolUse | Reminds to run tests after N game logic edits |
+| `serena_activate.sh` | SessionStart | Activates Serena MCP for this project |
+
 ## Known Issues
 
 1. **Bundle size**: Main chunk is 760KB - consider code splitting
