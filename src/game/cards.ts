@@ -665,3 +665,73 @@ registerCardUnsafe({
   element: 'void',
   effects: [{ type: 'damage', amount: 99 }],
 })
+
+// ============================================
+// BOSS ENEMY CARDS
+// Special enemy cards with ultimates that trigger at low health
+// ============================================
+
+registerCardUnsafe({
+  id: 'boss_necromancer',
+  name: 'Shadow Lord',
+  description: 'Master of death and darkness.',
+  theme: 'enemy',
+  element: 'void',
+  image: '/cards/enemy_necromancer.webp',
+  enemyStats: {
+    healthRange: [80, 100],
+    damage: 12,
+    element: 'void',
+    resistances: ['void'],
+    vulnerabilities: ['fire', 'physical'],
+  },
+  enemyUltimate: {
+    id: 'dark_ritual',
+    name: 'Dark Ritual',
+    description: 'At 50% HP: Gains massive power and weakens the player.',
+    trigger: 'lowHealth',
+    triggerValue: 50,
+    effects: [
+      { type: 'applyPower', powerId: 'strength', amount: 5, target: 'self' },
+      { type: 'applyPower', powerId: 'ritualist', amount: 3, target: 'self' },
+      { type: 'applyPower', powerId: 'vulnerable', amount: 3, target: 'player' },
+      { type: 'applyPower', powerId: 'weak', amount: 2, target: 'player' },
+    ],
+  },
+})
+
+registerCardUnsafe({
+  id: 'boss_heart',
+  name: 'Heart of Chaos',
+  description: 'The corrupted heart grows stronger each turn.',
+  theme: 'enemy',
+  element: 'void',
+  image: '/cards/enemy_heart.webp',
+  enemyStats: {
+    healthRange: [120, 150],
+    damage: 8,
+    element: 'void',
+  },
+  enemyAbility: {
+    id: 'chaos_pulse',
+    name: 'Chaos Pulse',
+    description: 'Gains 2 Strength. Deals damage to player.',
+    energyCost: 0,
+    effects: [
+      { type: 'applyPower', powerId: 'strength', amount: 2, target: 'self' },
+      { type: 'damage', amount: 5, target: 'player' },
+    ],
+  },
+  enemyUltimate: {
+    id: 'corruption_wave',
+    name: 'Corruption Wave',
+    description: 'At 30% HP: Massive damage and applies curses.',
+    trigger: 'lowHealth',
+    triggerValue: 30,
+    effects: [
+      { type: 'damage', amount: 25, target: 'player' },
+      { type: 'applyPower', powerId: 'vulnerable', amount: 5, target: 'player' },
+      { type: 'applyPower', powerId: 'frail', amount: 5, target: 'player' },
+    ],
+  },
+})

@@ -131,7 +131,7 @@ export const ROOMS: Record<string, RoomDefinition> = {
     description: 'The master of death awaits.',
     icon: '👑',
     image: '/cards/room_shadow_throne.webp',
-    monsters: ['necromancer', 'bone_golem', 'shadow_wraith'],
+    monsters: ['boss_necromancer', 'bone_golem', 'shadow_wraith'], // boss_necromancer has ultimate at 50% HP
   },
   flooded_chamber: {
     id: 'flooded_chamber',
@@ -167,7 +167,8 @@ export const ROOMS: Record<string, RoomDefinition> = {
     name: 'Heart of Chaos',
     description: 'The source of corruption.',
     icon: '💀',
-    monsters: ['cultist', 'cultist', 'jaw_worm'],
+    image: '/cards/room_boss_heart.webp',
+    monsters: ['boss_heart', 'void_cultist'], // boss_heart has ability (Chaos Pulse) + ultimate at 30% HP
   },
 
   // Campfire
