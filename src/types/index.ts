@@ -195,3 +195,61 @@ export type {
 export type {
   MetaState,
 } from './meta'
+
+// Modifiers (Dungeon Deck)
+export type {
+  ModifierCategory,
+  ModifierRarity,
+  ModifierDurability,
+  ModifierEffectTarget,
+  ModifierOperation,
+  RoomDistributionEffect,
+  RarityOddsEffect,
+  EnemyStatsEffect,
+  PlayerStatsEffect,
+  ElementAffinityEffect,
+  DeckSizeEffect,
+  RewardScalingEffect,
+  CardRewardsEffect,
+  RelicRewardsEffect,
+  CurseInjectionEffect,
+  ModifierEffect,
+  ModifierDefinition,
+  ModifierInstance,
+  OwnedModifier,
+  ComputedModifierEffects,
+  ModifierPackConfig,
+  ModifierPack,
+} from './modifiers'
+
+// Streak & Heat
+export type {
+  StreakState,
+  StreakMultiplier,
+  StreakMilestone,
+  StreakMilestoneReward,
+  HeatState,
+  HeatEffects,
+  HeatTier,
+} from './streak'
+
+export {
+  DEFAULT_STREAK_STATE,
+  DEFAULT_HEAT_STATE,
+  HEAT_TIERS,
+  STREAK_MILESTONES,
+} from './streak'
+
+// Run Lock
+export type {
+  LockedRunStatus,
+  PlayerSnapshot,
+  RunProgress,
+  LockedRunState,
+  RunRecoveryInfo,
+  RunResult,
+  RunRewards,
+  AbandonPenalty,
+} from './run-lock'
+
+export { DEFAULT_RUN_PROGRESS } from './run-lock'
