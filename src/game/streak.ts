@@ -208,3 +208,24 @@ export function getRewardDescription(reward: StreakMilestoneReward): string {
       return 'mystery reward'
   }
 }
+
+/**
+ * Format multiplier for display (e.g., "2.5" instead of "2.500000")
+ */
+export function formatMultiplier(multiplier: number): string {
+  return multiplier.toFixed(1).replace(/\.0$/, '')
+}
+
+/**
+ * Get milestone info for streak display (alias for getCurrentMilestone).
+ * Returns milestone with name and reward description.
+ */
+export function getStreakMilestone(streak: number): { name: string; reward: string } | null {
+  const milestone = getCurrentMilestone(streak)
+  if (!milestone) return null
+
+  return {
+    name: milestone.label,
+    reward: getRewardDescription(milestone.reward),
+  }
+}

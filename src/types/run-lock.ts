@@ -217,6 +217,28 @@ export interface RunRewards {
   }[]
 }
 
+/**
+ * UI-friendly rewards for dungeon complete screen.
+ * Extends RunRewards with additional display fields.
+ */
+export interface DungeonRewards {
+  // Gold breakdown
+  gold: number
+  baseGold: number
+  multiplier: number
+
+  // Progress stats
+  cardsUnlocked: number
+  xp: number
+  heatReduced: number
+
+  // Bonus rewards
+  bonusModifier?: {
+    name: string
+    rarity: string
+  }
+}
+
 // ============================================
 // ABANDON PENALTY
 // ============================================
