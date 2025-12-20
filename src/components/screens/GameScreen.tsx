@@ -187,8 +187,15 @@ export function GameScreen({ deckId, heroId, dungeonDeckId, selectedModifierIds,
       const newRun = await createNewRun(heroId ?? 'hero_ironclad', customCardIds, dungeonDeckId, modifierInstances)
       setState(newRun)
 
+      // Clear any existing locked run before locking new one
+      // (This handles the case where user starts a new run without abandoning the old one)
+      const store = useRunLockStore.getState()
+      if (store.hasActiveRun()) {
+        store.clearRun()
+      }
+
       // Lock the run for browser persistence
-      lockInRun({
+      const lockResult = lockInRun({
         dungeonDeckId: dungeonDeckId ?? 'random',
         dungeonDeck: newRun.dungeonDeck,
         modifiers: modifierInstances,
@@ -201,6 +208,11 @@ export function GameScreen({ deckId, heroId, dungeonDeckId, selectedModifierIds,
           deck: newRun.deck.map(c => c.definitionId),
         },
       })
+
+      // Sync room choices to lock store (must match React state exactly)
+      if (lockResult.success) {
+        store.updateDeck(newRun.roomChoices, newRun.dungeonDeck)
+      }
     }
     void init()
   }, [deckId, heroId, dungeonDeckId, selectedModifierIds, initialState])
@@ -629,7 +641,7 @@ export function GameScreen({ deckId, heroId, dungeonDeckId, selectedModifierIds,
       if (state.gold < price) return
 
       const newRelic = {
-        uid: generateUid(),
+        id: generateUid(),
         definitionId: relicId,
       }
 
@@ -692,20 +704,20 @@ export function GameScreen({ deckId, heroId, dungeonDeckId, selectedModifierIds,
               updated = { ...updated, gold: Math.max(0, updated.gold - effect.amount) }
               break
             case 'heal': {
-              const healAmount = Math.min(effect.amount, updated.hero.maxHp - updated.hero.hp)
-              updated = { ...updated, hero: { ...updated.hero, hp: updated.hero.hp + healAmount } }
+              const healAmount = Math.min(effect.amount, updated.hero.maxHealth - updated.hero.currentHealth)
+              updated = { ...updated, hero: { ...updated.hero, currentHealth: updated.hero.currentHealth + healAmount } }
               break
             }
             case 'damage':
-              updated = { ...updated, hero: { ...updated.hero, hp: Math.max(1, updated.hero.hp - effect.amount) } }
+              updated = { ...updated, hero: { ...updated.hero, currentHealth: Math.max(1, updated.hero.currentHealth - effect.amount) } }
               break
             case 'gainMaxHP':
               updated = {
                 ...updated,
                 hero: {
                   ...updated.hero,
-                  maxHp: updated.hero.maxHp + effect.amount,
-                  hp: updated.hero.hp + effect.amount,
+                  maxHealth: updated.hero.maxHealth + effect.amount,
+                  currentHealth: updated.hero.currentHealth + effect.amount,
                 },
               }
               break
@@ -714,8 +726,8 @@ export function GameScreen({ deckId, heroId, dungeonDeckId, selectedModifierIds,
                 ...updated,
                 hero: {
                   ...updated.hero,
-                  maxHp: Math.max(1, updated.hero.maxHp - effect.amount),
-                  hp: Math.min(updated.hero.hp, Math.max(1, updated.hero.maxHp - effect.amount)),
+                  maxHealth: Math.max(1, updated.hero.maxHealth - effect.amount),
+                  currentHealth: Math.min(updated.hero.currentHealth, Math.max(1, updated.hero.maxHealth - effect.amount)),
                 },
               }
               break
@@ -743,7 +755,7 @@ export function GameScreen({ deckId, heroId, dungeonDeckId, selectedModifierIds,
               break
             }
             case 'addRelic': {
-              const newRelic = { uid: generateUid(), definitionId: effect.relicId }
+              const newRelic = { id: generateUid(), definitionId: effect.relicId }
               updated = { ...updated, relics: [...updated.relics, newRelic] }
               break
             }

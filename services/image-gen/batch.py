@@ -38,9 +38,9 @@ def load_cards_from_game() -> list[dict]:
     content = cards_path.read_text()
     cards = []
 
-    # Find all registerCard({ ... }) calls
-    # Match registerCard( then extract the object literal
-    pattern = r"registerCard\s*\(\s*\{"
+    # Find all registerCard({ ... }) or registerCardUnsafe({ ... }) calls
+    # Match registerCard( or registerCardUnsafe( then extract the object literal
+    pattern = r"registerCard(?:Unsafe)?\s*\(\s*\{"
     for match in re.finditer(pattern, content):
         start = match.end() - 1  # Start at the {
         depth = 1
