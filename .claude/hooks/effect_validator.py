@@ -88,6 +88,9 @@ def main():
 
     if warnings:
         message = "\n".join(warnings)
+        message += (
+            "\n🎯 **Available**: agent:`effect-debugger` for effect system issues"
+        )
         print(json.dumps({"result": "continue", "message": message}))
         return
 

@@ -103,6 +103,7 @@ def main():
         and len(testable_edits) % EDIT_THRESHOLD == 0
     ):
         message = f"🧪 **Test reminder**: {len(testable_edits)} game logic edits. Run `npm test -- --run` to verify."
+        message += "\n🎯 **Available**: agent:`test-writer` for writing game tests"
         print(json.dumps({"result": "continue", "message": message}))
         return
 
