@@ -269,9 +269,9 @@ ENEMY_ARCHETYPE_STYLES: dict[str, dict[str, str]] = {
         "details": "translucent body, dripping slime, multiple eyes",
     },
     "Cultist": {
-        "creature": "robed humanoid, dark ritualist, occult follower",
-        "mood": "fanatical, mysterious, devoted",
-        "details": "ritual robes, dark symbols, sacrificial dagger",
+        "creature": "beautiful anime woman in dark robes, elegant occult priestess",
+        "mood": "fanatical, mysterious, alluring",
+        "details": "flowing ritual robes, arcane tattoos, glowing eyes, elegant features",
     },
     "Brute": {
         "creature": "large muscular beast, hulking warrior, heavy armor",
@@ -302,6 +302,37 @@ ENEMY_ARCHETYPE_STYLES: dict[str, dict[str, str]] = {
         "creature": "dark conjurer, necromancer lord, portal master",
         "mood": "commanding, ominous, powerful",
         "details": "summoning circle, minion spirits, bone staff",
+    },
+    # Anime-style humanoid enemies
+    "Skeleton": {
+        "creature": "undead skeletal warrior, animated bones, death knight",
+        "mood": "relentless, hollow, menacing",
+        "details": "ancient armor, rusted sword, glowing eye sockets, tattered cape",
+    },
+    "Wraith": {
+        "creature": "ethereal ghost, spectral shade, shadow spirit",
+        "mood": "haunting, sorrowful, chilling",
+        "details": "translucent form, trailing wisps, hollow face, ghostly glow",
+    },
+    "Golem": {
+        "creature": "massive bone construct, skeletal titan, undead colossus",
+        "mood": "unstoppable, ancient, terrifying",
+        "details": "fused bones, glowing runes, massive size, armored plates",
+    },
+    "Necromancer": {
+        "creature": "beautiful anime woman in dark robes, elegant death mage, dark sorceress",
+        "mood": "commanding, seductive, deadly",
+        "details": "skull staff, black robes, pale skin, glowing purple eyes, dark aura",
+    },
+    "BossNecromancer": {
+        "creature": "stunning anime woman, dark empress of death, necromancer queen",
+        "mood": "regal, terrifying, overwhelming power",
+        "details": "ornate dark crown, shadow robes, spirit army, bone throne, purple flames",
+    },
+    "ChaosHeart": {
+        "creature": "massive corrupted heart, eldritch organ, pulsing void core",
+        "mood": "alien, corrupting, apocalyptic",
+        "details": "pulsing veins, dark tendrils, void energy, crystalline corruption, eyes within",
     },
 }
 

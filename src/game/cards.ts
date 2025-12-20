@@ -677,7 +677,7 @@ registerCardUnsafe({
   description: 'Master of death and darkness.',
   theme: 'enemy',
   element: 'void',
-  image: '/cards/enemy_necromancer.webp',
+  image: '/cards/enemy_boss_necromancer.webp',
   enemyStats: {
     healthRange: [80, 100],
     damage: 12,
@@ -706,7 +706,7 @@ registerCardUnsafe({
   description: 'The corrupted heart grows stronger each turn.',
   theme: 'enemy',
   element: 'void',
-  image: '/cards/enemy_heart.webp',
+  image: '/cards/enemy_boss_heart.webp',
   enemyStats: {
     healthRange: [120, 150],
     damage: 8,
