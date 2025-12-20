@@ -216,6 +216,43 @@
   --color-status-disabled-text: oklch(0.6 0 0);
 
   /* ============================================
+     COMBAT NUMBER COLORS - Floating Damage/Effect Text
+     ============================================ */
+  /* Gold (currency): Bright treasure gold */
+  --color-combat-gold: oklch(0.8 0.18 85);
+  --color-combat-gold-glow: oklch(0.7 0.2 85);
+  /* Combo: Orange fire burst */
+  --color-combat-combo: oklch(0.85 0.2 60);
+  --color-combat-combo-glow: oklch(0.7 0.25 60);
+  --color-combat-combo-label: oklch(0.9 0.15 60);
+  --color-combat-combo-counter: oklch(0.9 0.2 50);
+  --color-combat-combo-counter-glow1: oklch(0.7 0.25 30);
+  --color-combat-combo-counter-glow2: oklch(0.6 0.2 50);
+  /* Chain: Golden yellow */
+  --color-combat-chain: oklch(0.85 0.15 85);
+  /* Execute: Deep crimson finisher */
+  --color-combat-execute: oklch(0.65 0.25 25);
+  --color-combat-execute-glow: oklch(0.5 0.3 25);
+  /* Piercing: Violet penetration */
+  --color-combat-piercing: oklch(0.75 0.12 300);
+  /* Poison: Toxic green */
+  --color-combat-poison: oklch(0.6 0.2 140);
+  /* Preview: Threat indicator red */
+  --color-combat-preview: oklch(0.7 0.2 25);
+  --color-combat-preview-glow: oklch(0.5 0.25 25);
+  /* Preview-multi: Brighter multi-target threat */
+  --color-combat-preview-multi: oklch(0.75 0.25 25);
+  --color-combat-preview-multi-glow: oklch(0.6 0.3 25);
+  /* Multi-hit: Orange burst */
+  --color-combat-multi: oklch(0.8 0.2 40);
+  /* Max Health gain: Vital green */
+  --color-combat-maxhp-gain: oklch(0.7 0.18 145);
+  --color-combat-maxhp-gain-glow: oklch(0.6 0.2 145);
+  /* Max Health lose: Loss red */
+  --color-combat-maxhp-lose: oklch(0.65 0.22 25);
+  --color-combat-maxhp-lose-glow: oklch(0.5 0.25 25);
+
+  /* ============================================
      UTILITY COLORS
      ============================================ */
   --color-shadow: oklch(0 0 0);
