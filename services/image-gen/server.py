@@ -3,8 +3,14 @@ FastAPI server for card art generation via ComfyUI.
 
 Provides REST API endpoints for generating card art images.
 Connects to a ComfyUI instance for actual generation.
+
+Features:
+- Request queue with semaphore (ComfyUI can only process 1 at a time)
+- Queue status in /health for client-side backoff
+- Batch generation with background tasks
 """
 
+import asyncio
 import logging
 from pathlib import Path
 from typing import Literal
@@ -19,6 +25,10 @@ from prompts import batch_prompt_from_card_def, card_to_prompt, card_to_xml_prom
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
+
+# Queue management - ComfyUI can only handle 1 generation at a time
+_generation_semaphore = asyncio.Semaphore(1)
+_queue_depth = 0  # Track how many requests are waiting
 
 # Output directory for generated images
 OUTPUT_DIR = Path(__file__).parent / "generated"
@@ -101,8 +111,14 @@ class StatusResponse(BaseModel):
 # Endpoints
 @app.get("/health")
 async def health_check() -> dict:
-    """Simple health check."""
-    return {"status": "ok"}
+    """Health check with queue status for client-side backoff."""
+    generator = get_generator()
+    comfyui_ok = generator.check_connection()
+    return {
+        "status": "ok" if comfyui_ok else "comfyui_down",
+        "queue_depth": _queue_depth,
+        "busy": _queue_depth > 0,
+    }
 
 
 @app.get("/status", response_model=StatusResponse)
@@ -123,8 +139,11 @@ async def generate_card_art(request: GenerateRequest) -> GenerateResponse:
     """
     Generate card art for a single card.
 
+    Uses semaphore to queue requests - ComfyUI can only process 1 at a time.
     Returns the generated image metadata and URL.
     """
+    global _queue_depth
+
     generator = get_generator()
     generator.output_dir = OUTPUT_DIR
 
@@ -154,25 +173,36 @@ async def generate_card_art(request: GenerateRequest) -> GenerateResponse:
             custom_hint=request.custom_hint,
         )
 
-    try:
-        output_path = generator.save_card_art(
-            card_id=request.card_id,
-            prompt=prompt,
-            seed=request.seed,
-            format=request.format,
-        )
+    # Queue the request - only 1 generation at a time
+    _queue_depth += 1
+    logger.info(f"Queued generation for {request.card_id} (queue depth: {_queue_depth})")
 
-        return GenerateResponse(
-            card_id=request.card_id,
-            filename=output_path.name,
-            url=f"/images/{output_path.name}",
-            prompt=prompt,
-            seed=request.seed,
-        )
+    try:
+        async with _generation_semaphore:
+            logger.info(f"Starting generation for {request.card_id}")
+            # Run blocking generator in thread pool
+            output_path = await asyncio.to_thread(
+                generator.save_card_art,
+                card_id=request.card_id,
+                prompt=prompt,
+                seed=request.seed,
+                format=request.format,
+            )
+
+            return GenerateResponse(
+                card_id=request.card_id,
+                filename=output_path.name,
+                url=f"/images/{output_path.name}",
+                prompt=prompt,
+                seed=request.seed,
+            )
 
     except Exception as e:
-        logger.error(f"Generation failed: {e}")
+        logger.error(f"Generation failed for {request.card_id}: {e}")
         raise HTTPException(status_code=500, detail=str(e))
+    finally:
+        _queue_depth -= 1
+        logger.info(f"Completed {request.card_id} (queue depth: {_queue_depth})")
 
 
 @app.get("/images/{filename}")

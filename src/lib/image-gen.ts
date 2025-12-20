@@ -9,7 +9,18 @@ import type { CardDefinition, CardTheme, CardRarity } from '../types'
 // Service configuration
 const IMAGE_GEN_URL = (import.meta.env.VITE_IMAGE_GEN_URL as string) || 'http://localhost:8420'
 
+// Retry configuration
+const MAX_RETRIES = 5
+const BASE_DELAY_MS = 1000
+const MAX_DELAY_MS = 30000
+
 // Types
+export interface HealthResponse {
+  status: 'ok' | 'comfyui_down'
+  queue_depth: number
+  busy: boolean
+}
+
 export interface GenerateRequest {
   card_id: string
   name: string
@@ -66,7 +77,7 @@ export class ImageGenError extends Error {
 }
 
 /**
- * Check if the image generation service is available.
+ * Check if the image generation service is available and get queue status.
  */
 export async function checkServiceHealth(): Promise<boolean> {
   try {
@@ -74,10 +85,45 @@ export async function checkServiceHealth(): Promise<boolean> {
       method: 'GET',
       signal: AbortSignal.timeout(3000),
     })
-    return res.ok
+    if (!res.ok) return false
+    const data = (await res.json()) as HealthResponse
+    return data.status === 'ok'
   } catch {
     return false
   }
+}
+
+/**
+ * Get detailed health status including queue depth.
+ */
+export async function getHealthStatus(): Promise<HealthResponse | null> {
+  try {
+    const res = await fetch(`${IMAGE_GEN_URL}/health`, {
+      method: 'GET',
+      signal: AbortSignal.timeout(3000),
+    })
+    if (!res.ok) return null
+    return (await res.json()) as HealthResponse
+  } catch {
+    return null
+  }
+}
+
+/**
+ * Sleep for a given number of milliseconds.
+ */
+function sleep(ms: number): Promise<void> {
+  return new Promise((resolve) => setTimeout(resolve, ms))
+}
+
+/**
+ * Calculate backoff delay with jitter.
+ */
+function getBackoffDelay(attempt: number): number {
+  const delay = Math.min(BASE_DELAY_MS * Math.pow(2, attempt), MAX_DELAY_MS)
+  // Add 10-30% jitter to prevent thundering herd
+  const jitter = delay * (0.1 + Math.random() * 0.2)
+  return Math.floor(delay + jitter)
 }
 
 /**
@@ -92,21 +138,54 @@ export async function getServiceStatus(): Promise<ServiceStatus> {
 }
 
 /**
- * Generate card art for a single card.
+ * Generate card art for a single card with retry logic.
+ * Retries on 503 (service busy) with exponential backoff.
  */
 export async function generateCardArt(request: GenerateRequest): Promise<GenerateResponse> {
-  const res = await fetch(`${IMAGE_GEN_URL}/generate`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(request),
-  })
+  let lastError: Error | null = null
 
-  if (!res.ok) {
-    const error = await res.json().catch((): ErrorResponse => ({ detail: res.statusText })) as ErrorResponse
-    throw new ImageGenError(error.detail ?? 'Generation failed', res.status)
+  for (let attempt = 0; attempt < MAX_RETRIES; attempt++) {
+    try {
+      const res = await fetch(`${IMAGE_GEN_URL}/generate`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(request),
+      })
+
+      if (res.ok) {
+        return (await res.json()) as GenerateResponse
+      }
+
+      const error = (await res.json().catch((): ErrorResponse => ({ detail: res.statusText }))) as ErrorResponse
+
+      // Retry on 503 (service busy/unavailable)
+      if (res.status === 503 && attempt < MAX_RETRIES - 1) {
+        const delay = getBackoffDelay(attempt)
+        console.log(`[ImageGen] Service busy, retrying in ${delay}ms (attempt ${attempt + 1}/${MAX_RETRIES})`)
+        await sleep(delay)
+        continue
+      }
+
+      throw new ImageGenError(error.detail ?? 'Generation failed', res.status)
+    } catch (err) {
+      lastError = err instanceof Error ? err : new Error(String(err))
+
+      // Don't retry ImageGenError (non-retryable errors)
+      if (err instanceof ImageGenError) {
+        throw err
+      }
+
+      // Retry network errors
+      if (attempt < MAX_RETRIES - 1) {
+        const delay = getBackoffDelay(attempt)
+        console.log(`[ImageGen] Network error, retrying in ${delay}ms (attempt ${attempt + 1}/${MAX_RETRIES})`)
+        await sleep(delay)
+        continue
+      }
+    }
   }
 
-  return (await res.json()) as GenerateResponse
+  throw lastError ?? new ImageGenError('Generation failed after retries')
 }
 
 /**
