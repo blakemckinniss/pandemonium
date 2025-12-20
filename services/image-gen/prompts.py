@@ -73,6 +73,63 @@ RARITY_QUALITY: dict[str, str] = {
     "rare": "extremely detailed, complex composition, stunning effects, masterpiece quality",
 }
 
+# Keywords to look for in card descriptions -> booru tags
+ACTION_KEYWORD_MAP: dict[str, str] = {
+    # Damage/Attack
+    "damage": "attacking, energy_blast",
+    "attack": "battle_stance, striking",
+    "strike": "sword_swing, slashing",
+    "slash": "blade, cutting",
+    "pierce": "piercing, spear",
+    "hit": "punch, impact",
+    # Defense
+    "block": "shield, defensive_stance",
+    "armor": "armored, protection",
+    "shield": "barrier, magic_shield",
+    "protect": "protecting, guardian_pose",
+    # Card manipulation
+    "draw": "cards_floating, magical_cards",
+    "discard": "cards_scattering, wind",
+    "exhaust": "smoke, fading_cards",
+    # Status effects
+    "poison": "poison_aura, green_mist, toxic",
+    "burn": "flames, burning, fire_aura",
+    "freeze": "ice, frozen, frost_aura",
+    "stun": "lightning, shocked, electricity",
+    "weak": "debuff_aura, dark_mist",
+    "vulnerable": "cracking, exposed",
+    # Healing
+    "heal": "healing_magic, green_glow, restoration",
+    "restore": "light_particles, regeneration",
+    "regenerate": "nature_magic, vines",
+    # Energy
+    "energy": "mana, glowing_orbs, power",
+    "mana": "magical_energy, floating_crystals",
+    # Multi-target
+    "all enemies": "aoe_attack, multiple_targets, wave",
+    "all": "explosion, radial_blast",
+    # Powers/buffs
+    "strength": "muscle, power_aura, flex",
+    "dexterity": "agile, swift, motion_blur",
+    "thorns": "spikes, thorny_vines",
+    "rage": "fury, red_aura, screaming",
+    # Special
+    "chain": "chains, linked_attacks",
+    "combo": "multiple_strikes, afterimages",
+    "execute": "finishing_blow, deadly",
+    "lifesteal": "soul_drain, vampiric",
+}
+
+
+def _extract_action_keywords(description: str) -> str:
+    """Extract booru-style tags from card description."""
+    desc_lower = description.lower()
+    tags = []
+    for keyword, booru_tags in ACTION_KEYWORD_MAP.items():
+        if keyword in desc_lower:
+            tags.append(booru_tags)
+    return ", ".join(tags[:4]) if tags else "magic_effect"  # Limit to 4 most relevant
+
 
 def card_to_prompt(
     name: str,
@@ -97,26 +154,64 @@ def card_to_prompt(
         Optimized prompt string for NewBie model
     """
     elem_style = ELEMENT_STYLES.get(element, ELEMENT_STYLES["physical"])
-    theme_style = THEME_STYLES.get(theme, THEME_STYLES["attack"])
-    quality = RARITY_QUALITY.get(rarity, RARITY_QUALITY["common"])
+    rarity_tags = {
+        "starter": "simple_background",
+        "common": "detailed_background",
+        "uncommon": "intricate_details, elaborate",
+        "rare": "extremely_detailed, intricate, masterwork",
+    }
+    rarity_quality = rarity_tags.get(rarity, "detailed")
 
-    # Build prompt parts (NO game description - causes text rendering)
+    # Build prompt with booru-style tags for anime image generation
+    # Element-specific hair/eye colors
+    element_features = {
+        "physical": "silver_hair, grey_eyes",
+        "fire": "red_hair, orange_eyes, flame_aura",
+        "ice": "white_hair, blue_eyes, frost_aura",
+        "lightning": "blonde_hair, purple_eyes, electricity",
+        "void": "black_hair, purple_eyes, dark_aura",
+    }
+    elem_features = element_features.get(element, "long_hair")
+
+    # Theme-specific pose/action tags
+    theme_tags = {
+        "attack": "battle_stance, attacking, aggressive, weapon",
+        "skill": "defensive_pose, magic_shield, tactical",
+        "power": "aura, glowing_eyes, power_up, floating",
+        "curse": "dark_magic, corruption, sinister_smile",
+        "status": "neutral_expression, calm, observing",
+    }
+    theme_action = theme_tags.get(theme, "casting_spell")
+
+    # Extract action keywords from description for image influence
+    desc_keywords = _extract_action_keywords(description)
+
     parts = [
-        # Anti-text FIRST for stronger weight
-        "no text, no words, no letters, no writing, no numbers, no symbols",
-        # Subject - just the name as visual concept
-        f"fantasy illustration, {name} spell",
-        # Element styling
-        f"color palette: {elem_style['colors']}",
-        f"visual effects: {elem_style['effects']}",
-        # Theme styling
-        theme_style["composition"],
-        f"mood: {elem_style['atmosphere']}",
-        # Quality based on rarity
-        quality,
-        # Base style tags
-        "anime style, digital painting, fantasy portrait",
-        "centered composition, dramatic lighting, vibrant colors",
+        # Quality tags first (booru convention)
+        "masterpiece, best_quality, highres",
+        rarity_quality,
+        # Character tags
+        "1girl, solo, beautiful_detailed_eyes, detailed_face",
+        elem_features,
+        "long_hair, flowing_hair",
+        # Body/pose
+        "slim_waist, elegant, standing, dynamic_pose",
+        # Theme-specific action
+        theme_action,
+        # Card effect visualization from description
+        desc_keywords,
+        # Outfit based on theme
+        "fantasy_dress, sorceress_outfit, magical_girl",
+        # Magic effect from card name
+        f"casting_spell, {name.lower().replace(' ', '_')}",
+        # Element effects
+        elem_style["effects"].replace(", ", "_").replace(" ", "_"),
+        # Atmosphere
+        "dramatic_lighting, particle_effects, glowing",
+        # Style tags
+        "anime_style, digital_art, fantasy",
+        # Negative concept embedding
+        "no_text",
     ]
 
     if custom_hint:
@@ -145,13 +240,17 @@ def card_to_xml_prompt(
 
     xml_prompt = f"""
 <illustration>
-<subject>{name}</subject>
-<concept>{description}</concept>
+<subject>beautiful anime woman, fantasy sorceress, {name}</subject>
+<action>performing magic: {description}</action>
 <element>{element}</element>
 <colors>{elem_style["colors"]}</colors>
 <effects>{elem_style["effects"]}</effects>
 <atmosphere>{elem_style["atmosphere"]}</atmosphere>
 </illustration>
+<character>
+<appearance>gorgeous face, detailed eyes, flowing hair, elegant pose</appearance>
+<style>beautiful anime woman, attractive, alluring</style>
+</character>
 <composition>
 <layout>centered, portrait orientation, fantasy scene</layout>
 <pose>{theme_style["composition"]}</pose>
@@ -219,6 +318,7 @@ def hero_to_prompt(
 ) -> str:
     """
     Convert a hero definition into an image generation prompt.
+    Uses booru-style tags for better anime image generation.
 
     Args:
         name: Hero name (e.g., "Pyromancer")
@@ -228,28 +328,54 @@ def hero_to_prompt(
         custom_hint: Optional custom style hints
 
     Returns:
-        Optimized prompt string for hero portrait
+        Booru-style prompt string for hero portrait
     """
-    elem_style = ELEMENT_STYLES.get(element, ELEMENT_STYLES["physical"])
-    arch_style = HERO_ARCHETYPE_STYLES.get(archetype, HERO_ARCHETYPE_STYLES["Warrior"])
+    # Element-specific features (booru tags)
+    element_features = {
+        "physical": "silver_hair, grey_eyes, metallic_armor",
+        "fire": "red_hair, orange_eyes, flame_aura, fire_magic",
+        "ice": "white_hair, blue_eyes, frost_aura, ice_magic",
+        "lightning": "blonde_hair, purple_eyes, electricity, thunder",
+        "void": "black_hair, purple_eyes, dark_aura, void_magic",
+    }
+    elem_features = element_features.get(element, "long_hair")
+
+    # Archetype-specific booru tags
+    archetype_tags = {
+        "Warrior": "knight, armor, sword, battle_stance, warrior",
+        "Mage": "witch_hat, staff, robes, magic_circle, sorceress",
+        "Assassin": "hood, daggers, cloak, stealthy, ninja",
+        "Paladin": "holy_knight, shield, divine_light, armor, halo",
+        "Necromancer": "dark_mage, skull_staff, undead, dark_magic",
+        "Berserker": "tribal, dual_wielding, rage, wild, muscles",
+        "Elementalist": "elemental_magic, floating, multiple_elements, aura",
+    }
+    arch_tags = archetype_tags.get(archetype, "warrior, fantasy")
+
+    # Extract keywords from description
+    desc_keywords = _extract_action_keywords(description)
 
     parts = [
-        # Anti-text FIRST
-        "no text, no words, no letters, no writing, no numbers, no symbols",
-        # Subject - heroic character portrait
-        f"fantasy hero portrait, {name}",
-        f"character class: {archetype}",
-        # Archetype styling
-        arch_style["pose"],
-        f"mood: {arch_style['mood']}",
-        arch_style["details"],
-        # Element styling
-        f"color palette: {elem_style['colors']}",
-        f"elemental effects: {elem_style['effects']}",
-        # Quality and style
-        "extremely detailed, masterpiece quality, stunning illustration",
-        "anime style, digital painting, fantasy character portrait",
-        "dramatic lighting, epic composition, heroic atmosphere",
+        # Quality tags first
+        "masterpiece, best_quality, highres, extremely_detailed",
+        # Character - anime heroine
+        "1girl, solo, beautiful_detailed_eyes, detailed_face",
+        elem_features,
+        "long_hair, flowing_hair",
+        # Body/pose - heroic
+        "slim_waist, elegant, heroic_pose, confident",
+        "determined_expression, brave",
+        # Archetype features
+        arch_tags,
+        f"{name.lower().replace(' ', '_')}",
+        # Description influence
+        desc_keywords,
+        # Atmosphere
+        "dramatic_lighting, epic, heroic_aura",
+        # Style
+        "anime_style, digital_art, fantasy, jrpg",
+        # No text
+        "no_text",
     ]
 
     if custom_hint:
@@ -263,10 +389,11 @@ def hero_to_prompt(
 # ============================================
 
 ENEMY_ARCHETYPE_STYLES: dict[str, dict[str, str]] = {
+    # ALL enemies are beautiful anime women - even monsters are monster girls
     "Slime": {
-        "creature": "gelatinous creature, amorphous blob, ooze monster",
-        "mood": "disgusting, persistent, absorbing",
-        "details": "translucent body, dripping slime, multiple eyes",
+        "creature": "beautiful anime slime girl, translucent gelatinous woman, cute monster girl",
+        "mood": "playful, mischievous, alluring",
+        "details": "translucent body, slime dripping, colorful core, cute face through slime",
     },
     "Cultist": {
         "creature": "beautiful anime woman in dark robes, elegant occult priestess",
@@ -274,50 +401,50 @@ ENEMY_ARCHETYPE_STYLES: dict[str, dict[str, str]] = {
         "details": "flowing ritual robes, arcane tattoos, glowing eyes, elegant features",
     },
     "Brute": {
-        "creature": "large muscular beast, hulking warrior, heavy armor",
-        "mood": "intimidating, powerful, relentless",
-        "details": "massive weapon, scars, imposing size",
+        "creature": "muscular anime woman warrior, amazonian fighter, armored battle maiden",
+        "mood": "intimidating, powerful, fierce",
+        "details": "battle armor, impressive physique, large weapon, wild hair, fierce eyes",
     },
     "Mage": {
-        "creature": "dark spellcaster, corrupted wizard, elemental being",
+        "creature": "beautiful anime sorceress, dark witch, elegant spellcaster",
         "mood": "sinister, powerful, calculating",
-        "details": "dark magic aura, corrupted staff, glowing eyes",
+        "details": "dark magic aura, ornate staff, glowing eyes, flowing robes, mystical symbols",
     },
     "Assassin": {
-        "creature": "shadow stalker, deadly hunter, void-touched",
-        "mood": "lethal, patient, unsettling",
-        "details": "shadow cloak, poison blades, hollow eyes",
+        "creature": "beautiful anime kunoichi, deadly shadow maiden, elegant assassin",
+        "mood": "lethal, seductive, mysterious",
+        "details": "tight dark outfit, hidden blades, mask, piercing eyes, athletic body",
     },
     "Guardian": {
-        "creature": "ancient construct, armored sentinel, stone golem",
-        "mood": "implacable, defensive, unyielding",
-        "details": "heavy shield, ancient runes, glowing core",
+        "creature": "beautiful anime knight woman, armored maiden, elegant sentinel",
+        "mood": "stoic, protective, unyielding",
+        "details": "ornate armor, large shield, glowing runes, long hair flowing from helm",
     },
     "Berserker": {
-        "creature": "rage demon, frenzied beast, blood warrior",
-        "mood": "savage, uncontrollable, terrifying",
-        "details": "blood-stained, rage flames, feral expression",
+        "creature": "fierce anime warrior woman, battle-crazed valkyrie, wild amazon",
+        "mood": "savage, passionate, terrifying beauty",
+        "details": "tribal markings, wild red hair, dual axes, battle scars, fierce expression",
     },
     "Summoner": {
-        "creature": "dark conjurer, necromancer lord, portal master",
-        "mood": "commanding, ominous, powerful",
-        "details": "summoning circle, minion spirits, bone staff",
+        "creature": "beautiful anime summoner woman, elegant conjurer, dark mistress",
+        "mood": "commanding, mysterious, powerful",
+        "details": "summoning circle, spirit familiars, ornate tome, flowing dark dress",
     },
-    # Anime-style humanoid enemies
+    # Undead/Monster girls
     "Skeleton": {
-        "creature": "undead skeletal warrior, animated bones, death knight",
-        "mood": "relentless, hollow, menacing",
-        "details": "ancient armor, rusted sword, glowing eye sockets, tattered cape",
+        "creature": "beautiful undead anime girl, elegant lich maiden, ghostly warrior woman",
+        "mood": "haunting beauty, melancholic, deadly grace",
+        "details": "pale glowing skin, ethereal dress, spectral weapon, hollow glowing eyes",
     },
     "Wraith": {
-        "creature": "ethereal ghost, spectral shade, shadow spirit",
-        "mood": "haunting, sorrowful, chilling",
-        "details": "translucent form, trailing wisps, hollow face, ghostly glow",
+        "creature": "beautiful ghost anime girl, spectral maiden, ethereal spirit woman",
+        "mood": "haunting, sorrowful, eerily beautiful",
+        "details": "translucent flowing dress, trailing wisps, beautiful sad face, ghostly glow",
     },
     "Golem": {
-        "creature": "massive bone construct, skeletal titan, undead colossus",
-        "mood": "unstoppable, ancient, terrifying",
-        "details": "fused bones, glowing runes, massive size, armored plates",
+        "creature": "beautiful anime golem girl, crystal maiden, elemental woman construct",
+        "mood": "powerful, ancient, majestic",
+        "details": "crystalline or stone body parts, glowing core, elegant feminine form, runes",
     },
     "Necromancer": {
         "creature": "beautiful anime woman in dark robes, elegant death mage, dark sorceress",
@@ -326,13 +453,13 @@ ENEMY_ARCHETYPE_STYLES: dict[str, dict[str, str]] = {
     },
     "BossNecromancer": {
         "creature": "stunning anime woman, dark empress of death, necromancer queen",
-        "mood": "regal, terrifying, overwhelming power",
+        "mood": "regal, terrifying, overwhelming beauty",
         "details": "ornate dark crown, shadow robes, spirit army, bone throne, purple flames",
     },
     "ChaosHeart": {
-        "creature": "massive corrupted heart, eldritch organ, pulsing void core",
-        "mood": "alien, corrupting, apocalyptic",
-        "details": "pulsing veins, dark tendrils, void energy, crystalline corruption, eyes within",
+        "creature": "eldritch anime goddess, void queen, beautiful chaos incarnate",
+        "mood": "alien beauty, corrupting allure, apocalyptic",
+        "details": "tentacle hair, void eyes, crystalline corruption, multiple arms, dark elegance",
     },
 }
 
@@ -347,6 +474,7 @@ def enemy_to_prompt(
 ) -> str:
     """
     Convert an enemy definition into an image generation prompt.
+    Uses booru-style tags for better anime image generation.
 
     Args:
         name: Enemy name (e.g., "Acid Slime")
@@ -357,37 +485,67 @@ def enemy_to_prompt(
         custom_hint: Optional custom style hints
 
     Returns:
-        Optimized prompt string for enemy portrait
+        Booru-style prompt string for enemy portrait
     """
-    elem_style = ELEMENT_STYLES.get(element, ELEMENT_STYLES["physical"])
-    arch_style = ENEMY_ARCHETYPE_STYLES.get(archetype, ENEMY_ARCHETYPE_STYLES["Brute"])
-
-    # Difficulty affects detail and menace level
-    difficulty_styles = {
-        1: "simple design, lesser threat, common creature",
-        2: "detailed design, dangerous threat, formidable creature",
-        3: "extremely detailed, elite threat, boss-level creature, masterpiece quality",
+    # Element-specific features (booru tags)
+    element_features = {
+        "physical": "silver_hair, grey_eyes, metallic_accessories",
+        "fire": "red_hair, orange_eyes, flame_effects, burning",
+        "ice": "white_hair, blue_eyes, ice_crystals, frost",
+        "lightning": "blonde_hair, purple_eyes, electricity, sparks",
+        "void": "black_hair, purple_eyes, dark_aura, void_energy",
     }
-    detail_level = difficulty_styles.get(difficulty, difficulty_styles[2])
+    elem_features = element_features.get(element, "long_hair")
+
+    # Archetype-specific booru tags
+    archetype_tags = {
+        "Slime": "slime_girl, translucent_body, goo, monster_girl",
+        "Cultist": "dark_robes, hood, occult, ritual_tattoos",
+        "Brute": "muscular_female, amazon, battle_armor, warrior",
+        "Mage": "witch, dark_magic, staff, floating_orbs",
+        "Assassin": "kunoichi, ninja, tight_outfit, mask, daggers",
+        "Guardian": "knight, armor, shield, helmet_removed",
+        "Berserker": "tribal_markings, wild_hair, dual_wielding, battle_scars",
+        "Summoner": "summoning_circle, familiars, tome, floating",
+        "Skeleton": "undead, pale_skin, ghostly, ethereal_dress",
+        "Wraith": "ghost, translucent, flowing_dress, spectral",
+        "Golem": "crystal_body, elemental, glowing_core, runes",
+        "Necromancer": "dark_mage, skull_staff, pale_skin, death_magic",
+        "BossNecromancer": "dark_empress, crown, throne, spirit_army",
+        "ChaosHeart": "eldritch, tentacles, void, multiple_arms, goddess",
+    }
+    arch_tags = archetype_tags.get(archetype, "monster_girl, fantasy")
+
+    # Difficulty affects quality tags
+    difficulty_tags = {
+        1: "simple_background",
+        2: "detailed_background, intricate",
+        3: "extremely_detailed, intricate, masterwork, boss_monster",
+    }
+    quality_tags = difficulty_tags.get(difficulty, "detailed")
 
     parts = [
-        # Anti-text FIRST
-        "no text, no words, no letters, no writing, no numbers, no symbols",
-        # Subject - menacing monster portrait
-        f"dark fantasy monster portrait, {name}",
-        # Archetype styling
-        arch_style["creature"],
-        f"mood: {arch_style['mood']}",
-        arch_style["details"],
-        # Element styling
-        f"color palette: {elem_style['colors']}",
-        f"elemental effects: {elem_style['effects']}",
-        f"atmosphere: {elem_style['atmosphere']}, menacing",
-        # Difficulty-based quality
-        detail_level,
-        # Base style tags
-        "anime style, digital painting, creature portrait",
-        "dramatic lighting, dark atmosphere, threatening pose",
+        # Quality tags first
+        "masterpiece, best_quality, highres",
+        quality_tags,
+        # Character - anime monster girl
+        "1girl, solo, monster_girl, beautiful_detailed_eyes, detailed_face",
+        elem_features,
+        "long_hair, flowing_hair",
+        # Body/pose - dangerous beauty
+        "slim_waist, elegant, dynamic_pose, dangerous",
+        "seductive, alluring, confident",
+        # Archetype features
+        arch_tags,
+        f"{name.lower().replace(' ', '_')}",
+        # Outfit/details
+        "fantasy, dark_fantasy, villain",
+        # Atmosphere
+        "dramatic_lighting, dark_atmosphere, menacing_aura",
+        # Style
+        "anime_style, digital_art, monster_musume",
+        # No text
+        "no_text",
     ]
 
     if custom_hint:
