@@ -6,6 +6,7 @@ import { getRoomDefinition } from '../content/rooms'
 import { getCardDefinition, getEnemyCardById } from './cards'
 import { getDungeonDeck } from '../stores/db'
 import { applyEnemyStatModifiers, getPlayerStatModifications } from './modifier-resolver'
+import { calculateHeatEffects } from './heat'
 
 // ============================================
 // HERO DEFINITIONS
@@ -196,15 +197,30 @@ export const MONSTERS: Record<string, MonsterTemplate> = {
 // FACTORY FUNCTIONS
 // ============================================
 
-export function createEnemy(templateId: string, modifiers: ModifierInstance[] = []): EnemyEntity {
+export function createEnemy(
+  templateId: string,
+  modifiers: ModifierInstance[] = [],
+  heatLevel: number = 0
+): EnemyEntity {
+  // Calculate heat effects for enemy stat scaling
+  const heatEffects = calculateHeatEffects(heatLevel)
+
   // First, check if templateId is an enemy card
   const enemyCard = getEnemyCardById(templateId)
   if (enemyCard?.enemyStats) {
     const { healthRange, baseDamage, energy, element, vulnerabilities, resistances, innateStatus } = enemyCard.enemyStats
     const baseHealth = randomInt(healthRange[0], healthRange[1])
 
-    // Apply modifier effects to stats
-    const { health, damage } = applyEnemyStatModifiers(baseHealth, baseDamage, modifiers)
+    // Apply modifier effects to stats, then heat effects on top
+    const modifierScaled = applyEnemyStatModifiers(baseHealth, baseDamage, modifiers)
+    const health = Math.floor(modifierScaled.health * heatEffects.enemyHealthMultiplier)
+    const damage = Math.floor(modifierScaled.damage * heatEffects.enemyDamageMultiplier)
+
+    // Build initial powers from heat-based strength bonus
+    const powers: EnemyEntity['powers'] = {}
+    if (heatEffects.enemyStrengthBonus > 0) {
+      powers.strength = { id: 'strength', amount: heatEffects.enemyStrengthBonus }
+    }
 
     return {
       id: generateUid(),
@@ -214,7 +230,7 @@ export function createEnemy(templateId: string, modifiers: ModifierInstance[] = 
       maxHealth: health,
       block: 0,
       barrier: 0,
-      powers: {},
+      powers,
       intent: { type: 'attack', value: damage },
       patternIndex: 0,
       // Energy pool (like heroes)
@@ -239,8 +255,16 @@ export function createEnemy(templateId: string, modifiers: ModifierInstance[] = 
 
   const baseHealth = randomInt(template.healthRange[0], template.healthRange[1])
 
-  // Apply modifier effects to stats
-  const { health, damage } = applyEnemyStatModifiers(baseHealth, template.damage, modifiers)
+  // Apply modifier effects to stats, then heat effects on top
+  const modifierScaled = applyEnemyStatModifiers(baseHealth, template.damage, modifiers)
+  const health = Math.floor(modifierScaled.health * heatEffects.enemyHealthMultiplier)
+  const damage = Math.floor(modifierScaled.damage * heatEffects.enemyDamageMultiplier)
+
+  // Build initial powers from heat-based strength bonus
+  const powers: EnemyEntity['powers'] = {}
+  if (heatEffects.enemyStrengthBonus > 0) {
+    powers.strength = { id: 'strength', amount: heatEffects.enemyStrengthBonus }
+  }
 
   return {
     id: generateUid(),
@@ -250,7 +274,7 @@ export function createEnemy(templateId: string, modifiers: ModifierInstance[] = 
     maxHealth: health,
     block: 0,
     barrier: 0,
-    powers: {},
+    powers,
     intent: { type: 'attack', value: damage, times: template.times },
     patternIndex: 0,
     // Elemental properties
@@ -386,19 +410,25 @@ function resolveMonsterIds(ids: string[]): string[] {
  * Create enemies from a room definition.
  * If enemyCardIds is provided, use those instead of room definition's monsters.
  * Supports tier hints (tier_1, tier_2, tier_3) that resolve to actual monsters.
+ * Applies modifier and heat scaling to enemy stats.
  */
-export function createEnemiesFromRoom(roomId: string, enemyCardIds?: string[]): EnemyEntity[] {
+export function createEnemiesFromRoom(
+  roomId: string,
+  enemyCardIds?: string[],
+  modifiers: ModifierInstance[] = [],
+  heatLevel: number = 0
+): EnemyEntity[] {
   // Use override enemies if provided
   if (enemyCardIds && enemyCardIds.length > 0) {
     const resolvedIds = resolveMonsterIds(enemyCardIds)
-    return resolvedIds.map((id) => createEnemy(id))
+    return resolvedIds.map((id) => createEnemy(id, modifiers, heatLevel))
   }
 
   // Fall back to room definition monsters
   const room = getRoomDefinition(roomId)
   if (!room?.monsters) return []
 
-  return room.monsters.map((monsterId) => createEnemy(monsterId))
+  return room.monsters.map((monsterId) => createEnemy(monsterId, modifiers, heatLevel))
 }
 
 export function createTestCombat(): EnemyEntity[] {

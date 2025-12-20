@@ -38,6 +38,7 @@ import { useCombatActions } from '../../hooks/useCombatActions'
 import { useRoomHandlers } from '../../hooks/useRoomHandlers'
 import { lockInRun } from '../../game/run-lock'
 import { resolveModifiers } from '../../game/modifier-resolver'
+import { getModifierDefinition } from '../../game/modifiers'
 import { registerDebugAPI, unregisterDebugAPI } from '../../test/debug'
 
 interface GameScreenProps {
@@ -151,9 +152,10 @@ export function GameScreen({ deckId, heroId, dungeonDeckId, selectedModifierIds,
       const modifierIds = selectedModifierIds ?? []
 
       if (modifierIds.length > 0) {
-        const { getModifierDefinition, consumeModifier } = useMetaStore.getState()
+        const { consumeModifier } = useMetaStore.getState()
 
         for (const defId of modifierIds) {
+          // Get definition from static registry (game/modifiers.ts)
           const definition = getModifierDefinition(defId)
           if (!definition) continue
 

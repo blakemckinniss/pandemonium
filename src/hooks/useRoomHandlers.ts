@@ -86,8 +86,13 @@ export function useRoomHandlers({
         }
       }
 
+      // Get active modifiers and heat for enemy stat scaling
+      const runLockState = useRunLockStore.getState()
+      const activeModifiers = runLockState.lockedRun?.activeModifiers ?? []
+      const heatLevel = runLockState.heat?.current ?? 0
+
       // Create enemies from room (use override enemyCardIds if provided by seeded dungeon)
-      const enemies = createEnemiesFromRoom(room.definitionId, room.enemyCardIds)
+      const enemies = createEnemiesFromRoom(room.definitionId, room.enemyCardIds, activeModifiers, heatLevel)
 
       // Start combat
       let newState = applyAction(

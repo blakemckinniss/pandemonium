@@ -4,10 +4,10 @@
 import { generateBaseEnemySet } from './card-generator'
 import { generateBaseDungeonSet } from './dungeon-generator'
 import { registerCardUnsafe } from './cards'
+import { getAllModifiers } from './modifiers'
 import { db, saveDungeonDeck } from '../stores/db'
 import { useMetaStore } from '../stores/metaStore'
 import { logger } from '../lib/logger'
-import type { ModifierDefinition } from '../types'
 
 export interface SeedResult {
   enemies: number
@@ -21,131 +21,51 @@ export interface SeedResult {
 // ============================================
 
 /**
- * System-defined starter modifiers for initial gameplay.
- * Based on the DV/RV balance system from the design doc.
+ * IDs of starter modifiers to give players (from static registry in game/modifiers.ts).
+ * These reference the canonical definitions - no need to duplicate them here.
  */
-const STARTER_MODIFIERS: ModifierDefinition[] = [
-  // Common Catalysts (consumable, low DV)
-  {
-    id: 'mod_copper_tithe',
-    name: 'Copper Tithe',
-    description: '+15% gold from all sources. Enemies have +5% HP.',
-    flavorText: 'Greed always demands its toll.',
-    category: 'catalyst',
-    rarity: 'common',
-    dangerValue: 5,
-    rewardValue: 5,
-    durability: { type: 'consumable' },
-    effects: [
-      { target: 'reward_scaling', scope: 'gold', multiplier: 1.15 },
-      { target: 'enemy_stats', scope: 'all', stat: 'health', operation: 'multiply', value: 1.05 },
-    ],
-    generatedBy: 'system',
-  },
-  {
-    id: 'mod_blood_price',
-    name: 'Blood Price',
-    description: 'Start with -10 HP. Gain +1 Strength.',
-    flavorText: 'Power carved from flesh.',
-    category: 'catalyst',
-    rarity: 'common',
-    dangerValue: 5,
-    rewardValue: 5,
-    durability: { type: 'consumable' },
-    effects: [
-      { target: 'player_stats', stat: 'startingHealth', operation: 'add', value: -10 },
-      { target: 'player_stats', stat: 'strength', operation: 'add', value: 1 },
-    ],
-    generatedBy: 'system',
-  },
-  {
-    id: 'mod_kindling',
-    name: 'Kindling',
-    description: '-1 Campfire room, +1 Treasure room.',
-    flavorText: 'Rest is for the weak. Riches await.',
-    category: 'catalyst',
-    rarity: 'common',
-    dangerValue: 5,
-    rewardValue: 4,
-    durability: { type: 'consumable' },
-    effects: [
-      { target: 'room_distribution', roomType: 'campfire', operation: 'add', count: -1 },
-      { target: 'room_distribution', roomType: 'treasure', operation: 'add', count: 1 },
-    ],
-    generatedBy: 'system',
-  },
-  // Common Omens
-  {
-    id: 'mod_dark_prophecy',
-    name: 'Dark Prophecy',
-    description: 'Elite enemies deal +10% damage. +20% gold from elites.',
-    flavorText: 'The strong grow stronger in shadow.',
-    category: 'omen',
-    rarity: 'common',
-    dangerValue: 6,
-    rewardValue: 6,
-    durability: { type: 'consumable' },
-    effects: [
-      { target: 'enemy_stats', scope: 'elites', stat: 'damage', operation: 'multiply', value: 1.10 },
-      { target: 'reward_scaling', scope: 'gold', multiplier: 1.20 },
-    ],
-    generatedBy: 'system',
-  },
-  // Uncommon (fragile)
-  {
-    id: 'mod_gauntlet_decree',
-    name: 'Gauntlet Decree',
-    description: '+2 Elite rooms. +50% gold from all sources.',
-    flavorText: 'By royal command, prove your worth.',
-    category: 'edict',
-    rarity: 'uncommon',
-    dangerValue: 16,
-    rewardValue: 15,
-    durability: { type: 'fragile', uses: 3, maxUses: 3 },
-    effects: [
-      { target: 'room_distribution', roomType: 'elite', operation: 'add', count: 2 },
-      { target: 'reward_scaling', scope: 'gold', multiplier: 1.50 },
-    ],
-    generatedBy: 'system',
-  },
-  {
-    id: 'mod_forge_seal',
-    name: 'Forge Seal',
-    description: 'Start with +1 Energy. -1 card draw per turn.',
-    flavorText: 'Power concentrated, options limited.',
-    category: 'seal',
-    rarity: 'uncommon',
-    dangerValue: 7,
-    rewardValue: 7,
-    durability: { type: 'fragile', uses: 3, maxUses: 3 },
-    effects: [
-      { target: 'player_stats', stat: 'energy', operation: 'add', value: 1 },
-      { target: 'player_stats', stat: 'draw', operation: 'add', value: -1 },
-    ],
-    generatedBy: 'system',
-  },
+const STARTER_MODIFIER_IDS = [
+  // Common
+  'copper_tithe',
+  'kindling',
+  'blood_price',
+  'dark_prophecy',
+  'whispers_of_doom',
+  'austerity_decree',
+  // Uncommon
+  'gauntlet_decree',
+  'ember_pact',
+  'frost_binding',
 ]
 
 /**
  * Seed starter modifiers into the meta store.
+ * Uses definitions from the static registry (game/modifiers.ts).
  */
 export function seedStarterModifiers(): number {
-  const { addModifierDefinition, addModifier, modifierDefinitions } = useMetaStore.getState()
+  const { addModifier, ownedModifiers } = useMetaStore.getState()
+  const allModifiers = getAllModifiers()
 
   let seeded = 0
   const now = Date.now()
 
-  for (const mod of STARTER_MODIFIERS) {
-    // Check if already registered
-    if (modifierDefinitions.some(m => m.id === mod.id)) continue
+  for (const modId of STARTER_MODIFIER_IDS) {
+    // Verify modifier exists in static registry
+    const definition = allModifiers.find(m => m.id === modId)
+    if (!definition) {
+      logger.warn('Seed', `Modifier ${modId} not found in registry, skipping`)
+      continue
+    }
 
-    // Add definition
-    addModifierDefinition(mod)
+    // Check if already owned
+    if (ownedModifiers.some(m => m.definitionId === modId)) continue
 
-    // Give player 2 copies of each starter modifier
+    // Give player 2 copies of common, 1 copy of uncommon+
+    const quantity = definition.rarity === 'common' ? 2 : 1
+
     addModifier({
-      definitionId: mod.id,
-      quantity: 2,
+      definitionId: modId,
+      quantity,
       obtainedAt: now,
       source: 'starter',
     })

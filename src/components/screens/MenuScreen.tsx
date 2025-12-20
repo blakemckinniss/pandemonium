@@ -15,6 +15,7 @@ import {
 } from '../../stores/db'
 import type { DungeonDeckDefinition, CardDefinition, CardFilters, SortOption, SortDirection } from '../../types'
 import { getStarterCardIds, getStarterHeroId, getAllHeroes, getCardDefinition } from '../../game/cards'
+import { getModifierDefinition } from '../../game/modifiers'
 import { seedBaseContent, isContentSeeded } from '../../game/seed-content'
 import { generatePack, type PackConfig } from '../../game/card-generator'
 import { generateUid } from '../../lib/utils'
@@ -431,17 +432,17 @@ function PlayTab({
   const [showModifierSelection, setShowModifierSelection] = useState(false)
   const [selectedModifierIds, setSelectedModifierIds] = useState<string[]>([])
 
-  // Get owned modifiers and definitions from meta store
+  // Get owned modifiers from meta store
   const ownedModifiers = useMetaStore((s) => s.ownedModifiers)
-  const modifierDefinitions = useMetaStore((s) => s.modifierDefinitions)
   const currentHeat = useMetaStore((s) => s.heat.current)
 
   // Build selectable modifiers list (owned with quantity > 0)
+  // Definitions come from static registry (game/modifiers.ts)
   const availableModifiers = useMemo(() => {
     return ownedModifiers
       .filter((owned) => owned.quantity > 0)
       .map((owned) => {
-        const definition = modifierDefinitions.find((d) => d.id === owned.definitionId)
+        const definition = getModifierDefinition(owned.definitionId)
         if (!definition) return null
         return {
           definitionId: owned.definitionId,
@@ -450,7 +451,7 @@ function PlayTab({
         }
       })
       .filter(Boolean) as { definitionId: string; definition: import('../../types').ModifierDefinition; quantity: number }[]
-  }, [ownedModifiers, modifierDefinitions])
+  }, [ownedModifiers])
 
   const handleToggleModifier = (modifierId: string) => {
     setSelectedModifierIds((prev) =>
