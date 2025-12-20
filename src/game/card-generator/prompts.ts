@@ -85,21 +85,98 @@ Meta effects:
 - { "type": "repeat", "times": N, "effects": [...] } - Repeat effects N times
 - { "type": "conditional", "condition": {...}, "then": [...], "else": [...] }
 
-BALANCE GUIDELINES:
-- 0 energy: Very weak effect OR has downside (discard, exhaust, etc.)
-- 1 energy: ~6 damage OR ~5 block OR 1 draw OR minor power (1-2 stacks)
-- 2 energy: ~10 damage OR ~8 block + secondary effect OR 2 draw
-- 3 energy: ~14 damage OR powerful combo OR strong power application
+BALANCE SYSTEM (MANDATORY - cards MUST hit these power budgets):
 
-RARITY GUIDELINES:
-- common: Simple, straightforward effects (1-2 effects)
-- uncommon: Interesting combinations or conditions (2-3 effects)
-- rare: Powerful or unique mechanics (complex combinations)
+⚠️ CRITICAL: Underpowered cards are REJECTED. Always aim for the MIDDLE of the range, not the low end.
+
+Power Point Values:
+- 1 damage = 1 pt
+- 1 block = 0.8 pt
+- 1 draw = 2 pt
+- 1 energy gain = 3 pt
+- 1 heal = 1.5 pt
+- 1 debuff stack (vulnerable/weak/frail) = 2.5 pt
+- 1 buff stack (strength/dexterity/thorns) = 3 pt
+- 1 elemental status (burning/frozen/etc) = 2 pt
+
+POWER BUDGET BY ENERGY AND RARITY:
+| Energy | Common    | Uncommon   | Rare       |
+|--------|-----------|------------|------------|
+| 0⚡    | 3-4 pts   | 4-5 pts    | 5-6 pts    |
+| 1⚡    | 7-9 pts   | 8-10 pts   | 10-12 pts  |
+| 2⚡    | 15-17 pts | 17-19 pts  | 19-22 pts  |
+| 3⚡    | 23-25 pts | 26-28 pts  | 29-33 pts  |
+
+MANDATORY EXAMPLES - ATTACKS (copy these power levels):
+1⚡ Common Attack: { damage: 7 } = 7pt ✓
+1⚡ Uncommon Attack: { damage: 6, applyPower: vulnerable 1 } = 8.5pt ✓
+1⚡ Rare Attack: { damage: 8, applyPower: vulnerable 2 } = 13pt ✓
+
+2⚡ Common Attack: { damage: 12, applyPower: weak 1 } = 14.5pt ✓
+2⚡ Uncommon Attack: { damage: 10, block: 5, draw: 1 } = 16pt ✓
+2⚡ Rare Attack: { repeat: 3, damage: 6 } + { applyPower: strength 1 } = 21pt ✓
+
+3⚡ Common Attack: { damage: 18, applyPower: vulnerable 2 } = 23pt ✓
+3⚡ Rare Attack: { damage: 20, target: allEnemies } + { applyPower: weak 3 } = 27.5pt ✓
+
+MANDATORY EXAMPLES - SKILLS (defensive cards MUST hit these budgets):
+1⚡ Common Skill: { block: 8, draw: 1 } = 8.4pt ✓
+1⚡ Uncommon Skill: { block: 6, applyPower: dexterity 1, draw: 1 } = 9.8pt ✓
+1⚡ Rare Skill: { block: 8, applyPower: thorns 2 } = 12.4pt ✓
+
+2⚡ Common Skill: { block: 12, draw: 2, applyPower: dexterity 1 } = 16.6pt ✓
+2⚡ Uncommon Skill: { block: 10, draw: 2, applyPower: weak 2 } = 17pt ✓
+2⚡ Rare Skill: { block: 15, applyPower: regen 2, draw: 1 } = 20pt ✓
+
+3⚡ Common Skill: { block: 20, draw: 2, applyPower: dexterity 1 } = 23pt ✓
+3⚡ Rare Skill: { block: 18, applyPower: thorns 3, draw: 2 } = 27.4pt ✓
+
+DESIGN RULES (MUST FOLLOW):
+1. PRIMARY EFFECTS FIRST: Every card must have strong unconditional effects as its base
+2. CONDITIONALS ARE BONUS: Only add conditionals AFTER base effects meet 70% of budget
+3. NO NAKED CONDITIONALS: Never make the entire card a conditional - always have guaranteed value
+4. HIT THE BUDGET: If your math is under budget, ADD MORE EFFECTS
+
+CONDITIONAL MATH (conditionals are BONUS, not replacement):
+- Base effects should provide 70-80% of power budget
+- Conditional bonus adds 20-40% extra value when triggered
+- Example 2⚡ Rare: { damage: 14 } (14pt base) + { conditional: if Vulnerable, damage: 8 } (+8pt bonus) = 22pt total
+
+RARITY COMPLEXITY RULES:
+- COMMON: 1-2 simple effects, no conditionals, no repeat > 2
+- UNCOMMON: 2-3 effects, simple conditionals allowed, repeat up to 3
+- RARE: 3-5 effects, complex conditionals, any repeat, unique mechanics
 
 THEME GUIDELINES:
 - attack: Primary effect is damage, red border
 - skill: Block, draw, or utility, blue border
 - power: Persistent effects that last the combat, purple border
+
+NAME CREATIVITY (MANDATORY - unique names only):
+BANNED WORDS (never use): Strike, Slash, Blow, Fury, Maelstrom, Echo, Storm, Rage, Wrath, Surge, Blast, Burst, Wave, Shield, Spark, Mirror, Catalyst, Flame, Shadow, Dark, Light, Thunder, Frost, Whispering, Whisper, Moonlit, Crimson, Requiem, Veil
+BANNED PATTERNS: Do NOT repeat any word from the banned list even with prefixes/suffixes (e.g., "Firestorm", "Echoing", "Shieldwall" are all banned)
+
+GOOD NAMES use metaphor, creature references, or unexpected combinations:
+- "Serpent's Kiss" (creature + action)
+- "Hollow Victory" (abstract concept)
+- "Threadbare Armor" (descriptive + item)
+- "Borrowed Time" (idiom reference)
+- "Shattered Meridian" (evocative imagery)
+- "Creeping Doubt" (personified emotion)
+- "Iron Maiden's Grip" (historical reference)
+
+Each generated name MUST be unique - never reuse names across cards.
+
+SYNERGY DESIGN (IMPORTANT):
+Cards should enable combos, not just be standalone effects. Include at least ONE of:
+- Apply a power that other cards can exploit (Vulnerable, Weak, elemental status)
+- Benefit from existing powers (deal extra damage if enemy has Poison)
+- Create deck synergy (draw when you block, gain strength when you exhaust)
+
+Example synergistic designs:
+- "Deal 4 damage. Apply 2 Vulnerable." (enables future attacks)
+- "Gain 6 block. If you have Dexterity, draw 1 card." (rewards building dexterity)
+- "Deal 8 damage. If enemy has Burning, deal 8 again." (rewards elemental setup)
 
 ELEMENTAL SYSTEM:
 Elements (fire/ice/lightning/void) add strategic depth through combos:
@@ -152,10 +229,43 @@ Resource: energy (gain), draw
 Powers: applyPower (strength, dexterity, vulnerable, weak, poison, burning, etc.)
 Card manipulation: discard, exhaust, scry, tutor, upgrade, transform
 
-BALANCE GUIDELINES:
-- Passive: Mild effect, 1-2 stacks of a power OR minor stat boost
-- Activated: Worth ~1-2 energy card, usable strategically once per turn
-- Ultimate: Powerful payoff worth building toward (3-6 turns to charge)
+HERO BALANCE SYSTEM (MANDATORY - must hit these budgets):
+
+⚠️ CRITICAL: Underpowered abilities are REJECTED. Calculate your math and hit the TARGET.
+
+Power Point Values:
+1 damage = 1pt, 1 block = 0.8pt, 1 draw = 2pt, 1 buff = 3pt, 1 debuff = 2.5pt, 1 energy = 3pt
+
+PASSIVE ABILITY (triggers at combat start) - TARGET: 6-8 points
+MANDATORY examples (copy these):
+- { strength: 2, dexterity: 1 } = 9pt ✓
+- { thorns: 2 } + { draw: 1 } = 8pt ✓
+- { block: 6 } + { draw: 1 } = 6.8pt ✓
+- { regen: 2 } = 6pt ✓
+
+ACTIVATED ABILITY (once per turn) - TARGET: energy × 10 points
+1⚡ = 9-11pt, 2⚡ = 18-22pt, 3⚡ = 27-33pt
+
+MANDATORY examples:
+- 1⚡: { damage: 8, applyPower: vulnerable 1 } = 10.5pt ✓
+- 2⚡: { damage: 12, applyPower: weak 2, draw: 1 } = 19pt ✓
+- 3⚡: { repeat: 4, damage: 6 } + { applyPower: vulnerable 2 } = 29pt ✓
+
+ULTIMATE ABILITY (charges to build) - TARGET: charges × 10 points
+3 charges = 28-32pt, 4 charges = 38-42pt, 5 charges = 48-52pt
+
+MANDATORY examples:
+- 3 charges: { damage: 20, target: allEnemies } + { applyPower: vulnerable 3 } = 27.5pt ✓
+- 4 charges: { damage: 15, repeat: 2 } + { strength: 3 } = 39pt ✓
+- 5 charges: { damage: 25, target: allEnemies } + { applyPower: weak 5, target: allEnemies } = 37.5pt ✓
+
+DESIGN RULE: Abilities must have UNCONDITIONAL value. No ultimates that only work "if enemy has X".
+
+HERO STAT GUIDELINES BY ARCHETYPE:
+- Glass Cannon: 60-70 HP, 4 energy, 5 draw (high risk/reward)
+- Balanced: 75-85 HP, 3 energy, 5 draw (default)
+- Tank: 90-100 HP, 3 energy, 4 draw (defensive focus)
+- Card Master: 70-80 HP, 3 energy, 6 draw (combo potential)
 
 ARCHETYPE EXAMPLES:
 - Warrior: Physical focus, strength/block synergy
@@ -236,10 +346,54 @@ Card disruption:
 Healing:
 - { "type": "heal", "amount": N, "target": "self" } - Enemy heals N HP
 
-BALANCE GUIDELINES by difficulty tier:
-Tier 1 (early game): 15-30 HP, 4-6 base damage, simple abilities
-Tier 2 (mid game): 30-50 HP, 6-10 base damage, debuff abilities
-Tier 3 (late game/elite): 50-80 HP, 10-15 base damage, complex abilities + ultimate
+ENEMY BALANCE SYSTEM BY TIER (MANDATORY - must hit these targets):
+
+⚠️ CRITICAL: Enemies outside tier ranges are REJECTED. Use EXACT values from examples.
+
+Power Point Values:
+1 damage = 1pt, 1 debuff = 2.5pt, 1 self-buff = 3pt, 1 block = 0.8pt, 1 heal = 1.5pt
+
+TIER 1 - EARLY GAME (floors 1-10):
+| Stat        | Target     | Allowed Range |
+|-------------|------------|---------------|
+| HP          | 25         | 20-30         |
+| Base Damage | 5          | 4-6           |
+| Ability     | 8pt        | 6-10pt        |
+| Ultimate    | Optional   | 10-14pt       |
+
+MANDATORY Tier 1 examples:
+- Ability: { damage: 5, applyPower: weak 1 } = 7.5pt ✓
+- Ability: { damage: 6 } + { block: 3 } = 8.4pt ✓
+- Ultimate: { damage: 8, applyPower: vulnerable 2 } = 13pt ✓
+- KEEP IT SIMPLE: No repeat, no multi-hit, max 1 debuff type
+
+TIER 2 - MID GAME (floors 11-25):
+| Stat        | Target     | Allowed Range |
+|-------------|------------|---------------|
+| HP          | 45         | 35-55         |
+| Base Damage | 8          | 7-10          |
+| Ability     | 14pt       | 12-16pt       |
+| Ultimate    | Required   | 18-22pt       |
+
+MANDATORY Tier 2 examples:
+- Ability: { damage: 9, applyPower: vulnerable 2 } = 14pt ✓
+- Ability: { repeat: 2, damage: 5 } + { applyPower: weak 1 } = 12.5pt ✓
+- Ultimate: { damage: 12, applyPower: weak 2, strength: 1 self } = 20pt ✓
+- ALLOWED: multi-hit (2x), 2 debuff types, self-buffs
+
+TIER 3 - ELITE/BOSS (floors 26+):
+| Stat        | Target     | Allowed Range |
+|-------------|------------|---------------|
+| HP          | 70         | 60-85         |
+| Base Damage | 12         | 10-15         |
+| Ability     | 22pt       | 18-26pt       |
+| Ultimate    | Required   | 28-36pt       |
+
+MANDATORY Tier 3 examples:
+- Ability: { repeat: 3, damage: 6 } + { applyPower: weak 2 } = 23pt ✓
+- Ability: { damage: 14, applyPower: vulnerable 2, strength: 1 self } = 22.5pt ✓
+- Ultimate: { damage: 20, target: allEnemies } + { applyPower: frail 3, weak 2 } = 32.5pt ✓
+- FULL POWER: multi-hit (3x), all debuffs, strong self-buffs, cooldowns
 
 ENEMY ARCHETYPES:
 - Slime: Low HP, weak attack, applies status effects
