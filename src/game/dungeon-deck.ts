@@ -181,9 +181,18 @@ function shuffleArray<T>(array: T[]): T[] {
 
 // Room definition IDs by type - must match ROOMS in content/rooms.ts
 const ROOM_DEFINITIONS_BY_TYPE: Record<string, string[]> = {
-  combat: ['slime_pit', 'cultist_lair', 'jaw_worm_nest', 'mixed_combat', 'infernal_pit', 'frozen_cavern', 'storm_nexus', 'void_shrine', 'flooded_chamber'],
-  elite: ['elite_guardian'],
-  boss: ['boss_heart'],
+  combat: [
+    'slime_pit', 'cultist_lair', 'jaw_worm_nest', 'mixed_combat',
+    'infernal_pit', 'frozen_cavern', 'storm_nexus', 'void_shrine',
+    'flooded_chamber', 'elemental_convergence',
+    // Shadow Crypt rooms
+    'bone_yard', 'shadow_passage', 'crypt_depths',
+  ],
+  elite: [
+    'elite_guardian', 'necropolis', 'dark_sanctum',
+    'elite_inferno', 'elite_void_sanctum', 'elite_frozen_throne', 'elite_phantom_court',
+  ],
+  boss: ['boss_heart', 'shadow_throne'],
   campfire: ['campfire'],
   treasure: ['treasure_small', 'treasure_large'],
   event: ['mysterious_encounter', 'ancient_shrine', 'wandering_spirit'],

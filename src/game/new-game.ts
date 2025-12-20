@@ -191,6 +191,65 @@ export const MONSTERS: Record<string, MonsterTemplate> = {
     innateStatus: 'oiled', // Dark magic aura
     image: '/cards/enemy_necromancer.webp',
   },
+
+  // --- ELITE MONSTER VARIANTS ---
+  // Enhanced versions with higher stats and special behaviors
+
+  elite_slime: {
+    id: 'elite_slime',
+    name: 'Corrupted Slime',
+    healthRange: [35, 45],
+    damage: 8,
+    times: 2, // Double attack
+    element: 'void',
+    resistances: ['void', 'physical'],
+    image: '/cards/enemy_slime.webp',
+  },
+  elite_cultist: {
+    id: 'elite_cultist',
+    name: 'High Priestess',
+    healthRange: [65, 75],
+    damage: 10,
+    element: 'void',
+    resistances: ['void'],
+    vulnerabilities: ['fire'],
+    innateStatus: 'oiled',
+    image: '/cards/enemy_cultist.webp',
+  },
+  elite_fire_imp: {
+    id: 'elite_fire_imp',
+    name: 'Inferno Demon',
+    healthRange: [45, 55],
+    damage: 9,
+    times: 2,
+    element: 'fire',
+    resistances: ['fire'],
+    vulnerabilities: ['ice'],
+    innateStatus: 'burning',
+    image: '/cards/enemy_fire_imp.webp',
+  },
+  elite_frost_elemental: {
+    id: 'elite_frost_elemental',
+    name: 'Frost Colossus',
+    healthRange: [55, 65],
+    damage: 8,
+    element: 'ice',
+    resistances: ['ice', 'physical'],
+    vulnerabilities: ['fire'],
+    innateStatus: 'frozen',
+    image: '/cards/enemy_frost_elemental.webp',
+  },
+  elite_shadow_wraith: {
+    id: 'elite_shadow_wraith',
+    name: 'Phantom Lord',
+    healthRange: [40, 50],
+    damage: 5,
+    times: 4, // Rapid 4-hit attack
+    element: 'void',
+    resistances: ['void', 'physical'],
+    vulnerabilities: ['fire', 'lightning'],
+    image: '/cards/enemy_shadow_wraith.webp',
+  },
 }
 
 // ============================================
