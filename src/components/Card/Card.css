@@ -1,12 +1,12 @@
 /* Card Component Styles */
-/* Auto-extracted from index.css */
+/* Theme variables extracted to index.css @theme block */
 
 @keyframes retained-pulse {
   0%, 100% {
-    box-shadow: 0 0 0 0 oklch(0.6 0.15 60 / 0.4);
+    box-shadow: 0 0 0 0 var(--color-badge-retained-glow);
   }
   50% {
-    box-shadow: 0 0 8px 2px oklch(0.6 0.15 60 / 0.6);
+    box-shadow: 0 0 8px 2px var(--color-badge-retained-glow-bright);
   }
 }
 
@@ -23,220 +23,220 @@
 @keyframes buff-aura-pulse {
   0%, 100% {
     box-shadow:
-      0 0 15px oklch(0.6 0.15 90 / 0.3),
-      0 0 30px oklch(0.5 0.12 85 / 0.15),
-      inset 0 0 0 1px oklch(0.45 0.06 55 / 0.4),
-      0 4px 16px oklch(0 0 0 / 0.5);
+      0 0 15px var(--color-aura-buff-glow),
+      0 0 30px var(--color-aura-buff-glow-outer),
+      inset 0 0 0 1px var(--color-aura-inner-border),
+      0 4px 16px var(--color-card-shadow-heavy);
   }
   50% {
     box-shadow:
-      0 0 25px oklch(0.7 0.18 90 / 0.4),
-      0 0 50px oklch(0.6 0.15 85 / 0.2),
-      inset 0 0 0 1px oklch(0.45 0.06 55 / 0.4),
-      0 4px 16px oklch(0 0 0 / 0.5);
+      0 0 25px var(--color-aura-buff-glow-peak),
+      0 0 50px var(--color-aura-buff-glow-outer-peak),
+      inset 0 0 0 1px var(--color-aura-inner-border),
+      0 4px 16px var(--color-card-shadow-heavy);
   }
 }
 
 @keyframes debuff-aura-pulse {
   0%, 100% {
     box-shadow:
-      0 0 15px oklch(0.5 0.18 25 / 0.3),
-      0 0 30px oklch(0.4 0.15 320 / 0.15),
-      inset 0 0 0 1px oklch(0.45 0.06 55 / 0.4),
-      0 4px 16px oklch(0 0 0 / 0.5);
+      0 0 15px var(--color-aura-debuff-glow),
+      0 0 30px var(--color-aura-debuff-glow-outer),
+      inset 0 0 0 1px var(--color-aura-inner-border),
+      0 4px 16px var(--color-card-shadow-heavy);
   }
   50% {
     box-shadow:
-      0 0 25px oklch(0.55 0.22 25 / 0.4),
-      0 0 45px oklch(0.45 0.18 320 / 0.2),
-      inset 0 0 0 1px oklch(0.45 0.06 55 / 0.4),
-      0 4px 16px oklch(0 0 0 / 0.5);
+      0 0 25px var(--color-aura-debuff-glow-peak),
+      0 0 45px var(--color-aura-debuff-glow-outer-peak),
+      inset 0 0 0 1px var(--color-aura-inner-border),
+      0 4px 16px var(--color-card-shadow-heavy);
   }
 }
 
 @keyframes mixed-aura-pulse {
   0%, 100% {
     box-shadow:
-      0 0 20px oklch(0.6 0.15 90 / 0.35),
-      0 0 35px oklch(0.5 0.12 85 / 0.15),
-      inset 0 0 0 1px oklch(0.45 0.06 55 / 0.4),
-      0 4px 16px oklch(0 0 0 / 0.5);
+      0 0 20px var(--color-aura-buff-glow),
+      0 0 35px var(--color-aura-buff-glow-outer),
+      inset 0 0 0 1px var(--color-aura-inner-border),
+      0 4px 16px var(--color-card-shadow-heavy);
   }
   50% {
     box-shadow:
-      0 0 20px oklch(0.5 0.18 25 / 0.35),
-      0 0 35px oklch(0.4 0.15 320 / 0.15),
-      inset 0 0 0 1px oklch(0.45 0.06 55 / 0.4),
-      0 4px 16px oklch(0 0 0 / 0.5);
+      0 0 20px var(--color-aura-debuff-glow),
+      0 0 35px var(--color-aura-debuff-glow-outer),
+      inset 0 0 0 1px var(--color-aura-inner-border),
+      0 4px 16px var(--color-card-shadow-heavy);
   }
 }
 
 @keyframes burning-aura {
   0% {
     box-shadow:
-      0 0 15px oklch(0.6 0.25 35 / 0.4),
-      0 5px 20px oklch(0.55 0.22 30 / 0.3),
-      inset 0 0 0 1px oklch(0.45 0.06 55 / 0.4),
-      0 4px 16px oklch(0 0 0 / 0.5);
+      0 0 15px var(--color-aura-burning),
+      0 5px 20px var(--color-aura-burning-outer),
+      inset 0 0 0 1px var(--color-aura-inner-border),
+      0 4px 16px var(--color-card-shadow-heavy);
   }
   100% {
     box-shadow:
-      0 0 25px oklch(0.7 0.28 38 / 0.5),
-      0 8px 30px oklch(0.6 0.25 32 / 0.4),
-      inset 0 0 0 1px oklch(0.45 0.06 55 / 0.4),
-      0 4px 16px oklch(0 0 0 / 0.5);
+      0 0 25px var(--color-aura-burning-peak),
+      0 8px 30px var(--color-aura-burning-peak-outer),
+      inset 0 0 0 1px var(--color-aura-inner-border),
+      0 4px 16px var(--color-card-shadow-heavy);
   }
 }
 
 @keyframes charged-aura {
   0% {
     box-shadow:
-      0 0 12px oklch(0.8 0.2 95 / 0.3),
-      0 0 25px oklch(0.75 0.18 95 / 0.15),
-      inset 0 0 0 1px oklch(0.45 0.06 55 / 0.4),
-      0 4px 16px oklch(0 0 0 / 0.5);
+      0 0 12px var(--color-aura-charged),
+      0 0 25px var(--color-aura-charged-outer),
+      inset 0 0 0 1px var(--color-aura-inner-border),
+      0 4px 16px var(--color-card-shadow-heavy);
   }
   100% {
     box-shadow:
-      0 0 25px oklch(0.9 0.25 95 / 0.5),
-      0 0 50px oklch(0.85 0.22 95 / 0.25),
-      inset 0 0 0 1px oklch(0.45 0.06 55 / 0.4),
-      0 4px 16px oklch(0 0 0 / 0.5);
+      0 0 25px var(--color-aura-charged-peak),
+      0 0 50px var(--color-aura-charged-peak-outer),
+      inset 0 0 0 1px var(--color-aura-inner-border),
+      0 4px 16px var(--color-card-shadow-heavy);
   }
 }
 
 @keyframes poison-aura {
   0%, 100% {
     box-shadow:
-      0 0 12px oklch(0.5 0.2 140 / 0.3),
-      0 0 25px oklch(0.45 0.18 140 / 0.15),
-      inset 0 0 0 1px oklch(0.45 0.06 55 / 0.4),
-      0 4px 16px oklch(0 0 0 / 0.5);
+      0 0 12px var(--color-aura-poison),
+      0 0 25px var(--color-aura-poison-outer),
+      inset 0 0 0 1px var(--color-aura-inner-border),
+      0 4px 16px var(--color-card-shadow-heavy);
   }
   50% {
     box-shadow:
-      0 0 20px oklch(0.55 0.22 140 / 0.4),
-      0 0 40px oklch(0.5 0.2 140 / 0.2),
-      inset 0 0 0 1px oklch(0.45 0.06 55 / 0.4),
-      0 4px 16px oklch(0 0 0 / 0.5);
+      0 0 20px var(--color-aura-poison-peak),
+      0 0 40px var(--color-aura-poison-peak-outer),
+      inset 0 0 0 1px var(--color-aura-inner-border),
+      0 4px 16px var(--color-card-shadow-heavy);
   }
 }
 
 @keyframes card-shimmer {
   0%, 100% {
     box-shadow:
-      0 0 15px oklch(0.4 0.05 260 / 0.3),
-      inset 0 0 20px oklch(0.3 0.02 260 / 0.1);
+      0 0 15px var(--color-card-shimmer),
+      inset 0 0 20px var(--color-card-shimmer-inner);
   }
   50% {
     box-shadow:
-      0 0 20px oklch(0.5 0.08 260 / 0.4),
-      inset 0 0 30px oklch(0.4 0.03 260 / 0.15);
+      0 0 20px var(--color-card-shimmer-peak),
+      inset 0 0 30px var(--color-card-shimmer-inner-peak);
   }
 }
 
 @keyframes playable-pulse {
   0%, 100% {
     box-shadow:
-      inset 0 0 10px oklch(0.95 0.02 90 / 0.1),
-      0 0 6px oklch(0.9 0.03 90 / 0.2);
+      inset 0 0 10px var(--color-card-playable-pulse-inner),
+      0 0 6px var(--color-card-playable-pulse-outer);
   }
   50% {
     box-shadow:
-      inset 0 0 15px oklch(0.98 0.03 90 / 0.2),
-      0 0 12px oklch(0.95 0.04 90 / 0.35);
+      inset 0 0 15px var(--color-card-playable-pulse-inner-peak),
+      0 0 12px var(--color-card-playable-pulse-outer-peak);
   }
 }
 
 @keyframes attack-glow {
   0%, 100% {
     box-shadow:
-      0 0 15px oklch(0.45 0.15 20 / 0.4),
-      0 0 30px oklch(0.35 0.12 20 / 0.2);
+      0 0 15px var(--color-glow-attack),
+      0 0 30px var(--color-glow-attack-outer);
   }
   50% {
     box-shadow:
-      0 0 25px oklch(0.55 0.18 20 / 0.5),
-      0 0 45px oklch(0.45 0.15 20 / 0.3);
+      0 0 25px var(--color-glow-attack-peak),
+      0 0 45px var(--color-glow-attack-outer-peak);
   }
 }
 
 @keyframes skill-glow {
   0%, 100% {
     box-shadow:
-      0 0 15px oklch(0.45 0.1 240 / 0.4),
-      0 0 30px oklch(0.35 0.08 240 / 0.2);
+      0 0 15px var(--color-glow-skill),
+      0 0 30px var(--color-glow-skill-outer);
   }
   50% {
     box-shadow:
-      0 0 25px oklch(0.55 0.12 240 / 0.5),
-      0 0 45px oklch(0.45 0.1 240 / 0.3);
+      0 0 25px var(--color-glow-skill-peak),
+      0 0 45px var(--color-glow-skill-outer-peak);
   }
 }
 
 @keyframes power-glow {
   0%, 100% {
     box-shadow:
-      0 0 15px oklch(0.45 0.12 280 / 0.4),
-      0 0 30px oklch(0.35 0.1 280 / 0.2);
+      0 0 15px var(--color-glow-power),
+      0 0 30px var(--color-glow-power-outer);
   }
   50% {
     box-shadow:
-      0 0 25px oklch(0.55 0.15 280 / 0.5),
-      0 0 45px oklch(0.45 0.12 280 / 0.3);
+      0 0 25px var(--color-glow-power-peak),
+      0 0 45px var(--color-glow-power-outer-peak);
   }
 }
 
 @keyframes rare-glow {
   0%, 100% {
     box-shadow:
-      0 0 25px oklch(0.65 0.15 80 / 0.5),
-      0 0 50px oklch(0.55 0.12 80 / 0.3),
-      inset 0 1px 0 oklch(0.8 0.1 80 / 0.4);
-    border-color: oklch(0.55 0.15 80);
+      0 0 25px var(--color-rarity-rare-glow),
+      0 0 50px var(--color-rarity-rare-glow-outer),
+      inset 0 1px 0 var(--color-rarity-rare-highlight);
+    border-color: var(--color-rarity-rare-border);
   }
   50% {
     box-shadow:
-      0 0 35px oklch(0.7 0.18 80 / 0.6),
-      0 0 70px oklch(0.6 0.15 80 / 0.4),
-      inset 0 1px 0 oklch(0.9 0.12 80 / 0.5);
-    border-color: oklch(0.65 0.18 80);
+      0 0 35px var(--color-rarity-rare-glow-peak),
+      0 0 70px var(--color-rarity-rare-glow-outer-peak),
+      inset 0 1px 0 var(--color-rarity-rare-highlight-peak);
+    border-color: var(--color-rarity-rare-border-peak);
   }
 }
 
 @keyframes uncommon-glow {
   0%, 100% {
     box-shadow:
-      0 0 20px oklch(0.55 0.12 190 / 0.4),
-      0 0 40px oklch(0.45 0.1 190 / 0.25),
-      inset 0 1px 0 oklch(0.7 0.1 190 / 0.3);
-    border-color: oklch(0.45 0.12 190);
+      0 0 20px var(--color-rarity-uncommon-glow),
+      0 0 40px var(--color-rarity-uncommon-glow-outer),
+      inset 0 1px 0 var(--color-rarity-uncommon-highlight);
+    border-color: var(--color-rarity-uncommon-border);
   }
   50% {
     box-shadow:
-      0 0 28px oklch(0.6 0.14 190 / 0.5),
-      0 0 55px oklch(0.5 0.12 190 / 0.35),
-      inset 0 1px 0 oklch(0.8 0.12 190 / 0.4);
-    border-color: oklch(0.55 0.14 190);
+      0 0 28px var(--color-rarity-uncommon-glow-peak),
+      0 0 55px var(--color-rarity-uncommon-glow-outer-peak),
+      inset 0 1px 0 var(--color-rarity-uncommon-highlight-peak);
+    border-color: var(--color-rarity-uncommon-border-peak);
   }
 }
 
 @keyframes ultra-rare-glow {
   0%, 100% {
     box-shadow:
-      0 0 30px oklch(0.55 0.22 320 / 0.5),
-      0 0 60px oklch(0.5 0.2 320 / 0.3),
-      0 0 90px oklch(0.45 0.15 280 / 0.2),
-      inset 0 1px 0 oklch(0.7 0.15 320 / 0.4);
-    border-color: oklch(0.5 0.2 320);
+      0 0 30px var(--color-rarity-ultra-glow),
+      0 0 60px var(--color-rarity-ultra-glow-outer),
+      0 0 90px var(--color-rarity-ultra-glow-far),
+      inset 0 1px 0 var(--color-rarity-ultra-highlight);
+    border-color: var(--color-rarity-ultra-border);
   }
   50% {
     box-shadow:
-      0 0 40px oklch(0.6 0.25 320 / 0.6),
-      0 0 80px oklch(0.55 0.22 320 / 0.4),
-      0 0 110px oklch(0.5 0.18 280 / 0.25),
-      inset 0 1px 0 oklch(0.8 0.18 320 / 0.5);
-    border-color: oklch(0.6 0.25 320);
+      0 0 40px var(--color-rarity-ultra-glow-peak),
+      0 0 80px var(--color-rarity-ultra-glow-outer-peak),
+      0 0 110px var(--color-rarity-ultra-glow-far-peak),
+      inset 0 1px 0 var(--color-rarity-ultra-highlight-peak);
+    border-color: var(--color-rarity-ultra-border-peak);
   }
 }
 
@@ -248,21 +248,21 @@
 @keyframes legendary-glow {
   0%, 100% {
     box-shadow:
-      0 0 40px oklch(0.7 0.2 0 / 0.4),
-      0 0 80px oklch(0.6 0.15 120 / 0.25);
-    border-color: oklch(0.7 0.2 60);
+      0 0 40px var(--color-rarity-legendary-glow-1),
+      0 0 80px var(--color-rarity-legendary-outer-1);
+    border-color: var(--color-rarity-legendary-border-1);
   }
   33% {
     box-shadow:
-      0 0 40px oklch(0.7 0.2 120 / 0.4),
-      0 0 80px oklch(0.6 0.15 240 / 0.25);
-    border-color: oklch(0.7 0.2 180);
+      0 0 40px var(--color-rarity-legendary-glow-2),
+      0 0 80px var(--color-rarity-legendary-outer-2);
+    border-color: var(--color-rarity-legendary-border-2);
   }
   66% {
     box-shadow:
-      0 0 40px oklch(0.7 0.2 240 / 0.4),
-      0 0 80px oklch(0.6 0.15 0 / 0.25);
-    border-color: oklch(0.7 0.2 300);
+      0 0 40px var(--color-rarity-legendary-glow-3),
+      0 0 80px var(--color-rarity-legendary-outer-3);
+    border-color: var(--color-rarity-legendary-border-3);
   }
 }
 
@@ -280,7 +280,7 @@
 @keyframes block-gain {
   0% {
     transform: scale(1.2);
-    box-shadow: 0 0 30px oklch(0.55 0.12 240);
+    box-shadow: 0 0 30px var(--color-flash-block-glow);
   }
   100% {
     transform: scale(1);
@@ -291,8 +291,8 @@
 @keyframes heal-glow {
   0% {
     box-shadow:
-      0 0 30px oklch(0.55 0.15 145),
-      inset 0 0 20px oklch(0.5 0.12 145 / 0.3);
+      0 0 30px var(--color-flash-heal),
+      inset 0 0 20px var(--color-flash-heal-inner);
   }
   100% {
     box-shadow: none;
@@ -303,17 +303,17 @@
 @keyframes epic-glow {
   0%, 100% {
     box-shadow:
-      0 0 15px oklch(0.55 0.20 285 / 0.5),
-      0 0 30px oklch(0.50 0.18 290 / 0.3),
-      inset 0 0 10px oklch(0.60 0.15 280 / 0.2);
-    border-color: oklch(0.55 0.22 285);
+      0 0 15px var(--color-rarity-epic-glow),
+      0 0 30px var(--color-rarity-epic-glow-outer),
+      inset 0 0 10px var(--color-rarity-epic-glow-inner);
+    border-color: var(--color-rarity-epic-border);
   }
   50% {
     box-shadow:
-      0 0 25px oklch(0.60 0.25 280 / 0.6),
-      0 0 50px oklch(0.55 0.22 290 / 0.35),
-      inset 0 0 15px oklch(0.65 0.18 275 / 0.25);
-    border-color: oklch(0.65 0.25 280);
+      0 0 25px var(--color-rarity-epic-glow-peak),
+      0 0 50px var(--color-rarity-epic-glow-outer-peak),
+      inset 0 0 15px var(--color-rarity-epic-glow-inner-peak);
+    border-color: var(--color-rarity-epic-border-peak);
   }
 }
 
@@ -348,9 +348,9 @@
 
   /* Gothic frame effect */
   box-shadow:
-    inset 0 0 0 1px oklch(0.35 0.04 50 / 0.3),
-    0 4px 12px oklch(0 0 0 / 0.5),
-    0 1px 3px oklch(0 0 0 / 0.3);
+    inset 0 0 0 1px var(--color-card-frame-inner),
+    0 4px 12px var(--color-card-shadow-heavy),
+    0 1px 3px var(--color-card-shadow-light);
 
   /* Subtle inner glow */
   &::before {
@@ -360,16 +360,16 @@
     border-radius: 6px;
     pointer-events: none;
     z-index: 5;
-    box-shadow: inset 0 1px 0 oklch(1 0 0 / 0.05);
+    box-shadow: inset 0 1px 0 var(--color-card-highlight);
   }
 }
 
 .Card:hover {
   box-shadow:
-    inset 0 0 0 1px oklch(0.45 0.06 55 / 0.4),
-    0 8px 24px oklch(0 0 0 / 0.6),
-    0 2px 6px oklch(0 0 0 / 0.4),
-    0 0 20px oklch(0.5 0.1 50 / 0.15);
+    inset 0 0 0 1px var(--color-card-frame-hover),
+    0 8px 24px var(--color-card-shadow-drag),
+    0 2px 6px var(--color-card-shadow-heavy),
+    0 0 20px var(--color-card-hover-glow);
 }
 
 .Card__image {
@@ -390,8 +390,8 @@
   align-items: center;
   justify-content: center;
   background:
-    radial-gradient(ellipse at 50% 0%, oklch(0.22 0.025 35) 0%, transparent 60%),
-    linear-gradient(180deg, oklch(0.16 0.02 32) 0%, oklch(0.10 0.018 28) 100%);
+    radial-gradient(ellipse at 50% 0%, var(--color-card-fallback-center) 0%, transparent 60%),
+    linear-gradient(180deg, var(--color-card-fallback-from) 0%, var(--color-card-fallback-to) 100%);
   z-index: 0;
   border-radius: 6px;
 }
@@ -402,14 +402,14 @@
   background:
     linear-gradient(
       to top,
-      oklch(0.04 0.015 28 / 0.98) 0%,
-      oklch(0.06 0.015 30 / 0.90) 20%,
-      oklch(0.08 0.01 32 / 0.5) 45%,
+      var(--color-card-overlay-dark) 0%,
+      var(--color-card-overlay-mid) 20%,
+      var(--color-card-overlay-light) 45%,
       transparent 65%
     ),
     radial-gradient(
       ellipse 150% 50% at 50% 100%,
-      oklch(0.05 0.02 25 / 0.4) 0%,
+      var(--color-card-overlay-vignette) 0%,
       transparent 70%
     );
   z-index: 1;
@@ -437,13 +437,13 @@
   background: linear-gradient(
     90deg,
     transparent 0%,
-    oklch(0.10 0.025 35 / 0.85) 8%,
-    oklch(0.14 0.03 40 / 0.95) 50%,
-    oklch(0.10 0.025 35 / 0.85) 92%,
+    var(--color-card-namebar-edge) 8%,
+    var(--color-card-namebar-center) 50%,
+    var(--color-card-namebar-edge) 92%,
     transparent 100%
   );
-  border-top: 1px solid oklch(0.5 0.06 55 / 0.35);
-  border-bottom: 1px solid oklch(0.05 0.01 30 / 0.6);
+  border-top: 1px solid var(--color-card-namebar-border-top);
+  border-bottom: 1px solid var(--color-card-namebar-border-bottom);
   position: relative;
 }
 
@@ -479,55 +479,55 @@
   z-index: 10;
   background: linear-gradient(
     135deg,
-    oklch(0.65 0.18 85) 0%,
-    oklch(0.5 0.15 75) 50%,
-    oklch(0.4 0.12 70) 100%
+    var(--color-energy-badge-from) 0%,
+    var(--color-energy-badge-mid) 50%,
+    var(--color-energy-badge-to) 100%
   );
-  color: oklch(0.1 0.02 70);
-  border: 2px solid oklch(0.75 0.15 80);
+  color: var(--color-energy-badge-text);
+  border: 2px solid var(--color-energy-badge-border);
   box-shadow:
-    0 2px 6px oklch(0 0 0 / 0.5),
-    inset 0 1px 0 oklch(1 0 0 / 0.3),
-    0 0 12px oklch(0.6 0.15 80 / 0.4);
-  text-shadow: 0 1px 1px oklch(1 0 0 / 0.3);
+    0 2px 6px var(--color-card-shadow-heavy),
+    inset 0 1px 0 var(--color-energy-badge-highlight),
+    0 0 12px var(--color-energy-badge-glow);
+  text-shadow: 0 1px 1px var(--color-energy-badge-highlight);
 }
 
 .Card__energy-badge--modified {
-  background: linear-gradient(135deg, oklch(0.55 0.18 145) 0%, oklch(0.45 0.15 140) 100%);
-  border-color: oklch(0.65 0.15 150);
+  background: linear-gradient(135deg, var(--color-energy-modified-from) 0%, var(--color-energy-modified-to) 100%);
+  border-color: var(--color-energy-modified-border);
   box-shadow:
-    0 2px 6px oklch(0 0 0 / 0.5),
-    0 0 12px oklch(0.5 0.15 145 / 0.5);
+    0 2px 6px var(--color-card-shadow-heavy),
+    0 0 12px var(--color-energy-modified-glow);
 }
 
 .Card__energy-badge--fire {
-  background: linear-gradient(135deg, oklch(0.6 0.2 35) 0%, oklch(0.45 0.18 30) 100%);
-  border-color: oklch(0.7 0.18 40);
-  color: oklch(0.95 0.02 50);
+  background: linear-gradient(135deg, var(--color-energy-fire-from) 0%, var(--color-energy-fire-to) 100%);
+  border-color: var(--color-energy-fire-border);
+  color: var(--color-energy-fire-text);
 }
 
 .Card__energy-badge--ice {
-  background: linear-gradient(135deg, oklch(0.65 0.12 220) 0%, oklch(0.5 0.1 215) 100%);
-  border-color: oklch(0.75 0.1 225);
-  color: oklch(0.1 0.02 220);
+  background: linear-gradient(135deg, var(--color-energy-ice-from) 0%, var(--color-energy-ice-to) 100%);
+  border-color: var(--color-energy-ice-border);
+  color: var(--color-energy-ice-text);
 }
 
 .Card__energy-badge--lightning {
-  background: linear-gradient(135deg, oklch(0.75 0.15 95) 0%, oklch(0.6 0.12 90) 100%);
-  border-color: oklch(0.85 0.12 100);
-  color: oklch(0.15 0.02 90);
+  background: linear-gradient(135deg, var(--color-energy-lightning-from) 0%, var(--color-energy-lightning-to) 100%);
+  border-color: var(--color-energy-lightning-border);
+  color: var(--color-energy-lightning-text);
 }
 
 .Card__energy-badge--void {
-  background: linear-gradient(135deg, oklch(0.45 0.15 310) 0%, oklch(0.3 0.12 305) 100%);
-  border-color: oklch(0.55 0.12 315);
-  color: oklch(0.9 0.03 310);
+  background: linear-gradient(135deg, var(--color-energy-void-from) 0%, var(--color-energy-void-to) 100%);
+  border-color: var(--color-energy-void-border);
+  color: var(--color-energy-void-text);
 }
 
 .Card__energy-badge--physical {
-  background: linear-gradient(135deg, oklch(0.5 0.02 250) 0%, oklch(0.35 0.015 245) 100%);
-  border-color: oklch(0.6 0.02 255);
-  color: oklch(0.9 0.01 250);
+  background: linear-gradient(135deg, var(--color-energy-physical-from) 0%, var(--color-energy-physical-to) 100%);
+  border-color: var(--color-energy-physical-border);
+  color: var(--color-energy-physical-text);
 }
 
 .Card__status-badge {
@@ -537,19 +537,19 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 2px 4px oklch(0 0 0 / 0.4);
+  box-shadow: 0 2px 4px var(--color-badge-shadow);
 }
 
 .Card__status-badge--ethereal {
-  background: linear-gradient(135deg, oklch(0.4 0.12 290) 0%, oklch(0.25 0.1 285) 100%);
-  border: 1.5px solid oklch(0.55 0.1 295 / 0.6);
-  color: oklch(0.8 0.08 290);
+  background: linear-gradient(135deg, var(--color-badge-ethereal-from) 0%, var(--color-badge-ethereal-to) 100%);
+  border: 1.5px solid var(--color-badge-ethereal-border);
+  color: var(--color-badge-ethereal-icon);
 }
 
 .Card__status-badge--retained {
-  background: linear-gradient(135deg, oklch(0.45 0.12 60) 0%, oklch(0.3 0.1 55) 100%);
-  border: 1.5px solid oklch(0.6 0.1 65 / 0.6);
-  color: oklch(0.85 0.08 60);
+  background: linear-gradient(135deg, var(--color-badge-retained-from) 0%, var(--color-badge-retained-to) 100%);
+  border: 1.5px solid var(--color-badge-retained-border);
+  color: var(--color-badge-retained-icon);
 }
 
 .Card--attack { border-color: var(--color-card-attack); }
@@ -568,13 +568,13 @@
   border-color: var(--color-card-power);
   background: linear-gradient(
     135deg,
-    oklch(0.22 0.03 280) 0%,
+    var(--color-card-power-bg-light) 0%,
     var(--color-surface) 50%,
-    oklch(0.20 0.02 280) 100%
+    var(--color-card-power-bg-dark) 100%
   );
   box-shadow:
-    0 0 8px oklch(0.5 0.1 280 / 0.3),
-    inset 0 1px 0 oklch(0.6 0.08 280 / 0.2);
+    0 0 8px var(--color-card-power-glow),
+    inset 0 1px 0 var(--color-card-power-highlight);
 }
 
 .Card--power::after {
@@ -587,17 +587,17 @@
   background: linear-gradient(
     90deg,
     transparent 0%,
-    oklch(0.6 0.15 280) 50%,
+    var(--color-card-power-accent) 50%,
     transparent 100%
   );
   border-radius: 12px 12px 0 0;
 }
 
 .Card--upgraded {
-  border-color: oklch(0.75 0.18 160);
+  border-color: var(--color-card-upgraded-border);
   box-shadow:
-    0 0 12px oklch(0.6 0.15 160 / 0.4),
-    inset 0 0 20px oklch(0.6 0.1 160 / 0.1);
+    0 0 12px var(--color-card-upgraded-glow-outer),
+    inset 0 0 20px var(--color-card-upgraded-glow-inner);
 }
 
 .Card--upgraded::before {
@@ -607,7 +607,7 @@
   border-radius: inherit;
   background: linear-gradient(
     135deg,
-    oklch(0.7 0.15 160 / 0.1) 0%,
+    var(--color-card-upgraded-gradient) 0%,
     transparent 50%
   );
   pointer-events: none;
@@ -615,14 +615,14 @@
 
 .Card--hand.is-playable {
   box-shadow:
-    inset 0 0 12px oklch(0.95 0.05 90 / 0.15),
-    0 0 8px oklch(0.8 0.08 90 / 0.3);
+    inset 0 0 12px var(--color-card-playable-inner),
+    0 0 8px var(--color-card-playable-outer);
 }
 
 .Card.is-dragging {
   z-index: 100;
   transform: scale(1.05);
-  box-shadow: 0 12px 48px oklch(0 0 0 / 0.6);
+  box-shadow: 0 12px 48px var(--color-card-shadow-drag);
 }
 
 .Card.is-disabled {
@@ -666,10 +666,10 @@
 
 .Card.has-frozen {
   box-shadow:
-    0 0 20px oklch(0.7 0.12 220 / 0.4),
-    0 0 40px oklch(0.6 0.15 220 / 0.2),
-    inset 0 0 0 1px oklch(0.45 0.06 55 / 0.4),
-    0 4px 16px oklch(0 0 0 / 0.5);
+    0 0 20px var(--color-aura-frozen),
+    0 0 40px var(--color-aura-frozen-outer),
+    inset 0 0 0 1px var(--color-aura-inner-border),
+    0 4px 16px var(--color-card-shadow-heavy);
 }
 
 .Card.has-charged {
@@ -714,10 +714,10 @@
   border-color: var(--rarity-common);
   background: linear-gradient(
     180deg,
-    oklch(0.2 0.005 260) 0%,
-    oklch(0.16 0.005 260) 100%
+    var(--color-card-common-bg-from) 0%,
+    var(--color-card-common-bg-to) 100%
   );
-  box-shadow: inset 0 1px 0 oklch(0.3 0 0 / 0.3);
+  box-shadow: inset 0 1px 0 var(--color-card-common-highlight);
 }
 
 .Card.Card--ultra-rare {
@@ -733,9 +733,9 @@
   background: linear-gradient(
     105deg,
     transparent 40%,
-    oklch(0.8 0.15 320 / 0.15) 45%,
-    oklch(0.9 0.1 320 / 0.25) 50%,
-    oklch(0.8 0.15 320 / 0.15) 55%,
+    var(--color-rarity-ultra-shimmer) 45%,
+    var(--color-rarity-ultra-shimmer-peak) 50%,
+    var(--color-rarity-ultra-shimmer) 55%,
     transparent 60%
   );
   background-size: 200% 100%;
@@ -782,8 +782,8 @@
   align-items: center;
   justify-content: center;
   box-shadow:
-    0 1px 4px oklch(0 0 0 / 0.5),
-    inset 0 1px 0 oklch(1 0 0 / 0.15);
+    0 1px 4px var(--color-emblem-shadow),
+    inset 0 1px 0 var(--color-emblem-highlight);
   flex-shrink: 0;
 }
 
@@ -800,27 +800,27 @@
 }
 
 .Card__element-emblem--physical {
-  background: linear-gradient(135deg, var(--color-element-physical-muted) 0%, oklch(0.2 0.02 250) 100%);
+  background: linear-gradient(135deg, var(--color-element-physical-muted) 0%, var(--color-emblem-physical-to) 100%);
   border: 1.5px solid var(--color-element-physical);
 }
 
 .Card__element-emblem--fire {
-  background: linear-gradient(135deg, var(--color-element-fire-muted) 0%, oklch(0.2 0.05 35) 100%);
+  background: linear-gradient(135deg, var(--color-element-fire-muted) 0%, var(--color-emblem-fire-to) 100%);
   border: 1.5px solid var(--color-element-fire);
 }
 
 .Card__element-emblem--ice {
-  background: linear-gradient(135deg, var(--color-element-ice-muted) 0%, oklch(0.2 0.04 220) 100%);
+  background: linear-gradient(135deg, var(--color-element-ice-muted) 0%, var(--color-emblem-ice-to) 100%);
   border: 1.5px solid var(--color-element-ice);
 }
 
 .Card__element-emblem--lightning {
-  background: linear-gradient(135deg, var(--color-element-lightning-muted) 0%, oklch(0.25 0.04 95) 100%);
+  background: linear-gradient(135deg, var(--color-element-lightning-muted) 0%, var(--color-emblem-lightning-to) 100%);
   border: 1.5px solid var(--color-element-lightning);
 }
 
 .Card__element-emblem--void {
-  background: linear-gradient(135deg, var(--color-element-void-muted) 0%, oklch(0.15 0.05 310) 100%);
+  background: linear-gradient(135deg, var(--color-element-void-muted) 0%, var(--color-emblem-void-to) 100%);
   border: 1.5px solid var(--color-element-void);
 }
 
@@ -836,11 +836,11 @@
   border-radius: inherit;
   background: linear-gradient(
     135deg,
-    oklch(0.9 0.1 0 / 0) 0%,
-    oklch(0.9 0.15 60 / 0.1) 25%,
-    oklch(0.9 0.15 180 / 0.15) 50%,
-    oklch(0.9 0.15 300 / 0.1) 75%,
-    oklch(0.9 0.1 0 / 0) 100%
+    var(--color-rarity-legendary-holographic) 0%,
+    var(--color-rarity-legendary-holo-mid) 25%,
+    var(--color-rarity-legendary-holo-center) 50%,
+    var(--color-rarity-legendary-holo-end) 75%,
+    var(--color-rarity-legendary-holographic) 100%
   );
   background-size: 200% 200%;
   animation: legendary-holographic 6s ease-in-out infinite;
@@ -862,9 +862,9 @@
   background: linear-gradient(
     115deg,
     transparent 30%,
-    oklch(0.95 0.1 60 / 0.2) 45%,
-    oklch(1 0 0 / 0.35) 50%,
-    oklch(0.95 0.1 300 / 0.2) 55%,
+    var(--color-rarity-mythic-shimmer-mid) 45%,
+    var(--color-rarity-mythic-shimmer-center) 50%,
+    var(--color-rarity-mythic-shimmer-end) 55%,
     transparent 70%
   );
   background-size: 200% 100%;
@@ -879,9 +879,9 @@
 
 .Card.Card--ancient {
   background:
-    radial-gradient(ellipse at 30% 20%, oklch(0.25 0.1 280) 0%, transparent 50%),
-    radial-gradient(ellipse at 70% 80%, oklch(0.2 0.15 200) 0%, transparent 40%),
-    oklch(0.12 0.05 280);
+    radial-gradient(ellipse at 30% 20%, var(--color-rarity-ancient-bg-spot1) 0%, transparent 50%),
+    radial-gradient(ellipse at 70% 80%, var(--color-rarity-ancient-bg-spot2) 0%, transparent 40%),
+    var(--color-rarity-ancient-bg-base);
   border: 4px solid transparent;
   animation:
     legendary-glow 2.5s linear infinite,
@@ -898,8 +898,8 @@
 
 .Card--ancient [class*="text-"] {
   text-shadow:
-    0 1px 2px oklch(0 0 0 / 0.8),
-    0 0 8px oklch(0 0 0 / 0.5);
+    0 1px 2px var(--color-rarity-text-shadow),
+    0 0 8px var(--color-rarity-text-shadow-soft);
   position: relative;
   z-index: 2;
 }
@@ -908,7 +908,7 @@
   content: '';
   position: absolute;
   inset: 0;
-  background: radial-gradient(circle, oklch(0.55 0.2 20 / 0.8), transparent 70%);
+  background: radial-gradient(circle, var(--color-flash-damage), transparent 70%);
   pointer-events: none;
   animation: damage-flash 0.3s ease-out forwards;
 }
@@ -917,7 +917,7 @@
   content: '';
   position: absolute;
   inset: -4px;
-  border: 3px solid oklch(0.55 0.12 240);
+  border: 3px solid var(--color-flash-block-border);
   border-radius: 16px;
   animation: block-gain 0.4s ease-out forwards;
   pointer-events: none;
@@ -929,19 +929,19 @@
 
 .Card--room {
   background:
-    linear-gradient(135deg, oklch(0.20 0.025 45) 0%, oklch(0.15 0.02 40) 50%, oklch(0.12 0.015 38) 100%);
-  border: 2px solid oklch(0.30 0.035 48);
+    linear-gradient(135deg, var(--color-room-bg-from) 0%, var(--color-room-bg-mid) 50%, var(--color-room-bg-to) 100%);
+  border: 2px solid var(--color-room-border);
   box-shadow:
-    0 4px 16px oklch(0 0 0 / 0.35),
-    inset 0 1px 0 oklch(1 0 0 / 0.04);
+    0 4px 16px var(--color-card-shadow-light),
+    inset 0 1px 0 var(--color-room-highlight);
 }
 
 .Card--room:hover {
   border-color: var(--color-accent-warm);
   box-shadow:
-    0 8px 24px oklch(0.5 0.12 55 / 0.25),
-    0 0 30px oklch(0.55 0.1 55 / 0.15),
-    inset 0 1px 0 oklch(1 0 0 / 0.06);
+    0 8px 24px var(--color-room-hover-glow),
+    0 0 30px var(--color-room-hover-glow-soft),
+    inset 0 1px 0 var(--color-room-hover-highlight);
 }
 
 .Card__name {
@@ -949,10 +949,10 @@
   font-weight: 600;
   font-size: 0.8rem;
   letter-spacing: 0.04em;
-  color: oklch(0.92 0.03 55);
+  color: var(--color-card-name);
   text-shadow:
-    0 1px 2px oklch(0 0 0 / 0.9),
-    0 0 10px oklch(0.5 0.1 45 / 0.4);
+    0 1px 2px var(--color-rarity-text-shadow),
+    0 0 10px var(--color-card-name-shadow);
   text-align: center;
 }
 
@@ -960,24 +960,24 @@
   font-family: var(--font-display);
   font-weight: 700;
   text-shadow:
-    0 1px 2px oklch(0 0 0 / 0.6),
-    0 0 8px oklch(0.5 0.12 70 / 0.4);
+    0 1px 2px var(--color-card-shadow-drag),
+    0 0 8px var(--color-energy-badge-glow);
 }
 
 .Card__description {
   font-family: var(--font-body);
   font-size: 0.68rem;
   line-height: 1.3;
-  color: oklch(0.82 0.015 50);
+  color: var(--color-card-description);
   text-align: center;
-  text-shadow: 0 1px 2px oklch(0 0 0 / 0.8);
+  text-shadow: 0 1px 2px var(--color-rarity-text-shadow);
 }
 
 .Card--upgraded .Card__name {
-  color: oklch(0.75 0.15 160);
+  color: var(--color-card-upgraded-name);
   text-shadow:
-    0 0 8px oklch(0.6 0.12 160 / 0.5),
-    0 1px 2px oklch(0 0 0 / 0.5);
+    0 0 8px var(--color-card-upgraded-glow),
+    0 1px 2px var(--color-card-shadow-heavy);
 }
 
 .Card__type-strip {
@@ -985,7 +985,7 @@
   font-size: 0.6rem;
   letter-spacing: 0.1em;
   text-transform: uppercase;
-  color: oklch(0.55 0.03 45);
+  color: var(--color-card-type);
 }
 
 .CardRewardGrid {
@@ -1008,9 +1008,9 @@
   background: linear-gradient(
     90deg,
     transparent 0%,
-    oklch(0.70 0.25 280 / 0.15) 25%,
-    oklch(0.75 0.30 290 / 0.25) 50%,
-    oklch(0.70 0.25 280 / 0.15) 75%,
+    var(--color-rarity-epic-shimmer) 25%,
+    var(--color-rarity-epic-shimmer-peak) 50%,
+    var(--color-rarity-epic-shimmer) 75%,
     transparent 100%
   );
   background-size: 200% 100%;
@@ -1021,10 +1021,10 @@
 }
 
 .Card.Card--epic .Card__name {
-  color: oklch(0.80 0.18 285);
+  color: var(--color-rarity-epic-name);
   text-shadow:
-    0 0 10px oklch(0.60 0.25 285 / 0.6),
-    0 1px 2px oklch(0 0 0 / 0.8);
+    0 0 10px var(--color-rarity-epic-name-glow),
+    0 1px 2px var(--color-rarity-text-shadow);
 }
 
 .Card__rarity-gem {
@@ -1039,28 +1039,28 @@
   box-shadow: 0 0 6px currentColor;
 }
 
-.Card--common .Card__rarity-gem { background: oklch(0.45 0.02 50); }
+.Card--common .Card__rarity-gem { background: var(--color-gem-common); }
 
-.Card--uncommon .Card__rarity-gem { background: oklch(0.55 0.15 145); box-shadow: 0 0 8px oklch(0.55 0.15 145 / 0.6); }
+.Card--uncommon .Card__rarity-gem { background: var(--color-gem-uncommon); box-shadow: 0 0 8px var(--color-gem-uncommon-glow); }
 
-.Card--rare .Card__rarity-gem { background: oklch(0.65 0.20 70); box-shadow: 0 0 10px oklch(0.65 0.20 70 / 0.7); }
+.Card--rare .Card__rarity-gem { background: var(--color-gem-rare); box-shadow: 0 0 10px var(--color-gem-rare-glow); }
 
-.Card--epic .Card__rarity-gem { background: oklch(0.60 0.25 285); box-shadow: 0 0 12px oklch(0.60 0.25 285 / 0.8); }
+.Card--epic .Card__rarity-gem { background: var(--color-gem-epic); box-shadow: 0 0 12px var(--color-gem-epic-glow); }
 
 .Card--legendary .Card__rarity-gem {
-  background: linear-gradient(135deg, oklch(0.70 0.22 55) 0%, oklch(0.60 0.25 45) 100%);
-  box-shadow: 0 0 14px oklch(0.65 0.22 55 / 0.9);
+  background: linear-gradient(135deg, var(--color-gem-legendary-from) 0%, var(--color-gem-legendary-to) 100%);
+  box-shadow: 0 0 14px var(--color-gem-legendary-glow);
   animation: gem-pulse 1.5s ease-in-out infinite;
 }
 
 .Card--mythic .Card__rarity-gem {
-  background: linear-gradient(135deg, oklch(0.65 0.28 320) 0%, oklch(0.55 0.25 340) 100%);
-  box-shadow: 0 0 16px oklch(0.60 0.28 320 / 1);
+  background: linear-gradient(135deg, var(--color-gem-mythic-from) 0%, var(--color-gem-mythic-to) 100%);
+  box-shadow: 0 0 16px var(--color-gem-mythic-glow);
   animation: gem-pulse 1.2s ease-in-out infinite;
 }
 
 .Card--ancient .Card__rarity-gem {
-  background: linear-gradient(135deg, oklch(0.55 0.22 260) 0%, oklch(0.50 0.28 220) 100%);
-  box-shadow: 0 0 20px oklch(0.55 0.25 240 / 1);
+  background: linear-gradient(135deg, var(--color-gem-ancient-from) 0%, var(--color-gem-ancient-to) 100%);
+  box-shadow: 0 0 20px var(--color-gem-ancient-glow);
   animation: gem-pulse 1s ease-in-out infinite, ancient-gem-hue 4s linear infinite;
 }

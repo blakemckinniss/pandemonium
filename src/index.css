@@ -389,6 +389,295 @@
      ============================================ */
   --color-shadow: oklch(0 0 0);
   --color-text-gold: oklch(0.95 0.05 85);
+
+  /* ============================================
+     CARD COMPONENT COLORS
+     ============================================ */
+  /* Card frame - gothic styling */
+  --color-card-frame-inner: oklch(0.35 0.04 50 / 0.3);
+  --color-card-frame-hover: oklch(0.45 0.06 55 / 0.4);
+  --color-card-hover-glow: oklch(0.5 0.1 50 / 0.15);
+  --color-card-highlight: oklch(1 0 0 / 0.05);
+  --color-card-shadow-heavy: oklch(0 0 0 / 0.5);
+  --color-card-shadow-light: oklch(0 0 0 / 0.3);
+  --color-card-shadow-drag: oklch(0 0 0 / 0.6);
+
+  /* Card image fallback gradient */
+  --color-card-fallback-center: oklch(0.22 0.025 35);
+  --color-card-fallback-from: oklch(0.16 0.02 32);
+  --color-card-fallback-to: oklch(0.10 0.018 28);
+
+  /* Card gradient overlay */
+  --color-card-overlay-dark: oklch(0.04 0.015 28 / 0.98);
+  --color-card-overlay-mid: oklch(0.06 0.015 30 / 0.90);
+  --color-card-overlay-light: oklch(0.08 0.01 32 / 0.5);
+  --color-card-overlay-vignette: oklch(0.05 0.02 25 / 0.4);
+
+  /* Card name bar */
+  --color-card-namebar-center: oklch(0.14 0.03 40 / 0.95);
+  --color-card-namebar-edge: oklch(0.10 0.025 35 / 0.85);
+  --color-card-namebar-border-top: oklch(0.5 0.06 55 / 0.35);
+  --color-card-namebar-border-bottom: oklch(0.05 0.01 30 / 0.6);
+
+  /* Card text */
+  --color-card-name: oklch(0.92 0.03 55);
+  --color-card-name-shadow: oklch(0.5 0.1 45 / 0.4);
+  --color-card-description: oklch(0.82 0.015 50);
+  --color-card-type: oklch(0.55 0.03 45);
+  --color-card-upgraded-name: oklch(0.75 0.15 160);
+  --color-card-upgraded-glow: oklch(0.6 0.12 160 / 0.5);
+
+  /* Energy badge - base gold */
+  --color-energy-badge-from: oklch(0.65 0.18 85);
+  --color-energy-badge-mid: oklch(0.5 0.15 75);
+  --color-energy-badge-to: oklch(0.4 0.12 70);
+  --color-energy-badge-text: oklch(0.1 0.02 70);
+  --color-energy-badge-border: oklch(0.75 0.15 80);
+  --color-energy-badge-glow: oklch(0.6 0.15 80 / 0.4);
+  --color-energy-badge-highlight: oklch(1 0 0 / 0.3);
+
+  /* Energy badge - modified (reduced cost) */
+  --color-energy-modified-from: oklch(0.55 0.18 145);
+  --color-energy-modified-to: oklch(0.45 0.15 140);
+  --color-energy-modified-border: oklch(0.65 0.15 150);
+  --color-energy-modified-glow: oklch(0.5 0.15 145 / 0.5);
+
+  /* Energy badge - elemental variants */
+  --color-energy-fire-from: oklch(0.6 0.2 35);
+  --color-energy-fire-to: oklch(0.45 0.18 30);
+  --color-energy-fire-border: oklch(0.7 0.18 40);
+  --color-energy-fire-text: oklch(0.95 0.02 50);
+  --color-energy-ice-from: oklch(0.65 0.12 220);
+  --color-energy-ice-to: oklch(0.5 0.1 215);
+  --color-energy-ice-border: oklch(0.75 0.1 225);
+  --color-energy-ice-text: oklch(0.1 0.02 220);
+  --color-energy-lightning-from: oklch(0.75 0.15 95);
+  --color-energy-lightning-to: oklch(0.6 0.12 90);
+  --color-energy-lightning-border: oklch(0.85 0.12 100);
+  --color-energy-lightning-text: oklch(0.15 0.02 90);
+  --color-energy-void-from: oklch(0.45 0.15 310);
+  --color-energy-void-to: oklch(0.3 0.12 305);
+  --color-energy-void-border: oklch(0.55 0.12 315);
+  --color-energy-void-text: oklch(0.9 0.03 310);
+  --color-energy-physical-from: oklch(0.5 0.02 250);
+  --color-energy-physical-to: oklch(0.35 0.015 245);
+  --color-energy-physical-border: oklch(0.6 0.02 255);
+  --color-energy-physical-text: oklch(0.9 0.01 250);
+
+  /* Status badges (ethereal, retained) */
+  --color-badge-shadow: oklch(0 0 0 / 0.4);
+  --color-badge-ethereal-from: oklch(0.4 0.12 290);
+  --color-badge-ethereal-to: oklch(0.25 0.1 285);
+  --color-badge-ethereal-border: oklch(0.55 0.1 295 / 0.6);
+  --color-badge-ethereal-icon: oklch(0.8 0.08 290);
+  --color-badge-retained-from: oklch(0.45 0.12 60);
+  --color-badge-retained-to: oklch(0.3 0.1 55);
+  --color-badge-retained-border: oklch(0.6 0.1 65 / 0.6);
+  --color-badge-retained-icon: oklch(0.85 0.08 60);
+  --color-badge-retained-glow: oklch(0.6 0.15 60 / 0.4);
+  --color-badge-retained-glow-bright: oklch(0.6 0.15 60 / 0.6);
+
+  /* Power card styling */
+  --color-card-power-bg-light: oklch(0.22 0.03 280);
+  --color-card-power-bg-dark: oklch(0.20 0.02 280);
+  --color-card-power-glow: oklch(0.5 0.1 280 / 0.3);
+  --color-card-power-highlight: oklch(0.6 0.08 280 / 0.2);
+  --color-card-power-accent: oklch(0.6 0.15 280);
+
+  /* Upgraded card styling */
+  --color-card-upgraded-border: oklch(0.75 0.18 160);
+  --color-card-upgraded-glow-outer: oklch(0.6 0.15 160 / 0.4);
+  --color-card-upgraded-glow-inner: oklch(0.6 0.1 160 / 0.1);
+  --color-card-upgraded-gradient: oklch(0.7 0.15 160 / 0.1);
+
+  /* Playable card states */
+  --color-card-playable-inner: oklch(0.95 0.05 90 / 0.15);
+  --color-card-playable-outer: oklch(0.8 0.08 90 / 0.3);
+  --color-card-playable-pulse-inner: oklch(0.95 0.02 90 / 0.1);
+  --color-card-playable-pulse-outer: oklch(0.9 0.03 90 / 0.2);
+  --color-card-playable-pulse-inner-peak: oklch(0.98 0.03 90 / 0.2);
+  --color-card-playable-pulse-outer-peak: oklch(0.95 0.04 90 / 0.35);
+
+  /* Aura animations - buff (golden/green) */
+  --color-aura-buff-glow: oklch(0.6 0.15 90 / 0.3);
+  --color-aura-buff-glow-outer: oklch(0.5 0.12 85 / 0.15);
+  --color-aura-buff-glow-peak: oklch(0.7 0.18 90 / 0.4);
+  --color-aura-buff-glow-outer-peak: oklch(0.6 0.15 85 / 0.2);
+  --color-aura-inner-border: oklch(0.45 0.06 55 / 0.4);
+
+  /* Aura animations - debuff (red/purple) */
+  --color-aura-debuff-glow: oklch(0.5 0.18 25 / 0.3);
+  --color-aura-debuff-glow-outer: oklch(0.4 0.15 320 / 0.15);
+  --color-aura-debuff-glow-peak: oklch(0.55 0.22 25 / 0.4);
+  --color-aura-debuff-glow-outer-peak: oklch(0.45 0.18 320 / 0.2);
+
+  /* Aura animations - burning (fire orange) */
+  --color-aura-burning: oklch(0.6 0.25 35 / 0.4);
+  --color-aura-burning-outer: oklch(0.55 0.22 30 / 0.3);
+  --color-aura-burning-peak: oklch(0.7 0.28 38 / 0.5);
+  --color-aura-burning-peak-outer: oklch(0.6 0.25 32 / 0.4);
+
+  /* Aura animations - charged (electric yellow) */
+  --color-aura-charged: oklch(0.8 0.2 95 / 0.3);
+  --color-aura-charged-outer: oklch(0.75 0.18 95 / 0.15);
+  --color-aura-charged-peak: oklch(0.9 0.25 95 / 0.5);
+  --color-aura-charged-peak-outer: oklch(0.85 0.22 95 / 0.25);
+
+  /* Aura animations - poison (toxic green) */
+  --color-aura-poison: oklch(0.5 0.2 140 / 0.3);
+  --color-aura-poison-outer: oklch(0.45 0.18 140 / 0.15);
+  --color-aura-poison-peak: oklch(0.55 0.22 140 / 0.4);
+  --color-aura-poison-peak-outer: oklch(0.5 0.2 140 / 0.2);
+
+  /* Aura animations - frozen (ice blue) */
+  --color-aura-frozen: oklch(0.7 0.12 220 / 0.4);
+  --color-aura-frozen-outer: oklch(0.6 0.15 220 / 0.2);
+
+  /* Card shimmer animation */
+  --color-card-shimmer: oklch(0.4 0.05 260 / 0.3);
+  --color-card-shimmer-inner: oklch(0.3 0.02 260 / 0.1);
+  --color-card-shimmer-peak: oklch(0.5 0.08 260 / 0.4);
+  --color-card-shimmer-inner-peak: oklch(0.4 0.03 260 / 0.15);
+
+  /* Attack/Skill/Power theme glows */
+  --color-glow-attack: oklch(0.45 0.15 20 / 0.4);
+  --color-glow-attack-outer: oklch(0.35 0.12 20 / 0.2);
+  --color-glow-attack-peak: oklch(0.55 0.18 20 / 0.5);
+  --color-glow-attack-outer-peak: oklch(0.45 0.15 20 / 0.3);
+  --color-glow-skill: oklch(0.45 0.1 240 / 0.4);
+  --color-glow-skill-outer: oklch(0.35 0.08 240 / 0.2);
+  --color-glow-skill-peak: oklch(0.55 0.12 240 / 0.5);
+  --color-glow-skill-outer-peak: oklch(0.45 0.1 240 / 0.3);
+  --color-glow-power: oklch(0.45 0.12 280 / 0.4);
+  --color-glow-power-outer: oklch(0.35 0.1 280 / 0.2);
+  --color-glow-power-peak: oklch(0.55 0.15 280 / 0.5);
+  --color-glow-power-outer-peak: oklch(0.45 0.12 280 / 0.3);
+
+  /* Rarity glow - rare (gold) */
+  --color-rarity-rare-glow: oklch(0.65 0.15 80 / 0.5);
+  --color-rarity-rare-glow-outer: oklch(0.55 0.12 80 / 0.3);
+  --color-rarity-rare-highlight: oklch(0.8 0.1 80 / 0.4);
+  --color-rarity-rare-border: oklch(0.55 0.15 80);
+  --color-rarity-rare-glow-peak: oklch(0.7 0.18 80 / 0.6);
+  --color-rarity-rare-glow-outer-peak: oklch(0.6 0.15 80 / 0.4);
+  --color-rarity-rare-highlight-peak: oklch(0.9 0.12 80 / 0.5);
+  --color-rarity-rare-border-peak: oklch(0.65 0.18 80);
+
+  /* Rarity glow - uncommon (teal) */
+  --color-rarity-uncommon-glow: oklch(0.55 0.12 190 / 0.4);
+  --color-rarity-uncommon-glow-outer: oklch(0.45 0.1 190 / 0.25);
+  --color-rarity-uncommon-highlight: oklch(0.7 0.1 190 / 0.3);
+  --color-rarity-uncommon-border: oklch(0.45 0.12 190);
+  --color-rarity-uncommon-glow-peak: oklch(0.6 0.14 190 / 0.5);
+  --color-rarity-uncommon-glow-outer-peak: oklch(0.5 0.12 190 / 0.35);
+  --color-rarity-uncommon-highlight-peak: oklch(0.8 0.12 190 / 0.4);
+  --color-rarity-uncommon-border-peak: oklch(0.55 0.14 190);
+
+  /* Rarity glow - ultra rare (purple/magenta) */
+  --color-rarity-ultra-glow: oklch(0.55 0.22 320 / 0.5);
+  --color-rarity-ultra-glow-outer: oklch(0.5 0.2 320 / 0.3);
+  --color-rarity-ultra-glow-far: oklch(0.45 0.15 280 / 0.2);
+  --color-rarity-ultra-highlight: oklch(0.7 0.15 320 / 0.4);
+  --color-rarity-ultra-border: oklch(0.5 0.2 320);
+  --color-rarity-ultra-glow-peak: oklch(0.6 0.25 320 / 0.6);
+  --color-rarity-ultra-glow-outer-peak: oklch(0.55 0.22 320 / 0.4);
+  --color-rarity-ultra-glow-far-peak: oklch(0.5 0.18 280 / 0.25);
+  --color-rarity-ultra-highlight-peak: oklch(0.8 0.18 320 / 0.5);
+  --color-rarity-ultra-border-peak: oklch(0.6 0.25 320);
+  --color-rarity-ultra-shimmer: oklch(0.8 0.15 320 / 0.15);
+  --color-rarity-ultra-shimmer-peak: oklch(0.9 0.1 320 / 0.25);
+
+  /* Rarity glow - epic (deep purple) */
+  --color-rarity-epic-glow: oklch(0.55 0.20 285 / 0.5);
+  --color-rarity-epic-glow-outer: oklch(0.50 0.18 290 / 0.3);
+  --color-rarity-epic-glow-inner: oklch(0.60 0.15 280 / 0.2);
+  --color-rarity-epic-border: oklch(0.55 0.22 285);
+  --color-rarity-epic-glow-peak: oklch(0.60 0.25 280 / 0.6);
+  --color-rarity-epic-glow-outer-peak: oklch(0.55 0.22 290 / 0.35);
+  --color-rarity-epic-glow-inner-peak: oklch(0.65 0.18 275 / 0.25);
+  --color-rarity-epic-border-peak: oklch(0.65 0.25 280);
+  --color-rarity-epic-shimmer: oklch(0.70 0.25 280 / 0.15);
+  --color-rarity-epic-shimmer-peak: oklch(0.75 0.30 290 / 0.25);
+  --color-rarity-epic-name: oklch(0.80 0.18 285);
+  --color-rarity-epic-name-glow: oklch(0.60 0.25 285 / 0.6);
+
+  /* Rarity glow - legendary (rainbow cycling) */
+  --color-rarity-legendary-glow-1: oklch(0.7 0.2 0 / 0.4);
+  --color-rarity-legendary-outer-1: oklch(0.6 0.15 120 / 0.25);
+  --color-rarity-legendary-border-1: oklch(0.7 0.2 60);
+  --color-rarity-legendary-glow-2: oklch(0.7 0.2 120 / 0.4);
+  --color-rarity-legendary-outer-2: oklch(0.6 0.15 240 / 0.25);
+  --color-rarity-legendary-border-2: oklch(0.7 0.2 180);
+  --color-rarity-legendary-glow-3: oklch(0.7 0.2 240 / 0.4);
+  --color-rarity-legendary-outer-3: oklch(0.6 0.15 0 / 0.25);
+  --color-rarity-legendary-border-3: oklch(0.7 0.2 300);
+  --color-rarity-legendary-holographic: oklch(0.9 0.1 0 / 0);
+  --color-rarity-legendary-holo-mid: oklch(0.9 0.15 60 / 0.1);
+  --color-rarity-legendary-holo-center: oklch(0.9 0.15 180 / 0.15);
+  --color-rarity-legendary-holo-end: oklch(0.9 0.15 300 / 0.1);
+
+  /* Rarity glow - mythic (enhanced legendary) */
+  --color-rarity-mythic-shimmer-mid: oklch(0.95 0.1 60 / 0.2);
+  --color-rarity-mythic-shimmer-center: oklch(1 0 0 / 0.35);
+  --color-rarity-mythic-shimmer-end: oklch(0.95 0.1 300 / 0.2);
+
+  /* Rarity glow - ancient (eldritch) */
+  --color-rarity-ancient-bg-spot1: oklch(0.25 0.1 280);
+  --color-rarity-ancient-bg-spot2: oklch(0.2 0.15 200);
+  --color-rarity-ancient-bg-base: oklch(0.12 0.05 280);
+
+  /* Rarity gem colors */
+  --color-gem-common: oklch(0.45 0.02 50);
+  --color-gem-uncommon: oklch(0.55 0.15 145);
+  --color-gem-uncommon-glow: oklch(0.55 0.15 145 / 0.6);
+  --color-gem-rare: oklch(0.65 0.20 70);
+  --color-gem-rare-glow: oklch(0.65 0.20 70 / 0.7);
+  --color-gem-epic: oklch(0.60 0.25 285);
+  --color-gem-epic-glow: oklch(0.60 0.25 285 / 0.8);
+  --color-gem-legendary-from: oklch(0.70 0.22 55);
+  --color-gem-legendary-to: oklch(0.60 0.25 45);
+  --color-gem-legendary-glow: oklch(0.65 0.22 55 / 0.9);
+  --color-gem-mythic-from: oklch(0.65 0.28 320);
+  --color-gem-mythic-to: oklch(0.55 0.25 340);
+  --color-gem-mythic-glow: oklch(0.60 0.28 320 / 1);
+  --color-gem-ancient-from: oklch(0.55 0.22 260);
+  --color-gem-ancient-to: oklch(0.50 0.28 220);
+  --color-gem-ancient-glow: oklch(0.55 0.25 240 / 1);
+
+  /* Common card background */
+  --color-card-common-bg-from: oklch(0.2 0.005 260);
+  --color-card-common-bg-to: oklch(0.16 0.005 260);
+  --color-card-common-highlight: oklch(0.3 0 0 / 0.3);
+
+  /* Effect flashes (damage, block, heal) */
+  --color-flash-damage: oklch(0.55 0.2 20 / 0.8);
+  --color-flash-block-border: oklch(0.55 0.12 240);
+  --color-flash-block-glow: oklch(0.55 0.12 240);
+  --color-flash-heal: oklch(0.55 0.15 145);
+  --color-flash-heal-inner: oklch(0.5 0.12 145 / 0.3);
+
+  /* Room card styling */
+  --color-room-bg-from: oklch(0.20 0.025 45);
+  --color-room-bg-mid: oklch(0.15 0.02 40);
+  --color-room-bg-to: oklch(0.12 0.015 38);
+  --color-room-border: oklch(0.30 0.035 48);
+  --color-room-highlight: oklch(1 0 0 / 0.04);
+  --color-room-hover-glow: oklch(0.5 0.12 55 / 0.25);
+  --color-room-hover-glow-soft: oklch(0.55 0.1 55 / 0.15);
+  --color-room-hover-highlight: oklch(1 0 0 / 0.06);
+
+  /* Element emblem gradient endpoints */
+  --color-emblem-physical-to: oklch(0.2 0.02 250);
+  --color-emblem-fire-to: oklch(0.2 0.05 35);
+  --color-emblem-ice-to: oklch(0.2 0.04 220);
+  --color-emblem-lightning-to: oklch(0.25 0.04 95);
+  --color-emblem-void-to: oklch(0.15 0.05 310);
+  --color-emblem-shadow: oklch(0 0 0 / 0.5);
+  --color-emblem-highlight: oklch(1 0 0 / 0.15);
+
+  /* Mythic/Ancient text shadow */
+  --color-rarity-text-shadow: oklch(0 0 0 / 0.8);
+  --color-rarity-text-shadow-soft: oklch(0 0 0 / 0.5);
 }
 
 body {
