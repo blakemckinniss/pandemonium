@@ -8,6 +8,29 @@
 
 Slay the Spire inspired roguelike card game with drag-and-drop combat.
 
+## Frontend Design Plugin (CRITICAL)
+
+**The `frontend-design` plugin by Anthropic is active and essential for this project.**
+
+This is a highly visual game - every UI element matters. The plugin automatically activates for frontend work and enforces:
+
+- **Bold aesthetic choices** - No generic "AI slop" aesthetics
+- **Distinctive typography** - Avoid Inter/Roboto/Arial; use characterful fonts
+- **High-impact animations** - GSAP effects, staggered reveals, scroll-triggering
+- **Atmospheric visuals** - Gradients, textures, depth, dramatic shadows
+
+### Design Direction for Pandemonium
+
+| Element | Aesthetic |
+|---------|-----------|
+| Theme | Dark fantasy / arcane grimoire |
+| Typography | Display fonts for headers, refined body fonts |
+| Color | Deep purples, blacks, gold accents, elemental colors |
+| Motion | Card animations, particle effects, combat feedback |
+| Atmosphere | Mystical, dangerous, rewarding |
+
+**When building UI components:** Commit to bold choices. Cards should feel tactile. Combat should feel impactful. Menus should feel like ancient tomes. Never settle for generic.
+
 ## MVP Policy: Scorched Earth
 
 **NO backwards compatibility.** This is MVP - move fast, break things:
