@@ -85,7 +85,6 @@ export const ROOMS: Record<string, RoomDefinition> = {
     name: 'Bone Yard',
     description: 'Skeletons rise from ancient graves.',
     icon: '💀',
-    image: '/cards/room_bone_yard.webp',
     monsters: ['skeleton_warrior', 'skeleton_warrior'],
   },
   shadow_passage: {
@@ -94,7 +93,6 @@ export const ROOMS: Record<string, RoomDefinition> = {
     name: 'Shadow Passage',
     description: 'Wraiths drift through the darkness.',
     icon: '👻',
-    image: '/cards/room_shadow_passage.webp',
     monsters: ['shadow_wraith', 'shadow_wraith', 'shadow_wraith'],
   },
   crypt_depths: {
@@ -103,7 +101,6 @@ export const ROOMS: Record<string, RoomDefinition> = {
     name: 'Crypt Depths',
     description: 'Ancient bones guard forbidden secrets.',
     icon: '🦴',
-    image: '/cards/room_crypt_depths.webp',
     monsters: ['skeleton_warrior', 'shadow_wraith'],
   },
   necropolis: {
@@ -112,7 +109,6 @@ export const ROOMS: Record<string, RoomDefinition> = {
     name: 'Necropolis',
     description: 'A bone golem guards the crypt entrance.',
     icon: '🏛️',
-    image: '/cards/room_necropolis.webp',
     monsters: ['bone_golem'],
   },
   dark_sanctum: {
@@ -121,7 +117,6 @@ export const ROOMS: Record<string, RoomDefinition> = {
     name: 'Dark Sanctum',
     description: 'A necromancer performs dark rituals.',
     icon: '📿',
-    image: '/cards/room_dark_sanctum.webp',
     monsters: ['necromancer', 'skeleton_warrior'],
   },
   shadow_throne: {
@@ -130,7 +125,6 @@ export const ROOMS: Record<string, RoomDefinition> = {
     name: 'Shadow Throne',
     description: 'The master of death awaits.',
     icon: '👑',
-    image: '/cards/room_shadow_throne.webp',
     monsters: ['necromancer', 'bone_golem', 'shadow_wraith'],
   },
   flooded_chamber: {
