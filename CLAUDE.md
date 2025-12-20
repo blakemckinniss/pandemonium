@@ -68,14 +68,6 @@ cd services/image-gen && python batch.py --copy-to-public
 cd services/image-gen && python batch.py --cards strike,defend --copy-to-public
 ```
 
-### Extending for Rooms
-
-Room images need `room_to_prompt()` in `prompts.py`. Pattern:
-- Dungeon environment scene (not character portrait)
-- Element-based atmosphere (void = purple/black, fire = orange/red)
-- Room type styling (combat = threatening, campfire = warm, treasure = golden)
-- Output to `public/cards/room_<id>.webp`
-
 **DO NOT** wait for permission to generate images. **DO NOT** create tracking beads for image generation. **JUST GENERATE THEM.**
 
 ## Tech Stack
@@ -91,23 +83,29 @@ Room images need `room_to_prompt()` in `prompts.py`. Pattern:
 | Styling | Tailwind CSS v4 |
 | Testing | Vitest + jsdom + fake-indexeddb |
 | 3D | Three.js (ambient effects) |
-| AI | Groq SDK (card generation) |
+| AI | Groq SDK (card/dungeon generation) |
 
 ## Architecture
 
 ```
 src/
-├── types/index.ts              # ALL interfaces (100+ types, single source of truth)
+├── types/index.ts              # ALL interfaces (120+ types, single source of truth)
 ├── game/
 │   ├── actions.ts              # Immer state mutations (applyAction)
 │   ├── cards.ts                # Card registry (CARDS array)
-│   ├── card-generator.ts       # AI card generation via Groq
-│   ├── dungeon-deck.ts         # Room deck logic
 │   ├── elements.ts             # Elemental system & combos
 │   ├── new-game.ts             # Game/enemy factories (MONSTERS)
-│   ├── powers.ts               # Power/buff definitions & registry
 │   ├── relics.ts               # Relic definitions & registry
+│   ├── modifiers.ts            # Run modifier definitions
+│   ├── modifier-resolver.ts    # Modifier effect application
 │   ├── selection-effects.ts    # Player choice effects (scry, tutor, discover)
+│   ├── dungeon-deck.ts         # Room deck logic
+│   ├── dungeon-generator.ts    # AI dungeon generation via Groq
+│   ├── seed-content.ts         # Base content seeding
+│   ├── rewards.ts              # Reward generation
+│   ├── run-lock.ts             # Run state persistence
+│   ├── heat.ts                 # Heat/difficulty system
+│   ├── streak.ts               # Win streak tracking
 │   ├── effects/                # Modular effect execution
 │   │   ├── index.ts            # Exports all handlers
 │   │   ├── engine.ts           # Core dispatcher + power triggers
@@ -124,12 +122,17 @@ src/
 │   │   ├── enemy.ts            # AI & intents
 │   │   ├── damage.ts           # damage calculation
 │   │   ├── energy.ts           # energy management
-│   │   └── rooms.ts            # room transitions
-│   └── __tests__/              # Game logic tests
+│   │   ├── rooms.ts            # room transitions
+│   │   ├── hero.ts             # Hero ability handlers
+│   │   └── dungeon-flow.ts     # Dungeon progression
+│   ├── powers/                 # Power system (modular)
+│   ├── card-generator/         # AI card generation via Groq
+│   ├── modifier-generator/     # AI modifier generation
+│   └── __tests__/              # Game logic tests (652 tests)
 ├── content/
 │   └── rooms.ts                # Room definitions (ROOMS array)
 ├── components/
-│   ├── Card/                   # Unified card (4 variants)
+│   ├── Card/                   # Unified card (4 variants) + RarityShader
 │   ├── Hand/                   # Player hand + CardAnimationOverlay
 │   ├── Field/                  # Combat field
 │   ├── DungeonDeck/            # RoomSelect component
@@ -137,31 +140,52 @@ src/
 │   ├── UnlockNotification/     # Unlock popups
 │   ├── Modal/                  # Modal, CardSelectionModal, CardPileModal
 │   ├── PowerTooltip/           # Power/buff tooltips
-│   ├── ParticleEffects/        # Canvas particles + emitParticle
+│   ├── ParticleEffects/        # Visual effects + emitParticle
 │   ├── AmbientBackground/      # Three.js background
 │   ├── RelicBar/               # Relic display bar
-│   └── screens/
+│   ├── ModifierSelection/      # Pre-run modifier picking
+│   ├── ModifierCard/           # Modifier display
+│   ├── ModifierShop/           # Modifier purchase UI
+│   ├── ScreenTransition/       # Screen change animations
+│   ├── StatusSidebar/          # Combat status display
+│   ├── StreakDisplay/          # Win streak UI
+│   ├── RunLockIndicator/       # Active run indicator
+│   ├── DeckAnalytics/          # Deck statistics
+│   ├── CardFilters/            # Card filtering UI
+│   ├── CollectionStats/        # Collection progress
+│   ├── PackOpening/            # Card pack animations
+│   ├── CardDetailModal/        # Card inspection
+│   ├── StatusChip/             # Status indicators
+│   └── screens/                # All game screens
 │       ├── GameScreen.tsx      # Main combat screen
 │       ├── RewardScreen.tsx    # Post-combat rewards
 │       ├── CampfireScreen.tsx  # Rest site (heal/upgrade)
 │       ├── TreasureScreen.tsx  # Treasure rooms
-│       ├── MenuScreen.tsx      # Main menu
-│       └── DeckBuilderScreen.tsx
-├── hooks/
+│       ├── MenuScreen.tsx      # Main menu + dungeon selection
+│       └── DeckBuilderScreen.tsx # Deck viewing/building
+├── hooks/                      # Custom React hooks
 │   ├── useAnimationCoordinator.ts  # GSAP animation orchestration
+│   ├── useCombatActions.ts         # Combat action handlers
+│   ├── useRoomHandlers.ts          # Room navigation logic
 │   ├── useSelectionHandlers.ts     # Card selection UI logic
+│   ├── useVisualEventProcessor.ts  # Visual event processing
 │   ├── useRewardHandlers.ts        # Reward screen logic
 │   ├── useCampfireHandlers.ts      # Campfire actions
-│   └── useTreasureHandlers.ts      # Treasure room logic
+│   ├── useTreasureHandlers.ts      # Treasure room logic
+│   ├── useRunRecovery.ts           # Run state recovery
+│   └── visualEventHandlers/        # Modular visual handlers
+├── config/
+│   └── themes.ts               # Card theme configs for image generation
 ├── lib/
 │   ├── animations.ts           # GSAP registered effects
 │   ├── dragdrop.ts             # Draggable wrapper
 │   ├── effects.ts              # Target resolution, condition evaluation
 │   ├── groq.ts                 # Groq SDK wrapper
+│   ├── image-gen.ts            # ComfyUI image generation client
 │   └── utils.ts                # generateUid, randomInt, etc.
 └── stores/
     ├── metaStore.ts            # Zustand (unlocks, stats, localStorage)
-    └── db.ts                   # Dexie (run history, IndexedDB)
+    └── db.ts                   # Dexie (run history, dungeons, IndexedDB)
 ```
 
 ## Key Systems
@@ -183,14 +207,14 @@ Modular effect execution with category handlers:
 
 Effects are declarative objects executed by `executeEffect()`.
 
-### Power System (`game/powers.ts`)
+### Power System (`game/powers/`)
 Powers (buffs/debuffs) with:
 - **Stack behaviors**: `intensity` | `duration` | `replace`
 - **Modifiers**: Passive stat changes (damage, block multipliers)
 - **Triggers**: Active effects on events (`onTurnStart`, `onAttack`, etc.)
 - **Decay**: Automatic reduction on specified events
 
-29 powers across offensive, defensive, utility, debuff, and elemental categories.
+29+ powers across offensive, defensive, utility, debuff, and elemental categories.
 
 ### Elemental System (`game/elements.ts`)
 Five elements: `fire`, `ice`, `lightning`, `physical`, `void`
@@ -207,8 +231,20 @@ Player choice effects that pause combat:
 - `upgrade` - Improve selected cards
 - `banish` - Remove cards permanently
 
+### Modifier System (`game/modifiers.ts`)
+Pre-run modifiers that alter gameplay:
+- Gold multipliers, starting bonuses, enemy scaling
+- Applied via `modifier-resolver.ts`
+- Persisted across run via `run-lock.ts`
+
+### Run Lock System (`game/run-lock.ts`)
+Persistent run state for browser recovery:
+- Saves run state to IndexedDB on phase changes
+- Recovers interrupted runs on app load
+- Uses `useRunRecovery` hook for UI integration
+
 ### Relic System (`game/relics.ts`)
-16 passive items with trigger-based effects:
+16+ passive items with trigger-based effects:
 - Triggers: `onCombatStart`, `onTurnStart`, `onCardPlay`, `onKill`, etc.
 - Use same `AtomicEffect` system as cards
 
@@ -217,7 +253,8 @@ Player choice effects that pause combat:
 ```
 App
 ├── AmbientBackground (Three.js)
-├── MenuScreen
+├── MenuScreen (main menu + dungeon selection)
+│   └── ModifierSelection (pre-run modifiers)
 ├── GameScreen (combat phase)
 │   ├── Field
 │   │   ├── Card (variant="player")
@@ -225,15 +262,16 @@ App
 │   ├── Hand
 │   │   ├── Card (variant="hand") × N
 │   │   └── CardAnimationOverlay
+│   ├── StatusSidebar
 │   ├── CombatNumbers
 │   ├── RelicBar
 │   └── ParticleEffects
-├── RoomSelect
+├── RoomSelect (room selection phase)
 │   └── Card (variant="room") × N
-├── RewardScreen
-├── CampfireScreen
-├── TreasureScreen
-└── DeckBuilderScreen
+├── RewardScreen (post-combat rewards)
+├── CampfireScreen (rest sites)
+├── TreasureScreen (treasure rooms)
+└── DeckBuilderScreen (deck viewing)
 ```
 
 ### Card Variants
@@ -242,6 +280,29 @@ Unified `<Card>` component with 4 variants:
 - `player` - Player entity on field
 - `enemy` - Enemy entities on field
 - `room` - Room selection cards
+
+## Custom Hooks Pattern
+
+All hooks in `src/hooks/` follow this pattern:
+```typescript
+function useXxxHandlers(runState: RunState, setRunState: SetState) {
+  const handleAction = useCallback(() => {
+    // Logic here
+  }, [dependencies])
+
+  return { handleAction, uiState }
+}
+```
+
+Key hooks:
+| Hook | Purpose |
+|------|---------|
+| `useAnimationCoordinator` | GSAP orchestration for card animations |
+| `useCombatActions` | Card play, end turn, hero abilities |
+| `useRoomHandlers` | Room selection and navigation |
+| `useVisualEventProcessor` | Visual events → animations/particles |
+| `useSelectionHandlers` | Scry/tutor/discover modal logic |
+| `useRunRecovery` | Interrupted run detection and recovery |
 
 ## Game Flow
 
@@ -287,7 +348,7 @@ Add to `src/game/cards.ts`:
 ```
 
 ### Adding Powers
-Add to `src/game/powers.ts`:
+Add to `src/game/powers/`:
 ```typescript
 registerPower({
   id: 'power_id',
@@ -320,6 +381,17 @@ registerRelic({
 1. Add effect type to `AtomicEffect` union in `types/index.ts`
 2. Add handler case to appropriate category file in `game/effects/`
 
+### Adding Modifiers
+Add to `src/game/modifiers.ts`:
+```typescript
+{
+  id: 'modifier_id',
+  name: 'Modifier Name',
+  description: 'What it does',
+  effects: { goldMultiplier: 1.5 }
+}
+```
+
 ## Conventions
 
 - **Types**: ALL in `src/types/index.ts`, nowhere else
@@ -328,12 +400,50 @@ registerRelic({
 - **State**: Combat via `applyAction()`, meta via Zustand store
 - **Constants**: `UPPER_SNAKE_CASE` (CARDS, MONSTERS, ROOMS)
 - **Components**: PascalCase, one per directory with `index.tsx`
+- **Hooks**: `useXxx` prefix, return handlers + UI state
+
+## Testing
+
+652 tests across 17 test files. Run with:
+```bash
+npm run test        # Watch mode
+npm run test -- --run  # Single run
+```
+
+Test patterns:
+- Game logic tests in `src/game/__tests__/`
+- Use `fake-indexeddb` for Dexie tests
+- Mock GSAP for animation tests
 
 ## Build & Run
 
 ```bash
-npm run dev      # Development server (Vite HMR)
+npm run dev      # Development server (Vite HMR + ComfyUI + image-gen)
+npm run dev:vite # Vite only (no image services)
 npm run build    # Production build (tsc + vite)
 npm run test     # Run tests (Vitest)
 npm run preview  # Preview production build
+npm run lint     # ESLint check
 ```
+
+## Serena Memories
+
+This project has 56+ Serena memories documenting:
+- `project_overview` - High-level architecture
+- `codebase_structure` - Directory layout
+- `effects_engine` - Effect system details
+- `power_system_detailed` - Power mechanics
+- `hooks_system` - Custom React hooks
+- `visual_system` - Animation/particle system
+- `elemental_system` - Element combos
+- `hero_system` - Hero abilities
+- `relic_system` - Relic mechanics
+- `selection_effects` - Scry/tutor/discover
+- `dungeon_system` - Dungeon deck logic
+
+Use `mcp__serena__list_memories` and `mcp__serena__read_memory` to access.
+
+## Known Issues
+
+1. **Bundle size**: Main chunk is 760KB - consider code splitting
+2. **Mixed imports**: `db.ts` has both static and dynamic imports (Vite warning)
