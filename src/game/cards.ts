@@ -100,7 +100,7 @@ export function getStarterCardIds(): string[] {
  * Get the default starter hero ID.
  */
 export function getStarterHeroId(): string {
-  return 'hero_ironclad'
+  return 'hero_sakura'
 }
 
 /**
@@ -215,16 +215,167 @@ registerCardUnsafe({
 })
 
 // ============================================
-// STARTER HERO
-// The default hero given to every player.
-// Additional heroes are AI-generated (~2% pack rate).
+// STARTER HEROES
+// Three anime heroines with distinct elemental identities.
 // ============================================
+
+registerCardUnsafe({
+  id: 'hero_sakura',
+  name: 'Sakura',
+  description: 'A fierce fire mage whose flames burn with passion and fury.',
+  energy: 0,
+  theme: 'hero',
+  target: 'none',
+  rarity: 'rare',
+  element: 'fire',
+  image: '/cards/hero_sakura.webp',
+  archetype: 'Fire Mage',
+  heroStats: {
+    health: 70,
+    energy: 3,
+    drawPerTurn: 5,
+  },
+  passive: [
+    // Start combat with 2 Burning on all enemies
+    { type: 'applyPower', powerId: 'burning', amount: 2, target: 'allEnemies' },
+  ],
+  activated: {
+    description: 'Deal 10 fire damage. Apply 2 Burning.',
+    effects: [
+      { type: 'damage', amount: 10, target: 'enemy', element: 'fire' },
+      { type: 'applyPower', powerId: 'burning', amount: 2 },
+    ],
+    energyCost: 2,
+  },
+  ultimate: {
+    description: 'Deal 30 fire damage to ALL enemies. Apply 5 Burning.',
+    effects: [
+      { type: 'damage', amount: 30, target: 'allEnemies', element: 'fire' },
+      { type: 'applyPower', powerId: 'burning', amount: 5, target: 'allEnemies' },
+    ],
+    chargesRequired: 4,
+    chargeOn: 'cardPlayed',
+  },
+  effects: [],
+})
+
+registerCardUnsafe({
+  id: 'hero_luna',
+  name: 'Luna',
+  description: 'A graceful ice sorceress who freezes foes with elegant precision.',
+  energy: 0,
+  theme: 'hero',
+  target: 'none',
+  rarity: 'rare',
+  element: 'ice',
+  image: '/cards/hero_luna.webp',
+  archetype: 'Ice Sorceress',
+  heroStats: {
+    health: 75,
+    energy: 3,
+    drawPerTurn: 5,
+  },
+  passive: [
+    // Start combat with 8 Block
+    { type: 'block', amount: 8, target: 'self' },
+  ],
+  activated: {
+    description: 'Gain 12 Block. Apply 1 Frozen to an enemy.',
+    effects: [
+      { type: 'block', amount: 12, target: 'self' },
+      { type: 'applyPower', powerId: 'frozen', amount: 1 },
+    ],
+    energyCost: 2,
+  },
+  ultimate: {
+    description: 'Gain 25 Block. Apply 3 Frozen to ALL enemies.',
+    effects: [
+      { type: 'block', amount: 25, target: 'self' },
+      { type: 'applyPower', powerId: 'frozen', amount: 3, target: 'allEnemies' },
+    ],
+    chargesRequired: 4,
+    chargeOn: 'turnStart',
+  },
+  effects: [],
+})
+
+registerCardUnsafe({
+  id: 'hero_aria',
+  name: 'Aria',
+  description: 'A lightning warrior who strikes with blinding speed and electric fury.',
+  energy: 0,
+  theme: 'hero',
+  target: 'none',
+  rarity: 'rare',
+  element: 'lightning',
+  image: '/cards/hero_aria.webp',
+  archetype: 'Storm Knight',
+  heroStats: {
+    health: 65,
+    energy: 4,
+    drawPerTurn: 6,
+  },
+  passive: [
+    // Start combat with 1 extra energy and draw
+    { type: 'draw', amount: 1 },
+  ],
+  activated: {
+    description: 'Deal 6 lightning damage twice.',
+    effects: [
+      { type: 'damage', amount: 6, target: 'enemy', element: 'lightning' },
+      { type: 'damage', amount: 6, target: 'enemy', element: 'lightning' },
+    ],
+    energyCost: 1,
+  },
+  ultimate: {
+    description: 'Deal 15 lightning damage to ALL enemies 3 times.',
+    effects: [
+      { type: 'damage', amount: 15, target: 'allEnemies', element: 'lightning' },
+      { type: 'damage', amount: 15, target: 'allEnemies', element: 'lightning' },
+      { type: 'damage', amount: 15, target: 'allEnemies', element: 'lightning' },
+    ],
+    chargesRequired: 5,
+    chargeOn: 'cardPlayed',
+  },
+  effects: [],
+})
+
+// Test heroes used by hero.test.ts - simple abilities for predictable testing
+registerCardUnsafe({
+  id: 'hero_pyromancer',
+  name: 'Pyromancer',
+  description: 'A fire mage for testing AoE mechanics.',
+  energy: 0,
+  theme: 'hero',
+  target: 'none',
+  rarity: 'rare',
+  element: 'fire',
+  image: '/cards/hero_pyromancer.webp',
+  archetype: 'Fire Mage',
+  heroStats: { health: 70, energy: 3, drawPerTurn: 5 },
+  passive: [],
+  activated: {
+    description: 'Deal 8 fire damage to ALL enemies.',
+    effects: [{ type: 'damage', amount: 8, target: 'allEnemies', element: 'fire' }],
+    energyCost: 2,
+  },
+  ultimate: {
+    description: 'Deal 25 fire damage to ALL enemies. Apply 5 Burning.',
+    effects: [
+      { type: 'damage', amount: 25, target: 'allEnemies', element: 'fire' },
+      { type: 'applyPower', powerId: 'burning', amount: 5, target: 'allEnemies' },
+    ],
+    chargesRequired: 4,
+    chargeOn: 'cardPlayed',
+  },
+  effects: [],
+})
 
 registerCardUnsafe({
   id: 'hero_ironclad',
   name: 'Ironclad',
-  description: 'A battle-hardened warrior who draws strength from combat.',
-  energy: 0, // Heroes don't cost energy to "play" - they're your character
+  description: 'A stalwart warrior with balanced offense and defense.',
+  energy: 0,
   theme: 'hero',
   target: 'none',
   rarity: 'rare',
@@ -236,10 +387,7 @@ registerCardUnsafe({
     energy: 3,
     drawPerTurn: 5,
   },
-  passive: [
-    // Start combat with 1 Strength
-    { type: 'applyPower', powerId: 'strength', amount: 1, target: 'self' },
-  ],
+  passive: [],
   activated: {
     description: 'Gain 5 Block.',
     effects: [{ type: 'block', amount: 5, target: 'self' }],
@@ -250,43 +398,6 @@ registerCardUnsafe({
     effects: [{ type: 'damage', amount: 20, target: 'allEnemies' }],
     chargesRequired: 4,
     chargeOn: 'turnStart',
-  },
-  effects: [], // Heroes don't have normal card effects
-})
-
-registerCardUnsafe({
-  id: 'hero_pyromancer',
-  name: 'Pyromancer',
-  description: 'A master of flames who burns enemies over time.',
-  energy: 0,
-  theme: 'hero',
-  target: 'none',
-  rarity: 'rare',
-  element: 'fire',
-  image: '/cards/hero_pyromancer.webp',
-  archetype: 'Mage',
-  heroStats: {
-    health: 70,
-    energy: 3,
-    drawPerTurn: 5,
-  },
-  passive: [
-    // Apply 2 burning to all enemies at combat start
-    { type: 'applyPower', powerId: 'burning', amount: 2, target: 'allEnemies' },
-  ],
-  activated: {
-    description: 'Deal 8 fire damage to all enemies.',
-    effects: [{ type: 'damage', amount: 8, target: 'allEnemies', element: 'fire' }],
-    energyCost: 2,
-  },
-  ultimate: {
-    description: 'Deal 25 damage and apply 5 burning to ALL enemies.',
-    effects: [
-      { type: 'damage', amount: 25, target: 'allEnemies', element: 'fire' },
-      { type: 'applyPower', powerId: 'burning', amount: 5, target: 'allEnemies' },
-    ],
-    chargesRequired: 4,
-    chargeOn: 'cardPlayed',
   },
   effects: [],
 })
@@ -677,6 +788,9 @@ registerCardUnsafe({
   description: 'Master of death and darkness.',
   theme: 'enemy',
   element: 'void',
+  energy: 0,
+  target: 'none',
+  effects: [],
   image: '/cards/enemy_boss_necromancer.webp',
   enemyStats: {
     healthRange: [80, 100],
@@ -707,6 +821,9 @@ registerCardUnsafe({
   description: 'The corrupted heart grows stronger each turn.',
   theme: 'enemy',
   element: 'void',
+  energy: 0,
+  target: 'none',
+  effects: [],
   image: '/cards/enemy_boss_heart.webp',
   enemyStats: {
     healthRange: [120, 150],

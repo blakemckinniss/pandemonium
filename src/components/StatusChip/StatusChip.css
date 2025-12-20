@@ -1,5 +1,5 @@
 /* StatusChip Component Styles */
-/* Auto-extracted from index.css */
+/* Uses @theme variables from index.css */
 
 .StatusChip {
   display: inline-flex;
@@ -7,48 +7,56 @@
   gap: 0.375rem;
   padding: 0.375rem 0.625rem;
   border-radius: 0.5rem;
-  background: oklch(0.15 0.02 250 / 0.95);
-  border: 1px solid oklch(0.35 0.05 250);
+  background: var(--color-status-neutral-bg);
+  border: 1px solid var(--color-status-neutral-border);
   font-size: 0.75rem;
   font-family: var(--font-display);
   cursor: help;
   transition: all 0.15s ease;
   backdrop-filter: blur(4px);
-  box-shadow: 0 2px 4px oklch(0 0 0 / 0.3);
+  box-shadow: 0 2px 4px var(--color-shadow) / 0.3;
 }
 
 .StatusChip:hover {
   transform: translateY(-1px);
-  box-shadow: 0 4px 8px oklch(0 0 0 / 0.4);
+  box-shadow: 0 4px 8px var(--color-shadow) / 0.4;
 }
 
 .StatusChip--buff {
-  background: linear-gradient(135deg, oklch(0.2 0.08 145 / 0.9), oklch(0.15 0.05 145 / 0.95));
-  border-color: oklch(0.45 0.12 145);
-  box-shadow: 0 2px 4px oklch(0 0 0 / 0.3), inset 0 1px 0 oklch(0.5 0.1 145 / 0.2);
+  background: linear-gradient(135deg, var(--color-status-buff-bg), var(--color-status-buff-bg));
+  border-color: var(--color-status-buff-border);
+  box-shadow:
+    0 2px 4px var(--color-shadow) / 0.3,
+    inset 0 1px 0 var(--color-status-buff-glow) / 0.2;
 }
 
 .StatusChip--buff:hover {
-  border-color: oklch(0.55 0.15 145);
-  box-shadow: 0 4px 12px oklch(0.5 0.15 145 / 0.3), inset 0 1px 0 oklch(0.5 0.1 145 / 0.3);
+  border-color: var(--color-status-buff-glow);
+  box-shadow:
+    0 4px 12px var(--color-status-buff-glow) / 0.3,
+    inset 0 1px 0 var(--color-status-buff-glow) / 0.3;
 }
 
 .StatusChip--debuff {
-  background: linear-gradient(135deg, oklch(0.2 0.1 25 / 0.9), oklch(0.15 0.08 25 / 0.95));
-  border-color: oklch(0.45 0.15 25);
-  box-shadow: 0 2px 4px oklch(0 0 0 / 0.3), inset 0 1px 0 oklch(0.5 0.12 25 / 0.2);
+  background: linear-gradient(135deg, var(--color-status-debuff-bg), var(--color-status-debuff-bg));
+  border-color: var(--color-status-debuff-border);
+  box-shadow:
+    0 2px 4px var(--color-shadow) / 0.3,
+    inset 0 1px 0 var(--color-status-debuff-glow) / 0.2;
 }
 
 .StatusChip--debuff:hover {
-  border-color: oklch(0.55 0.18 25);
-  box-shadow: 0 4px 12px oklch(0.5 0.18 25 / 0.3), inset 0 1px 0 oklch(0.5 0.12 25 / 0.3);
+  border-color: var(--color-status-debuff-glow);
+  box-shadow:
+    0 4px 12px var(--color-status-debuff-glow) / 0.3,
+    inset 0 1px 0 var(--color-status-debuff-glow) / 0.3;
 }
 
 .StatusChip--overflow {
-  background: oklch(0.25 0 0 / 0.9);
-  border-color: oklch(0.4 0 0);
+  background: var(--color-status-disabled-bg);
+  border-color: var(--color-status-disabled-border);
   font-weight: 600;
-  color: oklch(0.7 0 0);
+  color: var(--color-status-disabled-text);
 }
 
 .StatusChip-icon {
@@ -59,9 +67,9 @@
 
 .StatusChip-name {
   font-weight: 500;
-  color: oklch(0.9 0.02 250);
+  color: var(--color-status-neutral-text);
   white-space: nowrap;
-  text-shadow: 0 1px 2px oklch(0 0 0 / 0.5);
+  text-shadow: 0 1px 2px var(--color-shadow) / 0.5;
 }
 
 .StatusChip-stacks {
@@ -69,18 +77,18 @@
   font-size: 0.8125rem;
   padding: 0.125rem 0.375rem;
   border-radius: 0.25rem;
-  background: oklch(0.1 0 0 / 0.6);
-  color: oklch(0.95 0.05 85);
+  background: var(--color-shadow) / 0.6;
+  color: var(--color-text-gold);
   min-width: 1.25rem;
   text-align: center;
 }
 
 .StatusChip--buff .StatusChip-stacks {
-  color: oklch(0.85 0.12 145);
+  color: var(--color-status-buff-text);
 }
 
 .StatusChip--debuff .StatusChip-stacks {
-  color: oklch(0.85 0.15 25);
+  color: var(--color-status-debuff-text);
 }
 
 .StatusChip-duration {
@@ -88,7 +96,7 @@
   align-items: center;
   gap: 0.125rem;
   font-size: 0.625rem;
-  color: oklch(0.6 0 0);
+  color: var(--color-status-disabled-text);
   margin-left: 0.125rem;
 }
 
@@ -111,12 +119,4 @@
   display: flex;
   flex-wrap: wrap;
   gap: 0.375rem;
-}
-
-.StatusChipBar-section--buffs {
-  /* Optional: visual grouping for buffs */
-}
-
-.StatusChipBar-section--debuffs {
-  /* Optional: visual grouping for debuffs */
 }
