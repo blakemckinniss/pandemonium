@@ -86,6 +86,24 @@ export function useRoomHandlers({
         }
       }
 
+      // Handle shop rooms
+      if (roomDef?.type === 'shop') {
+        return {
+          ...updatedState,
+          gamePhase: 'shop',
+          roomChoices: [],
+        }
+      }
+
+      // Handle event rooms
+      if (roomDef?.type === 'event') {
+        return {
+          ...updatedState,
+          gamePhase: 'event',
+          roomChoices: [],
+        }
+      }
+
       // Get active modifiers and heat for enemy stat scaling
       const runLockState = useRunLockStore.getState()
       const activeModifiers = runLockState.lockedRun?.activeModifiers ?? []

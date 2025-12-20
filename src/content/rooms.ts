@@ -197,6 +197,50 @@ export const ROOMS: Record<string, RoomDefinition> = {
     icon: '👑',
     image: '/cards/room_treasure.webp',
   },
+
+  // Shop rooms
+  wandering_merchant: {
+    id: 'wandering_merchant',
+    type: 'shop',
+    name: 'Wandering Merchant',
+    description: 'A mysterious trader offers rare wares.',
+    icon: '🛒',
+    image: '/cards/room_shop.webp',
+  },
+  black_market: {
+    id: 'black_market',
+    type: 'shop',
+    name: 'Black Market',
+    description: 'Illicit goods at premium prices.',
+    icon: '🏪',
+    image: '/cards/room_shop.webp',
+  },
+
+  // Event rooms
+  mysterious_encounter: {
+    id: 'mysterious_encounter',
+    type: 'event',
+    name: 'Strange Occurrence',
+    description: 'Something unusual awaits.',
+    icon: '❓',
+    image: '/cards/room_event.webp',
+  },
+  ancient_shrine: {
+    id: 'ancient_shrine',
+    type: 'event',
+    name: 'Ancient Shrine',
+    description: 'An altar to forgotten gods.',
+    icon: '🏛️',
+    image: '/cards/room_shrine.webp',
+  },
+  wandering_spirit: {
+    id: 'wandering_spirit',
+    type: 'event',
+    name: 'Wandering Spirit',
+    description: 'A ghostly presence beckons.',
+    icon: '👻',
+    image: '/cards/room_spirit.webp',
+  },
 }
 
 // Get rooms by type

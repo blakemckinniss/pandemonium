@@ -19,7 +19,7 @@ export interface DelayedEffectEntry {
 }
 
 export type TurnPhase = 'playerTurn' | 'enemyTurn' | 'victory' | 'defeat'
-export type GamePhase = 'menu' | 'roomSelect' | 'combat' | 'reward' | 'campfire' | 'treasure' | 'dungeonComplete' | 'gameOver'
+export type GamePhase = 'menu' | 'roomSelect' | 'combat' | 'reward' | 'campfire' | 'treasure' | 'shop' | 'event' | 'dungeonComplete' | 'gameOver'
 export type AppScreen = 'menu' | 'deckBuilder' | 'game'
 
 // Pending player selections (for scry, tutor, etc.)

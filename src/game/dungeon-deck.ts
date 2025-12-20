@@ -9,14 +9,18 @@ interface DungeonTemplate {
   elite: number
   campfire: number
   treasure: number
+  shop: number
+  event: number
   boss: number
 }
 
 const ACT_1_TEMPLATE: DungeonTemplate = {
-  combat: 7,
+  combat: 6,
   elite: 2,
   campfire: 2,
-  treasure: 2,
+  treasure: 1,
+  shop: 2,
+  event: 2,
   boss: 1,
 }
 
@@ -70,6 +74,28 @@ export function createDungeonDeck(modifiers: ModifierInstance[] = []): RoomCard[
   const treasureRooms = getRoomsByType('treasure')
   for (let i = 0; i < (template.treasure ?? ACT_1_TEMPLATE.treasure); i++) {
     const room = treasureRooms[i % treasureRooms.length]
+    deck.push({
+      uid: generateUid(),
+      definitionId: room.id,
+      revealed: false,
+    })
+  }
+
+  // Add shop rooms
+  const shopRooms = getRoomsByType('shop')
+  for (let i = 0; i < (template.shop ?? ACT_1_TEMPLATE.shop); i++) {
+    const room = shopRooms[i % shopRooms.length]
+    deck.push({
+      uid: generateUid(),
+      definitionId: room.id,
+      revealed: false,
+    })
+  }
+
+  // Add event rooms
+  const eventRooms = getRoomsByType('event')
+  for (let i = 0; i < (template.event ?? ACT_1_TEMPLATE.event); i++) {
+    const room = eventRooms[i % eventRooms.length]
     deck.push({
       uid: generateUid(),
       definitionId: room.id,
@@ -135,6 +161,10 @@ export function getRoomDifficultyColor(type: RoomType): string {
       return 'text-orange-400'
     case 'treasure':
       return 'text-purple-400'
+    case 'shop':
+      return 'text-amber-400'
+    case 'event':
+      return 'text-indigo-400'
     default:
       return 'text-gray-400'
   }
@@ -156,8 +186,8 @@ const ROOM_DEFINITIONS_BY_TYPE: Record<string, string[]> = {
   boss: ['boss_heart'],
   campfire: ['campfire'],
   treasure: ['treasure_small', 'treasure_large'],
-  event: ['campfire'], // Fallback to campfire for events
-  shop: ['treasure_small'], // Fallback to treasure for shops
+  event: ['mysterious_encounter', 'ancient_shrine', 'wandering_spirit'],
+  shop: ['wandering_merchant', 'black_market'],
 }
 
 /**

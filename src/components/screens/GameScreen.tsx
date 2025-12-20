@@ -9,6 +9,10 @@ import { RoomSelect } from '../DungeonDeck/RoomSelect'
 import { RewardScreen } from './RewardScreen'
 import { CampfireScreen } from './CampfireScreen'
 import { TreasureScreen } from './TreasureScreen'
+import { DungeonCompleteScreen } from './DungeonCompleteScreen'
+import { ShopScreen } from './ShopScreen'
+import { EventScreen } from './EventScreen'
+import type { EventEffect } from '../../content/events'
 import { PhaseWrapper } from '../ScreenTransition'
 import { UnlockNotification } from '../UnlockNotification/UnlockNotification'
 import { ParticleEffects } from '../ParticleEffects/ParticleEffects'
@@ -57,6 +61,7 @@ export function GameScreen({ deckId, heroId, dungeonDeckId, selectedModifierIds,
   const [pileModalOpen, setPileModalOpen] = useState<PileType | null>(null)
   const [triggeredRelicId, setTriggeredRelicId] = useState<string | null>(null)
   const [dungeonReward, setDungeonReward] = useState<number | null>(null)
+  const [previousStreak, setPreviousStreak] = useState<number>(0)
   const prevHealthRef = useRef<Record<string, number>>({})
   const victoryRef = useRef<HTMLDivElement>(null)
   const defeatRef = useRef<HTMLDivElement>(null)
@@ -358,6 +363,12 @@ export function GameScreen({ deckId, heroId, dungeonDeckId, selectedModifierIds,
           const difficulty = dungeon?.difficulty ?? 1
           const { goldReward } = await handleDungeonBeaten(state, difficulty)
           setDungeonReward(goldReward)
+
+          // Capture previous streak before incrementing
+          const { streak, incrementStreak } = useMetaStore.getState()
+          setPreviousStreak(streak.currentStreak)
+          incrementStreak()
+
           setState((prev) => {
             if (!prev) return prev
             return { ...prev, gamePhase: 'dungeonComplete', combat: null, gold: prev.gold + goldReward }
@@ -592,40 +603,213 @@ export function GameScreen({ deckId, heroId, dungeonDeckId, selectedModifierIds,
     )
   }
 
+  // Shop phase
+  if (state.gamePhase === 'shop') {
+    const handleBuyCard = (cardId: string, price: number) => {
+      const cardDef = getCardDefinition(cardId)
+      if (!cardDef || state.gold < price) return
+
+      const newCard = {
+        uid: generateUid(),
+        definitionId: cardId,
+        upgraded: false,
+      }
+
+      setState(prev => {
+        if (!prev) return prev
+        return {
+          ...prev,
+          deck: [...prev.deck, newCard],
+          gold: prev.gold - price,
+        }
+      })
+    }
+
+    const handleBuyRelic = (relicId: string, price: number) => {
+      if (state.gold < price) return
+
+      const newRelic = {
+        uid: generateUid(),
+        definitionId: relicId,
+      }
+
+      setState(prev => {
+        if (!prev) return prev
+        return {
+          ...prev,
+          relics: [...prev.relics, newRelic],
+          gold: prev.gold - price,
+        }
+      })
+    }
+
+    const handleRemoveCard = (cardUid: string) => {
+      const removalCost = 75
+      if (state.gold < removalCost) return
+
+      setState(prev => {
+        if (!prev) return prev
+        return {
+          ...prev,
+          deck: prev.deck.filter(c => c.uid !== cardUid),
+          gold: prev.gold - removalCost,
+        }
+      })
+    }
+
+    const handleLeaveShop = () => {
+      roomHandlers.handleRoomComplete()
+    }
+
+    return (
+      <PhaseWrapper phase="shop" className="h-screen">
+        <ShopScreen
+          runState={state}
+          onBuyCard={handleBuyCard}
+          onBuyRelic={handleBuyRelic}
+          onRemoveCard={handleRemoveCard}
+          onLeave={handleLeaveShop}
+          gold={state.gold}
+        />
+      </PhaseWrapper>
+    )
+  }
+
+  // Event phase
+  if (state.gamePhase === 'event') {
+    const handleEventChoice = (effects: EventEffect[]) => {
+      setState(prev => {
+        if (!prev) return prev
+
+        let updated = { ...prev }
+
+        for (const effect of effects) {
+          switch (effect.type) {
+            case 'gainGold':
+              updated = { ...updated, gold: updated.gold + effect.amount }
+              break
+            case 'loseGold':
+              updated = { ...updated, gold: Math.max(0, updated.gold - effect.amount) }
+              break
+            case 'heal': {
+              const healAmount = Math.min(effect.amount, updated.hero.maxHp - updated.hero.hp)
+              updated = { ...updated, hero: { ...updated.hero, hp: updated.hero.hp + healAmount } }
+              break
+            }
+            case 'damage':
+              updated = { ...updated, hero: { ...updated.hero, hp: Math.max(1, updated.hero.hp - effect.amount) } }
+              break
+            case 'gainMaxHP':
+              updated = {
+                ...updated,
+                hero: {
+                  ...updated.hero,
+                  maxHp: updated.hero.maxHp + effect.amount,
+                  hp: updated.hero.hp + effect.amount,
+                },
+              }
+              break
+            case 'loseMaxHP':
+              updated = {
+                ...updated,
+                hero: {
+                  ...updated.hero,
+                  maxHp: Math.max(1, updated.hero.maxHp - effect.amount),
+                  hp: Math.min(updated.hero.hp, Math.max(1, updated.hero.maxHp - effect.amount)),
+                },
+              }
+              break
+            case 'addCard': {
+              const newCard = { uid: generateUid(), definitionId: effect.cardId, upgraded: false }
+              updated = { ...updated, deck: [...updated.deck, newCard] }
+              break
+            }
+            case 'removeRandomCard': {
+              if (updated.deck.length > 0) {
+                const idx = Math.floor(Math.random() * updated.deck.length)
+                updated = { ...updated, deck: updated.deck.filter((_, i) => i !== idx) }
+              }
+              break
+            }
+            case 'upgradeRandomCard': {
+              const upgradeable = updated.deck.filter(c => !c.upgraded)
+              if (upgradeable.length > 0) {
+                const target = upgradeable[Math.floor(Math.random() * upgradeable.length)]
+                updated = {
+                  ...updated,
+                  deck: updated.deck.map(c => c.uid === target.uid ? { ...c, upgraded: true } : c),
+                }
+              }
+              break
+            }
+            case 'addRelic': {
+              const newRelic = { uid: generateUid(), definitionId: effect.relicId }
+              updated = { ...updated, relics: [...updated.relics, newRelic] }
+              break
+            }
+            case 'addCurse': {
+              const curseCard = { uid: generateUid(), definitionId: 'curse_decay', upgraded: false }
+              updated = { ...updated, deck: [...updated.deck, curseCard] }
+              break
+            }
+            // gainStrength and gainDexterity would need hero stat system - skip for now
+          }
+        }
+
+        return updated
+      })
+    }
+
+    const handleLeaveEvent = () => {
+      roomHandlers.handleRoomComplete({ roomUid: state.currentRoomUid ?? '' })
+    }
+
+    return (
+      <PhaseWrapper phase="event" className="h-screen">
+        <EventScreen
+          runState={state}
+          onChoiceSelected={handleEventChoice}
+          onLeave={handleLeaveEvent}
+        />
+      </PhaseWrapper>
+    )
+  }
+
   // Dungeon complete (boss defeated)
   if (state.gamePhase === 'dungeonComplete') {
+    const streak = useMetaStore.getState().streak
+    const activeModifiers = lockedRun?.activeModifiers ?? []
+
+    // Build rewards object for DungeonCompleteScreen
+    const rewards = {
+      gold: dungeonReward ?? 0,
+      baseGold: Math.floor((dungeonReward ?? 0) / goldMultiplier),
+      multiplier: goldMultiplier,
+      cardsUnlocked: pendingUnlocks.filter(u => u.startsWith('card_')).length,
+      xp: 0, // XP system not yet implemented
+      heatReduced: 0, // Heat reduction not yet implemented
+    }
+
+    const handleClaim = () => {
+      // Add gold to meta store
+      const store = useMetaStore.getState()
+      store.addGold(rewards.gold)
+      // Return to menu
+      roomHandlers.handleRestart()
+    }
+
     return (
       <PhaseWrapper phase="dungeonComplete">
-        <div className="h-screen flex flex-col items-center justify-center bg-gradient-to-b from-amber-900/20 to-warm-900">
-          <UnlockNotification unlocks={pendingUnlocks} onComplete={roomHandlers.handleUnlocksDismissed} />
-          <div className="text-center">
-            <div className="text-6xl mb-4">👑</div>
-            <h1 className="text-5xl font-bold text-energy mb-4">Dungeon Conquered!</h1>
-            <p className="text-xl text-warm-300 mb-6">You have defeated the dungeon boss!</p>
-
-            <div className="bg-warm-800/50 rounded-xl p-6 mb-8 border border-energy/30">
-              <h2 className="text-2xl font-bold text-energy mb-4">Rewards</h2>
-              <div className="flex items-center justify-center gap-2 text-3xl">
-                <Icon icon="mdi:gold" className="text-energy" />
-                <span className="text-energy font-bold">+{dungeonReward ?? 0}</span>
-              </div>
-              <p className="text-warm-400 mt-2">Total Gold: {state.gold}</p>
-            </div>
-
-            <div className="text-sm text-warm-500 mb-8 space-y-1">
-              <p>Floors Cleared: {state.floor}</p>
-              <p>Enemies Slain: {state.stats.enemiesKilled}</p>
-              <p>Damage Dealt: {state.stats.damageDealt}</p>
-            </div>
-
-            <button
-              onClick={roomHandlers.handleRestart}
-              className="px-8 py-3 bg-energy text-black font-bold rounded-lg text-lg hover:brightness-110 transition"
-            >
-              Return to Menu
-            </button>
-          </div>
-        </div>
+        <UnlockNotification unlocks={pendingUnlocks} onComplete={roomHandlers.handleUnlocksDismissed} />
+        <DungeonCompleteScreen
+          rewards={rewards}
+          streak={streak}
+          previousStreak={previousStreak}
+          floorsCleared={state.floor}
+          totalFloors={state.floor} // All floors cleared on boss defeat
+          modifiersUsed={activeModifiers.length}
+          onClaim={handleClaim}
+        />
       </PhaseWrapper>
     )
   }
