@@ -2,6 +2,10 @@ import { useEffect, useRef, useState, type ReactNode } from 'react'
 import { Icon } from '@iconify/react'
 import { gsap } from '../../lib/animations'
 
+// Type for registered GSAP effects
+type GsapEffect = (target: gsap.TweenTarget, config?: object) => gsap.core.Tween | gsap.core.Timeline
+type GsapEffects = Record<string, GsapEffect>
+
 interface ModalProps {
   isOpen: boolean
   onClose: () => void
@@ -22,13 +26,14 @@ export function Modal({ isOpen, onClose, title, children, size = 'md' }: ModalPr
     if (!dialog || !content) return
 
     if (isOpen && !isVisible) {
-      // Opening animation
+      // Opening animation - setState calls intentionally sync with modal open state
       dialog.showModal()
       setIsVisible(true)
       setIsAnimating(true)
 
-      gsap.effects.modalBackdropIn(dialog)
-      gsap.effects.modalEnter(content, {
+      const effects = gsap.effects as GsapEffects
+      effects.modalBackdropIn(dialog)
+      effects.modalEnter(content, {
         onComplete: () => setIsAnimating(false),
       })
     } else if (!isOpen && isVisible) {
@@ -43,8 +48,9 @@ export function Modal({ isOpen, onClose, title, children, size = 'md' }: ModalPr
         },
       })
 
-      tl.add(gsap.effects.modalExit(content), 0)
-      tl.add(gsap.effects.modalBackdropOut(dialog), 0)
+      const effects = gsap.effects as GsapEffects
+      tl.add(effects.modalExit(content), 0)
+      tl.add(effects.modalBackdropOut(dialog), 0)
     }
   }, [isOpen, isVisible])
 

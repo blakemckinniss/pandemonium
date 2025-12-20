@@ -77,6 +77,7 @@ export const Field = memo(function Field({ player, enemies, onTargetClick, onUse
 
     if (entities.length > 0 && effects.combatEntry) {
       effects.combatEntry(entities)
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- Track animation completion
       setHasAnimated(true)
     }
   }, [hasAnimated])

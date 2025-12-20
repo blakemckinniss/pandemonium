@@ -27,6 +27,8 @@ export const RunLockIndicator = memo(function RunLockIndicator({
 }: RunLockIndicatorProps) {
   const containerRef = useRef<HTMLDivElement>(null)
   const [showAbandonConfirm, setShowAbandonConfirm] = useState(false)
+  // Capture timestamp once on render to avoid Date.now() impurity
+  const [lastUpdatedAt] = useState(() => Date.now())
 
   const status = run?.status ?? 'active'
   const config = STATUS_CONFIG[status] ?? STATUS_CONFIG.active
@@ -43,9 +45,10 @@ export const RunLockIndicator = memo(function RunLockIndicator({
       ease: 'sine.inOut',
     })
 
+    const container = containerRef.current
     return () => {
-      if (containerRef.current) {
-        gsap.killTweensOf(containerRef.current)
+      if (container) {
+        gsap.killTweensOf(container)
       }
     }
   }, [status])
@@ -75,7 +78,7 @@ export const RunLockIndicator = memo(function RunLockIndicator({
     roomsRemaining: run.progress.roomsRemaining,
     activeModifierCount: run.activeModifiers.length,
     lockedAt: run.lockedAt,
-    lastUpdatedAt: Date.now(),
+    lastUpdatedAt,
   }
   const displayInfo = formatRecoveryInfo(recoveryInfo)
 

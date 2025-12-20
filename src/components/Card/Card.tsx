@@ -150,6 +150,7 @@ export const Card = memo(function Card({
 
   // Reset error state when image source changes
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- Intentional reset on source change
     setImageError(false)
   }, [resolvedImage])
 
@@ -525,6 +526,7 @@ const PowerIndicatorsVertical = memo(function PowerIndicatorsVertical({ powers }
     prevAmountsRef.current = Object.fromEntries(entries.map(([id, p]) => [id, p.amount]))
 
     if (Object.keys(newAnimations).length > 0) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- Sync animation state with power changes
       setAnimatingPowers(newAnimations)
       // Clear animations after they complete (400ms matches CSS duration)
       const timer = setTimeout(() => setAnimatingPowers({}), 400)

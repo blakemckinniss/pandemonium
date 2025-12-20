@@ -51,7 +51,7 @@ function analyzeCollection(collection: CollectionCard[]): CollectionAnalysis {
   const ownedIds = new Set(collection.map((c) => c.cardId))
 
   // Rarity breakdown
-  const byRarity: Record<CardRarity, { owned: number; total: number }> = {} as any
+  const byRarity = {} as Record<CardRarity, { owned: number; total: number }>
   for (const rarity of RARITY_ORDER) {
     byRarity[rarity] = { owned: 0, total: 0 }
   }

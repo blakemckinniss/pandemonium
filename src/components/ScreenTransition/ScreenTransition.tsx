@@ -16,6 +16,8 @@ const phaseEnterEffects: Record<GamePhase, string> = {
   reward: 'rewardEnter',
   campfire: 'campfireEnter',
   treasure: 'treasureEnter',
+  event: 'screenFadeIn',
+  shop: 'screenFadeIn',
   dungeonComplete: 'victoryEnter',
   gameOver: 'defeatEnter',
 }

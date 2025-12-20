@@ -478,6 +478,7 @@ export const RarityShader = memo(function RarityShader({
         container.removeChild(renderer.domElement)
       }
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- mouseX/mouseY/isHovered intentionally excluded; updated via separate effect
   }, [width, height, rarityLevel, element])
 
   // Update uniforms when props change
@@ -491,8 +492,9 @@ export const RarityShader = memo(function RarityShader({
   // Update mouse uniforms (separate effect for performance - runs frequently)
   useEffect(() => {
     if (materialRef.current) {
-      materialRef.current.uniforms.uMouse.value.set(mouseX, mouseY)
-      materialRef.current.uniforms.uHovered.value = isHovered ? 1.0 : 0.0
+      const uniforms = materialRef.current.uniforms
+      ;(uniforms.uMouse.value as THREE.Vector2).set(mouseX, mouseY)
+      uniforms.uHovered.value = isHovered ? 1.0 : 0.0
     }
   }, [mouseX, mouseY, isHovered])
 

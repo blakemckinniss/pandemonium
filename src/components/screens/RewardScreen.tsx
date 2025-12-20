@@ -3,10 +3,12 @@ import { Icon } from '@iconify/react'
 import { Card, getCardDefProps } from '../Card/Card'
 import { CardPreviewModal } from '../Modal/CardPreviewModal'
 import type { CardDefinition, RelicDefinition } from '../../types'
-import { getAllCards } from '../../game/cards'
 import { getAllRelics } from '../../game/relics'
 import { gsap } from '../../lib/animations'
-import { generateRandomCard } from '../../game/card-generator'
+import { getCachedCards, getCacheSize } from '../../game/card-cache'
+
+// AI-first: ALL rewards are freshly generated (served from cache when available)
+const CARDS_PER_REWARD = 3
 
 interface RewardScreenProps {
   floor: number
@@ -22,75 +24,47 @@ export function RewardScreen({ floor, gold, goldMultiplier = 1, ownedRelicIds, o
   const containerRef = useRef<HTMLDivElement>(null)
   const [cardChoices, setCardChoices] = useState<CardDefinition[]>([])
   const [relicChoice, setRelicChoice] = useState<RelicDefinition | null>(null)
-  // Apply gold multiplier from modifiers
   const [goldReward] = useState(() => Math.floor((15 + Math.floor(Math.random() * 10)) * goldMultiplier))
-  const [isGenerating, setIsGenerating] = useState(false)
+  const [isGenerating, setIsGenerating] = useState(true) // Start generating immediately
+  const [generationProgress, setGenerationProgress] = useState(0)
   const [generationError, setGenerationError] = useState<string | null>(null)
   const [previewCard, setPreviewCard] = useState<CardDefinition | null>(null)
 
-  // Generate card choices on mount with rarity weighting
+  // Get cards from cache (instant if primed, generates if needed)
   useEffect(() => {
-    const allCards = getAllCards().filter(
-      (c) => !['strike', 'defend'].includes(c.id) // Exclude basic cards
-    )
+    let cancelled = false
 
-    // Group cards by rarity
-    const byRarity: Record<string, CardDefinition[]> = {
-      common: [],
-      uncommon: [],
-      rare: [],
-    }
-    for (const card of allCards) {
-      const rarity = card.rarity ?? 'common'
-      if (byRarity[rarity]) {
-        byRarity[rarity].push(card)
-      } else {
-        byRarity.common.push(card)
+    async function loadCards() {
+      setIsGenerating(true)
+      setGenerationError(null)
+
+      // Check cache first - if full, this is instant
+      const cacheSize = getCacheSize()
+      if (cacheSize >= CARDS_PER_REWARD) {
+        setGenerationProgress(CARDS_PER_REWARD) // Show as complete
       }
-    }
 
-    // Rarity weights: common 60%, uncommon 30%, rare 10%
-    const rarityWeights = [
-      { rarity: 'common', weight: 0.6 },
-      { rarity: 'uncommon', weight: 0.3 },
-      { rarity: 'rare', weight: 0.1 },
-    ]
-
-    // Pick 3 cards with weighted rarity selection
-    const choices: CardDefinition[] = []
-    const usedIds = new Set<string>()
-
-    for (let i = 0; i < 3; i++) {
-      // Roll for rarity
-      const roll = Math.random()
-      let cumulative = 0
-      let selectedRarity = 'common'
-
-      for (const { rarity, weight } of rarityWeights) {
-        cumulative += weight
-        if (roll < cumulative) {
-          selectedRarity = rarity
-          break
+      try {
+        const cards = await getCachedCards(CARDS_PER_REWARD)
+        if (!cancelled) {
+          setCardChoices(cards)
+          setGenerationProgress(cards.length)
+          setIsGenerating(false)
+          if (cards.length === 0) {
+            setGenerationError('Failed to generate cards. Try again?')
+          }
+        }
+      } catch (err) {
+        if (!cancelled) {
+          console.error('Card loading failed:', err)
+          setIsGenerating(false)
+          setGenerationError('Failed to generate cards. Try again?')
         }
       }
-
-      // Get available cards of that rarity (not already chosen)
-      let pool = byRarity[selectedRarity].filter((c) => !usedIds.has(c.id))
-
-      // Fallback to any available card if pool empty
-      if (pool.length === 0) {
-        pool = allCards.filter((c) => !usedIds.has(c.id))
-      }
-
-      if (pool.length > 0) {
-        const idx = Math.floor(Math.random() * pool.length)
-        const card = pool[idx]
-        choices.push(card)
-        usedIds.add(card.id)
-      }
     }
 
-    setCardChoices(choices)
+    void loadCards()
+    return () => { cancelled = true }
   }, [])
 
   // Generate relic choice on mount (30% chance to offer a relic)
@@ -113,17 +87,24 @@ export function RewardScreen({ floor, gold, goldMultiplier = 1, ownedRelicIds, o
     setRelicChoice(relic)
   }, [ownedRelicIds])
 
-  // Handle generating a new card via LLM
-  async function handleGenerateCard() {
+  // Retry loading cards
+  async function handleRetryGeneration() {
+    setCardChoices([])
     setIsGenerating(true)
     setGenerationError(null)
+    setGenerationProgress(0)
+
     try {
-      const newCard = await generateRandomCard()
-      setCardChoices((prev) => [...prev, newCard])
-    } catch (err) {
-      setGenerationError(err instanceof Error ? err.message : 'Failed to generate card')
-    } finally {
+      const cards = await getCachedCards(CARDS_PER_REWARD)
+      setCardChoices(cards)
+      setGenerationProgress(cards.length)
       setIsGenerating(false)
+      if (cards.length === 0) {
+        setGenerationError('Failed to generate cards. Try again?')
+      }
+    } catch {
+      setIsGenerating(false)
+      setGenerationError('Failed to generate cards. Try again?')
     }
   }
 
@@ -203,9 +184,27 @@ export function RewardScreen({ floor, gold, goldMultiplier = 1, ownedRelicIds, o
       </div>
 
       {/* Card choices */}
-      <p className="text-warm-400 mb-4">Choose a card to add to your deck:</p>
+      <p className="text-warm-400 mb-4">
+        {isGenerating
+          ? `Generating unique cards... (${generationProgress}/${CARDS_PER_REWARD})`
+          : 'Choose a card to add to your deck:'}
+      </p>
 
-      <div ref={containerRef} className="flex gap-4 mb-8 items-center">
+      <div ref={containerRef} className="flex gap-4 mb-8 items-center min-h-48">
+        {/* Loading placeholders while generating */}
+        {isGenerating && cardChoices.length < CARDS_PER_REWARD && (
+          Array.from({ length: CARDS_PER_REWARD - cardChoices.length }, (_, i) => (
+            <div
+              key={`placeholder-${i}`}
+              className="w-32 h-44 rounded-lg border-2 border-dashed border-warm-700 bg-surface/30 flex flex-col items-center justify-center animate-pulse"
+            >
+              <div className="animate-spin w-6 h-6 border-2 border-energy border-t-transparent rounded-full mb-2" />
+              <span className="text-xs text-warm-500">Creating...</span>
+            </div>
+          ))
+        )}
+
+        {/* Generated cards */}
         {cardChoices.map((cardDef) => (
           <div key={cardDef.id} className="RewardCard group relative">
             <button
@@ -214,6 +213,10 @@ export function RewardScreen({ floor, gold, goldMultiplier = 1, ownedRelicIds, o
             >
               <Card {...getCardDefProps(cardDef)} variant="hand" playable />
             </button>
+            {/* AI badge */}
+            <div className="absolute -top-2 -right-2 px-2 py-0.5 bg-energy/90 text-white text-xs rounded-full font-medium shadow-lg">
+              ✨ AI
+            </div>
             {/* Preview button */}
             <button
               onClick={(e) => {
@@ -227,28 +230,19 @@ export function RewardScreen({ floor, gold, goldMultiplier = 1, ownedRelicIds, o
             </button>
           </div>
         ))}
-
-        {/* Generate Card Button */}
-        <button
-          onClick={() => void handleGenerateCard()}
-          disabled={isGenerating}
-          className="RewardCard flex flex-col items-center justify-center w-32 h-44 rounded-lg border-2 border-dashed border-warm-600 hover:border-energy hover:bg-surface/50 transition-colors disabled:opacity-50 disabled:cursor-wait"
-        >
-          {isGenerating ? (
-            <div className="animate-spin w-8 h-8 border-2 border-energy border-t-transparent rounded-full" />
-          ) : (
-            <>
-              <span className="text-3xl mb-2">✨</span>
-              <span className="text-sm text-warm-400">Generate</span>
-              <span className="text-xs text-warm-500">New Card</span>
-            </>
-          )}
-        </button>
       </div>
 
-      {/* Generation error */}
+      {/* Generation error with retry */}
       {generationError && (
-        <p className="text-damage text-sm mb-4">{generationError}</p>
+        <div className="flex items-center gap-3 mb-4">
+          <p className="text-damage text-sm">{generationError}</p>
+          <button
+            onClick={() => void handleRetryGeneration()}
+            className="px-3 py-1 text-sm bg-energy/20 text-energy rounded hover:bg-energy/30 transition-colors"
+          >
+            Retry
+          </button>
+        </div>
       )}
 
       {/* Skip button */}

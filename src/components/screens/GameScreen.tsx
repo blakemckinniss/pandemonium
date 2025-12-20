@@ -670,7 +670,7 @@ export function GameScreen({ deckId, heroId, dungeonDeckId, selectedModifierIds,
     }
 
     const handleLeaveShop = () => {
-      roomHandlers.handleRoomComplete()
+      roomHandlers.handleRoomComplete({ roomUid: state.currentRoomUid ?? '' })
     }
 
     return (

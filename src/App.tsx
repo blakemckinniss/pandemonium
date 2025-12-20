@@ -3,6 +3,8 @@ import { MenuScreen } from './components/screens/MenuScreen'
 import { loadGeneratedCardsIntoRegistry } from './game/card-generator'
 import { useRunRecovery, formatRecoveryInfo } from './hooks/useRunRecovery'
 import { restoreRunFromLocked } from './game/run-lock'
+import { primeCache } from './game/card-cache'
+import { checkServiceHealth } from './lib/image-gen'
 import type { RunState, RunRecoveryInfo } from './types'
 
 // Lazy load heavy components - MenuScreen is now the unified hub
@@ -11,12 +13,41 @@ const AmbientBackground = lazy(() => import('./components/AmbientBackground/Ambi
 
 function App() {
   const [ready, setReady] = useState(false)
+  const [imageServiceReady, setImageServiceReady] = useState(false)
+  const [imageServiceChecking, setImageServiceChecking] = useState(true)
   const [currentScreen, setCurrentScreen] = useState<'menu' | 'game'>('menu')
   const [selectedDeckId, setSelectedDeckId] = useState<string | null>(null)
   const [selectedHeroId, setSelectedHeroId] = useState<string>('hero_ironclad')
   const [selectedDungeonId, setSelectedDungeonId] = useState<string | undefined>(undefined)
   const [selectedModifierIds, setSelectedModifierIds] = useState<string[]>([])
   const [restoredRunState, setRestoredRunState] = useState<RunState | null>(null)
+
+  // Check image-gen service health - REQUIRED for gameplay
+  useEffect(() => {
+    let cancelled = false
+    let retryTimeout: ReturnType<typeof setTimeout>
+
+    async function checkService() {
+      setImageServiceChecking(true)
+      const healthy = await checkServiceHealth()
+      if (cancelled) return
+
+      setImageServiceReady(healthy)
+      setImageServiceChecking(false)
+
+      // If not healthy, retry every 3 seconds
+      if (!healthy) {
+        retryTimeout = setTimeout(checkService, 3000)
+      }
+    }
+
+    void checkService()
+
+    return () => {
+      cancelled = true
+      clearTimeout(retryTimeout)
+    }
+  }, [])
 
   // Handle run recovery from browser close
   const handleResume = useCallback((info: RunRecoveryInfo) => {
@@ -50,7 +81,52 @@ function App() {
 
   if (!ready) return null
 
+  // Block gameplay until image-gen service is available
+  if (!imageServiceReady) {
+    return (
+      <div className="min-h-screen bg-gradient-to-b from-void-900 via-void-950 to-black flex flex-col items-center justify-center text-center p-8">
+        <div className="max-w-md">
+          <h1 className="text-4xl font-display text-energy mb-4">✧ Pandemonium ✧</h1>
+          <div className="mb-8">
+            {imageServiceChecking ? (
+              <>
+                <div className="animate-spin w-8 h-8 border-2 border-energy border-t-transparent rounded-full mx-auto mb-4" />
+                <p className="text-warm-300">Connecting to AI services...</p>
+              </>
+            ) : (
+              <>
+                <div className="w-16 h-16 rounded-full bg-damage/20 flex items-center justify-center mx-auto mb-4">
+                  <span className="text-3xl">⚠️</span>
+                </div>
+                <h2 className="text-xl font-display text-damage mb-2">Image Service Required</h2>
+                <p className="text-warm-400 mb-6">
+                  Pandemonium requires the AI image generation service to create card art.
+                </p>
+                <div className="bg-surface/50 rounded-lg p-4 text-left mb-6">
+                  <p className="text-warm-300 text-sm mb-2">Start the service:</p>
+                  <code className="text-energy text-xs block bg-black/30 p-2 rounded font-mono">
+                    cd services/image-gen && python server.py
+                  </code>
+                  <p className="text-warm-500 text-xs mt-2">
+                    Requires ComfyUI running on port 8188
+                  </p>
+                </div>
+                <div className="flex items-center justify-center gap-2 text-warm-500">
+                  <div className="animate-spin w-4 h-4 border-2 border-warm-500 border-t-transparent rounded-full" />
+                  <span className="text-sm">Retrying connection...</span>
+                </div>
+              </>
+            )}
+          </div>
+        </div>
+      </div>
+    )
+  }
+
   const handleStartRun = (deckId: string | null, heroId: string, dungeonDeckId?: string, modifierIds?: string[]) => {
+    // Prime the AI card cache for instant rewards
+    primeCache()
+
     setSelectedDeckId(deckId)
     setSelectedHeroId(heroId)
     setSelectedDungeonId(dungeonDeckId)

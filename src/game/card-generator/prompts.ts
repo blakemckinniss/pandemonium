@@ -85,6 +85,20 @@ Meta effects:
 - { "type": "repeat", "times": N, "effects": [...] } - Repeat effects N times
 - { "type": "conditional", "condition": {...}, "then": [...], "else": [...] }
 
+VALID CONDITION TYPES (for conditional effects):
+- { "type": "health", "target": "self"|"enemy", "compare": "current"|"percent", "op": "<="|">="|"=", "value": N }
+- { "type": "hasPower", "target": "self"|"enemy", "powerId": "vulnerable"|"weak"|"poison"|etc, "minStacks": N }
+- { "type": "resource", "resource": "energy"|"block", "op": ">="|"<="|"=", "value": N }
+- { "type": "turn", "op": "="|"<="|">=", "value": N }
+- { "type": "cardsPlayed", "op": ">="|"<="|"=", "value": N }
+- { "type": "cardCount", "pile": "hand"|"drawPile"|"discardPile", "op": ">="|"<=", "value": N }
+- Composite: { "type": "and"|"or", "conditions": [...] } or { "type": "not", "condition": {...} }
+
+CONDITIONAL EXAMPLES:
+- If enemy has Vulnerable: { "type": "conditional", "condition": { "type": "hasPower", "target": "enemy", "powerId": "vulnerable" }, "then": [{ "type": "damage", "amount": 8 }] }
+- If HP <= 50%: { "type": "conditional", "condition": { "type": "health", "target": "self", "compare": "percent", "op": "<=", "value": 50 }, "then": [{ "type": "block", "amount": 10 }] }
+- If turn 1: { "type": "conditional", "condition": { "type": "turn", "op": "=", "value": 1 }, "then": [{ "type": "draw", "amount": 2 }] }
+
 BALANCE SYSTEM (MANDATORY - cards MUST hit these power budgets):
 
 ⚠️ CRITICAL: Underpowered cards are REJECTED. Always aim for the MIDDLE of the range, not the low end.

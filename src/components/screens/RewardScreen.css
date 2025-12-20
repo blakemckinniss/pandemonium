@@ -8,19 +8,6 @@
     linear-gradient(180deg, oklch(0.11 0.015 40) 0%, oklch(0.08 0.01 35) 100%);
 }
 
-.RewardScreen__title {
-  font-family: var(--font-display);
-  font-size: 2.5rem;
-  font-weight: 600;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  color: var(--color-gold);
-  text-shadow:
-    0 0 40px oklch(0.65 0.18 70 / 0.5),
-    0 0 80px oklch(0.55 0.15 70 / 0.3),
-    0 2px 4px oklch(0 0 0 / 0.6);
-}
-
 .RewardOption {
   background: linear-gradient(135deg, oklch(0.18 0.02 45) 0%, oklch(0.14 0.015 40) 100%);
   border: 2px solid oklch(0.30 0.04 50);

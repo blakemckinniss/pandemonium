@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react'
 import type { RunState, CardDefinition, RelicDefinition, CardRarity, RelicRarity } from '../../types'
 import { getAllCards, getCardDefinition } from '../../game/cards'
-import { getAllRelics, getRelicDefinition, getRelicsByRarity } from '../../game/relics'
+import { getRelicsByRarity } from '../../game/relics'
 import { generateUid } from '../../lib/utils'
 import { gsap } from '../../lib/animations'
 
@@ -234,7 +234,7 @@ export function ShopScreen({ runState, onBuyCard, onBuyRelic, onRemoveCard, onLe
                       <span className={`text-xs px-2 py-1 rounded ${rarityStyle.bg} ${rarityStyle.text}`}>
                         {rarity}
                       </span>
-                      <span className="text-energy">{card.energy} ⚡</span>
+                      <span className="text-energy">{typeof card.energy === 'number' ? card.energy : (card.energy as { value: number }).value} ⚡</span>
                     </div>
                   </div>
 

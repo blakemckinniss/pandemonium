@@ -24,7 +24,7 @@ function checkCondition(choice: EventChoice, runState: RunState): boolean {
     }
     case 'hasHP': {
       const required = typeof value === 'number' ? value : parseInt(value, 10)
-      const currentHP = runState.combat?.player.hp ?? runState.hero.hp
+      const currentHP = runState.combat?.player.currentHealth ?? runState.hero.currentHealth
       if (comparison === 'gte') return currentHP >= required
       if (comparison === 'lte') return currentHP <= required
       return currentHP === required
@@ -265,7 +265,7 @@ export function EventScreen({ runState, onChoiceSelected, onLeave }: EventScreen
         {/* Player Stats Bar */}
         <div className="event-stats mt-6 flex justify-center gap-6">
           <div className="bg-surface rounded-lg px-4 py-2 border border-warm-700">
-            <span className="text-damage">❤️ {runState.hero.hp}/{runState.hero.maxHp}</span>
+            <span className="text-damage">❤️ {runState.hero.currentHealth}/{runState.hero.maxHealth}</span>
           </div>
           <div className="bg-surface rounded-lg px-4 py-2 border border-warm-700">
             <span className="text-warm-300">💰 {runState.gold}</span>

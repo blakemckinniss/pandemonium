@@ -2,121 +2,166 @@
   {
     "card_id": "strike",
     "status": "success",
-    "path": "/home/jinx/projects/pandemonium/services/image-gen/generated/strike.webp"
+    "path": "/home/jinx/projects/pandemonium/services/image-gen/generated/strike.png"
   },
   {
     "card_id": "defend",
     "status": "success",
-    "path": "/home/jinx/projects/pandemonium/services/image-gen/generated/defend.webp"
+    "path": "/home/jinx/projects/pandemonium/services/image-gen/generated/defend.png"
   },
   {
     "card_id": "bash",
     "status": "success",
-    "path": "/home/jinx/projects/pandemonium/services/image-gen/generated/bash.webp"
+    "path": "/home/jinx/projects/pandemonium/services/image-gen/generated/bash.png"
   },
   {
-    "card_id": "hero_ironclad",
+    "card_id": "hero_sakura",
     "status": "success",
-    "path": "/home/jinx/projects/pandemonium/services/image-gen/generated/hero_ironclad.webp"
+    "path": "/home/jinx/projects/pandemonium/services/image-gen/generated/hero_sakura.png"
   },
   {
-    "card_id": "hero_pyromancer",
+    "card_id": "hero_luna",
     "status": "success",
-    "path": "/home/jinx/projects/pandemonium/services/image-gen/generated/hero_pyromancer.webp"
+    "path": "/home/jinx/projects/pandemonium/services/image-gen/generated/hero_luna.png"
+  },
+  {
+    "card_id": "hero_aria",
+    "status": "success",
+    "path": "/home/jinx/projects/pandemonium/services/image-gen/generated/hero_aria.png"
   },
   {
     "card_id": "inflame",
     "status": "success",
-    "path": "/home/jinx/projects/pandemonium/services/image-gen/generated/inflame.webp"
+    "path": "/home/jinx/projects/pandemonium/services/image-gen/generated/inflame.png"
   },
   {
     "card_id": "demon_form",
     "status": "success",
-    "path": "/home/jinx/projects/pandemonium/services/image-gen/generated/demon_form.webp"
+    "path": "/home/jinx/projects/pandemonium/services/image-gen/generated/demon_form.png"
   },
   {
     "card_id": "metallicize",
     "status": "success",
-    "path": "/home/jinx/projects/pandemonium/services/image-gen/generated/metallicize.webp"
+    "path": "/home/jinx/projects/pandemonium/services/image-gen/generated/metallicize.png"
   },
   {
     "card_id": "noxious_fumes",
     "status": "success",
-    "path": "/home/jinx/projects/pandemonium/services/image-gen/generated/noxious_fumes.webp"
+    "path": "/home/jinx/projects/pandemonium/services/image-gen/generated/noxious_fumes.png"
   },
   {
     "card_id": "pommel_strike",
     "status": "success",
-    "path": "/home/jinx/projects/pandemonium/services/image-gen/generated/pommel_strike.webp"
+    "path": "/home/jinx/projects/pandemonium/services/image-gen/generated/pommel_strike.png"
   },
   {
     "card_id": "cleave",
     "status": "success",
-    "path": "/home/jinx/projects/pandemonium/services/image-gen/generated/cleave.webp"
+    "path": "/home/jinx/projects/pandemonium/services/image-gen/generated/cleave.png"
   },
   {
     "card_id": "twin_strike",
     "status": "success",
-    "path": "/home/jinx/projects/pandemonium/services/image-gen/generated/twin_strike.webp"
+    "path": "/home/jinx/projects/pandemonium/services/image-gen/generated/twin_strike.png"
   },
   {
     "card_id": "heavy_blade",
     "status": "success",
-    "path": "/home/jinx/projects/pandemonium/services/image-gen/generated/heavy_blade.webp"
+    "path": "/home/jinx/projects/pandemonium/services/image-gen/generated/heavy_blade.png"
   },
   {
     "card_id": "fireball",
     "status": "success",
-    "path": "/home/jinx/projects/pandemonium/services/image-gen/generated/fireball.webp"
+    "path": "/home/jinx/projects/pandemonium/services/image-gen/generated/fireball.png"
   },
   {
     "card_id": "frost_bolt",
     "status": "success",
-    "path": "/home/jinx/projects/pandemonium/services/image-gen/generated/frost_bolt.webp"
+    "path": "/home/jinx/projects/pandemonium/services/image-gen/generated/frost_bolt.png"
   },
   {
     "card_id": "lightning_strike",
     "status": "success",
-    "path": "/home/jinx/projects/pandemonium/services/image-gen/generated/lightning_strike.webp"
+    "path": "/home/jinx/projects/pandemonium/services/image-gen/generated/lightning_strike.png"
   },
   {
     "card_id": "void_rend",
     "status": "success",
-    "path": "/home/jinx/projects/pandemonium/services/image-gen/generated/void_rend.webp"
+    "path": "/home/jinx/projects/pandemonium/services/image-gen/generated/void_rend.png"
   },
   {
     "card_id": "shrug_it_off",
     "status": "success",
-    "path": "/home/jinx/projects/pandemonium/services/image-gen/generated/shrug_it_off.webp"
+    "path": "/home/jinx/projects/pandemonium/services/image-gen/generated/shrug_it_off.png"
   },
   {
     "card_id": "armaments",
     "status": "success",
-    "path": "/home/jinx/projects/pandemonium/services/image-gen/generated/armaments.webp"
+    "path": "/home/jinx/projects/pandemonium/services/image-gen/generated/armaments.png"
   },
   {
     "card_id": "true_grit",
     "status": "success",
-    "path": "/home/jinx/projects/pandemonium/services/image-gen/generated/true_grit.webp"
+    "path": "/home/jinx/projects/pandemonium/services/image-gen/generated/true_grit.png"
   },
   {
     "card_id": "ice_barrier",
     "status": "success",
-    "path": "/home/jinx/projects/pandemonium/services/image-gen/generated/ice_barrier.webp"
+    "path": "/home/jinx/projects/pandemonium/services/image-gen/generated/ice_barrier.png"
   },
   {
     "card_id": "second_wind",
     "status": "success",
-    "path": "/home/jinx/projects/pandemonium/services/image-gen/generated/second_wind.webp"
+    "path": "/home/jinx/projects/pandemonium/services/image-gen/generated/second_wind.png"
   },
   {
     "card_id": "bloodletting",
     "status": "success",
-    "path": "/home/jinx/projects/pandemonium/services/image-gen/generated/bloodletting.webp"
+    "path": "/home/jinx/projects/pandemonium/services/image-gen/generated/bloodletting.png"
   },
   {
     "card_id": "battle_trance",
     "status": "success",
-    "path": "/home/jinx/projects/pandemonium/services/image-gen/generated/battle_trance.webp"
+    "path": "/home/jinx/projects/pandemonium/services/image-gen/generated/battle_trance.png"
+  },
+  {
+    "card_id": "phoenix_rebirth",
+    "status": "success",
+    "path": "/home/jinx/projects/pandemonium/services/image-gen/generated/phoenix_rebirth.png"
+  },
+  {
+    "card_id": "glacial_fortress",
+    "status": "success",
+    "path": "/home/jinx/projects/pandemonium/services/image-gen/generated/glacial_fortress.png"
+  },
+  {
+    "card_id": "storm_avatar",
+    "status": "success",
+    "path": "/home/jinx/projects/pandemonium/services/image-gen/generated/storm_avatar.png"
+  },
+  {
+    "card_id": "void_embrace",
+    "status": "success",
+    "path": "/home/jinx/projects/pandemonium/services/image-gen/generated/void_embrace.png"
+  },
+  {
+    "card_id": "primordial_inferno",
+    "status": "success",
+    "path": "/home/jinx/projects/pandemonium/services/image-gen/generated/primordial_inferno.png"
+  },
+  {
+    "card_id": "cosmic_singularity",
+    "status": "success",
+    "path": "/home/jinx/projects/pandemonium/services/image-gen/generated/cosmic_singularity.png"
+  },
+  {
+    "card_id": "boss_necromancer",
+    "status": "success",
+    "path": "/home/jinx/projects/pandemonium/services/image-gen/generated/boss_necromancer.png"
+  },
+  {
+    "card_id": "boss_heart",
+    "status": "success",
+    "path": "/home/jinx/projects/pandemonium/services/image-gen/generated/boss_heart.png"
   }
 ]

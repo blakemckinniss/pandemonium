@@ -121,17 +121,8 @@ export function RoomSelect({ choices, floor, maxFloors = 10, onSelectRoom }: Roo
       ease: 'back.out(1.4)',
     })
 
-    // Subtle floating idle animation
-    cardArray.forEach((card, i) => {
-      gsap.to(card, {
-        y: -4 + (i % 2 === 0 ? 2 : -2),
-        duration: 2 + i * 0.3,
-        repeat: -1,
-        yoyo: true,
-        ease: 'sine.inOut',
-        delay: i * 0.2,
-      })
-    })
+    // Idle floating animation REMOVED - caused click stability issues
+    // Cards are static after deal animation completes
 
     return () => {
       tl.kill()
@@ -301,10 +292,10 @@ export function RoomSelect({ choices, floor, maxFloors = 10, onSelectRoom }: Roo
         </div>
       </div>
 
-      {/* Main Content */}
-      <div className="relative z-10 flex flex-col items-center">
+      {/* Main Content - full height, centered */}
+      <div className="relative z-10 flex flex-col items-center justify-center min-h-screen w-full py-8">
         {/* Header */}
-        <div className="text-center mb-12">
+        <div className="text-center mb-8">
           <h1
             className="font-logo text-4xl md:text-5xl tracking-wide mb-3"
             style={{
@@ -502,7 +493,7 @@ export function RoomSelect({ choices, floor, maxFloors = 10, onSelectRoom }: Roo
         </div>
 
         {/* Bottom hint */}
-        <div className="mt-12 text-center">
+        <div className="mt-6 text-center">
           <p className="font-ui text-sm text-warm-600 tracking-wide">
             Click a card to descend
           </p>

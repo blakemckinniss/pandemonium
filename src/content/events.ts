@@ -1,5 +1,3 @@
-import type { AtomicEffect } from '../types'
-
 // Event choice condition
 export interface EventCondition {
   type: 'hasGold' | 'hasHP' | 'hasDeckSize' | 'hasRelic'

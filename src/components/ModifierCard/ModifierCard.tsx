@@ -57,7 +57,7 @@ export const ModifierCard = memo(function ModifierCard({
   onPreview,
 }: ModifierCardProps) {
   const cardRef = useRef<HTMLDivElement>(null)
-  const [_showTooltip, setShowTooltip] = useState(false)
+  const [, setShowTooltip] = useState(false)
 
   const category = CATEGORY_CONFIG[modifier.category] ?? CATEGORY_CONFIG.catalyst
   const rarityBorder = RARITY_BORDER[modifier.rarity] ?? RARITY_BORDER.common

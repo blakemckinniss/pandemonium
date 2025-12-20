@@ -76,7 +76,6 @@ export async function generatePack(
       const hero = await generateHero({
         element,
         hint: cfg.theme,
-        generateArt: true,
       })
       cards.push(hero)
       elementCounts[element]++
@@ -98,7 +97,6 @@ export async function generatePack(
       rarity,
       element,
       hint: cfg.theme,
-      generateArt: true,
     })
     cards.push(card)
     elementCounts[element]++

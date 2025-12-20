@@ -13,12 +13,36 @@ import { calculateHeatEffects } from './heat'
 // ============================================
 
 export const HEROES: Record<string, HeroDefinition> = {
-  warrior: {
-    id: 'warrior',
-    name: 'Ironclad',
-    health: 80,
+  sakura: {
+    id: 'sakura',
+    name: 'Sakura',
+    health: 70,
     energy: 3,
-    // Minimal starter deck - player builds better decks from collection
+    image: '/cards/hero_sakura.webp',
+    starterDeck: [
+      'strike', 'strike', 'strike', 'strike',
+      'defend', 'defend', 'defend', 'defend',
+      'bash', 'bash',
+    ],
+  },
+  luna: {
+    id: 'luna',
+    name: 'Luna',
+    health: 75,
+    energy: 3,
+    image: '/cards/hero_luna.webp',
+    starterDeck: [
+      'strike', 'strike', 'strike', 'strike',
+      'defend', 'defend', 'defend', 'defend',
+      'bash', 'bash',
+    ],
+  },
+  aria: {
+    id: 'aria',
+    name: 'Aria',
+    health: 65,
+    energy: 4,
+    image: '/cards/hero_aria.webp',
     starterDeck: [
       'strike', 'strike', 'strike', 'strike',
       'defend', 'defend', 'defend', 'defend',

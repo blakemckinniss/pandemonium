@@ -292,6 +292,25 @@ function LightRays({
 // NEBULA BACKGROUND - Animated cosmic atmosphere
 // ═══════════════════════════════════════════════════════════════════════════════
 
+// Pre-computed random values for particles (avoids Math.random during render)
+// Uses linear congruential generator with different seeds per property
+const NEBULA_PARTICLES = Array.from({ length: 80 }, (_, i) => {
+  const r1 = ((i * 9301 + 49297) % 233280) / 233280
+  const r2 = ((i * 7901 + 31337) % 233280) / 233280
+  const r3 = ((i * 6271 + 17389) % 233280) / 233280
+  const r4 = ((i * 4517 + 23459) % 233280) / 233280
+  const r5 = ((i * 8761 + 41983) % 233280) / 233280
+  const r6 = ((i * 3541 + 59273) % 233280) / 233280
+  return {
+    size: r1 * 3 + 1,
+    left: r2 * 100,
+    top: r3 * 100,
+    opacity: 0.1 + r4 * 0.3,
+    duration: 3 + r5 * 4,
+    delay: r6 * 3,
+  }
+})
+
 function NebulaBackground({ intensity = 0.5 }: { intensity?: number }) {
   return (
     <div className="absolute inset-0 overflow-hidden pointer-events-none">
@@ -308,18 +327,18 @@ function NebulaBackground({ intensity = 0.5 }: { intensity?: number }) {
       />
 
       {/* Floating dust particles */}
-      {Array.from({ length: 80 }).map((_, i) => (
+      {NEBULA_PARTICLES.map((p, i) => (
         <div
           key={i}
           className="absolute rounded-full"
           style={{
-            width: Math.random() * 3 + 1,
-            height: Math.random() * 3 + 1,
-            left: `${Math.random() * 100}%`,
-            top: `${Math.random() * 100}%`,
-            background: `rgba(255, 255, 255, ${0.1 + Math.random() * 0.3})`,
-            animation: `float ${3 + Math.random() * 4}s ease-in-out infinite`,
-            animationDelay: `${Math.random() * 3}s`,
+            width: p.size,
+            height: p.size,
+            left: `${p.left}%`,
+            top: `${p.top}%`,
+            background: `rgba(255, 255, 255, ${p.opacity})`,
+            animation: `float ${p.duration}s ease-in-out infinite`,
+            animationDelay: `${p.delay}s`,
           }}
         />
       ))}

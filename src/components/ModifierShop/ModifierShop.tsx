@@ -55,7 +55,7 @@ export const ModifierShop = memo(function ModifierShop({
         setIsGenerating(false)
       }
     }
-    loadStock()
+    void loadStock()
   }, [])
 
   // Animate entrance

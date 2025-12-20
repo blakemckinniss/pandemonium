@@ -91,37 +91,29 @@ export function MenuScreen({ onStartRun }: MenuScreenProps) {
 
   // Load data on mount
   useEffect(() => {
-    void loadData()
+    async function loadData() {
+      await initializeStarterCollection(getStarterCardIds())
+
+      const [decks, runStats, owned, dungeons, contentSeeded] = await Promise.all([
+        getCustomDecks(),
+        getRunStats(),
+        getCollection(),
+        getAllDungeonDecks(),
+        isContentSeeded(),
+      ])
+
+      setCustomDecks(decks)
+      setStats({ totalRuns: runStats.totalRuns, totalWins: runStats.totalWins, bestFloor: runStats.bestFloor })
+      setCollection(owned)
+      setDungeonDecks(dungeons)
+      setSeeded(contentSeeded)
+
+      // Load heroes - MVP: show all heroes for selection
+      const allHeroes = getAllHeroes()
+      setAvailableHeroes(allHeroes)
+    }
+    loadData()
   }, [])
-
-  async function loadData() {
-    await initializeStarterCollection(getStarterCardIds())
-
-    const [decks, runStats, owned, dungeons, contentSeeded] = await Promise.all([
-      getCustomDecks(),
-      getRunStats(),
-      getCollection(),
-      getAllDungeonDecks(),
-      isContentSeeded(),
-    ])
-
-    setCustomDecks(decks)
-    setStats({ totalRuns: runStats.totalRuns, totalWins: runStats.totalWins, bestFloor: runStats.bestFloor })
-    setCollection(owned)
-    setDungeonDecks(dungeons)
-    setSeeded(contentSeeded)
-
-    // Load heroes
-    const allHeroes = getAllHeroes()
-    const ownedCardIds = new Set(owned.map((c) => c.cardId))
-    const starterHeroId = getStarterHeroId()
-    const heroes = allHeroes.filter((h) => h.id === starterHeroId || ownedCardIds.has(h.id))
-    const starterHero = getCardDefinition(starterHeroId)
-    const finalHeroes = starterHero && !heroes.find((h) => h.id === starterHeroId)
-      ? [starterHero, ...heroes]
-      : heroes
-    setAvailableHeroes(finalHeroes)
-  }
 
   // Validate selected deck against collection
   useEffect(() => {

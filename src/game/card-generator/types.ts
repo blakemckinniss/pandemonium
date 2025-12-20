@@ -7,7 +7,7 @@ export interface EnemyGenerationOptions {
   element?: 'physical' | 'fire' | 'ice' | 'lightning' | 'void'
   archetype?: string // Slime, Cultist, Brute, etc.
   hint?: string // Creative direction hint
-  generateArt?: boolean // Generate enemy art via image service
+  artHint?: string // Custom hint for art generation
 }
 
 export interface GenerationOptions {
@@ -16,15 +16,16 @@ export interface GenerationOptions {
   element?: 'physical' | 'fire' | 'ice' | 'lightning' | 'void'
   effectType?: string // Force specific effect type
   hint?: string // Creative direction hint
-  generateArt?: boolean // Generate card art via image service
   artHint?: string // Custom hint for art generation
+  // Note: Art generation is ALWAYS performed - cards cannot exist without images
 }
 
 export interface HeroGenerationOptions {
   archetype?: string // Specific archetype hint (Warrior, Mage, etc.)
   element?: 'physical' | 'fire' | 'ice' | 'lightning' | 'void'
   hint?: string // Creative direction hint
-  generateArt?: boolean // Generate hero art via image service
+  artHint?: string // Custom hint for art generation
+  // Note: Art generation is ALWAYS performed - heroes cannot exist without images
 }
 
 export interface RelicGenerationOptions {

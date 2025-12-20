@@ -13,7 +13,7 @@ import { parseCardResponse, parseHeroResponse, parseEnemyResponse, parseRelicRes
 import { validateCard, validateHero, validateEnemy, validateRelic, difficultyToRarity } from './validation'
 import { validateGeneratedCard, formatValidationResult } from './validators'
 import { pickRandom, rarityToNum, themeToNum } from './helpers'
-import { generateCardArtIfAvailable } from './art'
+import { generateCardArt } from './art'
 import type { GenerationOptions, HeroGenerationOptions, EnemyGenerationOptions, RelicGenerationOptions } from './types'
 import { registerRelic } from '../relics'
 
@@ -121,19 +121,14 @@ export async function generateRandomCard(
     },
   }
 
-  // Save to IndexedDB
+  // ALWAYS generate card art - cards MUST have images
+  // This throws CardArtRequiredError if art generation fails
+  const artResult = await generateCardArt(definition, options?.artHint)
+  definition.image = artResult.url
+
+  // Only save and register AFTER art succeeds
   await saveGeneratedCard(definition, GROQ_MODEL, userPrompt)
-
-  // Register in card registry for immediate use (unsafe - may lack image until art generation)
   registerCardUnsafe(definition)
-
-  // Optionally generate card art
-  if (options?.generateArt) {
-    const artResult = await generateCardArtIfAvailable(definition, options.artHint)
-    if (artResult) {
-      definition.image = artResult.url
-    }
-  }
 
   return definition
 }
@@ -226,19 +221,13 @@ export async function generateHero(
     },
   }
 
-  // Save to IndexedDB
+  // ALWAYS generate hero art - heroes MUST have images
+  const artResult = await generateCardArt(definition, `Hero character portrait: ${validated.archetype}`)
+  definition.image = artResult.url
+
+  // Only save and register AFTER art succeeds
   await saveGeneratedCard(definition, GROQ_MODEL, userPrompt)
-
-  // Register in card registry
   registerCard(definition)
-
-  // Optionally generate hero art
-  if (options?.generateArt) {
-    const artResult = await generateCardArtIfAvailable(definition, `Hero character portrait: ${validated.archetype}`)
-    if (artResult) {
-      definition.image = artResult.url
-    }
-  }
 
   return definition
 }
@@ -334,22 +323,16 @@ export async function generateEnemyCard(
     },
   }
 
-  // Save to IndexedDB
+  // ALWAYS generate enemy art - enemies MUST have images
+  const artResult = await generateCardArt(
+    definition,
+    `Dark fantasy monster portrait: ${validated.name}, menacing creature`
+  )
+  definition.image = artResult.url
+
+  // Only save and register AFTER art succeeds
   await saveGeneratedCard(definition, GROQ_MODEL, userPrompt)
-
-  // Register in card registry
   registerCard(definition)
-
-  // Optionally generate enemy art
-  if (options?.generateArt) {
-    const artResult = await generateCardArtIfAvailable(
-      definition,
-      `Dark fantasy monster portrait: ${validated.name}, menacing creature`
-    )
-    if (artResult) {
-      definition.image = artResult.url
-    }
-  }
 
   return definition
 }
@@ -385,15 +368,13 @@ export async function generateBaseEnemySet(): Promise<CardDefinition[]> {
 
   for (const spec of enemySpecs) {
     try {
-      const enemy = await generateEnemyCard({
-        ...spec,
-        generateArt: false, // Generate art separately in batch for efficiency
-      })
+      // Art is automatically generated for each enemy (mandatory)
+      const enemy = await generateEnemyCard(spec)
       enemies.push(enemy)
       logger.debug('EnemyGen', `Generated: ${enemy.name}`)
     } catch (error) {
       logger.error('EnemyGen', 'Failed to generate enemy:', error)
-      // Continue with other enemies
+      // Continue with other enemies - failures are logged but don't block
     }
   }
 
