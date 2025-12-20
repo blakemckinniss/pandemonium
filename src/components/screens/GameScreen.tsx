@@ -34,6 +34,7 @@ import { useAnimationCoordinator } from '../../hooks/useAnimationCoordinator'
 import { useVisualEventProcessor } from '../../hooks/useVisualEventProcessor'
 import { useCombatActions } from '../../hooks/useCombatActions'
 import { useRoomHandlers } from '../../hooks/useRoomHandlers'
+import { lockInRun } from '../../game/run-lock'
 import { registerDebugAPI, unregisterDebugAPI } from '../../test/debug'
 
 interface GameScreenProps {
@@ -127,7 +128,23 @@ export function GameScreen({ deckId, heroId, dungeonDeckId, onReturnToMenu }: Ga
         if (deck) customCardIds = deck.cardIds
       }
 
-      setState(await createNewRun(heroId ?? 'hero_ironclad', customCardIds, dungeonDeckId))
+      const newRun = await createNewRun(heroId ?? 'hero_ironclad', customCardIds, dungeonDeckId)
+      setState(newRun)
+
+      // Lock the run for browser persistence
+      lockInRun({
+        dungeonDeckId: dungeonDeckId ?? 'random',
+        dungeonDeck: newRun.dungeonDeck,
+        modifiers: [], // No modifiers selected yet
+        player: {
+          heroId: heroId ?? 'hero_ironclad',
+          gold: newRun.gold,
+          maxHealth: newRun.hero.maxHealth,
+          currentHealth: newRun.hero.currentHealth,
+          relics: newRun.relics,
+          deck: newRun.deck.map(c => c.definitionId),
+        },
+      })
     }
     void init()
   }, [deckId, heroId, dungeonDeckId])
