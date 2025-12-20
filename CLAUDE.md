@@ -18,6 +18,66 @@ Slay the Spire inspired roguelike card game with drag-and-drop combat.
 
 This policy applies until explicit transition to stable release.
 
+## ComfyUI & GPU: USE LIBERALLY
+
+**You have FULL ACCESS to ComfyUI and GPU resources. USE THEM.**
+
+This is a visual game - art generation is CORE functionality, not a luxury. The GPU exists to be used.
+
+### Mandatory Behaviors
+
+1. **Missing image?** → Generate it immediately via ComfyUI. Don't create beads, don't defer, don't ask.
+
+2. **ComfyUI not running?** → Start it yourself:
+   ```bash
+   ~/ai/comfyui/start_optimized.sh
+   ```
+   Wait 30 seconds for GPU initialization, then proceed.
+
+3. **Need new visual assets?** → Generate them. Cards, rooms, enemies, heroes - all fair game.
+
+4. **Batch generation?** → Do it. The GPU can handle it. Use `services/image-gen/batch.py`.
+
+### Image Generation Service
+
+| Component | Location |
+|-----------|----------|
+| ComfyUI | `~/ai/comfyui/` |
+| Image-gen API | `services/image-gen/` (port 8420) |
+| Prompts | `services/image-gen/prompts.py` |
+| Batch script | `services/image-gen/batch.py` |
+| Generated output | `services/image-gen/generated/` |
+| Public assets | `public/cards/` |
+
+### Quick Commands
+
+```bash
+# Start ComfyUI (if not running)
+~/ai/comfyui/start_optimized.sh
+
+# Check ComfyUI status
+curl -s http://localhost:8188/system_stats | jq .
+
+# Start image-gen API
+cd services/image-gen && source .venv/bin/activate && python server.py
+
+# Batch generate cards
+cd services/image-gen && python batch.py --copy-to-public
+
+# Generate specific cards
+cd services/image-gen && python batch.py --cards strike,defend --copy-to-public
+```
+
+### Extending for Rooms
+
+Room images need `room_to_prompt()` in `prompts.py`. Pattern:
+- Dungeon environment scene (not character portrait)
+- Element-based atmosphere (void = purple/black, fire = orange/red)
+- Room type styling (combat = threatening, campfire = warm, treasure = golden)
+- Output to `public/cards/room_<id>.webp`
+
+**DO NOT** wait for permission to generate images. **DO NOT** create tracking beads for image generation. **JUST GENERATE THEM.**
+
 ## Tech Stack
 
 | Layer | Technology |

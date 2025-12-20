@@ -370,6 +370,112 @@ def enemy_to_prompt(
 # ============================================
 
 
+# ============================================
+# ROOM/DUNGEON PROMPT GENERATION
+# ============================================
+
+ROOM_TYPE_STYLES: dict[str, dict[str, str]] = {
+    "combat": {
+        "scene": "dungeon chamber, monster lair, dangerous room",
+        "mood": "threatening, ominous, perilous",
+        "details": "scattered bones, claw marks, blood stains, dim torchlight",
+    },
+    "elite": {
+        "scene": "grand chamber, elite guardian room, imposing hall",
+        "mood": "intimidating, powerful, foreboding",
+        "details": "ornate pillars, glowing runes, ancient artifacts, dramatic shadows",
+    },
+    "boss": {
+        "scene": "throne room, final chamber, epic arena",
+        "mood": "epic, terrifying, climactic",
+        "details": "massive scale, ominous throne, swirling dark energy, apocalyptic atmosphere",
+    },
+    "campfire": {
+        "scene": "safe haven, rest area, warm shelter",
+        "mood": "peaceful, warm, respite",
+        "details": "crackling fire, warm glow, comfortable bedrolls, cooking pot",
+    },
+    "treasure": {
+        "scene": "treasure vault, golden hoard, ancient cache",
+        "mood": "exciting, rewarding, mysterious",
+        "details": "piles of gold, glowing gems, ancient chests, magical items",
+    },
+    "shop": {
+        "scene": "merchant stall, underground bazaar, trading post",
+        "mood": "mysterious, mercantile, eclectic",
+        "details": "hanging wares, exotic goods, hooded merchant, magical trinkets",
+    },
+    "event": {
+        "scene": "mysterious location, strange encounter, unknown chamber",
+        "mood": "enigmatic, curious, unpredictable",
+        "details": "strange symbols, flickering lights, otherworldly presence",
+    },
+}
+
+
+def room_to_prompt(
+    name: str,
+    description: str,
+    room_type: str = "combat",
+    element: Literal["physical", "fire", "ice", "lightning", "void"] = "physical",
+    custom_hint: str | None = None,
+) -> str:
+    """
+    Convert a room definition into an image generation prompt.
+
+    Args:
+        name: Room name (e.g., "Bone Yard")
+        description: Room description
+        room_type: Room type (combat/elite/boss/campfire/treasure/shop/event)
+        element: Elemental theme for atmosphere
+        custom_hint: Optional custom style hints
+
+    Returns:
+        Optimized prompt string for dungeon environment
+    """
+    elem_style = ELEMENT_STYLES.get(element, ELEMENT_STYLES["physical"])
+    type_style = ROOM_TYPE_STYLES.get(room_type, ROOM_TYPE_STYLES["combat"])
+
+    # Difficulty affects detail level
+    detail_levels = {
+        "combat": "detailed environment, atmospheric",
+        "elite": "highly detailed, imposing scale, masterful lighting",
+        "boss": "extremely detailed, epic scale, masterpiece quality, cinematic",
+        "campfire": "cozy details, warm lighting, inviting",
+        "treasure": "gleaming details, rich textures, rewarding atmosphere",
+        "shop": "eclectic details, varied items, mysterious merchant",
+        "event": "mysterious details, otherworldly elements, enigmatic",
+    }
+    detail_level = detail_levels.get(room_type, detail_levels["combat"])
+
+    parts = [
+        # Anti-text FIRST
+        "no text, no words, no letters, no writing, no numbers, no symbols",
+        # Subject - dungeon environment
+        f"dark fantasy dungeon environment, {name}",
+        f"scene description: {description}",
+        # Room type styling
+        type_style["scene"],
+        f"mood: {type_style['mood']}",
+        type_style["details"],
+        # Element styling for atmosphere
+        f"color palette: {elem_style['colors']}",
+        f"atmospheric effects: {elem_style['effects']}",
+        f"atmosphere: {elem_style['atmosphere']}",
+        # Quality based on room type
+        detail_level,
+        # Base style tags - environment focused
+        "anime style, digital painting, fantasy environment",
+        "wide shot, dramatic lighting, atmospheric perspective",
+        "no characters, empty room, environment only",
+    ]
+
+    if custom_hint:
+        parts.append(custom_hint)
+
+    return ", ".join(parts)
+
+
 def batch_prompt_from_card_def(card_def: dict) -> str:
     """
     Generate prompt from a card definition dict (as stored in game).
