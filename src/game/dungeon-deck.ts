@@ -15,8 +15,8 @@ interface DungeonTemplate {
 }
 
 const ACT_1_TEMPLATE: DungeonTemplate = {
-  combat: 6,
-  elite: 2,
+  combat: 8,
+  elite: 3,
   campfire: 2,
   treasure: 1,
   shop: 2,
