@@ -1,5 +1,10 @@
 import Dexie, { type EntityTable } from 'dexie'
-import type { CardDefinition, DungeonDeckDefinition, OwnedDungeonDeck } from '../types'
+import type {
+  CardDefinition,
+  DungeonDeckDefinition,
+  OwnedDungeonDeck,
+  ModifierDefinition,
+} from '../types'
 
 // ============================================
 // RUN HISTORY SCHEMA
@@ -77,11 +82,44 @@ export interface OwnedDungeonDeckRecord {
 }
 
 // ============================================
+// MODIFIER SCHEMA (Dungeon Deck Modifiers)
+// ============================================
+
+export interface ModifierRecord {
+  id?: number
+  modifierId: string // Unique modifier ID
+  definition: ModifierDefinition
+  generatedAt: Date
+  model?: string // If AI-generated
+}
+
+export interface OwnedModifierRecord {
+  id?: number
+  modifierId: string // Reference to modifier definition ID
+  quantity: number
+  obtainedAt: Date
+  source: 'reward' | 'purchase' | 'starter' | 'achievement' | 'generated'
+}
+
+// ============================================
+// STREAK HISTORY SCHEMA
+// ============================================
+
+export interface StreakHistoryRecord {
+  id?: number
+  streak: number
+  brokenAt: Date
+  runsInStreak: number
+  totalGoldEarned: number
+  modifiersUsed: string[]
+}
+
+// ============================================
 // DATABASE
 // ============================================
 
 // Schema version - bump this and wipe DB on breaking changes
-const SCHEMA_VERSION = 2
+const SCHEMA_VERSION = 3
 
 class PandemoniumDB extends Dexie {
   runs!: EntityTable<RunRecord, 'id'>
@@ -90,6 +128,9 @@ class PandemoniumDB extends Dexie {
   collection!: EntityTable<CollectionCard, 'id'>
   dungeonDecks!: EntityTable<DungeonDeckRecord, 'id'>
   ownedDungeonDecks!: EntityTable<OwnedDungeonDeckRecord, 'id'>
+  modifiers!: EntityTable<ModifierRecord, 'id'>
+  ownedModifiers!: EntityTable<OwnedModifierRecord, 'id'>
+  streakHistory!: EntityTable<StreakHistoryRecord, 'id'>
 
   constructor() {
     super('PandemoniumDB')
@@ -102,6 +143,9 @@ class PandemoniumDB extends Dexie {
       collection: '++id, &cardId, obtainedAt, source',
       dungeonDecks: '++id, &deckId, createdAt',
       ownedDungeonDecks: '++id, &deckId',
+      modifiers: '++id, &modifierId, generatedAt',
+      ownedModifiers: '++id, &modifierId, source',
+      streakHistory: '++id, brokenAt, streak',
     })
   }
 }
@@ -436,4 +480,140 @@ export async function completeDungeonDeck(
 export async function getAvailableDungeonDecks(): Promise<OwnedDungeonDeck[]> {
   const all = await getAllOwnedDungeonDecks()
   return all.filter(d => d.status === 'available')
+}
+
+// ============================================
+// MODIFIER FUNCTIONS (AI-Generated Storage)
+// ============================================
+
+export async function saveModifier(
+  definition: ModifierDefinition,
+  model?: string
+): Promise<number> {
+  const record: Omit<ModifierRecord, 'id'> = {
+    modifierId: definition.id,
+    definition,
+    generatedAt: new Date(),
+    model,
+  }
+  const id = await db.modifiers.add(record)
+  return id as number
+}
+
+export async function getModifier(
+  modifierId: string
+): Promise<ModifierDefinition | undefined> {
+  const record = await db.modifiers.where('modifierId').equals(modifierId).first()
+  return record?.definition
+}
+
+export async function getAllSavedModifiers(): Promise<ModifierRecord[]> {
+  return db.modifiers.orderBy('generatedAt').reverse().toArray()
+}
+
+export async function deleteModifier(modifierId: string): Promise<void> {
+  await db.modifiers.where('modifierId').equals(modifierId).delete()
+}
+
+export async function clearModifiers(): Promise<void> {
+  await db.modifiers.clear()
+}
+
+// ============================================
+// OWNED MODIFIER FUNCTIONS (Player Collection)
+// ============================================
+
+export async function addOwnedModifier(
+  modifierId: string,
+  quantity: number = 1,
+  source: OwnedModifierRecord['source'] = 'reward'
+): Promise<void> {
+  const existing = await db.ownedModifiers.where('modifierId').equals(modifierId).first()
+
+  if (existing) {
+    await db.ownedModifiers.where('modifierId').equals(modifierId).modify({
+      quantity: existing.quantity + quantity,
+    })
+  } else {
+    await db.ownedModifiers.add({
+      modifierId,
+      quantity,
+      obtainedAt: new Date(),
+      source,
+    })
+  }
+}
+
+export async function removeOwnedModifier(
+  modifierId: string,
+  quantity: number = 1
+): Promise<boolean> {
+  const existing = await db.ownedModifiers.where('modifierId').equals(modifierId).first()
+
+  if (!existing || existing.quantity < quantity) {
+    return false
+  }
+
+  if (existing.quantity === quantity) {
+    await db.ownedModifiers.where('modifierId').equals(modifierId).delete()
+  } else {
+    await db.ownedModifiers.where('modifierId').equals(modifierId).modify({
+      quantity: existing.quantity - quantity,
+    })
+  }
+
+  return true
+}
+
+export async function getOwnedModifiers(): Promise<OwnedModifierRecord[]> {
+  return db.ownedModifiers.toArray()
+}
+
+export async function getOwnedModifierQuantity(modifierId: string): Promise<number> {
+  const record = await db.ownedModifiers.where('modifierId').equals(modifierId).first()
+  return record?.quantity ?? 0
+}
+
+export async function ownsModifier(modifierId: string): Promise<boolean> {
+  const qty = await getOwnedModifierQuantity(modifierId)
+  return qty > 0
+}
+
+export async function clearOwnedModifiers(): Promise<void> {
+  await db.ownedModifiers.clear()
+}
+
+// ============================================
+// STREAK HISTORY FUNCTIONS
+// ============================================
+
+export async function recordStreakBroken(
+  streak: number,
+  runsInStreak: number,
+  totalGoldEarned: number,
+  modifiersUsed: string[]
+): Promise<number> {
+  const record: Omit<StreakHistoryRecord, 'id'> = {
+    streak,
+    brokenAt: new Date(),
+    runsInStreak,
+    totalGoldEarned,
+    modifiersUsed,
+  }
+  const id = await db.streakHistory.add(record)
+  return id as number
+}
+
+export async function getStreakHistory(limit: number = 20): Promise<StreakHistoryRecord[]> {
+  return db.streakHistory.orderBy('brokenAt').reverse().limit(limit).toArray()
+}
+
+export async function getBestStreak(): Promise<number> {
+  const records = await db.streakHistory.toArray()
+  if (records.length === 0) return 0
+  return Math.max(...records.map(r => r.streak))
+}
+
+export async function clearStreakHistory(): Promise<void> {
+  await db.streakHistory.clear()
 }
