@@ -334,6 +334,57 @@
   --color-pile-discard: oklch(0.55 0.10 25);
 
   /* ============================================
+     RELIC COMPONENT COLORS
+     ============================================ */
+  /* Common relic: Brass/bronze tones */
+  --color-relic-common-from: oklch(0.25 0.03 55 / 0.9);
+  --color-relic-common-to: oklch(0.2 0.02 55 / 0.95);
+  --color-relic-common-border: oklch(0.45 0.06 55);
+  --color-relic-common-hover-border: oklch(0.55 0.08 55);
+  --color-relic-common-glow: oklch(0.45 0.08 55 / 0.3);
+  --color-relic-common-icon: oklch(0.75 0.06 55);
+  /* Uncommon relic: Blue/purple tones */
+  --color-relic-uncommon-from: oklch(0.22 0.08 250 / 0.9);
+  --color-relic-uncommon-to: oklch(0.18 0.06 250 / 0.95);
+  --color-relic-uncommon-border: oklch(0.5 0.12 250);
+  --color-relic-uncommon-hover-border: oklch(0.6 0.15 250);
+  --color-relic-uncommon-glow: oklch(0.5 0.15 250 / 0.3);
+  --color-relic-uncommon-icon: oklch(0.75 0.12 250);
+  /* Rare relic: Gold tones */
+  --color-relic-rare-from: oklch(0.28 0.12 85 / 0.9);
+  --color-relic-rare-to: oklch(0.22 0.1 85 / 0.95);
+  --color-relic-rare-border: oklch(0.6 0.15 85);
+  --color-relic-rare-hover-border: oklch(0.7 0.18 85);
+  --color-relic-rare-glow: oklch(0.6 0.18 85 / 0.35);
+  --color-relic-rare-icon: oklch(0.8 0.15 85);
+  /* Boss relic: Red/crimson tones */
+  --color-relic-boss-from: oklch(0.25 0.12 25 / 0.9);
+  --color-relic-boss-to: oklch(0.2 0.1 25 / 0.95);
+  --color-relic-boss-border: oklch(0.55 0.18 25);
+  --color-relic-boss-hover-border: oklch(0.65 0.2 25);
+  --color-relic-boss-glow: oklch(0.55 0.2 25 / 0.35);
+  --color-relic-boss-icon: oklch(0.75 0.18 25);
+  /* Relic name text */
+  --color-relic-name: oklch(0.9 0.02 250);
+  /* Relic counter badge */
+  --color-relic-counter-bg: oklch(0.25 0.12 85);
+  --color-relic-counter-border: oklch(0.45 0.15 85);
+  --color-relic-counter-text: oklch(0.95 0.05 85);
+  /* Tooltip */
+  --color-relic-tooltip-bg: oklch(0.12 0.02 250 / 0.98);
+  --color-relic-tooltip-border: oklch(0.35 0.05 250);
+  --color-relic-tooltip-divider: oklch(0.3 0.03 250);
+  --color-relic-tooltip-name: oklch(0.95 0.03 250);
+  --color-relic-tooltip-desc: oklch(0.75 0.02 250);
+  --color-relic-tooltip-counter: oklch(0.7 0.08 85);
+  /* Reward card */
+  --color-relic-reward-from: oklch(0.20 0.04 55);
+  --color-relic-reward-to: oklch(0.15 0.03 48);
+  --color-relic-reward-border: oklch(0.45 0.12 70);
+  --color-relic-reward-glow: oklch(0.5 0.15 70 / 0.3);
+  --color-relic-reward-desc: oklch(0.70 0.03 50);
+
+  /* ============================================
      UTILITY COLORS
      ============================================ */
   --color-shadow: oklch(0 0 0);

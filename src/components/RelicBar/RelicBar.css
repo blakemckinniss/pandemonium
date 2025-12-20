@@ -1,5 +1,5 @@
 /* RelicBar Component Styles */
-/* Auto-extracted from index.css */
+/* Uses @theme variables from index.css */
 
 @keyframes relic-acquire {
   0% {
@@ -60,7 +60,7 @@
   cursor: help;
   transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
   backdrop-filter: blur(4px);
-  box-shadow: 0 2px 4px oklch(0 0 0 / 0.3);
+  box-shadow: 0 2px 4px var(--color-shadow) / 0.3;
   /* Entry animation plays once on mount */
   animation: relic-acquire 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
 }
@@ -73,7 +73,7 @@
   background: linear-gradient(
     90deg,
     transparent 0%,
-    oklch(1 0 0 / 0.4) 50%,
+    white / 0.4 50%,
     transparent 100%
   );
   background-size: 200% 100%;
@@ -83,47 +83,47 @@
 
 .RelicChip:hover {
   transform: translateY(-1px);
-  box-shadow: 0 4px 8px oklch(0 0 0 / 0.4);
+  box-shadow: 0 4px 8px var(--color-shadow) / 0.4;
 }
 
 .RelicChip--common {
-  background: linear-gradient(135deg, oklch(0.25 0.03 55 / 0.9), oklch(0.2 0.02 55 / 0.95));
-  border: 1px solid oklch(0.45 0.06 55);
+  background: linear-gradient(135deg, var(--color-relic-common-from), var(--color-relic-common-to));
+  border: 1px solid var(--color-relic-common-border);
 }
 
 .RelicChip--common:hover {
-  border-color: oklch(0.55 0.08 55);
-  box-shadow: 0 4px 12px oklch(0.45 0.08 55 / 0.3);
+  border-color: var(--color-relic-common-hover-border);
+  box-shadow: 0 4px 12px var(--color-relic-common-glow);
 }
 
 .RelicChip--uncommon {
-  background: linear-gradient(135deg, oklch(0.22 0.08 250 / 0.9), oklch(0.18 0.06 250 / 0.95));
-  border: 1px solid oklch(0.5 0.12 250);
+  background: linear-gradient(135deg, var(--color-relic-uncommon-from), var(--color-relic-uncommon-to));
+  border: 1px solid var(--color-relic-uncommon-border);
 }
 
 .RelicChip--uncommon:hover {
-  border-color: oklch(0.6 0.15 250);
-  box-shadow: 0 4px 12px oklch(0.5 0.15 250 / 0.3);
+  border-color: var(--color-relic-uncommon-hover-border);
+  box-shadow: 0 4px 12px var(--color-relic-uncommon-glow);
 }
 
 .RelicChip--rare {
-  background: linear-gradient(135deg, oklch(0.28 0.12 85 / 0.9), oklch(0.22 0.1 85 / 0.95));
-  border: 1px solid oklch(0.6 0.15 85);
+  background: linear-gradient(135deg, var(--color-relic-rare-from), var(--color-relic-rare-to));
+  border: 1px solid var(--color-relic-rare-border);
 }
 
 .RelicChip--rare:hover {
-  border-color: oklch(0.7 0.18 85);
-  box-shadow: 0 4px 12px oklch(0.6 0.18 85 / 0.35);
+  border-color: var(--color-relic-rare-hover-border);
+  box-shadow: 0 4px 12px var(--color-relic-rare-glow);
 }
 
 .RelicChip--boss {
-  background: linear-gradient(135deg, oklch(0.25 0.12 25 / 0.9), oklch(0.2 0.1 25 / 0.95));
-  border: 1px solid oklch(0.55 0.18 25);
+  background: linear-gradient(135deg, var(--color-relic-boss-from), var(--color-relic-boss-to));
+  border: 1px solid var(--color-relic-boss-border);
 }
 
 .RelicChip--boss:hover {
-  border-color: oklch(0.65 0.2 25);
-  box-shadow: 0 4px 12px oklch(0.55 0.2 25 / 0.35);
+  border-color: var(--color-relic-boss-hover-border);
+  box-shadow: 0 4px 12px var(--color-relic-boss-glow);
 }
 
 .RelicChip-icon {
@@ -132,19 +132,19 @@
   flex-shrink: 0;
 }
 
-.RelicChip--common .RelicChip-icon { color: oklch(0.75 0.06 55); }
+.RelicChip--common .RelicChip-icon { color: var(--color-relic-common-icon); }
 
-.RelicChip--uncommon .RelicChip-icon { color: oklch(0.75 0.12 250); }
+.RelicChip--uncommon .RelicChip-icon { color: var(--color-relic-uncommon-icon); }
 
-.RelicChip--rare .RelicChip-icon { color: oklch(0.8 0.15 85); }
+.RelicChip--rare .RelicChip-icon { color: var(--color-relic-rare-icon); }
 
-.RelicChip--boss .RelicChip-icon { color: oklch(0.75 0.18 25); }
+.RelicChip--boss .RelicChip-icon { color: var(--color-relic-boss-icon); }
 
 .RelicChip-name {
   font-weight: 500;
-  color: oklch(0.9 0.02 250);
+  color: var(--color-relic-name);
   white-space: nowrap;
-  text-shadow: 0 1px 2px oklch(0 0 0 / 0.5);
+  text-shadow: 0 1px 2px var(--color-shadow) / 0.5;
   max-width: 6rem;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -165,10 +165,10 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: oklch(0.25 0.12 85);
-  border: 1px solid oklch(0.45 0.15 85);
-  color: oklch(0.95 0.05 85);
-  box-shadow: 0 1px 3px oklch(0 0 0 / 0.4);
+  background: var(--color-relic-counter-bg);
+  border: 1px solid var(--color-relic-counter-border);
+  color: var(--color-relic-counter-text);
+  box-shadow: 0 1px 3px var(--color-shadow) / 0.4;
 }
 
 .RelicChipBar {
@@ -191,9 +191,9 @@
   max-width: 16rem;
   padding: 0.75rem;
   border-radius: 0.5rem;
-  background: oklch(0.12 0.02 250 / 0.98);
-  border: 1px solid oklch(0.35 0.05 250);
-  box-shadow: 0 8px 24px oklch(0 0 0 / 0.5);
+  background: var(--color-relic-tooltip-bg);
+  border: 1px solid var(--color-relic-tooltip-border);
+  box-shadow: 0 8px 24px var(--color-shadow) / 0.5;
   backdrop-filter: blur(8px);
   pointer-events: none;
   animation: tooltip-fade-in 0.15s ease-out;
@@ -205,7 +205,7 @@
   gap: 0.5rem;
   margin-bottom: 0.5rem;
   padding-bottom: 0.5rem;
-  border-bottom: 1px solid oklch(0.3 0.03 250);
+  border-bottom: 1px solid var(--color-relic-tooltip-divider);
 }
 
 .RelicTooltip-name {
@@ -213,7 +213,7 @@
   font-family: var(--font-display);
   font-weight: 600;
   font-size: 0.875rem;
-  color: oklch(0.95 0.03 250);
+  color: var(--color-relic-tooltip-name);
 }
 
 .RelicTooltip-rarity {
@@ -225,29 +225,29 @@
 }
 
 .RelicTooltip-rarity--common {
-  background: oklch(0.3 0.04 55);
-  color: oklch(0.75 0.06 55);
+  background: var(--color-relic-common-from);
+  color: var(--color-relic-common-icon);
 }
 
 .RelicTooltip-rarity--uncommon {
-  background: oklch(0.25 0.08 250);
-  color: oklch(0.75 0.12 250);
+  background: var(--color-relic-uncommon-from);
+  color: var(--color-relic-uncommon-icon);
 }
 
 .RelicTooltip-rarity--rare {
-  background: oklch(0.3 0.1 85);
-  color: oklch(0.85 0.15 85);
+  background: var(--color-relic-rare-from);
+  color: var(--color-relic-rare-icon);
 }
 
 .RelicTooltip-rarity--boss {
-  background: oklch(0.28 0.12 25);
-  color: oklch(0.8 0.18 25);
+  background: var(--color-relic-boss-from);
+  color: var(--color-relic-boss-icon);
 }
 
 .RelicTooltip-desc {
   font-size: 0.75rem;
   line-height: 1.4;
-  color: oklch(0.75 0.02 250);
+  color: var(--color-relic-tooltip-desc);
 }
 
 .RelicTooltip-counter {
@@ -256,9 +256,9 @@
   gap: 0.25rem;
   margin-top: 0.5rem;
   padding-top: 0.5rem;
-  border-top: 1px solid oklch(0.3 0.03 250);
+  border-top: 1px solid var(--color-relic-tooltip-divider);
   font-size: 0.6875rem;
-  color: oklch(0.7 0.08 85);
+  color: var(--color-relic-tooltip-counter);
 }
 
 .RelicTooltipWrapper {
@@ -266,20 +266,20 @@
 }
 
 .RelicReward {
-  background: linear-gradient(135deg, oklch(0.20 0.04 55) 0%, oklch(0.15 0.03 48) 100%);
-  border: 3px solid oklch(0.45 0.12 70);
+  background: linear-gradient(135deg, var(--color-relic-reward-from) 0%, var(--color-relic-reward-to) 100%);
+  border: 3px solid var(--color-relic-reward-border);
   border-radius: 16px;
   padding: 2rem;
   text-align: center;
   box-shadow:
-    0 8px 32px oklch(0.5 0.15 70 / 0.3),
-    inset 0 1px 0 oklch(1 0 0 / 0.05);
+    0 8px 32px var(--color-relic-reward-glow),
+    inset 0 1px 0 white / 0.05;
 }
 
 .RelicReward__icon {
   font-size: 4rem;
   margin-bottom: 1rem;
-  filter: drop-shadow(0 4px 12px oklch(0.5 0.15 70 / 0.4));
+  filter: drop-shadow(0 4px 12px var(--color-relic-reward-glow));
 }
 
 .RelicReward__name {
@@ -293,6 +293,6 @@
 
 .RelicReward__desc {
   font-family: var(--font-body);
-  color: oklch(0.70 0.03 50);
+  color: var(--color-relic-reward-desc);
   line-height: 1.4;
 }
