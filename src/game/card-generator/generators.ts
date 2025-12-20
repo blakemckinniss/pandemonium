@@ -5,7 +5,7 @@
 import { chatCompletion, GROQ_MODEL } from '../../lib/groq'
 import { saveGeneratedCard } from '../../stores/db'
 import { registerCard, registerCardUnsafe, getCardDefinition, isValidCard } from '../cards'
-import type { CardDefinition, CardTheme, RelicDefinition, RelicRarity } from '../../types'
+import type { CardDefinition, CardTheme, RelicDefinition, RelicRarity, RelicTrigger } from '../../types'
 import { generateUid } from '../../lib/utils'
 import { logger } from '../../lib/logger'
 import { SYSTEM_PROMPT, HERO_SYSTEM_PROMPT, ENEMY_SYSTEM_PROMPT, RELIC_SYSTEM_PROMPT } from './prompts'
@@ -513,4 +513,91 @@ export async function generateRelic(
   logger.info('RelicGen', `Generated relic: ${definition.name} (${definition.rarity}, ${definition.trigger})`)
 
   return definition
+}
+
+// ============================================
+// RELIC SET GENERATION
+// ============================================
+
+export interface RelicSetConfig {
+  count: number
+  rarityDistribution?: {
+    common?: number    // Weight for common relics
+    uncommon?: number  // Weight for uncommon relics
+    rare?: number      // Weight for rare relics
+    boss?: number      // Weight for boss relics
+  }
+  triggerVariety?: boolean  // Ensure different triggers (default: true)
+  hints?: string[]          // Theme hints to cycle through
+}
+
+const DEFAULT_RELIC_SET_CONFIG: RelicSetConfig = {
+  count: 6,
+  rarityDistribution: { common: 40, uncommon: 35, rare: 20, boss: 5 },
+  triggerVariety: true,
+}
+
+/**
+ * Generate a set of relics with variety constraints.
+ * Useful for initializing relic pools or reward drops.
+ */
+export async function generateRelicSet(
+  config?: Partial<RelicSetConfig>
+): Promise<RelicDefinition[]> {
+  const { count, rarityDistribution, triggerVariety, hints } = {
+    ...DEFAULT_RELIC_SET_CONFIG,
+    ...config,
+  }
+
+  const relics: RelicDefinition[] = []
+  const usedTriggers = new Set<string>()
+
+  // Available triggers for variety
+  const allTriggers: RelicTrigger[] = [
+    'onCombatStart', 'onCombatEnd', 'onTurnStart', 'onTurnEnd',
+    'onCardPlay', 'onAttack', 'onKill', 'onDamaged', 'onHeal', 'onBlock', 'passive'
+  ]
+
+  // Build weighted rarity pool
+  const rarityPool: RelicRarity[] = []
+  const dist = rarityDistribution ?? DEFAULT_RELIC_SET_CONFIG.rarityDistribution!
+  for (let i = 0; i < (dist.common ?? 0); i++) rarityPool.push('common')
+  for (let i = 0; i < (dist.uncommon ?? 0); i++) rarityPool.push('uncommon')
+  for (let i = 0; i < (dist.rare ?? 0); i++) rarityPool.push('rare')
+  for (let i = 0; i < (dist.boss ?? 0); i++) rarityPool.push('boss')
+
+  for (let i = 0; i < count; i++) {
+    // Pick rarity from weighted pool
+    const rarity = pickRandom(rarityPool)
+
+    // Pick trigger (with variety if enabled)
+    let trigger: RelicTrigger | undefined
+    if (triggerVariety) {
+      const availableTriggers = allTriggers.filter(t => !usedTriggers.has(t))
+      if (availableTriggers.length > 0) {
+        trigger = pickRandom(availableTriggers)
+        usedTriggers.add(trigger)
+      } else {
+        // All triggers used, reset and pick any
+        usedTriggers.clear()
+        trigger = pickRandom(allTriggers)
+        usedTriggers.add(trigger)
+      }
+    }
+
+    // Get hint if provided
+    const hint = hints?.[i % hints.length]
+
+    try {
+      const relic = await generateRelic({ rarity, trigger, hint })
+      relics.push(relic)
+      logger.debug('RelicSetGen', `Generated ${i + 1}/${count}: ${relic.name}`)
+    } catch (error) {
+      logger.error('RelicSetGen', `Failed to generate relic ${i + 1}/${count}:`, error)
+      // Continue with other relics
+    }
+  }
+
+  logger.info('RelicSetGen', `Generated ${relics.length}/${count} relics`)
+  return relics
 }
