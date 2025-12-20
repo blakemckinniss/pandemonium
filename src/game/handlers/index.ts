@@ -17,3 +17,17 @@ export {
 } from './rooms'
 export { handleUseActivatedAbility, handleUseUltimateAbility, canUseActivatedAbility, canUseUltimateAbility } from './hero'
 export { chargeHeroUltimate } from './turns'
+export {
+  startDungeonRun,
+  getDungeonRoomChoices,
+  selectDungeonRoom,
+  completeDungeonRoom,
+  handlePlayerDeath as handleLockedRunDeath,
+  previewAbandonCost,
+  abandonDungeonRun,
+  claimRewardsAndClear,
+  hasLockedRun,
+  getPlayerStreak,
+  getLockedRunInfo,
+  syncLockedRunToState,
+} from './dungeon-flow'
