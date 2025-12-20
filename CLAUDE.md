@@ -31,6 +31,58 @@ This is a highly visual game - every UI element matters. The plugin automaticall
 
 **When building UI components:** Commit to bold choices. Cards should feel tactile. Combat should feel impactful. Menus should feel like ancient tomes. Never settle for generic.
 
+## Critical Integrations (ALWAYS ACTIVE)
+
+This project relies heavily on external APIs and MCP servers. **These are not optional.**
+
+### Playwright MCP (`mcp__playwright__*`)
+
+Browser automation for testing and visual verification. **USE LIBERALLY.**
+
+| Tool | Purpose |
+|------|---------|
+| `browser_navigate` | Open pages for testing |
+| `browser_snapshot` | Accessibility tree (better than screenshots) |
+| `browser_take_screenshot` | Visual capture for debugging |
+| `browser_click` / `browser_type` | Interact with UI elements |
+| `browser_console_messages` | Check for JS errors |
+| `browser_evaluate` | Run JS in page context |
+
+**When to use:**
+- After UI changes → verify rendering
+- Debugging visual issues → snapshot + screenshot
+- Testing user flows → navigate + interact
+- Checking console errors → `browser_console_messages`
+
+### Groq API (AI Generation)
+
+AI-powered content generation via `lib/groq.ts`. **Model: `compound-beta`**
+
+| Generator | Location | Purpose |
+|-----------|----------|---------|
+| Card Generator | `game/card-generator/` | Generate new cards from prompts |
+| Dungeon Generator | `game/dungeon-generator.ts` | Generate themed dungeons |
+| Modifier Generator | `game/modifier-generator/` | Generate run modifiers |
+
+**Environment:** `VITE_GROQ_API_KEY` in `.env.local`
+
+**Usage pattern:**
+```typescript
+import { generateCards } from '@/game/card-generator'
+const cards = await generateCards({ theme: 'fire', count: 3 })
+```
+
+### ComfyUI Integration (Image Generation)
+
+GPU-accelerated image generation. See "ComfyUI & GPU" section below for full details.
+
+| Component | Port | Purpose |
+|-----------|------|---------|
+| ComfyUI | 8188 | Stable Diffusion backend |
+| Image-gen API | 8420 | Pandemonium-specific prompts |
+
+**Critical:** Missing card/room art → generate immediately, don't defer.
+
 ## MVP Policy: Scorched Earth
 
 **NO backwards compatibility.** This is MVP - move fast, break things:
