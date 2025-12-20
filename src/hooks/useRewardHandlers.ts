@@ -3,8 +3,15 @@ import type { RunState } from '../types'
 import { createCardInstance } from '../game/actions'
 import { drawRoomChoices } from '../game/dungeon-deck'
 import { generateUid } from '../lib/utils'
+import type { RoomCompleteParams } from './useRoomHandlers'
 
 type SetState = (fn: (prev: RunState | null) => RunState | null) => void
+
+export interface RewardHandlersConfig {
+  setState: SetState
+  getCurrentRoomUid: () => string | undefined
+  onRoomComplete?: (params: RoomCompleteParams) => void
+}
 
 export interface RewardHandlers {
   handleAddCard: (cardId: string) => void
@@ -12,18 +19,32 @@ export interface RewardHandlers {
   handleAddRelic: (relicId: string) => void
 }
 
-export function useRewardHandlers(setState: SetState): RewardHandlers {
+export function useRewardHandlers({
+  setState,
+  getCurrentRoomUid,
+  onRoomComplete,
+}: RewardHandlersConfig): RewardHandlers {
   const handleAddCard = useCallback((cardId: string) => {
+    const roomUid = getCurrentRoomUid()
+    const goldReward = 15 + Math.floor(Math.random() * 10)
+
     setState((prev) => {
       if (!prev) return prev
 
       const newCard = createCardInstance(cardId)
-      const goldReward = 15 + Math.floor(Math.random() * 10)
 
-      // Draw new room choices
+      // If run-lock is active, let it handle room transition
+      if (onRoomComplete && roomUid) {
+        return {
+          ...prev,
+          deck: [...prev.deck, newCard],
+          gold: prev.gold + goldReward,
+        }
+      }
+
+      // Fallback: Draw new room choices directly
       const { choices, remaining } = drawRoomChoices(prev.dungeonDeck, 3)
 
-      // Check if dungeon complete (no more rooms)
       if (choices.length === 0) {
         return {
           ...prev,
@@ -44,13 +65,29 @@ export function useRewardHandlers(setState: SetState): RewardHandlers {
         floor: prev.floor + 1,
       }
     })
-  }, [setState])
+
+    // Trigger room completion via run-lock if available
+    if (onRoomComplete && roomUid) {
+      onRoomComplete({ roomUid, goldEarned: goldReward })
+    }
+  }, [setState, getCurrentRoomUid, onRoomComplete])
 
   const handleSkipReward = useCallback(() => {
+    const roomUid = getCurrentRoomUid()
+    const goldReward = 15 + Math.floor(Math.random() * 10)
+
     setState((prev) => {
       if (!prev) return prev
 
-      const goldReward = 15 + Math.floor(Math.random() * 10)
+      // If run-lock is active, let it handle room transition
+      if (onRoomComplete && roomUid) {
+        return {
+          ...prev,
+          gold: prev.gold + goldReward,
+        }
+      }
+
+      // Fallback: Draw new room choices directly
       const { choices, remaining } = drawRoomChoices(prev.dungeonDeck, 3)
 
       if (choices.length === 0) {
@@ -71,16 +108,33 @@ export function useRewardHandlers(setState: SetState): RewardHandlers {
         floor: prev.floor + 1,
       }
     })
-  }, [setState])
+
+    // Trigger room completion via run-lock if available
+    if (onRoomComplete && roomUid) {
+      onRoomComplete({ roomUid, goldEarned: goldReward })
+    }
+  }, [setState, getCurrentRoomUid, onRoomComplete])
 
   const handleAddRelic = useCallback((relicId: string) => {
+    const roomUid = getCurrentRoomUid()
+    const goldReward = 15 + Math.floor(Math.random() * 10)
+
     setState((prev) => {
       if (!prev) return prev
 
-      const goldReward = 15 + Math.floor(Math.random() * 10)
-      const { choices, remaining } = drawRoomChoices(prev.dungeonDeck, 3)
-
       const newRelic = { id: generateUid(), definitionId: relicId }
+
+      // If run-lock is active, let it handle room transition
+      if (onRoomComplete && roomUid) {
+        return {
+          ...prev,
+          relics: [...prev.relics, newRelic],
+          gold: prev.gold + goldReward,
+        }
+      }
+
+      // Fallback: Draw new room choices directly
+      const { choices, remaining } = drawRoomChoices(prev.dungeonDeck, 3)
 
       if (choices.length === 0) {
         return {
@@ -102,7 +156,12 @@ export function useRewardHandlers(setState: SetState): RewardHandlers {
         floor: prev.floor + 1,
       }
     })
-  }, [setState])
+
+    // Trigger room completion via run-lock if available
+    if (onRoomComplete && roomUid) {
+      onRoomComplete({ roomUid, goldEarned: goldReward })
+    }
+  }, [setState, getCurrentRoomUid, onRoomComplete])
 
   return {
     handleAddCard,

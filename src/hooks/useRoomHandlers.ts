@@ -3,6 +3,8 @@ import type { RunState } from '../types'
 import { applyAction } from '../game/actions'
 import { createNewRun, createEnemiesFromRoom } from '../game/new-game'
 import { getRoomDefinition } from '../content/rooms'
+import { selectRoom as selectLockedRoom, completeRoom as completeLockedRoom, drawRoomChoices as drawLockedRoomChoices } from '../game/run-lock'
+import { useRunLockStore } from '../stores/runLockStore'
 
 interface RoomHandlersConfig {
   setState: React.Dispatch<React.SetStateAction<RunState | null>>
@@ -16,8 +18,18 @@ interface RoomHandlersConfig {
   onReturnToMenu?: () => void
 }
 
+export interface RoomCompleteParams {
+  roomUid: string
+  goldEarned?: number
+  enemiesKilled?: number
+  cardsPlayed?: number
+  damageDealt?: number
+  damageTaken?: number
+}
+
 export interface RoomHandlers {
   handleSelectRoom: (roomUid: string) => void
+  handleRoomComplete: (params: RoomCompleteParams) => void
   handleRestart: () => Promise<void>
   handleUnlocksDismissed: () => void
 }
@@ -34,6 +46,15 @@ export function useRoomHandlers({
   onReturnToMenu,
 }: RoomHandlersConfig): RoomHandlers {
   const handleSelectRoom = useCallback((roomUid: string) => {
+    // Update run-lock store if active run exists
+    const hasActiveRun = useRunLockStore.getState().hasActiveRun()
+    if (hasActiveRun) {
+      const result = selectLockedRoom(roomUid)
+      if (!result.success) {
+        console.warn('[RoomHandlers] Failed to select room in lock store:', result.error)
+      }
+    }
+
     setState((prev) => {
       if (!prev) return prev
 
@@ -42,12 +63,15 @@ export function useRoomHandlers({
 
       setCurrentRoomId(room.definitionId)
 
+      // Store the room UID for tracking completion
+      const updatedState = { ...prev, currentRoomUid: roomUid }
+
       const roomDef = getRoomDefinition(room.definitionId)
 
       // Handle campfire rooms
       if (roomDef?.type === 'campfire') {
         return {
-          ...prev,
+          ...updatedState,
           gamePhase: 'campfire',
           roomChoices: [],
         }
@@ -56,7 +80,7 @@ export function useRoomHandlers({
       // Handle treasure rooms
       if (roomDef?.type === 'treasure') {
         return {
-          ...prev,
+          ...updatedState,
           gamePhase: 'treasure',
           roomChoices: [],
         }
@@ -67,7 +91,7 @@ export function useRoomHandlers({
 
       // Start combat
       let newState = applyAction(
-        { ...prev, roomChoices: [] },
+        { ...updatedState, roomChoices: [] },
         { type: 'startCombat', enemies }
       )
       newState = applyAction(newState, { type: 'startTurn' })
@@ -79,6 +103,34 @@ export function useRoomHandlers({
       return newState
     })
   }, [setState, setCurrentRoomId, prevHealthRef, lastTurnRef])
+
+  // Called after completing a room (combat victory, campfire rest, treasure claimed)
+  const handleRoomComplete = useCallback((params: RoomCompleteParams) => {
+    const hasActiveRun = useRunLockStore.getState().hasActiveRun()
+    if (hasActiveRun) {
+      // Mark room complete in lock store
+      const result = completeLockedRoom(params)
+      if (!result.success) {
+        console.warn('[RoomHandlers] Failed to complete room in lock store:', result.error)
+        return
+      }
+
+      // Draw new room choices for next floor
+      const drawResult = drawLockedRoomChoices()
+      if (drawResult.success && drawResult.choices) {
+        // Update game state with new choices
+        setState((prev) => {
+          if (!prev) return prev
+          return {
+            ...prev,
+            roomChoices: drawResult.choices!,
+            floor: prev.floor + 1,
+            gamePhase: 'roomSelect',
+          }
+        })
+      }
+    }
+  }, [setState])
 
   const handleRestart = useCallback(async () => {
     if (onReturnToMenu) {
@@ -100,6 +152,7 @@ export function useRoomHandlers({
 
   return {
     handleSelectRoom,
+    handleRoomComplete,
     handleRestart,
     handleUnlocksDismissed,
   }

@@ -1,5 +1,5 @@
 // LARGE_FILE_OK: Active refactoring - extracting handlers to reduce size
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, useCallback } from 'react'
 import { Icon } from '@iconify/react'
 import { Hand } from '../Hand/Hand'
 import { CardAnimationOverlay } from '../Hand/CardAnimationOverlay'
@@ -86,7 +86,7 @@ export function GameScreen({ deckId, heroId, dungeonDeckId, onReturnToMenu }: Ga
   })
 
   // Room selection & restart
-  const { handleSelectRoom, handleRestart, handleUnlocksDismissed } = useRoomHandlers({
+  const roomHandlers = useRoomHandlers({
     setState,
     setCurrentRoomId,
     setPendingUnlocks,
@@ -98,10 +98,23 @@ export function GameScreen({ deckId, heroId, dungeonDeckId, onReturnToMenu }: Ga
     onReturnToMenu,
   })
 
-  // Extracted handlers
-  const campfireHandlers = useCampfireHandlers(setState)
-  const treasureHandlers = useTreasureHandlers(setState)
-  const rewardHandlers = useRewardHandlers(setState)
+  // Extracted handlers with run-lock integration
+  const getCurrentRoomUid = useCallback(() => state?.currentRoomUid, [state?.currentRoomUid])
+  const campfireHandlers = useCampfireHandlers({
+    setState,
+    getCurrentRoomUid,
+    onRoomComplete: roomHandlers.handleRoomComplete,
+  })
+  const treasureHandlers = useTreasureHandlers({
+    setState,
+    getCurrentRoomUid,
+    onRoomComplete: roomHandlers.handleRoomComplete,
+  })
+  const rewardHandlers = useRewardHandlers({
+    setState,
+    getCurrentRoomUid,
+    onRoomComplete: roomHandlers.handleRoomComplete,
+  })
   const selectionHandlers = useSelectionHandlers(setState, state?.combat?.pendingSelection)
 
   // Initialize game
@@ -457,7 +470,7 @@ export function GameScreen({ deckId, heroId, dungeonDeckId, onReturnToMenu }: Ga
         <RoomSelect
           choices={state.roomChoices}
           floor={state.floor}
-          onSelectRoom={handleSelectRoom}
+          onSelectRoom={roomHandlers.handleSelectRoom}
         />
       </PhaseWrapper>
     )
@@ -515,7 +528,7 @@ export function GameScreen({ deckId, heroId, dungeonDeckId, onReturnToMenu }: Ga
     return (
       <PhaseWrapper phase="dungeonComplete">
         <div className="h-screen flex flex-col items-center justify-center bg-gradient-to-b from-amber-900/20 to-warm-900">
-          <UnlockNotification unlocks={pendingUnlocks} onComplete={handleUnlocksDismissed} />
+          <UnlockNotification unlocks={pendingUnlocks} onComplete={roomHandlers.handleUnlocksDismissed} />
           <div className="text-center">
             <div className="text-6xl mb-4">👑</div>
             <h1 className="text-5xl font-bold text-energy mb-4">Dungeon Conquered!</h1>
@@ -537,7 +550,7 @@ export function GameScreen({ deckId, heroId, dungeonDeckId, onReturnToMenu }: Ga
             </div>
 
             <button
-              onClick={handleRestart}
+              onClick={roomHandlers.handleRestart}
               className="px-8 py-3 bg-energy text-black font-bold rounded-lg text-lg hover:brightness-110 transition"
             >
               Return to Menu
@@ -553,7 +566,7 @@ export function GameScreen({ deckId, heroId, dungeonDeckId, onReturnToMenu }: Ga
     return (
       <PhaseWrapper phase="gameOver">
         <div className="h-screen flex flex-col items-center justify-center bg-gradient-to-b from-warm-900 to-warm-900">
-          <UnlockNotification unlocks={pendingUnlocks} onComplete={handleUnlocksDismissed} />
+          <UnlockNotification unlocks={pendingUnlocks} onComplete={roomHandlers.handleUnlocksDismissed} />
           <h1 className="text-5xl font-bold text-heal mb-4">Dungeon Cleared!</h1>
           <p className="text-xl text-warm-400 mb-2">You conquered all {state.floor} floors</p>
           <p className="text-lg text-energy mb-4">Final Gold: {state.gold}</p>
@@ -563,7 +576,7 @@ export function GameScreen({ deckId, heroId, dungeonDeckId, onReturnToMenu }: Ga
             <p>Cards Played: {state.stats.cardsPlayed}</p>
           </div>
           <button
-            onClick={handleRestart}
+            onClick={roomHandlers.handleRestart}
             className="px-8 py-3 bg-energy text-black font-bold rounded-lg text-lg hover:brightness-110 transition"
           >
             New Run
@@ -594,7 +607,7 @@ export function GameScreen({ deckId, heroId, dungeonDeckId, onReturnToMenu }: Ga
     >
       <ParticleEffects containerRef={containerRef} />
       <CombatNumbers numbers={combatNumbers} onComplete={removeCombatNumber} />
-      <UnlockNotification unlocks={pendingUnlocks} onComplete={handleUnlocksDismissed} />
+      <UnlockNotification unlocks={pendingUnlocks} onComplete={roomHandlers.handleUnlocksDismissed} />
 
       {/* Combat HUD - top-right consolidated info panel */}
       <div className="absolute top-4 right-4 z-10 CombatHUD">
@@ -716,7 +729,7 @@ export function GameScreen({ deckId, heroId, dungeonDeckId, onReturnToMenu }: Ga
                 <p>Cards Played: {state.stats.cardsPlayed}</p>
               </div>
               <button
-                onClick={handleRestart}
+                onClick={roomHandlers.handleRestart}
                 className="px-8 py-3 bg-energy text-black font-bold rounded-lg text-lg hover:brightness-110 transition"
               >
                 Try Again

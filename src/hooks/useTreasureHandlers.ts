@@ -2,16 +2,36 @@ import { useCallback } from 'react'
 import type { RunState } from '../types'
 import { drawRoomChoices } from '../game/dungeon-deck'
 import { generateUid } from '../lib/utils'
+import type { RoomCompleteParams } from './useRoomHandlers'
 
 type SetState = (fn: (prev: RunState | null) => RunState | null) => void
+
+export interface TreasureHandlersConfig {
+  setState: SetState
+  getCurrentRoomUid: () => string | undefined
+  onRoomComplete?: (params: RoomCompleteParams) => void
+}
 
 export interface TreasureHandlers {
   handleTreasureSelectRelic: (relicId: string) => void
   handleTreasureSkip: () => void
 }
 
-export function useTreasureHandlers(setState: SetState): TreasureHandlers {
+export function useTreasureHandlers({
+  setState,
+  getCurrentRoomUid,
+  onRoomComplete,
+}: TreasureHandlersConfig): TreasureHandlers {
   const advanceFromTreasure = useCallback(() => {
+    const roomUid = getCurrentRoomUid()
+
+    // If run-lock is active, let it handle room transition
+    if (onRoomComplete && roomUid) {
+      onRoomComplete({ roomUid })
+      return
+    }
+
+    // Fallback: Draw new room choices directly
     setState((prev) => {
       if (!prev) return prev
 
@@ -29,7 +49,7 @@ export function useTreasureHandlers(setState: SetState): TreasureHandlers {
         floor: prev.floor + 1,
       }
     })
-  }, [setState])
+  }, [setState, getCurrentRoomUid, onRoomComplete])
 
   const handleTreasureSelectRelic = useCallback((relicId: string) => {
     setState((prev) => {

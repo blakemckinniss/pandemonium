@@ -1,8 +1,15 @@
 import { useCallback } from 'react'
 import type { RunState } from '../types'
 import { drawRoomChoices } from '../game/dungeon-deck'
+import type { RoomCompleteParams } from './useRoomHandlers'
 
 type SetState = (fn: (prev: RunState | null) => RunState | null) => void
+
+export interface CampfireHandlersConfig {
+  setState: SetState
+  getCurrentRoomUid: () => string | undefined
+  onRoomComplete?: (params: RoomCompleteParams) => void
+}
 
 export interface CampfireHandlers {
   handleCampfireRest: () => void
@@ -10,8 +17,21 @@ export interface CampfireHandlers {
   handleCampfireSkip: () => void
 }
 
-export function useCampfireHandlers(setState: SetState): CampfireHandlers {
+export function useCampfireHandlers({
+  setState,
+  getCurrentRoomUid,
+  onRoomComplete,
+}: CampfireHandlersConfig): CampfireHandlers {
   const advanceFromCampfire = useCallback(() => {
+    const roomUid = getCurrentRoomUid()
+
+    // If run-lock is active, let it handle room transition
+    if (onRoomComplete && roomUid) {
+      onRoomComplete({ roomUid })
+      return
+    }
+
+    // Fallback: Draw new room choices directly
     setState((prev) => {
       if (!prev) return prev
 
@@ -29,7 +49,7 @@ export function useCampfireHandlers(setState: SetState): CampfireHandlers {
         floor: prev.floor + 1,
       }
     })
-  }, [setState])
+  }, [setState, getCurrentRoomUid, onRoomComplete])
 
   const handleCampfireRest = useCallback(() => {
     setState((prev) => {

@@ -90,6 +90,7 @@ export interface RunState {
   dungeonDeck: RoomCard[]
   roomChoices: RoomCard[]
   currentRoomId?: string // The room definition ID of current/just-completed room
+  currentRoomUid?: string // The runtime unique ID of current/just-completed room
   gold: number
   stats: RunStats
   // Dungeon deck tracking (for roguelike ownership)
