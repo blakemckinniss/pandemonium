@@ -1,6 +1,7 @@
 import { useState, useCallback } from 'react'
 import { Modal } from './Modal'
-import { Card, getCardDefProps } from '../Card/Card'
+import { Card } from '../Card/Card'
+import { getCardDefProps } from '../Card/utils'
 import { getEffectiveCardDef } from '../../game/cards'
 import type { CardInstance, CardDefinition } from '../../types'
 

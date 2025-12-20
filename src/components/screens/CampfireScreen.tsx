@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react'
 import { Icon } from '@iconify/react'
-import { Card, getCardDefProps } from '../Card/Card'
+import { Card } from '../Card/Card'
+import { getCardDefProps } from '../Card/utils'
 import { getEffectiveCardDef } from '../../game/cards'
 import { gsap } from '../../lib/animations'
 import type { CardInstance, HeroState } from '../../types'

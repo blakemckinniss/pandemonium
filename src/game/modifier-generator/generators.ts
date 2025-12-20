@@ -67,7 +67,7 @@ function parseModifierResponse(response: string): Record<string, unknown> {
   cleaned = cleaned.trim()
 
   try {
-    return JSON.parse(cleaned)
+    return JSON.parse(cleaned) as Record<string, unknown>
   } catch (err) {
     logger.error('ModifierGen', 'Failed to parse JSON response:', cleaned)
     throw new Error(`Invalid JSON response: ${err instanceof Error ? err.message : String(err)}`)

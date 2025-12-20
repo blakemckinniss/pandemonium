@@ -1,5 +1,6 @@
 import { useEffect, useRef } from 'react'
-import { Card, getCardDefProps } from '../Card/Card'
+import { Card } from '../Card/Card'
+import { getCardDefProps } from '../Card/utils'
 import type { CardDefinition } from '../../types'
 import { gsap } from '../../lib/dragdrop'
 

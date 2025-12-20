@@ -395,7 +395,7 @@ export function coerceDurability(value: unknown): ModifierDurability {
 export function coerceModifierEffects(effects: unknown): ModifierEffect[] {
   if (!Array.isArray(effects)) return []
 
-  return effects.filter((e): e is ModifierEffect => {
-    return e && typeof e === 'object' && typeof (e as Record<string, unknown>).type === 'string'
+  return effects.filter((e: unknown): e is ModifierEffect => {
+    return e !== null && typeof e === 'object' && typeof (e as Record<string, unknown>).type === 'string'
   })
 }

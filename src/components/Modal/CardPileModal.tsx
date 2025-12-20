@@ -1,5 +1,6 @@
 import { Modal } from './Modal'
-import { Card, getCardDefProps } from '../Card/Card'
+import { Card } from '../Card/Card'
+import { getCardDefProps } from '../Card/utils'
 import { getCardDefinition } from '../../game/cards'
 import type { CardInstance } from '../../types'
 

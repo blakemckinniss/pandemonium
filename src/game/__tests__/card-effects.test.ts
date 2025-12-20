@@ -377,7 +377,7 @@ describe('executeDiscard', () => {
     // Assert
     const visual = state.combat?.visualQueue.find((e) => e.type === 'discard')
     expect(visual).toBeDefined()
-    expect((visual as any).cardUids).toContain('card1')
+    expect((visual as { [key: string]: unknown }).cardUids).toContain('card1')
   })
 
   it('does_nothing_when_combat_is_null', () => {
@@ -480,7 +480,7 @@ describe('executeExhaust', () => {
     // Assert
     const visual = state.combat?.visualQueue.find((e) => e.type === 'exhaust')
     expect(visual).toBeDefined()
-    expect((visual as any).cardUids).toContain('card1')
+    expect((visual as { [key: string]: unknown }).cardUids).toContain('card1')
   })
 
   it('does_nothing_when_combat_is_null', () => {
@@ -1253,7 +1253,7 @@ describe('executePutOnDeck', () => {
     // Assert
     const visual = state.combat?.visualQueue.find((e) => e.type === 'putOnDeck')
     expect(visual).toBeDefined()
-    expect((visual as any).position).toBe('top')
+    expect((visual as { [key: string]: unknown }).position).toBe('top')
   })
 
   it('does_nothing_when_combat_is_null', () => {
@@ -1366,7 +1366,7 @@ describe('executeModifyCost', () => {
     // Assert
     const visual = state.combat?.visualQueue.find((e) => e.type === 'costModify')
     expect(visual).toBeDefined()
-    expect((visual as any).delta).toBe(-2)
+    expect((visual as { [key: string]: unknown }).delta).toBe(-2)
   })
 
   it('does_nothing_when_combat_is_null', () => {
@@ -1416,7 +1416,7 @@ describe('executeReplayCard', () => {
     // Assert
     const visual = state.combat?.visualQueue.find((e) => e.type === 'replay')
     expect(visual).toBeDefined()
-    expect((visual as any).times).toBe(1)
+    expect((visual as { [key: string]: unknown }).times).toBe(1)
   })
 
   it('replays_card_effects_multiple_times', () => {
@@ -1436,7 +1436,7 @@ describe('executeReplayCard', () => {
     // Assert
     const visual = state.combat?.visualQueue.find((e) => e.type === 'replay')
     expect(visual).toBeDefined()
-    expect((visual as any).times).toBe(3)
+    expect((visual as { [key: string]: unknown }).times).toBe(3)
   })
 
   it('does_nothing_when_combat_is_null', () => {
@@ -1639,7 +1639,7 @@ describe('executeGold', () => {
     // Assert
     const visual = state.combat?.visualQueue.find((e) => e.type === 'gold')
     expect(visual).toBeDefined()
-    expect((visual as any).delta).toBe(50)
+    expect((visual as { [key: string]: unknown }).delta).toBe(50)
   })
 
   it('emits_visual_event_with_negative_delta_for_lose', () => {
@@ -1654,7 +1654,7 @@ describe('executeGold', () => {
     // Assert
     const visual = state.combat?.visualQueue.find((e) => e.type === 'gold')
     expect(visual).toBeDefined()
-    expect((visual as any).delta).toBe(-30)
+    expect((visual as { [key: string]: unknown }).delta).toBe(-30)
   })
 })
 
@@ -1737,7 +1737,7 @@ describe('executeDiscover', () => {
     executeDiscover(state, effect, ctx)
 
     // Assert
-    const pending = state.combat?.pendingSelection as any
+    const pending = state.combat?.pendingSelection as unknown as { [key: string]: unknown }
     expect(pending?.destination).toBe('drawPile')
   })
 
@@ -1757,7 +1757,7 @@ describe('executeDiscover', () => {
     executeDiscover(state, effect, ctx)
 
     // Assert
-    const pending = state.combat?.pendingSelection as any
+    const pending = state.combat?.pendingSelection as unknown as { [key: string]: unknown }
     expect(pending?.copies).toBe(2)
   })
 

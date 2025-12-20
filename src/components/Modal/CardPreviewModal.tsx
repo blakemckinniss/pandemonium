@@ -1,7 +1,7 @@
 import { Icon } from '@iconify/react'
 import { Modal } from './Modal'
 import type { CardDefinition, Element } from '../../types'
-import { getEnergyCost } from '../Card/Card'
+import { getEnergyCost } from '../Card/utils'
 
 // Element visual config
 const ELEMENT_CONFIG: Record<Element, { icon: string; color: string; label: string }> = {

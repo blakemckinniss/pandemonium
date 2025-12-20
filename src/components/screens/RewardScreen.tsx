@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { Icon } from '@iconify/react'
-import { Card, getCardDefProps } from '../Card/Card'
+import { Card } from '../Card/Card'
+import { getCardDefProps } from '../Card/utils'
 import { CardPreviewModal } from '../Modal/CardPreviewModal'
 import type { CardDefinition, RelicDefinition } from '../../types'
 import { getAllRelics } from '../../game/relics'
