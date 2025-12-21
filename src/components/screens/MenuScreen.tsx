@@ -293,7 +293,7 @@ export function MenuScreen({ onStartRun }: MenuScreenProps) {
       </header>
 
       {/* Main Content */}
-      <main className="flex-1 overflow-x-hidden overflow-y-visible flex">
+      <main className="flex-1 overflow-hidden flex">
         {activeTab === 'play' && (
           <PlayTab
             availableHeroes={availableHeroes}
@@ -475,7 +475,7 @@ function PlayTab({
     }
   }
   return (
-    <div className="flex-1 flex flex-col items-center justify-start pt-12 px-8 pb-8 overflow-visible">
+    <div className="flex-1 flex flex-col items-center justify-start p-8 overflow-visible">
       {/* Hero Selection Carousel */}
       {availableHeroes.length > 0 && (
         <HeroCarousel
