@@ -209,11 +209,21 @@ export function GalleryScreen({ onBack }: GalleryScreenProps) {
                       }
                     `}
                   >
-                    <div className="w-full aspect-[3/4] rounded-lg bg-warm-700 mb-2 flex items-center justify-center overflow-hidden">
-                      <Icon
-                        icon="game-icons:corset"
-                        className={`w-12 h-12 ${rarityColors[outfit.rarity]}`}
-                      />
+                    <div className="w-full aspect-[3/4] rounded-lg bg-warm-700 mb-2 overflow-hidden">
+                      {outfit.image ? (
+                        <img
+                          src={outfit.image}
+                          alt={outfit.name}
+                          className="w-full h-full object-cover"
+                        />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center">
+                          <Icon
+                            icon="game-icons:corset"
+                            className={`w-12 h-12 ${rarityColors[outfit.rarity]}`}
+                          />
+                        </div>
+                      )}
                     </div>
                     <div className="text-sm text-warm-300">{outfit.name}</div>
                     <div className={`text-xs ${rarityColors[outfit.rarity]} capitalize`}>
@@ -245,8 +255,23 @@ export function GalleryScreen({ onBack }: GalleryScreenProps) {
                     }
                   `}
                 >
-                  <div className="w-full aspect-[3/4] rounded-lg bg-warm-800/30 mb-2 flex items-center justify-center">
-                    <Icon icon="game-icons:padlock" className="w-12 h-12 text-warm-600" />
+                  <div className="w-full aspect-[3/4] rounded-lg bg-warm-800/30 mb-2 overflow-hidden relative">
+                    {outfit.image ? (
+                      <>
+                        <img
+                          src={outfit.image}
+                          alt={outfit.name}
+                          className="w-full h-full object-cover grayscale opacity-40"
+                        />
+                        <div className="absolute inset-0 flex items-center justify-center">
+                          <Icon icon="game-icons:padlock" className="w-10 h-10 text-warm-400" />
+                        </div>
+                      </>
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center">
+                        <Icon icon="game-icons:padlock" className="w-12 h-12 text-warm-600" />
+                      </div>
+                    )}
                   </div>
                   <div className="text-sm text-warm-500">{outfit.name}</div>
                   {canUnlock ? (
