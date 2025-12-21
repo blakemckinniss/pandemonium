@@ -109,6 +109,11 @@ def get_templates() -> dict[str, str]:
     return _load_config().get("templates", {})
 
 
+def get_action_visuals() -> dict[str, str]:
+    """Get action type to visual description mapping."""
+    return _load_config().get("action_visuals", {})
+
+
 def _extract_action_keywords(description: str) -> str:
     """Extract booru-style tags from card description."""
     desc_lower = description.lower()
@@ -117,6 +122,20 @@ def _extract_action_keywords(description: str) -> str:
         if keyword in desc_lower:
             tags.append(booru_tags)
     return ", ".join(tags[:4]) if tags else "magic_effect"  # Limit to 4 most relevant
+
+
+def _extract_action_visual(description: str) -> str:
+    """Extract visual description for card action from action_visuals config."""
+    desc_lower = description.lower()
+    action_visuals = get_action_visuals()
+
+    # Find matching action visual
+    for keyword, visual in action_visuals.items():
+        if keyword in desc_lower:
+            return visual
+
+    # Default to generic magic effect
+    return "magical energy burst, arcane power, glowing effect"
 
 
 def card_to_prompt(
@@ -130,6 +149,9 @@ def card_to_prompt(
     """
     Convert a card definition into an image generation prompt.
 
+    IMPORTANT: Hand cards (attack/skill/power) generate EFFECT-FOCUSED images,
+    NOT character portraits. Shows the spell, weapon, or magical phenomenon.
+
     Args:
         name: Card name (e.g., "Flame Strike")
         description: Card effect description
@@ -139,49 +161,46 @@ def card_to_prompt(
         custom_hint: Optional custom style hints
 
     Returns:
-        Optimized prompt string for NewBie model
+        Effect-focused prompt string (no characters)
     """
+    templates = get_templates()
     elem_style = get_element_styles().get(element, get_element_styles().get("physical", {}))
-    rarity_tags = get_rarity_tags()
-    rarity_quality = rarity_tags.get(rarity, "detailed")
+    theme_style = get_theme_styles().get(theme, get_theme_styles().get("attack", {}))
+    rarity_quality = get_rarity_quality().get(rarity, "detailed")
 
-    # Element-specific hair/eye colors from config
-    element_features = get_element_features("card")
-    elem_features = element_features.get(element, "long_hair")
+    # Get action visual from description
+    action_visual = _extract_action_visual(description)
 
-    # Theme-specific pose/action tags from config
-    theme_tags = get_theme_tags()
-    theme_action = theme_tags.get(theme, "casting_spell")
-
-    # Extract action keywords from description for image influence
-    desc_keywords = _extract_action_keywords(description)
-
+    # Build effect-focused prompt - NO CHARACTERS
     parts = [
-        # Quality tags first (booru convention)
-        "masterpiece, best_quality, highres",
+        # Quality prefix
+        templates.get("hand_quality_prefix", "masterpiece, best_quality, highres"),
         rarity_quality,
-        # Character tags
-        "1girl, solo, beautiful_detailed_eyes, detailed_face",
-        elem_features,
-        "long_hair, flowing_hair",
-        # Body/pose
-        "slim_waist, elegant, standing, dynamic_pose",
-        # Theme-specific action
-        theme_action,
-        # Card effect visualization from description
-        desc_keywords,
-        # Outfit based on theme
-        "fantasy_dress, sorceress_outfit, magical_girl",
-        # Magic effect from card name
-        f"casting_spell, {name.lower().replace(' ', '_')}",
-        # Element effects
-        elem_style["effects"].replace(", ", "_").replace(" ", "_"),
+        # Subject - the EFFECT itself, not a character
+        templates.get("hand_subject_base", "isolated magical effect, no characters"),
+        # Theme-specific subject description
+        theme_style.get("subject", "magical phenomenon"),
+        # The actual effect from card name
+        f"{name.lower().replace(' ', '_')}_effect",
+        # Action visual from description
+        action_visual,
+        # Element colors and effects
+        f"color scheme: {elem_style['colors']}",
+        elem_style["effects"],
+        # Theme composition and mood
+        theme_style.get("composition", "centered composition"),
+        theme_style.get("mood", "dramatic"),
+        theme_style.get("camera", "close-up"),
         # Atmosphere
-        "dramatic_lighting, particle_effects, glowing",
-        # Style tags
-        "anime_style, digital_art, fantasy",
-        # Negative concept embedding
-        "no_text",
+        templates.get("hand_atmosphere", "dramatic lighting, particle effects, glowing energy"),
+        # Style
+        templates.get("hand_style", "painterly fantasy card illustration, bold shapes"),
+        # Composition
+        templates.get("hand_composition", "centered composition, close-up, icon-like readability"),
+        # Anti-character emphasis (positive phrasing since turbo has no negative)
+        "empty scene, disembodied effect, only the magical phenomenon, no caster, no wielder",
+        # Suffix
+        templates.get("hand_suffix", "no_text, vignette edges, dark gradient background"),
     ]
 
     if custom_hint:
@@ -253,7 +272,7 @@ def hero_to_prompt(
 ) -> str:
     """
     Convert a hero definition into an image generation prompt.
-    Uses booru-style tags for better anime image generation.
+    Uses booru-style tags for attractive anime character portraits.
 
     Args:
         name: Hero name (e.g., "Pyromancer")
@@ -263,41 +282,52 @@ def hero_to_prompt(
         custom_hint: Optional custom style hints
 
     Returns:
-        Booru-style prompt string for hero portrait
+        Booru-style prompt string for attractive hero portrait
     """
+    templates = get_templates()
+
     # Element-specific features from config
     element_features = get_element_features("hero")
     elem_features = element_features.get(element, "long_hair")
 
-    # Archetype-specific booru tags from config
+    # Archetype-specific data from config
     hero_archetypes = get_hero_archetypes()
     archetype_data = hero_archetypes.get(archetype, {})
     arch_tags = archetype_data.get("booru_tags", "warrior, fantasy")
-
-    # Extract keywords from description
-    desc_keywords = _extract_action_keywords(description)
+    arch_pose = archetype_data.get("pose", "heroic stance")
+    arch_wardrobe = archetype_data.get("wardrobe", "fantasy armor")
+    arch_physical = archetype_data.get("physical", "large breasts, cleavage")
 
     parts = [
         # Quality tags first
-        "masterpiece, best_quality, highres, extremely_detailed",
-        # Character - anime heroine
-        "1girl, solo, beautiful_detailed_eyes, detailed_face",
+        templates.get("hero_quality_prefix", "masterpiece, best_quality, highres"),
+        # Character base - attractive anime woman
+        templates.get("hero_character_base", "1girl, solo, beautiful detailed eyes, perfect face"),
         elem_features,
         "long_hair, flowing_hair",
-        # Body/pose - heroic
-        "slim_waist, elegant, heroic_pose, confident",
-        "determined_expression, brave",
-        # Archetype features
+        # Physical attributes - emphasis on attractive features
+        templates.get("hero_body_base", "huge breasts, large breasts, cleavage, perfect body"),
+        arch_physical,
+        # Framing
+        templates.get("hero_framing", "portrait, upper body, three-quarter view"),
+        # Pose from archetype
+        arch_pose,
+        # Expression
+        templates.get("hero_expression", "confident smirk, seductive gaze"),
+        # Wardrobe from archetype - revealing
+        arch_wardrobe,
+        templates.get("hero_wardrobe", "revealing fantasy armor, deep cleavage"),
+        # Archetype tags
         arch_tags,
         f"{name.lower().replace(' ', '_')}",
-        # Description influence
-        desc_keywords,
+        # Lighting
+        templates.get("hero_lighting", "soft key light, rim light, dramatic shadows"),
         # Atmosphere
-        "dramatic_lighting, epic, heroic_aura",
+        templates.get("hero_atmosphere", "dramatic lighting, heroic aura, subtle glow"),
         # Style
-        "anime_style, digital_art, fantasy, jrpg",
+        templates.get("hero_style", "anime style, digital art, fantasy, ecchi"),
         # No text
-        "no_text",
+        templates.get("hero_suffix", "no_text"),
     ]
 
     if custom_hint:
@@ -321,7 +351,7 @@ def enemy_to_prompt(
 ) -> str:
     """
     Convert an enemy definition into an image generation prompt.
-    Uses booru-style tags for better anime image generation.
+    Uses booru-style tags for seductive monster girl portraits.
 
     Args:
         name: Enemy name (e.g., "Acid Slime")
@@ -332,16 +362,22 @@ def enemy_to_prompt(
         custom_hint: Optional custom style hints
 
     Returns:
-        Booru-style prompt string for enemy portrait
+        Booru-style prompt string for seductive enemy portrait
     """
+    templates = get_templates()
+
     # Element-specific features from config
     element_features = get_element_features("enemy")
     elem_features = element_features.get(element, "long_hair")
 
-    # Archetype-specific booru tags from config
+    # Archetype-specific data from config
     enemy_archetypes = get_enemy_archetypes()
     archetype_data = enemy_archetypes.get(archetype, {})
     arch_tags = archetype_data.get("booru_tags", "monster_girl, fantasy")
+    arch_creature = archetype_data.get("creature", "beautiful monster girl")
+    arch_mood = archetype_data.get("mood", "dangerous, alluring")
+    arch_details = archetype_data.get("details", "")
+    arch_erotic = archetype_data.get("erotic_features", "nude, exposed")
 
     # Difficulty affects quality tags
     difficulty_tags = get_difficulty_tags()
@@ -349,26 +385,36 @@ def enemy_to_prompt(
 
     parts = [
         # Quality tags first
-        "masterpiece, best_quality, highres",
+        templates.get("enemy_quality_prefix", "masterpiece, best_quality, highres"),
         quality_tags,
-        # Character - anime monster girl
-        "1girl, solo, monster_girl, beautiful_detailed_eyes, detailed_face",
+        # Character - seductive monster girl
+        templates.get("enemy_character_base", "1girl, solo, monster_girl, beautiful detailed eyes"),
         elem_features,
         "long_hair, flowing_hair",
-        # Body/pose - dangerous beauty
-        "slim_waist, elegant, dynamic_pose, dangerous",
-        "seductive, alluring, confident",
-        # Archetype features
+        # Physical attributes - voluptuous and dangerous
+        templates.get("enemy_body_base", "huge breasts, large breasts, cleavage, voluptuous"),
+        # Archetype-specific erotic features (how monster traits enhance sexuality)
+        arch_erotic,
+        # Framing
+        templates.get("enemy_framing", "portrait, upper body, dynamic pose"),
+        # Expression - seductive threat
+        templates.get("enemy_expression", "seductive smirk, bedroom eyes, predatory gaze"),
+        # Creature description from archetype
+        arch_creature,
+        arch_mood,
+        # Archetype-specific visual details
+        arch_details,
+        # Wardrobe - barely covered
+        templates.get("enemy_wardrobe", "barely covered, revealing outfit, sideboob, underboob"),
+        # Archetype tags
         arch_tags,
         f"{name.lower().replace(' ', '_')}",
-        # Outfit/details
-        "fantasy, dark_fantasy, villain",
         # Atmosphere
-        "dramatic_lighting, dark_atmosphere, menacing_aura",
+        templates.get("enemy_atmosphere", "dramatic lighting, dark atmosphere, menacing aura"),
         # Style
-        "anime_style, digital_art, monster_musume",
+        templates.get("enemy_style", "anime style, digital art, monster musume, ecchi"),
         # No text
-        "no_text",
+        templates.get("enemy_suffix", "no_text"),
     ]
 
     if custom_hint:

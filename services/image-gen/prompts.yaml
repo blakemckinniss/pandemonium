@@ -29,30 +29,40 @@ element_styles:
     atmosphere: "mysterious, otherworldly, ominous"
 
 # ============================================
-# THEME STYLES
-# Maps card themes to visual composition
+# THEME STYLES (for HAND CARDS - effect/action focused, NO characters)
+# These are spell effects, weapons, magical phenomena - NOT people
 # ============================================
 theme_styles:
   attack:
-    composition: "dynamic action pose, offensive stance"
-    mood: "aggressive, powerful, striking"
-    border_hint: "red energy border"
+    subject: "the attack effect itself, weapon strike, energy blast, impact explosion"
+    composition: "close-up on effect, violent motion, impact burst, debris flying"
+    mood: "aggressive, violent, destructive, kinetic"
+    camera: "dynamic angle, motion blur, centered on impact"
+    negative_add: "person, character, human, face, body, hands, wielder, caster"
   skill:
-    composition: "defensive or utility focus, balanced pose"
-    mood: "tactical, protective, supportive"
-    border_hint: "blue energy border"
+    subject: "magical shield, defensive barrier, tactical effect, utility spell"
+    composition: "centered magical phenomenon, controlled energy, clean lines"
+    mood: "precise, tactical, protective, efficient"
+    camera: "centered composition, clear focal point"
+    negative_add: "person, character, human, face, body, hands, caster"
   power:
-    composition: "aura emanating, empowered stance, glowing"
-    mood: "mystical, enhanced, transcendent"
-    border_hint: "purple energy border"
+    subject: "persistent aura, magical emblem, power sigil, enchantment effect"
+    composition: "symmetrical design, radiating energy, iconic silhouette"
+    mood: "mystical, transcendent, empowering, eternal"
+    camera: "centered, emblematic, icon-like"
+    negative_add: "person, character, human, face, body, portrait"
   curse:
-    composition: "corrupted, twisted, dark influence"
-    mood: "malevolent, cursed, haunting"
-    border_hint: "sickly green border"
+    subject: "dark corruption effect, cursed energy, malevolent phenomenon"
+    composition: "twisted forms, spreading corruption, dark tendrils"
+    mood: "malevolent, corrupting, sinister, infectious"
+    camera: "ominous angle, spreading outward"
+    negative_add: "person, character, human, face, body"
   status:
-    composition: "neutral, simple, basic"
-    mood: "plain, unremarkable"
-    border_hint: "grey border"
+    subject: "simple effect indicator, basic phenomenon"
+    composition: "minimal, clean, readable"
+    mood: "neutral, plain"
+    camera: "centered, simple"
+    negative_add: "person, character, human, face"
 
 # ============================================
 # RARITY QUALITY
@@ -115,120 +125,155 @@ action_keywords:
 
 # ============================================
 # HERO ARCHETYPE STYLES
-# Visual styles for hero character archetypes
+# Visual styles for hero character archetypes - ATTRACTIVE & DISTINCTIVE
 # ============================================
 hero_archetypes:
   Warrior:
-    pose: "heroic stance, weapon ready, armored"
-    mood: "brave, determined, stalwart"
-    details: "battle scars, heavy armor, sword or axe"
-    booru_tags: "knight, armor, sword, battle_stance, warrior"
+    pose: "confident stance, weapon resting on shoulder, hip cocked, chest out"
+    mood: "fierce, sexy, battle-hardened"
+    details: "battle scars, revealing armored bikini, toned abs visible, long flowing hair"
+    wardrobe: "skimpy plate armor, bare midriff, thigh-high armored boots, deep cleavage window, sideboob"
+    identity: "athletic build, fierce eyes, confident smirk"
+    physical: "huge breasts, large breasts, cleavage, toned body, thick thighs"
+    booru_tags: "bikini_armor, abs, sword, battle_scars, toned, muscular_female, huge_breasts, cleavage, sideboob"
   Mage:
-    pose: "casting spell, magical aura, robes flowing"
-    mood: "wise, powerful, mystical"
-    details: "staff or tome, glowing runes, arcane symbols"
-    booru_tags: "witch_hat, staff, robes, magic_circle, sorceress"
+    pose: "alluring casting pose, one hand raised, robes slipping off shoulder, breasts prominent"
+    mood: "mysterious, seductive, powerful"
+    details: "glowing eyes, arcane tattoos on skin, revealing sorceress attire"
+    wardrobe: "low-cut wizard robes, side slit to hip, bare shoulders, underboob visible, thigh-highs"
+    identity: "elegant figure, knowing smile, mystical markings"
+    physical: "huge breasts, large breasts, deep cleavage, slim waist, wide hips"
+    booru_tags: "sorceress, bare_shoulders, thigh_slit, magic_circle, glowing_eyes, huge_breasts, cleavage, underboob"
   Assassin:
-    pose: "stealthy crouch, daggers drawn, hooded"
-    mood: "deadly, cunning, shadowy"
-    details: "dark cloak, hidden blades, piercing gaze"
-    booru_tags: "hood, daggers, cloak, stealthy, ninja"
+    pose: "sensual crouch, daggers ready, hood partially hiding face, cleavage visible"
+    mood: "deadly, seductive, mysterious"
+    details: "tight bodysuit, exposed back, piercing gaze through shadows"
+    wardrobe: "skin-tight leather, open back, high-cut legs, strategic cutouts, zipper half open"
+    identity: "lithe athletic body, sharp features, predatory eyes"
+    physical: "large breasts, perky breasts, cleavage, slim waist, round ass"
+    booru_tags: "kunoichi, bodysuit, daggers, hood, tight_clothing, ass_visible, back_cutout, large_breasts, cleavage"
   Paladin:
-    pose: "protective stance, shield raised, glowing"
-    mood: "righteous, protective, holy"
-    details: "ornate armor, divine light, blessed weapon"
-    booru_tags: "holy_knight, shield, divine_light, armor, halo"
+    pose: "noble stance, one hand on chest, divine light caressing curves, breasts lifted"
+    mood: "righteous, alluring, blessed"
+    details: "ornate revealing armor, divine aura, angelic features"
+    wardrobe: "holy bikini armor, white and gold, halo effect, ceremonial thigh-highs, blessed cleavage"
+    identity: "radiant beauty, serene expression, blessed figure"
+    physical: "huge breasts, large breasts, holy cleavage, perfect body, wide hips"
+    booru_tags: "holy_knight, bikini_armor, halo, divine_light, white_hair, huge_breasts, cleavage, sideboob"
   Necromancer:
-    pose: "commanding undead, dark magic swirling"
-    mood: "sinister, commanding, eerie"
-    details: "skull staff, dark robes, ghostly spirits"
-    booru_tags: "dark_mage, skull_staff, undead, dark_magic"
+    pose: "commanding pose, ghostly energy swirling around curves, breasts emphasized"
+    mood: "dark seductress, commanding, eerie beauty"
+    details: "pale skin, dark makeup, spirits caressing her form"
+    wardrobe: "sheer dark robes, barely there, bone accessories, exposed cleavage, see-through"
+    identity: "ethereal pale beauty, dark lips, haunting eyes"
+    physical: "huge breasts, large breasts, visible through sheer fabric, slim waist, pale cleavage"
+    booru_tags: "dark_mage, pale_skin, sheer_clothing, skulls, dark_makeup, huge_breasts, see-through, cleavage"
   Berserker:
-    pose: "rage stance, muscles tense, battle cry"
-    mood: "furious, unstoppable, primal"
-    details: "tribal markings, dual weapons, wild hair"
-    booru_tags: "tribal, dual_wielding, rage, wild, muscles"
+    pose: "aggressive stance, head thrown back, primal scream, chest heaving"
+    mood: "savage passion, untamed, fierce desire"
+    details: "tribal markings covering body, wild mane of hair, sweat-glistened skin"
+    wardrobe: "tribal bikini, fur accents, leather straps barely covering breasts"
+    identity: "powerful muscular build, wild eyes, feral beauty"
+    physical: "huge breasts, bouncing breasts, sweat on breasts, thick thighs, muscular"
+    booru_tags: "tribal, muscular_female, wild_hair, tribal_tattoo, barely_covered, sweat, huge_breasts, bouncing_breasts"
   Elementalist:
-    pose: "controlling elements, surrounded by magic"
-    mood: "balanced, attuned, versatile"
-    details: "multiple element effects, flowing energy"
-    booru_tags: "elemental_magic, floating, multiple_elements, aura"
+    pose: "floating pose, elements swirling around exposed body, breasts prominent"
+    mood: "transcendent, ethereal, sensual power"
+    details: "elemental markings glowing on skin, hair floating, surrounded by magic"
+    wardrobe: "elemental wisps as clothing, strategic magical coverage, mostly bare, nipple pasties"
+    identity: "otherworldly beauty, glowing marks, serene allure"
+    physical: "huge breasts, large breasts, barely covered breasts, perfect body, glowing skin"
+    booru_tags: "floating, elemental_magic, glowing_marks, bare_skin, ethereal, huge_breasts, barely_covered, pasties"
 
 # ============================================
 # ENEMY ARCHETYPE STYLES
-# Visual styles for enemy characters (all anime women/monster girls)
+# NSFW-first monster girls - monster features enhance eroticism
 # ============================================
 enemy_archetypes:
   Slime:
-    creature: "beautiful anime slime girl, translucent gelatinous woman, cute monster girl"
-    mood: "playful, mischievous, alluring"
-    details: "translucent body, slime dripping, colorful core, cute face through slime"
-    booru_tags: "slime_girl, translucent_body, goo, monster_girl"
+    creature: "sexy slime girl, nude translucent body, erotic goo woman"
+    mood: "playfully lewd, mischievous seduction, teasing"
+    details: "see-through slime body showing curves, slime dripping off breasts, goo caressing her own body"
+    erotic_features: "slime covering nipples, translucent body fully visible, goo tentacles"
+    booru_tags: "slime_girl, translucent_body, nude, see_through, goo_tentacles, wet_body"
   Cultist:
-    creature: "beautiful anime woman in dark robes, elegant occult priestess"
-    mood: "fanatical, mysterious, alluring"
-    details: "flowing ritual robes, arcane tattoos, glowing eyes, elegant features"
-    booru_tags: "dark_robes, hood, occult, ritual_tattoos"
+    creature: "nude occult priestess, naked ritual maiden, exposed dark worshipper"
+    mood: "fanatical lust, ritual ecstasy, dark seduction"
+    details: "ritual body paint covering nipples only, arcane tattoos on breasts, glowing womb tattoo"
+    erotic_features: "body paint instead of clothes, ritual marks on intimate areas"
+    booru_tags: "nude, body_paint, ritual_tattoos, womb_tattoo, dark_ritual, exposed"
   Brute:
-    creature: "muscular anime woman warrior, amazonian fighter, armored battle maiden"
-    mood: "intimidating, powerful, fierce"
-    details: "battle armor, impressive physique, large weapon, wild hair, fierce eyes"
-    booru_tags: "muscular_female, amazon, battle_armor, warrior"
+    creature: "nude amazonian warrior, naked muscle girl, exposed battle goddess"
+    mood: "aggressive lust, powerful desire, dominating"
+    details: "muscular nude body, sweat glistening, battle damage revealing more skin"
+    erotic_features: "massive breasts on muscular frame, sweaty body, battle-torn minimal clothing"
+    booru_tags: "muscular_female, amazon, nude, sweaty, huge_breasts, abs, thick_thighs"
   Mage:
-    creature: "beautiful anime sorceress, dark witch, elegant spellcaster"
-    mood: "sinister, powerful, calculating"
-    details: "dark magic aura, ornate staff, glowing eyes, flowing robes, mystical symbols"
-    booru_tags: "witch, dark_magic, staff, floating_orbs"
+    creature: "nude dark sorceress, naked witch, exposed spellcaster"
+    mood: "corrupting seduction, magical lust, sinister desire"
+    details: "magic symbols glowing on bare skin, floating nude, arcane energy caressing body"
+    erotic_features: "magical bindings as only clothing, spells highlighting curves"
+    booru_tags: "witch, nude, magic_aura, floating, glowing_marks, exposed_body"
   Assassin:
-    creature: "beautiful anime kunoichi, deadly shadow maiden, elegant assassin"
-    mood: "lethal, seductive, mysterious"
-    details: "tight dark outfit, hidden blades, mask, piercing eyes, athletic body"
-    booru_tags: "kunoichi, ninja, tight_outfit, mask, daggers"
+    creature: "nude kunoichi, naked shadow maiden, exposed assassin"
+    mood: "deadly seduction, lethal desire, teasing threat"
+    details: "body oil glistening, shadow tendrils barely covering, athletic nude form"
+    erotic_features: "shadows as only covering, oil-slicked body, flexible poses"
+    booru_tags: "kunoichi, nude, oiled_body, flexible, shadows, athletic_body"
   Guardian:
-    creature: "beautiful anime knight woman, armored maiden, elegant sentinel"
-    mood: "stoic, protective, unyielding"
-    details: "ornate armor, large shield, glowing runes, long hair flowing from helm"
-    booru_tags: "knight, armor, shield, helmet_removed"
+    creature: "nude armored maiden, naked knight with only helmet and gauntlets"
+    mood: "stoic lewdness, protective yet exposed, dignified nudity"
+    details: "only armor pieces are helmet and gauntlets, otherwise completely nude"
+    erotic_features: "armor contrast against nude body, strategic metal pieces"
+    booru_tags: "knight, nude, armor_only_accessories, helmet, gauntlets, exposed_body"
   Berserker:
-    creature: "fierce anime warrior woman, battle-crazed valkyrie, wild amazon"
-    mood: "savage, passionate, terrifying beauty"
-    details: "tribal markings, wild red hair, dual axes, battle scars, fierce expression"
-    booru_tags: "tribal_markings, wild_hair, dual_wielding, battle_scars"
+    creature: "nude tribal warrior, naked berserker woman, feral nude beauty"
+    mood: "savage lust, primal desire, wild heat"
+    details: "war paint on nude body, sweat and blood, tribal markings on breasts"
+    erotic_features: "completely feral nudity, body paint patterns, battle sweat"
+    booru_tags: "tribal, nude, war_paint, sweaty, wild, feral, huge_breasts"
   Summoner:
-    creature: "beautiful anime summoner woman, elegant conjurer, dark mistress"
-    mood: "commanding, mysterious, powerful"
-    details: "summoning circle, spirit familiars, ornate tome, flowing dark dress"
-    booru_tags: "summoning_circle, familiars, tome, floating"
+    creature: "nude summoner, naked conjurer, tentacle-wrapped sorceress"
+    mood: "overwhelmed pleasure, familiar-touched, summoned lust"
+    details: "summoned tentacles wrapped around nude body, familiars worshipping her form"
+    erotic_features: "tentacles as clothing, familiars touching, summoning ecstasy"
+    booru_tags: "summoner, nude, tentacles, familiars, wrapped, monster_girl"
   Skeleton:
-    creature: "beautiful undead anime girl, elegant lich maiden, ghostly warrior woman"
-    mood: "haunting beauty, melancholic, deadly grace"
-    details: "pale glowing skin, ethereal dress, spectral weapon, hollow glowing eyes"
-    booru_tags: "undead, pale_skin, ghostly, ethereal_dress"
+    creature: "nude undead beauty, naked lich maiden, exposed ghostly form"
+    mood: "haunting lust, deathly seduction, cold desire"
+    details: "pale nude body with spectral glow, ethereal but fully visible curves"
+    erotic_features: "ghostly nudity, glowing nipples, spectral transparency"
+    booru_tags: "undead, nude, pale_skin, ghostly, glowing_body, ethereal"
   Wraith:
-    creature: "beautiful ghost anime girl, spectral maiden, ethereal spirit woman"
-    mood: "haunting, sorrowful, eerily beautiful"
-    details: "translucent flowing dress, trailing wisps, beautiful sad face, ghostly glow"
-    booru_tags: "ghost, translucent, flowing_dress, spectral"
+    creature: "nude ghost girl, naked spirit, translucent exposed form"
+    mood: "sorrowful seduction, ghostly desire, ethereal lust"
+    details: "completely see-through nude form, wispy trails from body"
+    erotic_features: "fully visible through transparency, ghostly nudity"
+    booru_tags: "ghost, nude, translucent, see_through, spectral, floating"
   Golem:
-    creature: "beautiful anime golem girl, crystal maiden, elemental woman construct"
-    mood: "powerful, ancient, majestic"
-    details: "crystalline or stone body parts, glowing core, elegant feminine form, runes"
-    booru_tags: "crystal_body, elemental, glowing_core, runes"
+    creature: "nude crystal maiden, naked elemental woman, exposed living statue"
+    mood: "ancient lust, crystalline desire, statuesque beauty"
+    details: "crystal body with visible anatomy, glowing core in chest/womb area"
+    erotic_features: "crystal nipples, gem-like anatomy, glowing intimate areas"
+    booru_tags: "crystal_body, nude, elemental, glowing_core, living_statue, gem_body"
   Necromancer:
-    creature: "beautiful anime woman in dark robes, elegant death mage, dark sorceress"
-    mood: "commanding, seductive, deadly"
-    details: "skull staff, black robes, pale skin, glowing purple eyes, dark aura"
-    booru_tags: "dark_mage, skull_staff, pale_skin, death_magic"
+    creature: "nude death mage, naked necromancer queen, exposed dark mistress"
+    mood: "commanding lust, death-touched desire, dark seduction"
+    details: "pale nude body, dark magic markings, spirits caressing her form"
+    erotic_features: "spirits as minimal covering, death magic tattoos on curves"
+    booru_tags: "dark_mage, nude, pale_skin, death_magic, spirits, exposed"
   BossNecromancer:
-    creature: "stunning anime woman, dark empress of death, necromancer queen"
-    mood: "regal, terrifying, overwhelming beauty"
-    details: "ornate dark crown, shadow robes, spirit army, bone throne, purple flames"
-    booru_tags: "dark_empress, crown, throne, spirit_army"
+    creature: "nude empress of death, naked necromancer goddess, fully exposed queen"
+    mood: "overwhelming dark lust, absolute seduction, apocalyptic desire"
+    details: "nude on bone throne, spirit army worshipping her body, crown only clothing"
+    erotic_features: "throne of worship, spirits touching, only jewelry as coverage"
+    booru_tags: "dark_empress, nude, throne, spirits, crown, worshipped, goddess"
   ChaosHeart:
-    creature: "eldritch anime goddess, void queen, beautiful chaos incarnate"
-    mood: "alien beauty, corrupting allure, apocalyptic"
-    details: "tentacle hair, void eyes, crystalline corruption, multiple arms, dark elegance"
-    booru_tags: "eldritch, tentacles, void, multiple_arms, goddess"
+    creature: "nude eldritch goddess, naked chaos incarnate, exposed void queen"
+    mood: "reality-breaking lust, corrupting desire, cosmic seduction"
+    details: "tentacles emerging from and caressing nude body, multiple breasts, void-touched"
+    erotic_features: "tentacles as extensions of body, extra breasts, void corruption spreading"
+    booru_tags: "eldritch, nude, tentacles, multiple_breasts, void, corruption, goddess"
 
 # ============================================
 # ROOM TYPE STYLES
@@ -330,32 +375,82 @@ difficulty_tags:
 # Reusable prompt component templates
 # ============================================
 templates:
-  card_quality_prefix: "masterpiece, best_quality, highres"
-  card_character_base: "1girl, solo, beautiful_detailed_eyes, detailed_face"
-  card_body_base: "slim_waist, elegant, standing, dynamic_pose"
-  card_outfit: "fantasy_dress, sorceress_outfit, magical_girl"
-  card_atmosphere: "dramatic_lighting, particle_effects, glowing"
-  card_style: "anime_style, digital_art, fantasy"
-  card_suffix: "no_text"
+  # ---- HAND CARDS (attack/skill/power) - EFFECT FOCUSED, NO CHARACTERS ----
+  # These show spells, weapons, magical phenomena - never people
+  hand_quality_prefix: "masterpiece, best_quality, highres, sharp_focus"
+  hand_subject_base: "isolated magical effect, single subject, no characters present"
+  hand_composition: "centered composition, close-up, icon-like readability, minimal background"
+  hand_atmosphere: "dramatic lighting, particle effects, glowing energy, high contrast"
+  hand_style: "painterly fantasy card illustration, bold shapes, textured brushstrokes"
+  hand_suffix: "no_text, vignette edges, dark gradient background"
+  # Strong negative to prevent character generation
+  hand_negative: "person, people, human, character, face, head, eyes, hands, body, torso, legs, arms, portrait, 1girl, 1boy, anime girl, woman, man, humanoid, armor on person, clothing on person, staff held, casting pose, looking at viewer, full body, holding"
 
-  hero_quality_prefix: "masterpiece, best_quality, highres, extremely_detailed"
-  hero_character_base: "1girl, solo, beautiful_detailed_eyes, detailed_face"
-  hero_body_base: "slim_waist, elegant, heroic_pose, confident"
-  hero_expression: "determined_expression, brave"
-  hero_atmosphere: "dramatic_lighting, epic, heroic_aura"
-  hero_style: "anime_style, digital_art, fantasy, jrpg"
+  # ---- HERO CARDS - NSFW-FIRST CHARACTER PORTRAITS ----
+  # Body is the main attraction, outfit/magic is the accent (hot cosplay aesthetic)
+  hero_quality_prefix: "masterpiece, best_quality, highres, extremely_detailed, sharp_focus, nsfw"
+  hero_character_base: "1girl, solo, gorgeous face, perfect face, lustful eyes, seductive, sexy, erotic"
+  hero_body_base: "huge breasts, massive breasts, gigantic breasts, heavy breasts, cleavage, nipple bulge, sideboob, underboob, perfect body, slim waist, wide hips, thick thighs, curvy, voluptuous, hourglass figure"
+  hero_framing: "portrait, upper body, breasts focus, cleavage focus, eye contact, sensual pose"
+  hero_expression: "bedroom eyes, seductive smile, lustful gaze, parted lips, ahegao hint, blushing"
+  hero_lighting: "soft key light, rim light on body, dramatic shadows, cinematic, breast highlights"
+  hero_wardrobe: "micro bikini armor, nipple covers, pasties, strategic coverage only, bare skin, exposed body, costume accent"
+  hero_atmosphere: "erotic tension, sensual mood, intimate lighting, soft bokeh background"
+  hero_style: "anime style, digital art, fantasy, ecchi, hentai aesthetic, pinup art"
   hero_suffix: "no_text"
+  hero_negative: "ugly, deformed, blurry, low quality, bad anatomy, flat chest, small breasts, fully clothed, covered body"
 
-  enemy_quality_prefix: "masterpiece, best_quality, highres"
-  enemy_character_base: "1girl, solo, monster_girl, beautiful_detailed_eyes, detailed_face"
-  enemy_body_base: "slim_waist, elegant, dynamic_pose, dangerous"
-  enemy_expression: "seductive, alluring, confident"
-  enemy_outfit: "fantasy, dark_fantasy, villain"
-  enemy_atmosphere: "dramatic_lighting, dark_atmosphere, menacing_aura"
-  enemy_style: "anime_style, digital_art, monster_musume"
+  # ---- ENEMY CARDS - NSFW-FIRST MONSTER GIRLS ----
+  # Body is the main attraction, monster features are the accent (sexy creature cosplay)
+  enemy_quality_prefix: "masterpiece, best_quality, highres, extremely_detailed, nsfw"
+  enemy_character_base: "1girl, solo, monster_girl, gorgeous face, perfect face, lustful eyes, seductive, sexy, erotic"
+  enemy_body_base: "huge breasts, massive breasts, gigantic breasts, heavy breasts, cleavage, nipple bulge, sideboob, underboob, perfect body, slim waist, wide hips, thick thighs, curvy, voluptuous"
+  enemy_framing: "portrait, upper body, breasts focus, cleavage focus, looking at viewer, sensual pose"
+  enemy_expression: "bedroom eyes, predatory seduction, lustful hunger, tongue out, licking lips, ahegao"
+  enemy_wardrobe: "nude, naked, barely any clothing, nipple pasties, micro bikini, strategic monster parts covering"
+  enemy_atmosphere: "erotic danger, sensual menace, intimate threat, dark seduction"
+  enemy_style: "anime style, digital art, monster musume, ecchi, hentai aesthetic, pinup art"
   enemy_suffix: "no_text"
+  enemy_negative: "ugly, deformed, blurry, low quality, bad anatomy, flat chest, small breasts, fully clothed, covered body"
 
+  # ---- ROOM CARDS - ENVIRONMENTS ----
   room_anti_text: "no text, no words, no letters, no writing, no numbers, no symbols"
   room_style: "anime style, digital painting, fantasy environment"
   room_composition: "wide shot, dramatic lighting, atmospheric perspective"
   room_empty: "no characters, empty room, environment only"
+
+# ============================================
+# ACTION EFFECT VISUALS
+# How to visualize specific card actions as EFFECTS not characters
+# ============================================
+action_visuals:
+  # Damage types - show the EFFECT
+  damage: "energy blast explosion, impact shockwave, destructive force"
+  strike: "sword slash arc, blade trail, steel gleam cutting through air"
+  slash: "diagonal cut effect, blade energy, slicing motion blur"
+  pierce: "spear thrust, piercing beam, penetrating force"
+
+  # Defense - show BARRIERS not defenders
+  block: "magical barrier manifesting, shield energy dome, protective ward"
+  armor: "steel plates materializing, protective runes glowing"
+  shield: "energy barrier, hexagonal force field, glowing ward"
+
+  # Card manipulation - show CARDS as objects
+  draw: "magical cards floating, glowing card fan, swirling card vortex"
+  discard: "cards scattering in wind, fading cards, dissolving magic"
+  exhaust: "cards burning away, smoke rising from cards, ash and embers"
+
+  # Status - show AURAS not afflicted people
+  poison: "green toxic mist, dripping venom, poison droplets"
+  burn: "flames erupting, fire burst, burning embers"
+  freeze: "ice crystals forming, frost spreading, frozen shards"
+  stun: "lightning bolt strike, electrical discharge, sparking energy"
+
+  # Healing - show ENERGY not healed person
+  heal: "green healing light orbs, restoration magic, life energy swirl"
+  restore: "golden light particles rising, regeneration glow"
+
+  # Powers - show SIGILS and AURAS
+  strength: "red power aura, fist-shaped energy, muscle sigil"
+  dexterity: "blue speed trails, agility runes, swift energy"
+  rage: "crimson fury explosion, anger flames, berserker aura"
