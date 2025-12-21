@@ -5,6 +5,7 @@
 // Follows same pattern as relics.ts
 
 import type { ModifierDefinition, ModifierRarity } from '../types'
+import { getCardDefinition } from './cards'
 
 // ============================================
 // REGISTRY
@@ -315,4 +316,100 @@ registerModifier({
     { target: 'player_stats', stat: 'strength', operation: 'add', value: 4 },
     { target: 'reward_scaling', scope: 'gold', multiplier: 2.0 },
   ],
+})
+
+// ============================================
+// DECK HOOK MODIFIERS
+// ============================================
+// These modifiers influence starter deck composition via the deck builder pipeline.
+
+// Elemental Focus: Filter pool to fire element cards only
+registerModifier({
+  id: 'elemental_focus_fire',
+  name: 'Elemental Focus: Fire',
+  description: 'Starter deck only contains fire-element cards. +25% fire damage.',
+  flavorText: 'Burn everything.',
+  category: 'edict',
+  rarity: 'uncommon',
+  dangerValue: 8,
+  rewardValue: 10,
+  durability: { type: 'fragile', uses: 3, maxUses: 3 },
+  effects: [{ target: 'element_affinity', element: 'fire', damageMultiplier: 1.25 }],
+  deckHook: {
+    id: 'elemental_focus_fire_hook',
+    phase: 'filter',
+    priority: 10,
+    source: 'modifier',
+    sourceId: 'elemental_focus_fire',
+    description: 'Filter pool to fire element cards only',
+    apply: (cards, _context) => {
+      const fireCards = cards.filter((cardId) => {
+        const def = getCardDefinition(cardId)
+        return def?.element === 'fire'
+      })
+      // If no fire cards available, return original pool
+      return { cards: fireCards.length > 0 ? fireCards : cards }
+    },
+  },
+})
+
+// Lightweight Training: Only low-cost cards
+registerModifier({
+  id: 'lightweight_training',
+  name: 'Lightweight Training',
+  description: 'Starter deck only contains 0-1 cost cards. +1 energy per turn.',
+  flavorText: 'Speed over power.',
+  category: 'edict',
+  rarity: 'uncommon',
+  dangerValue: 6,
+  rewardValue: 8,
+  durability: { type: 'fragile', uses: 3, maxUses: 3 },
+  effects: [{ target: 'player_stats', stat: 'energy', operation: 'add', value: 1 }],
+  deckHook: {
+    id: 'lightweight_training_hook',
+    phase: 'filter',
+    priority: 10,
+    source: 'modifier',
+    sourceId: 'lightweight_training',
+    description: 'Filter pool to 0-1 cost cards only',
+    apply: (cards, _context) => {
+      const lowCostCards = cards.filter((cardId) => {
+        const def = getCardDefinition(cardId)
+        if (!def) return false
+        const cost = typeof def.energy === 'number' ? def.energy : 0
+        return cost <= 1
+      })
+      // If no low-cost cards, return original pool
+      return { cards: lowCostCards.length > 0 ? lowCostCards : cards }
+    },
+  },
+})
+
+// Battle Ready: Bonus attack cards
+registerModifier({
+  id: 'battle_ready',
+  name: 'Battle Ready',
+  description: 'Start with 2 extra attack cards in your deck.',
+  flavorText: 'Strike first, strike hard.',
+  category: 'catalyst',
+  rarity: 'common',
+  dangerValue: 2,
+  rewardValue: 4,
+  durability: { type: 'consumable' },
+  effects: [],
+  deckHook: {
+    id: 'battle_ready_hook',
+    phase: 'bonus',
+    priority: 50,
+    source: 'modifier',
+    sourceId: 'battle_ready',
+    description: 'Add 2 attack cards to starter deck',
+    apply: (cards, _context) => {
+      // Add basic attacks from evergreen pool
+      return {
+        cards,
+        bonuses: ['eg_strike', 'eg_pierce'],
+      }
+    },
+  },
 })
