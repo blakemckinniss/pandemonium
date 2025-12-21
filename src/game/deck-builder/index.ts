@@ -242,4 +242,4 @@ export function buildDeckSimple(heroCardId: string): string[] {
 // Re-export utilities
 export { getAvailableEvergreenPool, selectRandomCards } from './evergreen-pool'
 export { getHeroDeckHooks, createHeroSwapHook, createHeroBonusHook } from './hero-hooks'
-export { getModifierDeckHooks, getRelicDeckHooks } from './modifier-hooks'
+export { getModifierDeckHooks, getRelicDeckHooks, getDungeonDeckHooks } from './modifier-hooks'

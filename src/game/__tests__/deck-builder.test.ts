@@ -5,7 +5,7 @@
 
 import { describe, it, expect, beforeAll } from 'vitest'
 import { buildDeck, createDeckBuilderContext } from '../deck-builder'
-import { getModifierDeckHooks } from '../deck-builder/modifier-hooks'
+import { getModifierDeckHooks, getDungeonDeckHooks } from '../deck-builder/modifier-hooks'
 import { getModifierDefinition } from '../modifiers'
 import type { ModifierInstance } from '../../types'
 
@@ -140,6 +140,91 @@ describe('deck-builder', () => {
       expect(result.appliedHooks).toContain('battle_ready_hook')
       expect(result.bonusCards).toContain('eg_strike')
       expect(result.bonusCards).toContain('eg_pierce')
+    })
+  })
+
+  describe('getDungeonDeckHooks', () => {
+    it('returns empty array for undefined dungeonId', () => {
+      const hooks = getDungeonDeckHooks(undefined)
+      expect(hooks).toEqual([])
+    })
+
+    it('returns empty array for unknown dungeonId', () => {
+      const hooks = getDungeonDeckHooks('unknown_dungeon')
+      expect(hooks).toEqual([])
+    })
+
+    it('returns hooks for inferno dungeon', () => {
+      const hooks = getDungeonDeckHooks('inferno')
+      expect(hooks.length).toBe(1)
+      expect(hooks[0].id).toBe('dungeon_inferno_fire_bonus')
+      expect(hooks[0].phase).toBe('bonus')
+      expect(hooks[0].source).toBe('dungeon')
+      expect(hooks[0].sourceId).toBe('inferno')
+    })
+
+    it('returns hooks for frost dungeon', () => {
+      const hooks = getDungeonDeckHooks('frost')
+      expect(hooks.length).toBe(1)
+      expect(hooks[0].id).toBe('dungeon_frost_defense_focus')
+      expect(hooks[0].phase).toBe('filter')
+    })
+
+    it('returns hooks for void_realm dungeon', () => {
+      const hooks = getDungeonDeckHooks('void_realm')
+      expect(hooks.length).toBe(1)
+      expect(hooks[0].id).toBe('dungeon_void_bonus')
+      expect(hooks[0].phase).toBe('bonus')
+    })
+
+    it('inferno hook adds bonus cards', () => {
+      const hooks = getDungeonDeckHooks('inferno')
+      const result = hooks[0].apply([], {} as any)
+      expect(result.bonuses).toContain('eg_strike')
+    })
+
+    it('void_realm hook adds bonus cards', () => {
+      const hooks = getDungeonDeckHooks('void_realm')
+      const result = hooks[0].apply([], {} as any)
+      expect(result.bonuses).toContain('eg_guard')
+    })
+  })
+
+  describe('deck building with dungeon hooks', () => {
+    it('applies dungeon hooks during deck building', () => {
+      const context = createDeckBuilderContext('hero_sakura', {
+        dungeonId: 'inferno',
+      })
+      const result = buildDeck(context)
+
+      // inferno dungeon adds eg_strike as bonus
+      expect(result.appliedHooks).toContain('dungeon_inferno_fire_bonus')
+      expect(result.bonusCards).toContain('eg_strike')
+    })
+
+    it('applies void_realm dungeon bonus', () => {
+      const context = createDeckBuilderContext('hero_sakura', {
+        dungeonId: 'void_realm',
+      })
+      const result = buildDeck(context)
+
+      expect(result.appliedHooks).toContain('dungeon_void_bonus')
+      expect(result.bonusCards).toContain('eg_guard')
+    })
+
+    it('combines dungeon and modifier hooks', () => {
+      const context = createDeckBuilderContext('hero_sakura', {
+        dungeonId: 'inferno',
+        modifiers: [{ uid: 'test-1', definitionId: 'battle_ready', appliedAt: Date.now() }],
+      })
+      const result = buildDeck(context)
+
+      // Both hooks should be applied
+      expect(result.appliedHooks).toContain('dungeon_inferno_fire_bonus')
+      expect(result.appliedHooks).toContain('battle_ready_hook')
+      // Bonus cards from both sources
+      expect(result.bonusCards).toContain('eg_strike') // from inferno and battle_ready
+      expect(result.bonusCards).toContain('eg_pierce') // from battle_ready
     })
   })
 })
