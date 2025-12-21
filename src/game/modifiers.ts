@@ -323,7 +323,7 @@ registerModifier({
 // ============================================
 // These modifiers influence starter deck composition via the deck builder pipeline.
 
-// Elemental Focus: Filter pool to fire element cards only
+// Elemental Focus modifiers: Filter pool to specific element cards
 registerModifier({
   id: 'elemental_focus_fire',
   name: 'Elemental Focus: Fire',
@@ -349,6 +349,90 @@ registerModifier({
       })
       // If no fire cards available, return original pool
       return { cards: fireCards.length > 0 ? fireCards : cards }
+    },
+  },
+})
+
+registerModifier({
+  id: 'elemental_focus_ice',
+  name: 'Elemental Focus: Ice',
+  description: 'Starter deck only contains ice-element cards. +25% ice damage.',
+  flavorText: 'Winter is eternal.',
+  category: 'edict',
+  rarity: 'uncommon',
+  dangerValue: 8,
+  rewardValue: 10,
+  durability: { type: 'fragile', uses: 3, maxUses: 3 },
+  effects: [{ target: 'element_affinity', element: 'ice', damageMultiplier: 1.25 }],
+  deckHook: {
+    id: 'elemental_focus_ice_hook',
+    phase: 'filter',
+    priority: 10,
+    source: 'modifier',
+    sourceId: 'elemental_focus_ice',
+    description: 'Filter pool to ice element cards only',
+    apply: (cards, _context) => {
+      const iceCards = cards.filter((cardId) => {
+        const def = getCardDefinition(cardId)
+        return def?.element === 'ice'
+      })
+      return { cards: iceCards.length > 0 ? iceCards : cards }
+    },
+  },
+})
+
+registerModifier({
+  id: 'elemental_focus_lightning',
+  name: 'Elemental Focus: Lightning',
+  description: 'Starter deck only contains lightning-element cards. +25% lightning damage.',
+  flavorText: 'Strike without warning.',
+  category: 'edict',
+  rarity: 'uncommon',
+  dangerValue: 8,
+  rewardValue: 10,
+  durability: { type: 'fragile', uses: 3, maxUses: 3 },
+  effects: [{ target: 'element_affinity', element: 'lightning', damageMultiplier: 1.25 }],
+  deckHook: {
+    id: 'elemental_focus_lightning_hook',
+    phase: 'filter',
+    priority: 10,
+    source: 'modifier',
+    sourceId: 'elemental_focus_lightning',
+    description: 'Filter pool to lightning element cards only',
+    apply: (cards, _context) => {
+      const lightningCards = cards.filter((cardId) => {
+        const def = getCardDefinition(cardId)
+        return def?.element === 'lightning'
+      })
+      return { cards: lightningCards.length > 0 ? lightningCards : cards }
+    },
+  },
+})
+
+registerModifier({
+  id: 'elemental_focus_void',
+  name: 'Elemental Focus: Void',
+  description: 'Starter deck only contains void-element cards. +25% void damage.',
+  flavorText: 'Embrace the darkness.',
+  category: 'edict',
+  rarity: 'uncommon',
+  dangerValue: 8,
+  rewardValue: 10,
+  durability: { type: 'fragile', uses: 3, maxUses: 3 },
+  effects: [{ target: 'element_affinity', element: 'void', damageMultiplier: 1.25 }],
+  deckHook: {
+    id: 'elemental_focus_void_hook',
+    phase: 'filter',
+    priority: 10,
+    source: 'modifier',
+    sourceId: 'elemental_focus_void',
+    description: 'Filter pool to void element cards only',
+    apply: (cards, _context) => {
+      const voidCards = cards.filter((cardId) => {
+        const def = getCardDefinition(cardId)
+        return def?.element === 'void'
+      })
+      return { cards: voidCards.length > 0 ? voidCards : cards }
     },
   },
 })

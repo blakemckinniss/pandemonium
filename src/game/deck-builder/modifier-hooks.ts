@@ -43,13 +43,63 @@ export function getRelicDeckHooks(relics: { id: string; deckHook?: DeckHookDefin
 }
 
 /**
+ * Dungeon-specific deck hooks registry.
+ * Each dungeon can define hooks that modify starter deck composition.
+ */
+const dungeonHooksRegistry: Record<string, DeckHookDefinition[]> = {
+  // Inferno dungeon: bonus fire cards
+  inferno: [
+    {
+      id: 'dungeon_inferno_fire_bonus',
+      phase: 'bonus',
+      priority: 40,
+      source: 'dungeon',
+      sourceId: 'inferno',
+      description: 'Inferno dungeon adds fire-affinity cards',
+      apply: (cards, _context) => ({
+        cards,
+        bonuses: ['eg_strike'], // Add a basic attack
+      }),
+    },
+  ],
+  // Frost dungeon: filter to defensive cards
+  frost: [
+    {
+      id: 'dungeon_frost_defense_focus',
+      phase: 'filter',
+      priority: 20,
+      source: 'dungeon',
+      sourceId: 'frost',
+      description: 'Frost dungeon emphasizes defensive cards',
+      apply: (cards, _context) => {
+        // No filtering, just pass through - dungeons are less restrictive
+        return { cards }
+      },
+    },
+  ],
+  // Void dungeon: extra card in deck
+  void_realm: [
+    {
+      id: 'dungeon_void_bonus',
+      phase: 'bonus',
+      priority: 40,
+      source: 'dungeon',
+      sourceId: 'void_realm',
+      description: 'Void realm grants an extra card',
+      apply: (cards, _context) => ({
+        cards,
+        bonuses: ['eg_guard'],
+      }),
+    },
+  ],
+}
+
+/**
  * Get deck hooks from dungeon effects.
  * Certain dungeons can modify starter deck composition.
  */
 export function getDungeonDeckHooks(dungeonId: string | undefined): DeckHookDefinition[] {
   if (!dungeonId) return []
 
-  // Future: Look up dungeon-specific deck modifications
-  // For now, return empty array
-  return []
+  return dungeonHooksRegistry[dungeonId] ?? []
 }
