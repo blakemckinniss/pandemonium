@@ -92,6 +92,51 @@ const dungeonHooksRegistry: Record<string, DeckHookDefinition[]> = {
       }),
     },
   ],
+  // Shadow dungeon: bonus utility card
+  shadow: [
+    {
+      id: 'dungeon_shadow_stealth',
+      phase: 'bonus',
+      priority: 40,
+      source: 'dungeon',
+      sourceId: 'shadow',
+      description: 'Shadow dungeon grants stealth-oriented cards',
+      apply: (cards, _context) => ({
+        cards,
+        bonuses: ['eg_tactical_retreat'],
+      }),
+    },
+  ],
+  // Celestial dungeon: bonus draw power
+  celestial: [
+    {
+      id: 'dungeon_celestial_insight',
+      phase: 'bonus',
+      priority: 40,
+      source: 'dungeon',
+      sourceId: 'celestial',
+      description: 'Celestial dungeon grants card draw',
+      apply: (cards, _context) => ({
+        cards,
+        bonuses: ['eg_concentrate'],
+      }),
+    },
+  ],
+  // Abyss dungeon: high risk/reward
+  abyss: [
+    {
+      id: 'dungeon_abyss_power',
+      phase: 'bonus',
+      priority: 40,
+      source: 'dungeon',
+      sourceId: 'abyss',
+      description: 'Abyss dungeon grants powerful but risky cards',
+      apply: (cards, _context) => ({
+        cards,
+        bonuses: ['eg_pierce', 'eg_twin_slash'],
+      }),
+    },
+  ],
 }
 
 /**
