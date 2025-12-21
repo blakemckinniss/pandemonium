@@ -1,5 +1,5 @@
 /* Modal Component Styles */
-/* Auto-extracted from index.css */
+/* Uses @theme variables from index.css */
 
 @keyframes modal-enter {
   from {
@@ -15,7 +15,7 @@
 .Modal-backdrop {
   position: fixed;
   inset: 0;
-  background: oklch(0 0 0 / 0.85);
+  background: var(--color-modal-backdrop);
   backdrop-filter: blur(4px);
   border: none;
   padding: 0;
@@ -44,9 +44,9 @@
   flex-direction: column;
   position: relative;
   box-shadow:
-    0 0 60px oklch(0.3 0.1 50 / 0.3),
-    0 0 120px oklch(0.2 0.08 45 / 0.2),
-    inset 0 1px 0 oklch(1 0 0 / 0.04);
+    0 0 60px var(--color-modal-glow-warm),
+    0 0 120px var(--color-modal-glow-soft),
+    inset 0 1px 0 var(--color-modal-highlight);
   animation: modal-enter 0.2s ease-out;
 }
 
@@ -167,7 +167,7 @@
 
 .CardPileModal-item:hover {
   transform: translateY(-4px);
-  filter: drop-shadow(0 8px 16px oklch(0 0 0 / 0.5));
+  filter: drop-shadow(0 8px 16px var(--color-pile-item-shadow));
 }
 
 .CardPileModal-card {
@@ -179,40 +179,40 @@
   position: absolute;
   bottom: -8px;
   right: -8px;
-  background: linear-gradient(135deg, var(--color-gold) 0%, var(--color-gold-dark, oklch(0.55 0.12 70)) 100%);
-  color: oklch(0.1 0 0);
+  background: linear-gradient(135deg, var(--color-gold) 0%, var(--color-gold-dark, var(--color-pile-draw-from)) 100%);
+  color: var(--color-pile-count-text);
   font-family: var(--font-display);
   font-weight: 700;
   font-size: 0.875rem;
   padding: 0.25rem 0.625rem;
   border-radius: 9999px;
   box-shadow:
-    0 2px 8px oklch(0 0 0 / 0.5),
-    0 0 12px var(--color-gold-glow, oklch(0.7 0.15 70 / 0.4));
-  border: 1px solid oklch(0.8 0.1 70 / 0.5);
-  text-shadow: 0 1px 2px oklch(0 0 0 / 0.3);
+    0 2px 8px var(--color-pile-item-shadow),
+    0 0 12px var(--color-pile-draw-glow);
+  border: 1px solid var(--color-pile-count-border);
+  text-shadow: 0 1px 2px var(--color-shadow) / 0.3;
 }
 
 .CardPileModal--draw .CardPileModal-count {
-  background: linear-gradient(135deg, var(--color-energy) 0%, oklch(0.55 0.12 70) 100%);
+  background: linear-gradient(135deg, var(--color-energy) 0%, var(--color-pile-draw-from) 100%);
   box-shadow:
-    0 2px 8px oklch(0 0 0 / 0.5),
-    0 0 12px oklch(0.7 0.15 70 / 0.4);
+    0 2px 8px var(--color-pile-item-shadow),
+    0 0 12px var(--color-pile-draw-glow);
 }
 
 .CardPileModal--discard .CardPileModal-count {
-  background: linear-gradient(135deg, oklch(0.55 0.1 25) 0%, oklch(0.4 0.08 25) 100%);
+  background: linear-gradient(135deg, var(--color-pile-discard-from) 0%, var(--color-pile-discard-to) 100%);
   box-shadow:
-    0 2px 8px oklch(0 0 0 / 0.5),
-    0 0 12px oklch(0.5 0.15 25 / 0.4);
+    0 2px 8px var(--color-pile-item-shadow),
+    0 0 12px var(--color-pile-discard-glow);
 }
 
 .CardPileModal--exhaust .CardPileModal-count {
-  background: linear-gradient(135deg, oklch(0.45 0.12 300) 0%, oklch(0.3 0.15 280) 100%);
-  color: oklch(0.9 0 0);
+  background: linear-gradient(135deg, var(--color-pile-exhaust-from) 0%, var(--color-pile-exhaust-to) 100%);
+  color: var(--color-pile-exhaust-text);
   box-shadow:
-    0 2px 8px oklch(0 0 0 / 0.5),
-    0 0 12px oklch(0.5 0.2 290 / 0.4);
+    0 2px 8px var(--color-pile-item-shadow),
+    0 0 12px var(--color-pile-exhaust-glow);
 }
 
 .CardPileModal-empty {
@@ -262,13 +262,13 @@
 .CardSelectionModal-item.is-selected .Card {
   box-shadow:
     0 0 0 3px var(--color-energy),
-    0 0 30px oklch(0.5 0.15 70 / 0.5);
+    0 0 30px var(--color-selection-glow);
 }
 
 .CardSelectionModal-item.is-selected .Card--discard {
   box-shadow:
     0 0 0 3px var(--color-damage),
-    0 0 30px oklch(0.5 0.18 20 / 0.5);
+    0 0 30px var(--color-selection-discard-glow);
 }
 
 .CardSelectionModal-position {
@@ -278,7 +278,7 @@
   transform: translateX(-50%);
   background: var(--color-surface-alt);
   border: 1px solid var(--color-border);
-  color: oklch(0.7 0 0);
+  color: var(--color-selection-position);
   font-size: 0.75rem;
   font-weight: bold;
   padding: 0.125rem 0.5rem;
@@ -295,17 +295,17 @@
   height: 48px;
   border-radius: 50%;
   background: var(--color-energy);
-  color: oklch(0.1 0 0);
+  color: var(--color-selection-check-text);
   font-size: 1.5rem;
   font-weight: bold;
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 4px 16px oklch(0 0 0 / 0.4);
+  box-shadow: 0 4px 16px var(--color-selection-check-shadow);
   animation: check-pop 0.2s ease-out;
 }
 
 .CardSelectionModal-check.is-discard {
   background: var(--color-damage);
-  color: oklch(0.95 0 0);
+  color: var(--color-selection-check-discard-text);
 }

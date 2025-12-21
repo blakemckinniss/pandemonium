@@ -1,18 +1,18 @@
 /* StatusSidebar Component Styles */
-/* Auto-extracted from index.css */
+/* Uses @theme variables from index.css */
 
 @keyframes sidebar-chip-trigger {
   0% { transform: translateX(0); }
-  20% { transform: translateX(8px); box-shadow: 0 0 16px oklch(0.8 0.15 85 / 0.6); }
+  20% { transform: translateX(8px); box-shadow: 0 0 16px var(--color-sidebar-chip-trigger-glow); }
   40% { transform: translateX(4px); }
   100% { transform: translateX(0); box-shadow: none; }
 }
 
 .SidebarSection {
-  background: oklch(0.08 0.01 30 / 0.7);
+  background: var(--color-sidebar-section-bg);
   padding: 0.5rem;
   border-radius: 6px;
-  border: 1px solid oklch(0.2 0.015 30);
+  border: 1px solid var(--color-sidebar-section-border);
   backdrop-filter: blur(4px);
 }
 
@@ -22,7 +22,7 @@
   gap: 0.375rem;
   margin-bottom: 0.375rem;
   padding-bottom: 0.25rem;
-  border-bottom: 1px solid oklch(0.25 0.02 30 / 0.5);
+  border-bottom: 1px solid var(--color-sidebar-header-divider);
 }
 
 .SidebarSection-label {
@@ -30,7 +30,7 @@
   font-family: var(--font-ui, 'Geist', system-ui, sans-serif);
   font-size: 0.6875rem;
   font-weight: 600;
-  color: oklch(0.7 0 0);
+  color: var(--color-sidebar-label);
   text-transform: uppercase;
   letter-spacing: 0.05em;
 }
@@ -40,11 +40,11 @@
   font-weight: 700;
   font-family: var(--font-ui, 'Geist', system-ui, sans-serif);
   font-variant-numeric: tabular-nums;
-  color: oklch(0.75 0.1 145);
+  color: var(--color-sidebar-hp-player);
 }
 
 .SidebarSection--enemy .SidebarSection-hp {
-  color: oklch(0.75 0.12 25);
+  color: var(--color-sidebar-hp-enemy);
 }
 
 .SidebarSection-chips {
@@ -59,8 +59,8 @@
   gap: 0.25rem;
   padding: 0.1875rem 0.375rem;
   border-radius: 4px;
-  background: oklch(0.12 0.015 30 / 0.9);
-  border: 1px solid oklch(0.25 0.02 30);
+  background: var(--color-sidebar-chip-bg);
+  border: 1px solid var(--color-sidebar-chip-border);
   font-size: 0.6875rem;
   font-family: var(--font-ui, 'Geist', system-ui, sans-serif);
   cursor: help;
@@ -69,39 +69,39 @@
 }
 
 .SidebarChip:hover {
-  background: oklch(0.18 0.03 250 / 0.8);
+  background: var(--color-sidebar-chip-hover);
 }
 
 .SidebarChip--buff {
-  background: oklch(0.15 0.04 145 / 0.5);
+  background: var(--color-sidebar-chip-buff-bg);
 }
 
 .SidebarChip--buff:hover {
-  background: oklch(0.2 0.06 145 / 0.7);
+  background: var(--color-sidebar-chip-buff-hover);
 }
 
 .SidebarChip--debuff {
-  background: oklch(0.15 0.06 25 / 0.5);
+  background: var(--color-sidebar-chip-debuff-bg);
 }
 
 .SidebarChip--debuff:hover {
-  background: oklch(0.2 0.08 25 / 0.7);
+  background: var(--color-sidebar-chip-debuff-hover);
 }
 
 .SidebarChip--common {
-  background: oklch(0.18 0.02 55 / 0.5);
+  background: var(--color-sidebar-chip-common-bg);
 }
 
 .SidebarChip--uncommon {
-  background: oklch(0.16 0.04 250 / 0.5);
+  background: var(--color-sidebar-chip-uncommon-bg);
 }
 
 .SidebarChip--rare {
-  background: oklch(0.18 0.06 85 / 0.5);
+  background: var(--color-sidebar-chip-rare-bg);
 }
 
 .SidebarChip--boss {
-  background: oklch(0.16 0.06 25 / 0.5);
+  background: var(--color-sidebar-chip-boss-bg);
 }
 
 .SidebarChip-icon {
@@ -110,22 +110,22 @@
   flex-shrink: 0;
 }
 
-.SidebarChip--common .SidebarChip-icon { color: oklch(0.7 0.05 55); }
+.SidebarChip--common .SidebarChip-icon { color: var(--color-sidebar-chip-common-icon); }
 
-.SidebarChip--uncommon .SidebarChip-icon { color: oklch(0.7 0.1 250); }
+.SidebarChip--uncommon .SidebarChip-icon { color: var(--color-sidebar-chip-uncommon-icon); }
 
-.SidebarChip--rare .SidebarChip-icon { color: oklch(0.8 0.12 85); }
+.SidebarChip--rare .SidebarChip-icon { color: var(--color-sidebar-chip-rare-icon); }
 
-.SidebarChip--boss .SidebarChip-icon { color: oklch(0.75 0.15 25); }
+.SidebarChip--boss .SidebarChip-icon { color: var(--color-sidebar-chip-boss-icon); }
 
 .SidebarChip-name {
   flex: 1;
   font-weight: 500;
-  color: oklch(0.9 0.02 250);
+  color: var(--color-sidebar-chip-name);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  text-shadow: 0 1px 2px oklch(0 0 0 / 0.5);
+  text-shadow: 0 1px 2px var(--color-shadow) / 0.5;
 }
 
 .SidebarChip-count {
@@ -133,18 +133,18 @@
   font-size: 0.875rem;
   padding: 0.125rem 0.5rem;
   border-radius: 0.25rem;
-  background: oklch(0.08 0 0 / 0.6);
-  color: oklch(0.95 0.05 85);
+  background: var(--color-sidebar-chip-count-bg);
+  color: var(--color-sidebar-chip-count);
   min-width: 1.5rem;
   text-align: center;
 }
 
 .SidebarChip--buff .SidebarChip-count {
-  color: oklch(0.85 0.1 145);
+  color: var(--color-sidebar-chip-buff-count);
 }
 
 .SidebarChip--debuff .SidebarChip-count {
-  color: oklch(0.85 0.12 25);
+  color: var(--color-sidebar-chip-debuff-count);
 }
 
 .SidebarChip-duration {
@@ -152,7 +152,7 @@
   align-items: center;
   gap: 0.125rem;
   font-size: 0.625rem;
-  color: oklch(0.55 0 0);
+  color: var(--color-sidebar-chip-duration);
   margin-left: 0.125rem;
 }
 

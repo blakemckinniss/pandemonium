@@ -1,5 +1,5 @@
 /* PowerTooltip Component Styles */
-/* Auto-extracted from index.css */
+/* Uses @theme variables from index.css */
 
 @keyframes tooltip-fade {
   from {
@@ -23,14 +23,14 @@
   transform: translateX(-50%);
   z-index: 99999; /* Must be above all cards and overlays */
   width: 220px;
-  background: oklch(0.12 0.015 35);
-  border: 1px solid oklch(0.25 0.03 40);
+  background: var(--color-tooltip-bg);
+  border: 1px solid var(--color-tooltip-border);
   border-radius: 8px;
   padding: 0.75rem;
   box-shadow:
-    0 8px 32px oklch(0 0 0 / 0.6),
-    0 0 20px oklch(0.2 0.04 35 / 0.3),
-    inset 0 1px 0 oklch(0.3 0.02 45 / 0.2);
+    0 8px 32px var(--color-tooltip-shadow),
+    0 0 20px var(--color-tooltip-glow),
+    inset 0 1px 0 var(--color-tooltip-highlight);
   pointer-events: none;
   animation: tooltip-fade 0.15s ease-out;
 }
@@ -44,17 +44,17 @@
 }
 
 .PowerTooltip--buff {
-  border-color: oklch(0.45 0.12 145);
+  border-color: var(--color-tooltip-buff-border);
   box-shadow:
-    0 8px 32px oklch(0 0 0 / 0.6),
-    0 0 12px oklch(0.4 0.1 145 / 0.3);
+    0 8px 32px var(--color-tooltip-shadow),
+    0 0 12px var(--color-tooltip-buff-glow);
 }
 
 .PowerTooltip--debuff {
-  border-color: oklch(0.45 0.15 25);
+  border-color: var(--color-tooltip-debuff-border);
   box-shadow:
-    0 8px 32px oklch(0 0 0 / 0.6),
-    0 0 12px oklch(0.4 0.12 25 / 0.3);
+    0 8px 32px var(--color-tooltip-shadow),
+    0 0 12px var(--color-tooltip-debuff-glow);
 }
 
 .PowerTooltip-header {
@@ -69,7 +69,7 @@
 .PowerTooltip-name {
   font-weight: 600;
   font-size: 0.9375rem;
-  color: oklch(0.9 0 0);
+  color: var(--color-tooltip-name);
   flex: 1;
 }
 
@@ -77,14 +77,14 @@
   font-weight: bold;
   font-size: 1rem;
   color: var(--color-energy);
-  background: oklch(0.2 0 0);
+  background: var(--color-tooltip-stacks-bg);
   padding: 0.125rem 0.5rem;
   border-radius: 4px;
 }
 
 .PowerTooltip-desc {
   font-size: 0.8125rem;
-  color: oklch(0.75 0 0);
+  color: var(--color-tooltip-desc);
   line-height: 1.4;
 }
 
@@ -96,20 +96,20 @@
   padding-top: 0.5rem;
   border-top: 1px solid var(--color-border);
   font-size: 0.75rem;
-  color: oklch(0.6 0 0);
+  color: var(--color-tooltip-duration);
 }
 
 .PowerTooltip-behavior {
   margin-top: 0.375rem;
   font-size: 0.6875rem;
-  color: oklch(0.5 0 0);
+  color: var(--color-tooltip-behavior);
   font-style: italic;
 }
 
 .PowerTooltip-combos {
   margin-top: 0.5rem;
   padding-top: 0.5rem;
-  border-top: 1px solid oklch(0.3 0 0);
+  border-top: 1px solid var(--color-tooltip-combos-border);
 }
 
 .PowerTooltip-combos-header {
@@ -118,7 +118,7 @@
   gap: 0.25rem;
   font-size: 0.625rem;
   font-weight: 600;
-  color: oklch(0.7 0.15 60);
+  color: var(--color-tooltip-combos-header);
   text-transform: uppercase;
   letter-spacing: 0.05em;
   margin-bottom: 0.375rem;
@@ -129,7 +129,7 @@
   align-items: center;
   gap: 0.375rem;
   font-size: 0.6875rem;
-  color: oklch(0.7 0 0);
+  color: var(--color-tooltip-combo-hint);
   padding: 0.125rem 0;
 }
 

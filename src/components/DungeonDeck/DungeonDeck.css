@@ -1,10 +1,10 @@
 /* DungeonDeck Component Styles */
-/* Auto-extracted from index.css */
+/* Uses @theme variables from index.css */
 
 .RoomSelect {
   background:
-    radial-gradient(ellipse at 50% 30%, oklch(0.14 0.025 45 / 0.6) 0%, transparent 60%),
-    linear-gradient(180deg, oklch(0.10 0.015 38) 0%, oklch(0.07 0.01 32) 100%);
+    radial-gradient(ellipse at 50% 30%, var(--color-roomselect-bg-spot) 0%, transparent 60%),
+    linear-gradient(180deg, var(--color-roomselect-bg-from) 0%, var(--color-roomselect-bg-to) 100%);
   position: relative;
 }
 
@@ -13,8 +13,8 @@
   position: absolute;
   inset: 0;
   background:
-    radial-gradient(ellipse at 20% 80%, oklch(0.25 0.03 45 / 0.15) 0%, transparent 40%),
-    radial-gradient(ellipse at 80% 20%, oklch(0.20 0.02 280 / 0.1) 0%, transparent 35%);
+    radial-gradient(ellipse at 20% 80%, var(--color-roomselect-accent-warm) 0%, transparent 40%),
+    radial-gradient(ellipse at 80% 20%, var(--color-roomselect-accent-cool) 0%, transparent 35%);
   pointer-events: none;
   z-index: 0;
 }
@@ -27,8 +27,8 @@
   text-transform: uppercase;
   color: var(--color-accent-warm);
   text-shadow:
-    0 0 30px oklch(0.65 0.15 55 / 0.4),
-    0 2px 4px oklch(0 0 0 / 0.6);
+    0 0 30px var(--color-roomselect-title-glow),
+    0 2px 4px var(--color-roomselect-title-shadow);
   position: relative;
   z-index: 1;
 }
@@ -40,14 +40,14 @@
   position: relative;
   margin: 0 1rem;
   font-size: 0.6em;
-  color: oklch(0.45 0.08 50);
+  color: var(--color-roomselect-diamond);
   vertical-align: middle;
 }
 
 .RoomSelect p {
   font-family: var(--font-body);
   font-style: italic;
-  color: oklch(0.55 0.03 45);
+  color: var(--color-roomselect-desc);
   letter-spacing: 0.05em;
   position: relative;
   z-index: 1;
@@ -60,56 +60,56 @@
 
 .RoomCard > div {
   background:
-    linear-gradient(135deg, oklch(0.18 0.02 42) 0%, oklch(0.14 0.015 38) 50%, oklch(0.12 0.01 35) 100%);
-  border: 2px solid oklch(0.28 0.03 45);
+    linear-gradient(135deg, var(--color-roomcard-from) 0%, var(--color-roomcard-mid) 50%, var(--color-roomcard-to) 100%);
+  border: 2px solid var(--color-roomcard-border);
   box-shadow:
-    0 4px 20px oklch(0 0 0 / 0.4),
-    inset 0 1px 0 oklch(1 0 0 / 0.03),
-    inset 0 -1px 0 oklch(0 0 0 / 0.2);
+    0 4px 20px var(--color-shadow),
+    inset 0 1px 0 var(--color-roomcard-highlight),
+    inset 0 -1px 0 var(--color-roomcard-lowlight);
   transition: all 0.3s ease;
 }
 
 .RoomCard:hover > div {
   border-color: var(--color-accent-warm);
   box-shadow:
-    0 8px 32px oklch(0.55 0.12 55 / 0.3),
-    0 0 40px oklch(0.55 0.12 55 / 0.15),
-    inset 0 1px 0 oklch(1 0 0 / 0.05);
+    0 8px 32px var(--color-roomcard-hover-glow),
+    0 0 40px var(--color-roomcard-hover-glow-soft),
+    inset 0 1px 0 var(--color-roomcard-hover-highlight);
   transform: translateY(-4px) scale(1.02);
 }
 
 .RoomCard > div > div:first-child {
   background:
-    radial-gradient(circle at 50% 50%, oklch(0.20 0.03 45 / 0.5) 0%, transparent 70%);
+    radial-gradient(circle at 50% 50%, var(--color-roomcard-icon-bg) 0%, transparent 70%);
   position: relative;
 }
 
 .RoomCard > div > div:last-child {
-  background: linear-gradient(180deg, oklch(0.12 0.015 40) 0%, oklch(0.10 0.01 38) 100%);
-  border-top: 1px solid oklch(0.25 0.02 42);
+  background: linear-gradient(180deg, var(--color-roomcard-footer-from) 0%, var(--color-roomcard-footer-to) 100%);
+  border-top: 1px solid var(--color-roomcard-footer-border);
 }
 
 .RoomCard h3 {
   font-family: var(--font-display);
   font-weight: 500;
   letter-spacing: 0.04em;
-  color: oklch(0.80 0.04 50);
+  color: var(--color-roomcard-title);
 }
 
-.RoomCard .text-red-400 { color: oklch(0.60 0.18 25); }     /* Combat - blood */
+.RoomCard .text-red-400 { color: var(--color-room-combat); }     /* Combat - blood */
 
-.RoomCard .text-orange-400 { color: oklch(0.65 0.20 55); }  /* Elite - ember */
+.RoomCard .text-orange-400 { color: var(--color-room-elite); }  /* Elite - ember */
 
-.RoomCard .text-purple-400 { color: oklch(0.58 0.18 310); } /* Boss - void */
+.RoomCard .text-purple-400 { color: var(--color-room-boss); } /* Boss - void */
 
-.RoomCard .text-green-400 { color: oklch(0.58 0.14 145); }  /* Campfire - verdant */
+.RoomCard .text-green-400 { color: var(--color-room-campfire); }  /* Campfire - verdant */
 
-.RoomCard .text-yellow-400 { color: oklch(0.72 0.16 85); }  /* Treasure - gold */
+.RoomCard .text-yellow-400 { color: var(--color-room-treasure); }  /* Treasure - gold */
 
-.RoomCard .text-blue-400 { color: oklch(0.60 0.12 240); }   /* Event - mystic */
+.RoomCard .text-blue-400 { color: var(--color-room-event); }   /* Event - mystic */
 
 .RoomCard .text-gray-500 {
-  color: oklch(0.50 0.02 45);
+  color: var(--color-roomcard-desc);
   font-style: italic;
 }
 
@@ -119,7 +119,7 @@
   font-weight: 600;
   letter-spacing: 0.1em;
   text-transform: uppercase;
-  color: oklch(0.75 0.05 52);
+  color: var(--color-roomselect-section-title);
   text-align: center;
   margin-bottom: 1.5rem;
 }

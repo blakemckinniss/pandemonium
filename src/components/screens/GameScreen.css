@@ -1,9 +1,9 @@
 /* GameScreen Component Styles */
-/* Auto-extracted from index.css */
+/* Uses @theme variables from index.css */
 
 .GameScreen__hud {
-  background: linear-gradient(180deg, oklch(0.12 0.015 40 / 0.95) 0%, oklch(0.10 0.01 38 / 0.9) 100%);
-  border-bottom: 1px solid oklch(0.25 0.025 45);
+  background: linear-gradient(180deg, var(--color-gamescreen-hud-from) 0%, var(--color-gamescreen-hud-to) 100%);
+  border-bottom: 1px solid var(--color-gamescreen-hud-border);
   backdrop-filter: blur(8px);
 }
 
@@ -12,5 +12,5 @@
   font-size: 0.75rem;
   letter-spacing: 0.1em;
   text-transform: uppercase;
-  color: oklch(0.55 0.04 50);
+  color: var(--color-gamescreen-floor);
 }

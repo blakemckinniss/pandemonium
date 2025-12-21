@@ -678,6 +678,249 @@
   /* Mythic/Ancient text shadow */
   --color-rarity-text-shadow: oklch(0 0 0 / 0.8);
   --color-rarity-text-shadow-soft: oklch(0 0 0 / 0.5);
+
+  /* ============================================
+     STATUS SIDEBAR COMPONENT COLORS
+     ============================================ */
+  /* Section styling */
+  --color-sidebar-section-bg: oklch(0.08 0.01 30 / 0.7);
+  --color-sidebar-section-border: oklch(0.2 0.015 30);
+  --color-sidebar-header-divider: oklch(0.25 0.02 30 / 0.5);
+  --color-sidebar-label: oklch(0.7 0 0);
+  --color-sidebar-hp-player: oklch(0.75 0.1 145);
+  --color-sidebar-hp-enemy: oklch(0.75 0.12 25);
+  /* Chip styling */
+  --color-sidebar-chip-bg: oklch(0.12 0.015 30 / 0.9);
+  --color-sidebar-chip-border: oklch(0.25 0.02 30);
+  --color-sidebar-chip-hover: oklch(0.18 0.03 250 / 0.8);
+  --color-sidebar-chip-buff-bg: oklch(0.15 0.04 145 / 0.5);
+  --color-sidebar-chip-buff-hover: oklch(0.2 0.06 145 / 0.7);
+  --color-sidebar-chip-debuff-bg: oklch(0.15 0.06 25 / 0.5);
+  --color-sidebar-chip-debuff-hover: oklch(0.2 0.08 25 / 0.7);
+  --color-sidebar-chip-common-bg: oklch(0.18 0.02 55 / 0.5);
+  --color-sidebar-chip-common-icon: oklch(0.7 0.05 55);
+  --color-sidebar-chip-uncommon-bg: oklch(0.16 0.04 250 / 0.5);
+  --color-sidebar-chip-uncommon-icon: oklch(0.7 0.1 250);
+  --color-sidebar-chip-rare-bg: oklch(0.18 0.06 85 / 0.5);
+  --color-sidebar-chip-rare-icon: oklch(0.8 0.12 85);
+  --color-sidebar-chip-boss-bg: oklch(0.16 0.06 25 / 0.5);
+  --color-sidebar-chip-boss-icon: oklch(0.75 0.15 25);
+  --color-sidebar-chip-name: oklch(0.9 0.02 250);
+  --color-sidebar-chip-count-bg: oklch(0.08 0 0 / 0.6);
+  --color-sidebar-chip-count: oklch(0.95 0.05 85);
+  --color-sidebar-chip-buff-count: oklch(0.85 0.1 145);
+  --color-sidebar-chip-debuff-count: oklch(0.85 0.12 25);
+  --color-sidebar-chip-duration: oklch(0.55 0 0);
+  --color-sidebar-chip-trigger-glow: oklch(0.8 0.15 85 / 0.6);
+
+  /* ============================================
+     DUNGEON DECK / ROOM SELECT COMPONENT COLORS
+     ============================================ */
+  /* Background gradients */
+  --color-roomselect-bg-spot: oklch(0.14 0.025 45 / 0.6);
+  --color-roomselect-bg-from: oklch(0.10 0.015 38);
+  --color-roomselect-bg-to: oklch(0.07 0.01 32);
+  --color-roomselect-overlay-warm: oklch(0.25 0.03 45 / 0.15);
+  --color-roomselect-overlay-cool: oklch(0.20 0.02 280 / 0.1);
+  /* Title styling */
+  --color-roomselect-title-glow: oklch(0.65 0.15 55 / 0.4);
+  --color-roomselect-diamond: oklch(0.45 0.08 50);
+  --color-roomselect-subtitle: oklch(0.55 0.03 45);
+  --color-roomselect-section-title: oklch(0.75 0.05 52);
+  /* Room card styling */
+  --color-roomcard-bg-from: oklch(0.18 0.02 42);
+  --color-roomcard-bg-mid: oklch(0.14 0.015 38);
+  --color-roomcard-bg-to: oklch(0.12 0.01 35);
+  --color-roomcard-border: oklch(0.28 0.03 45);
+  --color-roomcard-shadow: oklch(0 0 0 / 0.4);
+  --color-roomcard-highlight: oklch(1 0 0 / 0.03);
+  --color-roomcard-shadow-inset: oklch(0 0 0 / 0.2);
+  --color-roomcard-hover-glow: oklch(0.55 0.12 55 / 0.3);
+  --color-roomcard-hover-glow-soft: oklch(0.55 0.12 55 / 0.15);
+  --color-roomcard-hover-highlight: oklch(1 0 0 / 0.05);
+  --color-roomcard-icon-glow: oklch(0.20 0.03 45 / 0.5);
+  --color-roomcard-content-bg-from: oklch(0.12 0.015 40);
+  --color-roomcard-content-bg-to: oklch(0.10 0.01 38);
+  --color-roomcard-content-border: oklch(0.25 0.02 42);
+  --color-roomcard-title: oklch(0.80 0.04 50);
+  /* Room type colors */
+  --color-room-combat: oklch(0.60 0.18 25);
+  --color-room-elite: oklch(0.65 0.20 55);
+  --color-room-boss: oklch(0.58 0.18 310);
+  --color-room-campfire: oklch(0.58 0.14 145);
+  --color-room-treasure: oklch(0.72 0.16 85);
+  --color-room-event: oklch(0.60 0.12 240);
+  --color-room-description: oklch(0.50 0.02 45);
+
+  /* ============================================
+     MODAL COMPONENT COLORS
+     ============================================ */
+  --color-modal-backdrop: oklch(0 0 0 / 0.85);
+  --color-modal-glow-warm: oklch(0.3 0.1 50 / 0.3);
+  --color-modal-glow-soft: oklch(0.2 0.08 45 / 0.2);
+  --color-modal-highlight: oklch(1 0 0 / 0.04);
+  /* CardPileModal */
+  --color-pile-item-shadow: oklch(0 0 0 / 0.5);
+  --color-pile-count-text: oklch(0.1 0 0);
+  --color-pile-count-border: oklch(0.8 0.1 70 / 0.5);
+  --color-pile-draw-from: oklch(0.55 0.12 70);
+  --color-pile-draw-glow: oklch(0.7 0.15 70 / 0.4);
+  --color-pile-discard-from: oklch(0.55 0.1 25);
+  --color-pile-discard-to: oklch(0.4 0.08 25);
+  --color-pile-discard-glow: oklch(0.5 0.15 25 / 0.4);
+  --color-pile-exhaust-from: oklch(0.45 0.12 300);
+  --color-pile-exhaust-to: oklch(0.3 0.15 280);
+  --color-pile-exhaust-text: oklch(0.9 0 0);
+  --color-pile-exhaust-glow: oklch(0.5 0.2 290 / 0.4);
+  /* CardSelectionModal */
+  --color-selection-glow: oklch(0.5 0.15 70 / 0.5);
+  --color-selection-discard-glow: oklch(0.5 0.18 20 / 0.5);
+  --color-selection-position: oklch(0.7 0 0);
+  --color-selection-check-text: oklch(0.1 0 0);
+  --color-selection-check-discard-text: oklch(0.95 0 0);
+  --color-selection-check-shadow: oklch(0 0 0 / 0.4);
+
+  /* ============================================
+     REWARD SCREEN COMPONENT COLORS
+     ============================================ */
+  /* Background */
+  --color-reward-bg-gold: oklch(0.22 0.06 70 / 0.3);
+  --color-reward-bg-purple: oklch(0.15 0.03 280 / 0.2);
+  --color-reward-bg-from: oklch(0.11 0.015 40);
+  --color-reward-bg-to: oklch(0.08 0.01 35);
+  /* Option styling */
+  --color-reward-option-from: oklch(0.18 0.02 45);
+  --color-reward-option-to: oklch(0.14 0.015 40);
+  --color-reward-option-border: oklch(0.30 0.04 50);
+  --color-reward-option-hover-from: oklch(0.22 0.04 55);
+  --color-reward-option-hover-to: oklch(0.17 0.03 48);
+  --color-reward-option-hover-glow: oklch(0.55 0.15 70 / 0.25);
+  --color-reward-option-hover-glow-soft: oklch(0.55 0.12 70 / 0.15);
+  --color-reward-option-icon-shadow: oklch(0 0 0 / 0.4);
+  --color-reward-option-label: oklch(0.80 0.04 52);
+  --color-reward-gold-border: oklch(0.45 0.12 75);
+  --color-reward-gold-glow: oklch(0.60 0.18 75 / 0.35);
+  --color-reward-gold-glow-soft: oklch(0.58 0.15 75 / 0.2);
+  /* Skip button */
+  --color-reward-skip: oklch(0.50 0.02 45);
+  --color-reward-skip-border: oklch(0.30 0.02 42);
+  --color-reward-skip-hover: oklch(0.70 0.03 48);
+  --color-reward-skip-hover-border: oklch(0.40 0.03 45);
+  --color-reward-skip-hover-bg: oklch(0.15 0.01 40);
+  /* Title */
+  --color-reward-title-from: oklch(0.75 0.18 75);
+  --color-reward-title-to: oklch(0.55 0.15 65);
+  /* Choice cards */
+  --color-reward-choice-from: oklch(0.18 0.025 45);
+  --color-reward-choice-to: oklch(0.14 0.02 42);
+  --color-reward-choice-border: oklch(0.30 0.035 48);
+  --color-reward-choice-hover-border: oklch(0.50 0.10 55);
+  --color-reward-choice-hover-shadow: oklch(0 0 0 / 0.4);
+  --color-reward-choice-gold-border: oklch(0.70 0.20 70);
+  --color-reward-choice-gold-glow: oklch(0.65 0.18 70 / 0.3);
+
+  /* ============================================
+     CAMPFIRE SCREEN COMPONENT COLORS
+     ============================================ */
+  /* Background */
+  --color-campfire-bg-glow: oklch(0.20 0.08 35 / 0.4);
+  --color-campfire-bg-base-glow: oklch(0.25 0.12 30 / 0.3);
+  --color-campfire-bg-from: oklch(0.08 0.01 35);
+  --color-campfire-bg-to: oklch(0.06 0.008 30);
+  --color-campfire-firelight: oklch(0.50 0.20 35 / 0.3);
+  /* Title */
+  --color-campfire-title: oklch(0.75 0.12 45);
+  --color-campfire-title-glow: oklch(0.60 0.15 40 / 0.4);
+  /* Action buttons */
+  --color-campfire-action-from: oklch(0.15 0.02 38 / 0.9);
+  --color-campfire-action-to: oklch(0.12 0.015 35 / 0.95);
+  --color-campfire-action-border: oklch(0.28 0.03 42);
+  --color-campfire-action-hover-border: oklch(0.50 0.10 45);
+  --color-campfire-action-hover-from: oklch(0.20 0.03 42 / 0.95);
+  --color-campfire-action-hover-to: oklch(0.15 0.025 38 / 0.98);
+  --color-campfire-action-hover-glow: oklch(0.45 0.12 40 / 0.25);
+  --color-campfire-action-hover-glow-soft: oklch(0.50 0.10 40 / 0.15);
+  --color-campfire-action-icon-shadow: oklch(0 0 0 / 0.4);
+  --color-campfire-action-label: oklch(0.78 0.04 48);
+  --color-campfire-action-desc: oklch(0.55 0.02 45);
+  /* Rest action (healing green) */
+  --color-campfire-rest-border: oklch(0.50 0.12 145);
+  --color-campfire-rest-glow: oklch(0.45 0.12 145 / 0.25);
+  --color-campfire-rest-glow-soft: oklch(0.50 0.10 145 / 0.15);
+  /* Smith action (upgrade cyan) */
+  --color-campfire-smith-border: oklch(0.55 0.15 160);
+  --color-campfire-smith-glow: oklch(0.50 0.14 160 / 0.25);
+  --color-campfire-smith-glow-soft: oklch(0.55 0.12 160 / 0.15);
+
+  /* ============================================
+     VICTORY SCREEN COMPONENT COLORS
+     ============================================ */
+  /* Background */
+  --color-victory-bg-gold: oklch(0.30 0.12 75 / 0.3);
+  --color-victory-bg-warm: oklch(0.20 0.08 60 / 0.2);
+  --color-victory-bg-from: oklch(0.12 0.02 50);
+  --color-victory-bg-to: oklch(0.08 0.015 40);
+  /* Title */
+  --color-victory-title-glow: oklch(0.70 0.20 75 / 0.6);
+  --color-victory-title-glow-soft: oklch(0.55 0.18 75 / 0.4);
+  /* Run stats */
+  --color-victory-stats-from: oklch(0.14 0.015 40 / 0.95);
+  --color-victory-stats-to: oklch(0.11 0.01 38 / 0.98);
+  --color-victory-stats-border: oklch(0.25 0.02 42);
+  --color-victory-stats-header: oklch(0.55 0.03 48);
+  --color-victory-stats-label: oklch(0.60 0.02 45);
+  --color-victory-stats-value: oklch(0.80 0.04 50);
+  /* Restart button */
+  --color-victory-btn-from: oklch(0.45 0.12 250);
+  --color-victory-btn-to: oklch(0.38 0.10 260);
+  --color-victory-btn-text: oklch(0.95 0 0);
+  --color-victory-btn-border: oklch(0.55 0.14 250);
+  --color-victory-btn-glow: oklch(0.40 0.12 250 / 0.35);
+  --color-victory-btn-highlight: oklch(1 0 0 / 0.15);
+  --color-victory-btn-hover-from: oklch(0.52 0.14 250);
+  --color-victory-btn-hover-to: oklch(0.45 0.12 260);
+  --color-victory-btn-hover-glow: oklch(0.45 0.14 250 / 0.45);
+  --color-victory-btn-hover-highlight: oklch(1 0 0 / 0.2);
+
+  /* ============================================
+     POWER TOOLTIP COMPONENT COLORS
+     ============================================ */
+  --color-tooltip-bg: oklch(0.12 0.015 35);
+  --color-tooltip-border: oklch(0.25 0.03 40);
+  --color-tooltip-shadow: oklch(0 0 0 / 0.6);
+  --color-tooltip-glow: oklch(0.2 0.04 35 / 0.3);
+  --color-tooltip-highlight: oklch(0.3 0.02 45 / 0.2);
+  --color-tooltip-buff-border: oklch(0.45 0.12 145);
+  --color-tooltip-buff-glow: oklch(0.4 0.1 145 / 0.3);
+  --color-tooltip-debuff-border: oklch(0.45 0.15 25);
+  --color-tooltip-debuff-glow: oklch(0.4 0.12 25 / 0.3);
+  --color-tooltip-name: oklch(0.9 0 0);
+  --color-tooltip-stacks-bg: oklch(0.2 0 0);
+  --color-tooltip-desc: oklch(0.75 0 0);
+  --color-tooltip-duration: oklch(0.6 0 0);
+  --color-tooltip-behavior: oklch(0.5 0 0);
+  --color-tooltip-combos-border: oklch(0.3 0 0);
+  --color-tooltip-combos-header: oklch(0.7 0.15 60);
+  --color-tooltip-combo-hint: oklch(0.7 0 0);
+
+  /* ============================================
+     TREASURE SCREEN COMPONENT COLORS
+     ============================================ */
+  --color-treasure-bg-gold: oklch(0.25 0.08 75 / 0.25);
+  --color-treasure-bg-warm1: oklch(0.20 0.06 60 / 0.2);
+  --color-treasure-bg-warm2: oklch(0.18 0.05 85 / 0.15);
+  --color-treasure-bg-from: oklch(0.10 0.015 45);
+  --color-treasure-bg-to: oklch(0.07 0.01 38);
+  --color-treasure-title-glow: oklch(0.65 0.18 75 / 0.5);
+  --color-treasure-title-glow-soft: oklch(0.55 0.15 75 / 0.3);
+
+  /* ============================================
+     GAME SCREEN / HUD COMPONENT COLORS
+     ============================================ */
+  --color-gamescreen-hud-from: oklch(0.12 0.015 40 / 0.95);
+  --color-gamescreen-hud-to: oklch(0.10 0.01 38 / 0.9);
+  --color-gamescreen-hud-border: oklch(0.25 0.025 45);
+  --color-gamescreen-floor: oklch(0.55 0.04 50);
 }
 
 body {

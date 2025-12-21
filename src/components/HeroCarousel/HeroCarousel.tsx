@@ -12,7 +12,7 @@ interface HeroCarouselProps {
 
 const VISIBLE_COUNT = 3
 const GAP = 16 // gap-4 = 1rem = 16px
-const GLOW_SPACE = 16 // Padding to allow glow effects to escape
+const GLOW_SPACE = 24 // Padding to allow glow effects to escape (12px glow radius + buffer)
 
 export function HeroCarousel({
   heroes,
@@ -67,7 +67,7 @@ export function HeroCarousel({
   return (
     <div className="mb-8 w-full max-w-3xl mx-auto">
       <p className="section-header">Select Hero</p>
-      <div className="relative flex items-center">
+      <div className="relative flex items-center overflow-visible">
         {/* Left Arrow */}
         <button
           onClick={() => scroll('left')}
@@ -81,18 +81,15 @@ export function HeroCarousel({
           <Icon icon="mdi:chevron-left" width={24} />
         </button>
 
-        {/* Hero Container - clips overflow but allows glow to extend */}
+        {/* Hero Container - outer wrapper clips, inner has glow space */}
         <div
           ref={containerRef}
-          className="w-full"
-          style={{
-            overflow: 'clip',
-            overflowClipMargin: `${GLOW_SPACE}px`,
-          }}
+          className="w-full overflow-hidden"
+          style={{ padding: `${GLOW_SPACE}px 0` }}
         >
           {/* Sliding track */}
           <div
-            className="flex transition-transform duration-300 ease-out py-4"
+            className="flex transition-transform duration-300 ease-out"
             style={{
               gap: `${GAP}px`,
               transform: `translateX(${translateX}px)`,
