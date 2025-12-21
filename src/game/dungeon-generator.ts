@@ -8,13 +8,14 @@
 import { chatCompletion } from '../lib/groq'
 import { generateUid } from '../lib/utils'
 import { logger } from '../lib/logger'
+import { loadPrompt } from '../config/prompts/loader'
 import type { DungeonDeckDefinition, DungeonRoom, RoomType, RoomModifier } from '../types'
 
 // ============================================
-// DUNGEON SYSTEM PROMPT
+// DUNGEON SYSTEM PROMPT (LEGACY - kept as fallback)
 // ============================================
 
-const DUNGEON_SYSTEM_PROMPT = `You are a dungeon designer for Pandemonium, a Slay the Spire-style roguelike deckbuilder.
+const DUNGEON_SYSTEM_PROMPT_LEGACY = `You are a dungeon designer for Pandemonium, a Slay the Spire-style roguelike deckbuilder.
 
 Generate unique dungeon decks as valid JSON. A dungeon deck defines a complete run structure with themed rooms.
 
@@ -110,8 +111,17 @@ export async function generateDungeonDeck(
 
   const userPrompt = parts.join(' ')
 
+  // Load prompt from YAML config (falls back to legacy if unavailable)
+  let systemPrompt: string
+  try {
+    systemPrompt = await loadPrompt('dungeon')
+  } catch {
+    logger.warn('DungeonGen', 'Failed to load YAML prompt, using legacy')
+    systemPrompt = DUNGEON_SYSTEM_PROMPT_LEGACY
+  }
+
   // Call Groq with dungeon system prompt
-  const response = await chatCompletion(DUNGEON_SYSTEM_PROMPT, userPrompt, {
+  const response = await chatCompletion(systemPrompt, userPrompt, {
     temperature: 0.85,
     maxTokens: 1024,
   })

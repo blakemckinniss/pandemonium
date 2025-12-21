@@ -8,6 +8,8 @@ import { registerCard, registerCardUnsafe, getCardDefinition, isValidCard } from
 import type { CardDefinition, CardTheme, RelicDefinition, RelicRarity, RelicTrigger } from '../../types'
 import { generateUid } from '../../lib/utils'
 import { logger } from '../../lib/logger'
+import { loadPrompt } from '../../config/prompts/loader'
+// Legacy prompts kept as fallback - will be removed once YAML is stable
 import { SYSTEM_PROMPT, HERO_SYSTEM_PROMPT, ENEMY_SYSTEM_PROMPT, RELIC_SYSTEM_PROMPT } from './prompts'
 import { parseCardResponse, parseHeroResponse, parseEnemyResponse, parseRelicResponse } from './parsing'
 import { validateCard, validateHero, validateEnemy, validateRelic, difficultyToRarity } from './validation'
@@ -53,10 +55,19 @@ export async function generateRandomCard(
   let lastError: Error | null = null
   let validated: ReturnType<typeof validateCard> | null = null
 
+  // Load prompt from YAML config (falls back to legacy if unavailable)
+  let systemPrompt: string
+  try {
+    systemPrompt = await loadPrompt('card')
+  } catch {
+    logger.warn('CardGen', 'Failed to load YAML prompt, using legacy')
+    systemPrompt = SYSTEM_PROMPT
+  }
+
   for (let attempt = 1; attempt <= MAX_GENERATION_RETRIES; attempt++) {
     try {
       // Call Groq (slightly higher temperature on retries for variety)
-      const response = await chatCompletion(SYSTEM_PROMPT, userPrompt, {
+      const response = await chatCompletion(systemPrompt, userPrompt, {
         temperature: 0.8 + (attempt - 1) * 0.05,
         maxTokens: 512,
       })
@@ -165,10 +176,19 @@ export async function generateHero(
   let lastError: Error | null = null
   let validated: ReturnType<typeof validateHero> | null = null
 
+  // Load prompt from YAML config (falls back to legacy if unavailable)
+  let systemPrompt: string
+  try {
+    systemPrompt = await loadPrompt('hero')
+  } catch {
+    logger.warn('HeroGen', 'Failed to load YAML prompt, using legacy')
+    systemPrompt = HERO_SYSTEM_PROMPT
+  }
+
   for (let attempt = 1; attempt <= MAX_GENERATION_RETRIES; attempt++) {
     try {
       // Call Groq with hero system prompt (slightly higher temperature on retries)
-      const response = await chatCompletion(HERO_SYSTEM_PROMPT, userPrompt, {
+      const response = await chatCompletion(systemPrompt, userPrompt, {
         temperature: 0.9 + (attempt - 1) * 0.03,
         maxTokens: 768,
       })
@@ -269,10 +289,19 @@ export async function generateEnemyCard(
   let lastError: Error | null = null
   let validated: ReturnType<typeof validateEnemy> | null = null
 
+  // Load prompt from YAML config (falls back to legacy if unavailable)
+  let systemPrompt: string
+  try {
+    systemPrompt = await loadPrompt('enemy')
+  } catch {
+    logger.warn('EnemyGen', 'Failed to load YAML prompt, using legacy')
+    systemPrompt = ENEMY_SYSTEM_PROMPT
+  }
+
   for (let attempt = 1; attempt <= MAX_GENERATION_RETRIES; attempt++) {
     try {
       // Call Groq with enemy system prompt (slightly higher temperature on retries)
-      const response = await chatCompletion(ENEMY_SYSTEM_PROMPT, userPrompt, {
+      const response = await chatCompletion(systemPrompt, userPrompt, {
         temperature: 0.85 + (attempt - 1) * 0.03,
         maxTokens: 768,
       })
@@ -445,10 +474,19 @@ export async function generateRelic(
   let lastError: Error | null = null
   let validated: ReturnType<typeof validateRelic> | null = null
 
+  // Load prompt from YAML config (falls back to legacy if unavailable)
+  let systemPrompt: string
+  try {
+    systemPrompt = await loadPrompt('relic')
+  } catch {
+    logger.warn('RelicGen', 'Failed to load YAML prompt, using legacy')
+    systemPrompt = RELIC_SYSTEM_PROMPT
+  }
+
   for (let attempt = 1; attempt <= MAX_GENERATION_RETRIES; attempt++) {
     try {
       // Call Groq with relic system prompt
-      const response = await chatCompletion(RELIC_SYSTEM_PROMPT, userPrompt, {
+      const response = await chatCompletion(systemPrompt, userPrompt, {
         temperature: 0.85 + (attempt - 1) * 0.03,
         maxTokens: 512,
       })

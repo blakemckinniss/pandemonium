@@ -10,6 +10,8 @@ import type {
 } from '../../types'
 import { generateUid } from '../../lib/utils'
 import { logger } from '../../lib/logger'
+import { loadPrompt } from '../../config/prompts/loader'
+// Legacy prompt kept as fallback - will be removed once YAML is stable
 import { MODIFIER_SYSTEM_PROMPT } from './prompts'
 import {
   validateGeneratedModifier,
@@ -155,10 +157,19 @@ export async function generateModifier(
   let lastError: Error | null = null
   let validated: Omit<ModifierDefinition, 'id'> | null = null
 
+  // Load prompt from YAML config (falls back to legacy if unavailable)
+  let systemPrompt: string
+  try {
+    systemPrompt = await loadPrompt('modifier')
+  } catch {
+    logger.warn('ModifierGen', 'Failed to load YAML prompt, using legacy')
+    systemPrompt = MODIFIER_SYSTEM_PROMPT
+  }
+
   for (let attempt = 1; attempt <= MAX_GENERATION_RETRIES; attempt++) {
     try {
       // Call Groq (slightly higher temperature on retries for variety)
-      const response = await chatCompletion(MODIFIER_SYSTEM_PROMPT, userPrompt, {
+      const response = await chatCompletion(systemPrompt, userPrompt, {
         temperature: 0.85 + (attempt - 1) * 0.05,
         maxTokens: 768,
       })
