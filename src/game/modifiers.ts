@@ -437,6 +437,34 @@ registerModifier({
   },
 })
 
+registerModifier({
+  id: 'elemental_focus_physical',
+  name: 'Elemental Focus: Physical',
+  description: 'Starter deck only contains physical-element cards. +25% physical damage.',
+  flavorText: 'Steel and sinew.',
+  category: 'edict',
+  rarity: 'uncommon',
+  dangerValue: 8,
+  rewardValue: 10,
+  durability: { type: 'fragile', uses: 3, maxUses: 3 },
+  effects: [{ target: 'element_affinity', element: 'physical', damageMultiplier: 1.25 }],
+  deckHook: {
+    id: 'elemental_focus_physical_hook',
+    phase: 'filter',
+    priority: 10,
+    source: 'modifier',
+    sourceId: 'elemental_focus_physical',
+    description: 'Filter pool to physical element cards only',
+    apply: (cards, _context) => {
+      const physicalCards = cards.filter((cardId) => {
+        const def = getCardDefinition(cardId)
+        return def?.element === 'physical'
+      })
+      return { cards: physicalCards.length > 0 ? physicalCards : cards }
+    },
+  },
+})
+
 // Lightweight Training: Only low-cost cards
 registerModifier({
   id: 'lightweight_training',
