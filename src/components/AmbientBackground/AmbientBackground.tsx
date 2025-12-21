@@ -39,12 +39,13 @@ export function AmbientBackground() {
     const sizes = new Float32Array(particleCount)
     const velocities: THREE.Vector3[] = []
 
-    // Color palette - subtle blues and purples (hex for THREE.js compatibility)
+    // Color palette - warm crimson/bronze on black (erotic fantasy aesthetic)
     const colorPalette = [
-      new THREE.Color(0x1e3a5f), // dark blue
-      new THREE.Color(0x3d2a6b), // purple
-      new THREE.Color(0x4a5d75), // steel blue
-      new THREE.Color(0x8b7355), // amber accent
+      new THREE.Color(0x3d1f1f), // deep crimson
+      new THREE.Color(0x4a2a2a), // warm burgundy
+      new THREE.Color(0x2d1a2d), // muted purple (variety)
+      new THREE.Color(0x8b6040), // bronze accent
+      new THREE.Color(0x1a1a1a), // near-black
     ]
 
     for (let i = 0; i < particleCount; i++) {

@@ -81,9 +81,9 @@
   /* Block: Steel blue, protective */
   --color-block: oklch(0.55 0.10 230);
   /* Energy: Molten gold, radiant power */
-  --color-energy: oklch(0.70 0.027 250);
+  --color-energy: oklch(0.70 0.027 45);
   /* Gold: Aged antique gold, treasure */
-  --color-gold: oklch(0.72 0.021 250);
+  --color-gold: oklch(0.72 0.021 45);
 
   /* ============================================
      CARD TYPE BORDERS - Distinct Identity
@@ -102,9 +102,9 @@
   /* Elevated surface: For cards, modals */
   --color-surface-raised: oklch(0.18 0 0);
   /* Border: Steel edge */
-  --color-border: oklch(0.30 0.01 250);
+  --color-border: oklch(0.30 0.01 25);
   /* Border highlight: Silver gleam */
-  --color-border-glow: oklch(0.50 0.02 250);
+  --color-border-glow: oklch(0.50 0.02 25);
   /* Background: True void black */
   --color-bg: oklch(0.06 0 0);
 
@@ -112,9 +112,9 @@
      ACCENT COLORS - Silver & Blood
      ============================================ */
   /* Cool: Moonlight silver */
-  --color-accent-warm: oklch(0.75 0.02 250);
+  --color-accent-warm: oklch(0.75 0.02 25);
   /* Steel: Polished metal gleam */
-  --color-accent-ember: oklch(0.60 0.02 250);
+  --color-accent-ember: oklch(0.60 0.02 20);
   /* Blood: Deep arterial red */
   --color-accent-blood: oklch(0.38 0.20 18);
   /* Crimson: Brighter blood, highlights */
@@ -129,22 +129,22 @@
   /* ============================================
      ELEMENT COLORS - Vivid & Distinctive
      ============================================ */
-  --color-element-physical: oklch(0.70 0.06 250);
-  --color-element-fire: oklch(0.68 0.036 250);
+  --color-element-physical: oklch(0.70 0.06 25);
+  --color-element-fire: oklch(0.68 0.036 25);
   --color-element-ice: oklch(0.78 0.14 215);
   --color-element-lightning: oklch(0.88 0.16 100);
   --color-element-void: oklch(0.58 0.22 305);
 
   /* Element Muted (backgrounds, subtle use) */
-  --color-element-physical-muted: oklch(0.32 0.04 250);
-  --color-element-fire-muted: oklch(0.28 0.018 250);
+  --color-element-physical-muted: oklch(0.32 0.04 25);
+  --color-element-fire-muted: oklch(0.28 0.018 25);
   --color-element-ice-muted: oklch(0.28 0.08 215);
   --color-element-lightning-muted: oklch(0.32 0.10 100);
   --color-element-void-muted: oklch(0.22 0.12 305);
 
   /* Element Glow (for borders, effects) */
-  --color-element-physical-glow: oklch(0.75 0.08 250);
-  --color-element-fire-glow: oklch(0.75 0.042 250);
+  --color-element-physical-glow: oklch(0.75 0.08 25);
+  --color-element-fire-glow: oklch(0.75 0.042 25);
   --color-element-ice-glow: oklch(0.85 0.16 218);
   --color-element-lightning-glow: oklch(0.92 0.18 102);
   --color-element-void-glow: oklch(0.65 0.26 308);
@@ -157,11 +157,11 @@
   /* Uncommon: Tarnished silver */
   --rarity-uncommon: oklch(0.60 0.08 200);
   /* Rare: Burnished gold */
-  --rarity-rare: oklch(0.72 0.024 250);
+  --rarity-rare: oklch(0.72 0.024 25);
   /* Ultra Rare: Royal amethyst */
   --rarity-ultra: oklch(0.58 0.24 310);
   /* Legendary: Molten gold, radiant */
-  --rarity-legendary: oklch(0.78 0.033 250);
+  --rarity-legendary: oklch(0.78 0.033 45);
   /* Mythic: Ethereal violet */
   --rarity-mythic: oklch(0.70 0.28 285);
   /* Ancient: Eldritch teal */
@@ -185,11 +185,11 @@
      GOTHIC DECORATIVE - Silver & Steel Accents
      ============================================ */
   /* Silver filigree for borders and ornaments */
-  --color-filigree: oklch(0.70 0.02 250);
-  --color-filigree-bright: oklch(0.82 0.02 250);
+  --color-filigree: oklch(0.70 0.02 40);
+  --color-filigree-bright: oklch(0.82 0.02 40);
   /* Polished pewter for aged metal */
-  --color-bronze: oklch(0.50 0.01 250);
-  --color-bronze-dark: oklch(0.35 0.01 250);
+  --color-bronze: oklch(0.50 0.01 35);
+  --color-bronze-dark: oklch(0.35 0.01 35);
   /* Wax seal red */
   --color-seal: oklch(0.45 0.18 20);
 
@@ -197,9 +197,9 @@
      STATUS CHIP COLORS - Buff/Debuff/Neutral
      ============================================ */
   /* Neutral: Purple-tinted dark */
-  --color-status-neutral-bg: oklch(0.15 0.02 250);
-  --color-status-neutral-border: oklch(0.35 0.05 250);
-  --color-status-neutral-text: oklch(0.9 0.02 250);
+  --color-status-neutral-bg: oklch(0.15 0.02 25);
+  --color-status-neutral-border: oklch(0.35 0.05 25);
+  --color-status-neutral-text: oklch(0.9 0.02 25);
   /* Buff: Green tones */
   --color-status-buff-bg: oklch(0.18 0.07 145);
   --color-status-buff-border: oklch(0.45 0.12 145);
@@ -222,12 +222,12 @@
   --color-combat-gold: oklch(0.8 0.18 85);
   --color-combat-gold-glow: oklch(0.7 0.2 85);
   /* Combo: Orange fire burst */
-  --color-combat-combo: oklch(0.85 0.03 250);
-  --color-combat-combo-glow: oklch(0.7 0.037 250);
-  --color-combat-combo-label: oklch(0.9 0.022 250);
-  --color-combat-combo-counter: oklch(0.9 0.03 250);
-  --color-combat-combo-counter-glow1: oklch(0.7 0.037 250);
-  --color-combat-combo-counter-glow2: oklch(0.6 0.03 250);
+  --color-combat-combo: oklch(0.85 0.03 30);
+  --color-combat-combo-glow: oklch(0.7 0.037 30);
+  --color-combat-combo-label: oklch(0.9 0.022 30);
+  --color-combat-combo-counter: oklch(0.9 0.03 30);
+  --color-combat-combo-counter-glow1: oklch(0.7 0.037 30);
+  --color-combat-combo-counter-glow2: oklch(0.6 0.03 30);
   /* Chain: Golden yellow */
   --color-combat-chain: oklch(0.85 0.15 85);
   /* Execute: Deep crimson finisher */
@@ -244,7 +244,7 @@
   --color-combat-preview-multi: oklch(0.75 0.25 25);
   --color-combat-preview-multi-glow: oklch(0.6 0.3 25);
   /* Multi-hit: Orange burst */
-  --color-combat-multi: oklch(0.8 0.03 250);
+  --color-combat-multi: oklch(0.8 0.03 30);
   /* Max Health gain: Vital green */
   --color-combat-maxhp-gain: oklch(0.7 0.18 145);
   --color-combat-maxhp-gain-glow: oklch(0.6 0.2 145);
@@ -285,16 +285,16 @@
   --color-combathud-bg: oklch(0.08 0 0 / 0.85);
   --color-combathud-border: oklch(0.22 0 0);
   /* HeroAbilityBtn - Activated (blue) */
-  --color-ability-activated-from: oklch(0.45 0.18 250);
+  --color-ability-activated-from: oklch(0.45 0.18 25);
   --color-ability-activated-to: oklch(0.35 0.15 260);
-  --color-ability-activated-glow: oklch(0.4 0.15 250 / 0.4);
-  --color-ability-activated-highlight: oklch(0.6 0.1 250 / 0.3);
+  --color-ability-activated-glow: oklch(0.4 0.15 25 / 0.4);
+  --color-ability-activated-highlight: oklch(0.6 0.1 25 / 0.3);
   /* HeroAbilityBtn - Ultimate (gold) */
   --color-ability-ultimate-from: oklch(0.7 0.2 85);
-  --color-ability-ultimate-to: oklch(0.55 0.027 250);
+  --color-ability-ultimate-to: oklch(0.55 0.027 25);
   --color-ability-ultimate-glow: oklch(0.65 0.2 85 / 0.6);
-  --color-ability-charging-from: oklch(0.35 0.024 250);
-  --color-ability-charging-to: oklch(0.25 0.015 250);
+  --color-ability-charging-from: oklch(0.35 0.024 25);
+  --color-ability-charging-to: oklch(0.25 0.015 25);
   /* EnemyIntent */
   --color-intent-bg: oklch(0.15 0 0 / 0.9);
   --color-intent-border: oklch(0.35 0.08 25);
@@ -306,12 +306,12 @@
   --color-intent-buff-border: oklch(0.45 0.12 145);
   --color-intent-buff-text: oklch(0.70 0.14 145);
   /* EndTurnBtn - Silver/Steel gradient */
-  --color-endturn-from: oklch(0.72 0.02 250);
-  --color-endturn-mid: oklch(0.58 0.02 250);
-  --color-endturn-to: oklch(0.48 0.01 250);
-  --color-endturn-border: oklch(0.78 0.02 250);
+  --color-endturn-from: oklch(0.72 0.02 30);
+  --color-endturn-mid: oklch(0.58 0.02 30);
+  --color-endturn-to: oklch(0.48 0.01 30);
+  --color-endturn-border: oklch(0.78 0.02 25);
   --color-endturn-text: oklch(0.10 0 0);
-  --color-endturn-glow: oklch(0.60 0.02 250 / 0.4);
+  --color-endturn-glow: oklch(0.60 0.02 25 / 0.4);
   --color-endturn-disabled-from: oklch(0.28 0 0);
   --color-endturn-disabled-to: oklch(0.22 0 0);
   --color-endturn-disabled-border: oklch(0.32 0 0);
@@ -319,14 +319,14 @@
   /* EnergyOrb */
   --color-energyorb-from: oklch(0.25 0 0);
   --color-energyorb-to: oklch(0.12 0 0);
-  --color-energyorb-border: oklch(0.38 0.01 250);
+  --color-energyorb-border: oklch(0.38 0.01 45);
   --color-energyorb-text: oklch(0.88 0 0);
-  --color-energyorb-full-border: oklch(0.70 0.02 250);
+  --color-energyorb-full-border: oklch(0.70 0.02 45);
   /* PileIndicator */
   --color-pile-from: oklch(0.16 0 0);
   --color-pile-to: oklch(0.12 0 0);
   --color-pile-border: oklch(0.28 0 0);
-  --color-pile-hover-border: oklch(0.45 0.01 250);
+  --color-pile-hover-border: oklch(0.45 0.01 25);
   --color-pile-hover-from: oklch(0.20 0 0);
   --color-pile-hover-to: oklch(0.15 0 0);
   --color-pile-count: oklch(0.75 0 0);
@@ -339,17 +339,17 @@
   /* Common relic: Steel/silver tones */
   --color-relic-common-from: oklch(0.25 0 0 / 0.9);
   --color-relic-common-to: oklch(0.2 0 0 / 0.95);
-  --color-relic-common-border: oklch(0.45 0.01 250);
-  --color-relic-common-hover-border: oklch(0.55 0.02 250);
-  --color-relic-common-glow: oklch(0.50 0.02 250 / 0.3);
-  --color-relic-common-icon: oklch(0.75 0.01 250);
+  --color-relic-common-border: oklch(0.45 0.01 25);
+  --color-relic-common-hover-border: oklch(0.55 0.02 25);
+  --color-relic-common-glow: oklch(0.50 0.02 25 / 0.3);
+  --color-relic-common-icon: oklch(0.75 0.01 25);
   /* Uncommon relic: Blue/purple tones */
-  --color-relic-uncommon-from: oklch(0.22 0.08 250 / 0.9);
-  --color-relic-uncommon-to: oklch(0.18 0.06 250 / 0.95);
-  --color-relic-uncommon-border: oklch(0.5 0.12 250);
-  --color-relic-uncommon-hover-border: oklch(0.6 0.15 250);
-  --color-relic-uncommon-glow: oklch(0.5 0.15 250 / 0.3);
-  --color-relic-uncommon-icon: oklch(0.75 0.12 250);
+  --color-relic-uncommon-from: oklch(0.22 0.08 25 / 0.9);
+  --color-relic-uncommon-to: oklch(0.18 0.06 25 / 0.95);
+  --color-relic-uncommon-border: oklch(0.5 0.12 25);
+  --color-relic-uncommon-hover-border: oklch(0.6 0.15 25);
+  --color-relic-uncommon-glow: oklch(0.5 0.15 25 / 0.3);
+  --color-relic-uncommon-icon: oklch(0.75 0.12 25);
   /* Rare relic: Gold tones */
   --color-relic-rare-from: oklch(0.28 0.12 85 / 0.9);
   --color-relic-rare-to: oklch(0.22 0.1 85 / 0.95);
@@ -365,23 +365,23 @@
   --color-relic-boss-glow: oklch(0.55 0.2 25 / 0.35);
   --color-relic-boss-icon: oklch(0.75 0.18 25);
   /* Relic name text */
-  --color-relic-name: oklch(0.9 0.02 250);
+  --color-relic-name: oklch(0.9 0.02 25);
   /* Relic counter badge */
   --color-relic-counter-bg: oklch(0.25 0.12 85);
   --color-relic-counter-border: oklch(0.45 0.15 85);
   --color-relic-counter-text: oklch(0.95 0.05 85);
   /* Tooltip */
-  --color-relic-tooltip-bg: oklch(0.12 0.02 250 / 0.98);
-  --color-relic-tooltip-border: oklch(0.35 0.05 250);
-  --color-relic-tooltip-divider: oklch(0.3 0.03 250);
-  --color-relic-tooltip-name: oklch(0.95 0.03 250);
-  --color-relic-tooltip-desc: oklch(0.75 0.02 250);
+  --color-relic-tooltip-bg: oklch(0.12 0.02 25 / 0.98);
+  --color-relic-tooltip-border: oklch(0.35 0.05 25);
+  --color-relic-tooltip-divider: oklch(0.3 0.03 25);
+  --color-relic-tooltip-name: oklch(0.95 0.03 25);
+  --color-relic-tooltip-desc: oklch(0.75 0.02 25);
   --color-relic-tooltip-counter: oklch(0.7 0.08 85);
   /* Reward card */
   --color-relic-reward-from: oklch(0.20 0 0);
   --color-relic-reward-to: oklch(0.15 0 0);
-  --color-relic-reward-border: oklch(0.50 0.02 250);
-  --color-relic-reward-glow: oklch(0.55 0.02 250 / 0.3);
+  --color-relic-reward-border: oklch(0.50 0.02 25);
+  --color-relic-reward-glow: oklch(0.55 0.02 30 / 0.3);
   --color-relic-reward-desc: oklch(0.70 0 0);
 
   /* ============================================
@@ -395,8 +395,8 @@
      ============================================ */
   /* Card frame - obsidian styling */
   --color-card-frame-inner: oklch(0.35 0 0 / 0.3);
-  --color-card-frame-hover: oklch(0.45 0.01 250 / 0.4);
-  --color-card-hover-glow: oklch(0.55 0.02 250 / 0.15);
+  --color-card-frame-hover: oklch(0.45 0.01 25 / 0.4);
+  --color-card-hover-glow: oklch(0.55 0.02 25 / 0.15);
   --color-card-highlight: oklch(1 0 0 / 0.05);
   --color-card-shadow-heavy: oklch(0 0 0 / 0.5);
   --color-card-shadow-light: oklch(0 0 0 / 0.3);
@@ -416,7 +416,7 @@
   /* Card name bar */
   --color-card-namebar-center: oklch(0.14 0 0 / 0.95);
   --color-card-namebar-edge: oklch(0.10 0 0 / 0.85);
-  --color-card-namebar-border-top: oklch(0.55 0.01 250 / 0.35);
+  --color-card-namebar-border-top: oklch(0.55 0.01 25 / 0.35);
   --color-card-namebar-border-bottom: oklch(0.05 0 0 / 0.6);
 
   /* Card text */
@@ -428,12 +428,12 @@
   --color-card-upgraded-glow: oklch(0.6 0.12 160 / 0.5);
 
   /* Energy badge - base silver */
-  --color-energy-badge-from: oklch(0.68 0.02 250);
-  --color-energy-badge-mid: oklch(0.52 0.01 250);
+  --color-energy-badge-from: oklch(0.68 0.02 45);
+  --color-energy-badge-mid: oklch(0.52 0.01 45);
   --color-energy-badge-to: oklch(0.40 0 0);
   --color-energy-badge-text: oklch(0.10 0 0);
-  --color-energy-badge-border: oklch(0.75 0.02 250);
-  --color-energy-badge-glow: oklch(0.60 0.02 250 / 0.4);
+  --color-energy-badge-border: oklch(0.75 0.02 45);
+  --color-energy-badge-glow: oklch(0.60 0.02 35 / 0.4);
   --color-energy-badge-highlight: oklch(1 0 0 / 0.3);
 
   /* Energy badge - modified (reduced cost) */
@@ -443,9 +443,9 @@
   --color-energy-modified-glow: oklch(0.5 0.15 145 / 0.5);
 
   /* Energy badge - elemental variants */
-  --color-energy-fire-from: oklch(0.6 0.03 250);
-  --color-energy-fire-to: oklch(0.45 0.027 250);
-  --color-energy-fire-border: oklch(0.7 0.027 250);
+  --color-energy-fire-from: oklch(0.6 0.03 45);
+  --color-energy-fire-to: oklch(0.45 0.027 45);
+  --color-energy-fire-border: oklch(0.7 0.027 45);
   --color-energy-fire-text: oklch(0.95 0 0);
   --color-energy-ice-from: oklch(0.65 0.12 220);
   --color-energy-ice-to: oklch(0.5 0.1 215);
@@ -459,10 +459,10 @@
   --color-energy-void-to: oklch(0.3 0.12 305);
   --color-energy-void-border: oklch(0.55 0.12 315);
   --color-energy-void-text: oklch(0.9 0.03 310);
-  --color-energy-physical-from: oklch(0.5 0.02 250);
+  --color-energy-physical-from: oklch(0.5 0.02 45);
   --color-energy-physical-to: oklch(0.35 0.015 245);
   --color-energy-physical-border: oklch(0.6 0.02 255);
-  --color-energy-physical-text: oklch(0.9 0.01 250);
+  --color-energy-physical-text: oklch(0.9 0.01 45);
 
   /* Status badges (ethereal, retained) */
   --color-badge-shadow: oklch(0 0 0 / 0.4);
@@ -470,12 +470,12 @@
   --color-badge-ethereal-to: oklch(0.25 0.1 285);
   --color-badge-ethereal-border: oklch(0.55 0.1 295 / 0.6);
   --color-badge-ethereal-icon: oklch(0.8 0.08 290);
-  --color-badge-retained-from: oklch(0.45 0.01 250);
+  --color-badge-retained-from: oklch(0.45 0.01 25);
   --color-badge-retained-to: oklch(0.30 0 0);
-  --color-badge-retained-border: oklch(0.60 0.02 250 / 0.6);
-  --color-badge-retained-icon: oklch(0.85 0.01 250);
-  --color-badge-retained-glow: oklch(0.60 0.02 250 / 0.4);
-  --color-badge-retained-glow-bright: oklch(0.65 0.02 250 / 0.6);
+  --color-badge-retained-border: oklch(0.60 0.02 25 / 0.6);
+  --color-badge-retained-icon: oklch(0.85 0.01 25);
+  --color-badge-retained-glow: oklch(0.60 0.02 25 / 0.4);
+  --color-badge-retained-glow-bright: oklch(0.65 0.02 25 / 0.6);
 
   /* Power card styling */
   --color-card-power-bg-light: oklch(0.22 0.03 280);
@@ -503,7 +503,7 @@
   --color-aura-buff-glow-outer: oklch(0.5 0.12 85 / 0.15);
   --color-aura-buff-glow-peak: oklch(0.7 0.18 90 / 0.4);
   --color-aura-buff-glow-outer-peak: oklch(0.6 0.15 85 / 0.2);
-  --color-aura-inner-border: oklch(0.45 0.01 250 / 0.4);
+  --color-aura-inner-border: oklch(0.45 0.01 25 / 0.4);
 
   /* Aura animations - debuff (red/purple) */
   --color-aura-debuff-glow: oklch(0.5 0.18 25 / 0.3);
@@ -512,10 +512,10 @@
   --color-aura-debuff-glow-outer-peak: oklch(0.45 0.18 320 / 0.2);
 
   /* Aura animations - burning (fire orange) */
-  --color-aura-burning: oklch(0.6 0.037 250 / 0.4);
-  --color-aura-burning-outer: oklch(0.55 0.033 250 / 0.3);
-  --color-aura-burning-peak: oklch(0.7 0.042 250 / 0.5);
-  --color-aura-burning-peak-outer: oklch(0.6 0.037 250 / 0.4);
+  --color-aura-burning: oklch(0.6 0.037 25 / 0.4);
+  --color-aura-burning-outer: oklch(0.55 0.033 25 / 0.3);
+  --color-aura-burning-peak: oklch(0.7 0.042 25 / 0.5);
+  --color-aura-burning-peak-outer: oklch(0.6 0.037 25 / 0.4);
 
   /* Aura animations - charged (electric yellow) */
   --color-aura-charged: oklch(0.8 0.2 95 / 0.3);
@@ -604,7 +604,7 @@
   /* Rarity glow - legendary (rainbow cycling) */
   --color-rarity-legendary-glow-1: oklch(0.7 0.2 0 / 0.4);
   --color-rarity-legendary-outer-1: oklch(0.6 0.15 120 / 0.25);
-  --color-rarity-legendary-border-1: oklch(0.7 0.03 250);
+  --color-rarity-legendary-border-1: oklch(0.7 0.03 45);
   --color-rarity-legendary-glow-2: oklch(0.7 0.2 120 / 0.4);
   --color-rarity-legendary-outer-2: oklch(0.6 0.15 240 / 0.25);
   --color-rarity-legendary-border-2: oklch(0.7 0.2 180);
@@ -612,12 +612,12 @@
   --color-rarity-legendary-outer-3: oklch(0.6 0.15 0 / 0.25);
   --color-rarity-legendary-border-3: oklch(0.7 0.2 300);
   --color-rarity-legendary-holographic: oklch(0.9 0.1 0 / 0);
-  --color-rarity-legendary-holo-mid: oklch(0.9 0.022 250 / 0.1);
+  --color-rarity-legendary-holo-mid: oklch(0.9 0.022 45 / 0.1);
   --color-rarity-legendary-holo-center: oklch(0.9 0.15 180 / 0.15);
   --color-rarity-legendary-holo-end: oklch(0.9 0.15 300 / 0.1);
 
   /* Rarity glow - mythic (enhanced legendary) */
-  --color-rarity-mythic-shimmer-mid: oklch(0.95 0.03 250 / 0.2);
+  --color-rarity-mythic-shimmer-mid: oklch(0.95 0.03 45 / 0.2);
   --color-rarity-mythic-shimmer-center: oklch(1 0 0 / 0.35);
   --color-rarity-mythic-shimmer-end: oklch(0.95 0.1 300 / 0.2);
 
@@ -630,13 +630,13 @@
   --color-gem-common: oklch(0.45 0 0);
   --color-gem-uncommon: oklch(0.55 0.15 145);
   --color-gem-uncommon-glow: oklch(0.55 0.15 145 / 0.6);
-  --color-gem-rare: oklch(0.65 0.03 250);
-  --color-gem-rare-glow: oklch(0.65 0.03 250 / 0.7);
+  --color-gem-rare: oklch(0.65 0.03 25);
+  --color-gem-rare-glow: oklch(0.65 0.03 25 / 0.7);
   --color-gem-epic: oklch(0.60 0.25 285);
   --color-gem-epic-glow: oklch(0.60 0.25 285 / 0.8);
-  --color-gem-legendary-from: oklch(0.70 0.033 250);
-  --color-gem-legendary-to: oklch(0.60 0.037 250);
-  --color-gem-legendary-glow: oklch(0.65 0.033 250 / 0.9);
+  --color-gem-legendary-from: oklch(0.70 0.033 45);
+  --color-gem-legendary-to: oklch(0.60 0.037 45);
+  --color-gem-legendary-glow: oklch(0.65 0.033 45 / 0.9);
   --color-gem-mythic-from: oklch(0.65 0.28 320);
   --color-gem-mythic-to: oklch(0.55 0.25 340);
   --color-gem-mythic-glow: oklch(0.60 0.28 320 / 1);
@@ -660,15 +660,15 @@
   --color-room-bg-from: oklch(0.20 0 0);
   --color-room-bg-mid: oklch(0.15 0 0);
   --color-room-bg-to: oklch(0.12 0 0);
-  --color-room-border: oklch(0.32 0.01 250);
+  --color-room-border: oklch(0.32 0.01 25);
   --color-room-highlight: oklch(1 0 0 / 0.04);
-  --color-room-hover-glow: oklch(0.55 0.02 250 / 0.25);
-  --color-room-hover-glow-soft: oklch(0.55 0.01 250 / 0.15);
+  --color-room-hover-glow: oklch(0.55 0.02 25 / 0.25);
+  --color-room-hover-glow-soft: oklch(0.55 0.01 25 / 0.15);
   --color-room-hover-highlight: oklch(1 0 0 / 0.06);
 
   /* Element emblem gradient endpoints */
-  --color-emblem-physical-to: oklch(0.2 0.02 250);
-  --color-emblem-fire-to: oklch(0.2 0.015 250);
+  --color-emblem-physical-to: oklch(0.2 0.02 25);
+  --color-emblem-fire-to: oklch(0.2 0.015 25);
   --color-emblem-ice-to: oklch(0.2 0.04 220);
   --color-emblem-lightning-to: oklch(0.25 0.04 95);
   --color-emblem-void-to: oklch(0.15 0.05 310);
@@ -692,20 +692,20 @@
   /* Chip styling */
   --color-sidebar-chip-bg: oklch(0.12 0 0 / 0.9);
   --color-sidebar-chip-border: oklch(0.25 0 0);
-  --color-sidebar-chip-hover: oklch(0.18 0.02 250 / 0.8);
+  --color-sidebar-chip-hover: oklch(0.18 0.02 25 / 0.8);
   --color-sidebar-chip-buff-bg: oklch(0.15 0.04 145 / 0.5);
   --color-sidebar-chip-buff-hover: oklch(0.2 0.06 145 / 0.7);
   --color-sidebar-chip-debuff-bg: oklch(0.15 0.06 25 / 0.5);
   --color-sidebar-chip-debuff-hover: oklch(0.2 0.08 25 / 0.7);
   --color-sidebar-chip-common-bg: oklch(0.18 0 0 / 0.5);
-  --color-sidebar-chip-common-icon: oklch(0.7 0.015 250);
-  --color-sidebar-chip-uncommon-bg: oklch(0.16 0.04 250 / 0.5);
-  --color-sidebar-chip-uncommon-icon: oklch(0.7 0.1 250);
+  --color-sidebar-chip-common-icon: oklch(0.7 0.015 25);
+  --color-sidebar-chip-uncommon-bg: oklch(0.16 0.04 25 / 0.5);
+  --color-sidebar-chip-uncommon-icon: oklch(0.7 0.1 25);
   --color-sidebar-chip-rare-bg: oklch(0.18 0.06 85 / 0.5);
   --color-sidebar-chip-rare-icon: oklch(0.8 0.12 85);
   --color-sidebar-chip-boss-bg: oklch(0.16 0.06 25 / 0.5);
   --color-sidebar-chip-boss-icon: oklch(0.75 0.15 25);
-  --color-sidebar-chip-name: oklch(0.9 0.02 250);
+  --color-sidebar-chip-name: oklch(0.9 0.02 25);
   --color-sidebar-chip-count-bg: oklch(0.08 0 0 / 0.6);
   --color-sidebar-chip-count: oklch(0.95 0.05 85);
   --color-sidebar-chip-buff-count: oklch(0.85 0.1 145);
@@ -723,10 +723,10 @@
   --color-roomselect-overlay-warm: oklch(0.25 0 0 / 0.15);
   --color-roomselect-overlay-cool: oklch(0.20 0.02 280 / 0.1);
   /* Title styling */
-  --color-roomselect-title-glow: oklch(0.65 0.022 250 / 0.4);
-  --color-roomselect-diamond: oklch(0.45 0.024 250);
+  --color-roomselect-title-glow: oklch(0.65 0.022 25 / 0.4);
+  --color-roomselect-diamond: oklch(0.45 0.024 25);
   --color-roomselect-subtitle: oklch(0.55 0 0);
-  --color-roomselect-section-title: oklch(0.75 0.015 250);
+  --color-roomselect-section-title: oklch(0.75 0.015 25);
   /* Room card styling */
   --color-roomcard-bg-from: oklch(0.18 0 0);
   --color-roomcard-bg-mid: oklch(0.14 0 0);
@@ -735,17 +735,17 @@
   --color-roomcard-shadow: oklch(0 0 0 / 0.4);
   --color-roomcard-highlight: oklch(1 0 0 / 0.03);
   --color-roomcard-shadow-inset: oklch(0 0 0 / 0.2);
-  --color-roomcard-hover-glow: oklch(0.55 0.018 250 / 0.3);
-  --color-roomcard-hover-glow-soft: oklch(0.55 0.018 250 / 0.15);
+  --color-roomcard-hover-glow: oklch(0.55 0.018 25 / 0.3);
+  --color-roomcard-hover-glow-soft: oklch(0.55 0.018 25 / 0.15);
   --color-roomcard-hover-highlight: oklch(1 0 0 / 0.05);
   --color-roomcard-icon-glow: oklch(0.20 0 0 / 0.5);
   --color-roomcard-content-bg-from: oklch(0.12 0 0);
   --color-roomcard-content-bg-to: oklch(0.10 0 0);
   --color-roomcard-content-border: oklch(0.25 0 0);
-  --color-roomcard-title: oklch(0.80 0.012 250);
+  --color-roomcard-title: oklch(0.80 0.012 25);
   /* Room type colors */
   --color-room-combat: oklch(0.60 0.18 25);
-  --color-room-elite: oklch(0.65 0.03 250);
+  --color-room-elite: oklch(0.65 0.03 25);
   --color-room-boss: oklch(0.58 0.18 310);
   --color-room-campfire: oklch(0.58 0.14 145);
   --color-room-treasure: oklch(0.72 0.16 85);
@@ -756,15 +756,15 @@
      MODAL COMPONENT COLORS
      ============================================ */
   --color-modal-backdrop: oklch(0 0 0 / 0.85);
-  --color-modal-glow-warm: oklch(0.3 0.03 250 / 0.3);
-  --color-modal-glow-soft: oklch(0.2 0.024 250 / 0.2);
+  --color-modal-glow-warm: oklch(0.3 0.03 25 / 0.3);
+  --color-modal-glow-soft: oklch(0.2 0.024 25 / 0.2);
   --color-modal-highlight: oklch(1 0 0 / 0.04);
   /* CardPileModal */
   --color-pile-item-shadow: oklch(0 0 0 / 0.5);
   --color-pile-count-text: oklch(0.1 0 0);
-  --color-pile-count-border: oklch(0.8 0.03 250 / 0.5);
-  --color-pile-draw-from: oklch(0.55 0.018 250);
-  --color-pile-draw-glow: oklch(0.7 0.022 250 / 0.4);
+  --color-pile-count-border: oklch(0.8 0.03 25 / 0.5);
+  --color-pile-draw-from: oklch(0.55 0.018 25);
+  --color-pile-draw-glow: oklch(0.7 0.022 25 / 0.4);
   --color-pile-discard-from: oklch(0.55 0.1 25);
   --color-pile-discard-to: oklch(0.4 0.08 25);
   --color-pile-discard-glow: oklch(0.5 0.15 25 / 0.4);
@@ -773,7 +773,7 @@
   --color-pile-exhaust-text: oklch(0.9 0 0);
   --color-pile-exhaust-glow: oklch(0.5 0.2 290 / 0.4);
   /* CardSelectionModal */
-  --color-selection-glow: oklch(0.5 0.022 250 / 0.5);
+  --color-selection-glow: oklch(0.5 0.022 25 / 0.5);
   --color-selection-discard-glow: oklch(0.5 0.18 20 / 0.5);
   --color-selection-position: oklch(0.7 0 0);
   --color-selection-check-text: oklch(0.1 0 0);
@@ -784,23 +784,23 @@
      REWARD SCREEN COMPONENT COLORS
      ============================================ */
   /* Background */
-  --color-reward-bg-gold: oklch(0.22 0.018 250 / 0.3);
+  --color-reward-bg-gold: oklch(0.22 0.018 45 / 0.3);
   --color-reward-bg-purple: oklch(0.15 0.03 280 / 0.2);
   --color-reward-bg-from: oklch(0.11 0 0);
   --color-reward-bg-to: oklch(0.08 0 0);
   /* Option styling */
   --color-reward-option-from: oklch(0.18 0 0);
   --color-reward-option-to: oklch(0.14 0 0);
-  --color-reward-option-border: oklch(0.30 0.012 250);
-  --color-reward-option-hover-from: oklch(0.22 0.012 250);
+  --color-reward-option-border: oklch(0.30 0.012 25);
+  --color-reward-option-hover-from: oklch(0.22 0.012 25);
   --color-reward-option-hover-to: oklch(0.17 0 0);
-  --color-reward-option-hover-glow: oklch(0.55 0.022 250 / 0.25);
-  --color-reward-option-hover-glow-soft: oklch(0.55 0.018 250 / 0.15);
+  --color-reward-option-hover-glow: oklch(0.55 0.022 30 / 0.25);
+  --color-reward-option-hover-glow-soft: oklch(0.55 0.018 30 / 0.15);
   --color-reward-option-icon-shadow: oklch(0 0 0 / 0.4);
-  --color-reward-option-label: oklch(0.80 0.012 250);
-  --color-reward-gold-border: oklch(0.45 0.018 250);
-  --color-reward-gold-glow: oklch(0.60 0.027 250 / 0.35);
-  --color-reward-gold-glow-soft: oklch(0.58 0.022 250 / 0.2);
+  --color-reward-option-label: oklch(0.80 0.012 25);
+  --color-reward-gold-border: oklch(0.45 0.018 45);
+  --color-reward-gold-glow: oklch(0.60 0.027 45 / 0.35);
+  --color-reward-gold-glow-soft: oklch(0.58 0.022 45 / 0.2);
   /* Skip button */
   --color-reward-skip: oklch(0.50 0 0);
   --color-reward-skip-border: oklch(0.30 0 0);
@@ -808,40 +808,40 @@
   --color-reward-skip-hover-border: oklch(0.40 0 0);
   --color-reward-skip-hover-bg: oklch(0.15 0 0);
   /* Title */
-  --color-reward-title-from: oklch(0.75 0.027 250);
-  --color-reward-title-to: oklch(0.55 0.022 250);
+  --color-reward-title-from: oklch(0.75 0.027 25);
+  --color-reward-title-to: oklch(0.55 0.022 25);
   /* Choice cards */
   --color-reward-choice-from: oklch(0.18 0 0);
   --color-reward-choice-to: oklch(0.14 0 0);
-  --color-reward-choice-border: oklch(0.30 0.011 250);
-  --color-reward-choice-hover-border: oklch(0.50 0.03 250);
+  --color-reward-choice-border: oklch(0.30 0.011 25);
+  --color-reward-choice-hover-border: oklch(0.50 0.03 25);
   --color-reward-choice-hover-shadow: oklch(0 0 0 / 0.4);
-  --color-reward-choice-gold-border: oklch(0.70 0.03 250);
-  --color-reward-choice-gold-glow: oklch(0.65 0.027 250 / 0.3);
+  --color-reward-choice-gold-border: oklch(0.70 0.03 45);
+  --color-reward-choice-gold-glow: oklch(0.65 0.027 45 / 0.3);
 
   /* ============================================
      CAMPFIRE SCREEN COMPONENT COLORS
      ============================================ */
   /* Background */
-  --color-campfire-bg-glow: oklch(0.20 0.024 250 / 0.4);
-  --color-campfire-bg-base-glow: oklch(0.25 0.018 250 / 0.3);
+  --color-campfire-bg-glow: oklch(0.20 0.06 30 / 0.4);
+  --color-campfire-bg-base-glow: oklch(0.25 0.05 30 / 0.3);
   --color-campfire-bg-from: oklch(0.08 0 0);
   --color-campfire-bg-to: oklch(0.06 0 0);
-  --color-campfire-firelight: oklch(0.50 0.03 250 / 0.3);
+  --color-campfire-firelight: oklch(0.50 0.12 30 / 0.3);
   /* Title */
-  --color-campfire-title: oklch(0.75 0.018 250);
-  --color-campfire-title-glow: oklch(0.60 0.022 250 / 0.4);
+  --color-campfire-title: oklch(0.75 0.018 25);
+  --color-campfire-title-glow: oklch(0.60 0.08 25 / 0.4);
   /* Action buttons */
   --color-campfire-action-from: oklch(0.15 0 0 / 0.9);
   --color-campfire-action-to: oklch(0.12 0 0 / 0.95);
   --color-campfire-action-border: oklch(0.28 0 0);
-  --color-campfire-action-hover-border: oklch(0.50 0.03 250);
+  --color-campfire-action-hover-border: oklch(0.50 0.03 25);
   --color-campfire-action-hover-from: oklch(0.20 0 0 / 0.95);
   --color-campfire-action-hover-to: oklch(0.15 0 0 / 0.98);
-  --color-campfire-action-hover-glow: oklch(0.45 0.018 250 / 0.25);
-  --color-campfire-action-hover-glow-soft: oklch(0.50 0.03 250 / 0.15);
+  --color-campfire-action-hover-glow: oklch(0.45 0.06 25 / 0.25);
+  --color-campfire-action-hover-glow-soft: oklch(0.50 0.08 30 / 0.15);
   --color-campfire-action-icon-shadow: oklch(0 0 0 / 0.4);
-  --color-campfire-action-label: oklch(0.78 0.012 250);
+  --color-campfire-action-label: oklch(0.78 0.012 25);
   --color-campfire-action-desc: oklch(0.55 0 0);
   /* Rest action (healing green) */
   --color-campfire-rest-border: oklch(0.50 0.12 145);
@@ -856,30 +856,30 @@
      VICTORY SCREEN COMPONENT COLORS
      ============================================ */
   /* Background */
-  --color-victory-bg-gold: oklch(0.30 0.018 250 / 0.3);
-  --color-victory-bg-warm: oklch(0.20 0.024 250 / 0.2);
+  --color-victory-bg-gold: oklch(0.30 0.06 45 / 0.3);
+  --color-victory-bg-warm: oklch(0.20 0.024 45 / 0.2);
   --color-victory-bg-from: oklch(0.12 0 0);
   --color-victory-bg-to: oklch(0.08 0 0);
   /* Title */
-  --color-victory-title-glow: oklch(0.70 0.03 250 / 0.6);
-  --color-victory-title-glow-soft: oklch(0.55 0.027 250 / 0.4);
+  --color-victory-title-glow: oklch(0.70 0.03 45 / 0.6);
+  --color-victory-title-glow-soft: oklch(0.55 0.027 45 / 0.4);
   /* Run stats */
   --color-victory-stats-from: oklch(0.14 0 0 / 0.95);
   --color-victory-stats-to: oklch(0.11 0 0 / 0.98);
   --color-victory-stats-border: oklch(0.25 0 0);
   --color-victory-stats-header: oklch(0.55 0 0);
   --color-victory-stats-label: oklch(0.60 0 0);
-  --color-victory-stats-value: oklch(0.80 0.012 250);
+  --color-victory-stats-value: oklch(0.80 0.012 25);
   /* Restart button */
-  --color-victory-btn-from: oklch(0.45 0.12 250);
+  --color-victory-btn-from: oklch(0.45 0.12 25);
   --color-victory-btn-to: oklch(0.38 0.10 260);
   --color-victory-btn-text: oklch(0.95 0 0);
-  --color-victory-btn-border: oklch(0.55 0.14 250);
-  --color-victory-btn-glow: oklch(0.40 0.12 250 / 0.35);
+  --color-victory-btn-border: oklch(0.55 0.14 25);
+  --color-victory-btn-glow: oklch(0.40 0.12 45 / 0.35);
   --color-victory-btn-highlight: oklch(1 0 0 / 0.15);
-  --color-victory-btn-hover-from: oklch(0.52 0.14 250);
+  --color-victory-btn-hover-from: oklch(0.52 0.14 25);
   --color-victory-btn-hover-to: oklch(0.45 0.12 260);
-  --color-victory-btn-hover-glow: oklch(0.45 0.14 250 / 0.45);
+  --color-victory-btn-hover-glow: oklch(0.45 0.14 45 / 0.45);
   --color-victory-btn-hover-highlight: oklch(1 0 0 / 0.2);
 
   /* ============================================
@@ -888,7 +888,7 @@
   --color-tooltip-bg: oklch(0.12 0 0);
   --color-tooltip-border: oklch(0.25 0 0);
   --color-tooltip-shadow: oklch(0 0 0 / 0.6);
-  --color-tooltip-glow: oklch(0.2 0.012 250 / 0.3);
+  --color-tooltip-glow: oklch(0.2 0.012 25 / 0.3);
   --color-tooltip-highlight: oklch(0.3 0 0 / 0.2);
   --color-tooltip-buff-border: oklch(0.45 0.12 145);
   --color-tooltip-buff-glow: oklch(0.4 0.1 145 / 0.3);
@@ -900,19 +900,19 @@
   --color-tooltip-duration: oklch(0.6 0 0);
   --color-tooltip-behavior: oklch(0.5 0 0);
   --color-tooltip-combos-border: oklch(0.3 0 0);
-  --color-tooltip-combos-header: oklch(0.7 0.022 250);
+  --color-tooltip-combos-header: oklch(0.7 0.022 30);
   --color-tooltip-combo-hint: oklch(0.7 0 0);
 
   /* ============================================
      TREASURE SCREEN COMPONENT COLORS
      ============================================ */
-  --color-treasure-bg-gold: oklch(0.25 0.024 250 / 0.25);
-  --color-treasure-bg-warm1: oklch(0.20 0.018 250 / 0.2);
+  --color-treasure-bg-gold: oklch(0.25 0.024 45 / 0.25);
+  --color-treasure-bg-warm1: oklch(0.20 0.018 45 / 0.2);
   --color-treasure-bg-warm2: oklch(0.18 0.05 85 / 0.15);
   --color-treasure-bg-from: oklch(0.10 0 0);
   --color-treasure-bg-to: oklch(0.07 0 0);
-  --color-treasure-title-glow: oklch(0.65 0.027 250 / 0.5);
-  --color-treasure-title-glow-soft: oklch(0.55 0.022 250 / 0.3);
+  --color-treasure-title-glow: oklch(0.65 0.027 45 / 0.5);
+  --color-treasure-title-glow-soft: oklch(0.55 0.022 45 / 0.3);
 
   /* ============================================
      GAME SCREEN / HUD COMPONENT COLORS
@@ -920,7 +920,7 @@
   --color-gamescreen-hud-from: oklch(0.12 0 0 / 0.95);
   --color-gamescreen-hud-to: oklch(0.10 0 0 / 0.9);
   --color-gamescreen-hud-border: oklch(0.25 0 0);
-  --color-gamescreen-floor: oklch(0.55 0.012 250);
+  --color-gamescreen-floor: oklch(0.55 0.012 25);
 }
 
 body {
@@ -1047,8 +1047,8 @@ h1, .text-title {
     border-color: var(--color-filigree);
     color: var(--color-warm-100);
     box-shadow:
-      0 0 20px oklch(0.5 0.018 250 / 0.2),
-      inset 0 0 0 1px oklch(0.5 0.03 250 / 0.15);
+      0 0 20px oklch(0.5 0.018 25 / 0.2),
+      inset 0 0 0 1px oklch(0.5 0.03 25 / 0.15);
   }
 
   &:active {
@@ -1064,22 +1064,22 @@ h1, .text-title {
 .btn-gothic-primary {
   background: linear-gradient(
     180deg,
-    oklch(0.58 0.021 250) 0%,
-    oklch(0.48 0.018 250) 100%
+    oklch(0.58 0.021 25) 0%,
+    oklch(0.48 0.018 25) 100%
   );
-  border-color: oklch(0.68 0.022 250);
+  border-color: oklch(0.68 0.022 25);
   color: oklch(0.12 0 0);
   text-shadow: 0 1px 0 oklch(1 0 0 / 0.2);
 
   &:hover {
     background: linear-gradient(
       180deg,
-      oklch(0.62 0.022 250) 0%,
-      oklch(0.52 0.019 250) 100%
+      oklch(0.62 0.022 25) 0%,
+      oklch(0.52 0.019 25) 100%
     );
-    border-color: oklch(0.75 0.024 250);
+    border-color: oklch(0.75 0.024 25);
     box-shadow:
-      0 0 25px oklch(0.6 0.022 250 / 0.4),
+      0 0 25px oklch(0.6 0.022 25 / 0.4),
       inset 0 1px 0 oklch(1 0 0 / 0.2);
   }
 }
@@ -1159,8 +1159,8 @@ h1, .text-title {
 .text-glow-gold {
   color: var(--color-energy);
   text-shadow:
-    0 0 10px oklch(0.65 0.022 250 / 0.5),
-    0 0 20px oklch(0.55 0.018 250 / 0.3);
+    0 0 10px oklch(0.65 0.022 25 / 0.5),
+    0 0 20px oklch(0.55 0.018 25 / 0.3);
 }
 
 .text-glow-blood {
@@ -1401,7 +1401,7 @@ h1, .text-title {
   transform: translate(-50%, -50%);
   width: 80%;
   height: 80%;
-  border: 1px solid oklch(0.25 0.012 250 / 0.2);
+  border: 1px solid oklch(0.25 0.012 25 / 0.2);
   border-radius: 50%;
   pointer-events: none;
   opacity: 0.3;
@@ -1432,7 +1432,7 @@ h1, .text-title {
 
 .MenuScreen {
   background:
-    radial-gradient(ellipse 80% 60% at 50% 20%, oklch(0.18 0.012 250 / 0.3) 0%, transparent 50%),
+    radial-gradient(ellipse 80% 60% at 50% 20%, oklch(0.18 0.012 25 / 0.3) 0%, transparent 50%),
     radial-gradient(ellipse 100% 80% at 30% 80%, oklch(0.12 0 0 / 0.2) 0%, transparent 45%),
     linear-gradient(180deg, oklch(0.08 0 0) 0%, oklch(0.05 0 0) 100%);
 }
@@ -1449,7 +1449,7 @@ h1, .text-title {
   font-weight: 700;
   letter-spacing: 0.12em;
   text-transform: uppercase;
-  background: linear-gradient(180deg, oklch(0.85 0.024 250) 0%, oklch(0.65 0.018 250) 100%);
+  background: linear-gradient(180deg, oklch(0.85 0.024 25) 0%, oklch(0.65 0.018 25) 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -1504,14 +1504,14 @@ h1, .text-title {
 .menu-tab--active {
   color: var(--color-accent-warm);
   background: linear-gradient(180deg, oklch(0.20 0 0) 0%, oklch(0.16 0 0) 100%);
-  border-color: oklch(0.35 0.015 250);
-  box-shadow: 0 -3px 12px oklch(0.65 0.022 250 / 0.2);
+  border-color: oklch(0.35 0.015 25);
+  box-shadow: 0 -3px 12px oklch(0.65 0.022 25 / 0.2);
 }
 
 .menu-tab--active::before {
   width: 80%;
   height: 3px;
-  background: linear-gradient(90deg, transparent, oklch(0.70 0.027 250), transparent);
+  background: linear-gradient(90deg, transparent, oklch(0.70 0.027 25), transparent);
 }
 
 .selection-btn {
@@ -1531,18 +1531,18 @@ h1, .text-title {
 }
 
 .selection-btn:hover {
-  border-color: oklch(0.40 0.018 250);
+  border-color: oklch(0.40 0.018 25);
   background: linear-gradient(180deg, oklch(0.20 0 0) 0%, oklch(0.15 0 0) 100%);
-  color: oklch(0.78 0.015 250);
+  color: oklch(0.78 0.015 25);
   transform: translateY(-2px);
   box-shadow: 0 6px 16px oklch(0 0 0 / 0.3);
 }
 
 .selection-btn--selected {
   border-color: var(--color-accent-warm);
-  background: linear-gradient(180deg, oklch(0.22 0.015 250) 0%, oklch(0.16 0.012 250) 100%);
-  color: oklch(0.88 0.024 250);
-  box-shadow: 0 0 20px oklch(0.65 0.022 250 / 0.25);
+  background: linear-gradient(180deg, oklch(0.22 0.015 25) 0%, oklch(0.16 0.012 25) 100%);
+  color: oklch(0.88 0.024 25);
+  box-shadow: 0 0 20px oklch(0.65 0.022 25 / 0.25);
 }
 
 .selection-btn--selected::after {
@@ -1573,7 +1573,7 @@ h1, .text-title {
   font-weight: 500;
   letter-spacing: 0.15em;
   text-transform: uppercase;
-  color: oklch(0.55 0.012 250);
+  color: oklch(0.55 0.012 25);
   text-align: center;
   margin-bottom: 1.25rem;
 }
@@ -1604,21 +1604,21 @@ h1, .text-title {
   font-weight: 600;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  background: linear-gradient(180deg, oklch(0.68 0.024 250) 0%, oklch(0.52 0.022 250) 100%);
+  background: linear-gradient(180deg, oklch(0.68 0.024 25) 0%, oklch(0.52 0.022 25) 100%);
   color: oklch(0.12 0 0);
-  border: 2px solid oklch(0.72 0.021 250);
+  border: 2px solid oklch(0.72 0.021 25);
   border-radius: 8px;
   cursor: pointer;
   transition: all 0.2s ease;
   box-shadow:
-    0 6px 20px oklch(0.55 0.022 250 / 0.4),
+    0 6px 20px oklch(0.55 0.022 25 / 0.4),
     inset 0 1px 0 oklch(1 0 0 / 0.3);
   text-shadow: 0 1px 0 oklch(1 0 0 / 0.25);
 }
 
 .action-btn-primary:hover {
-  background: linear-gradient(180deg, oklch(0.75 0.027 250) 0%, oklch(0.58 0.026 250) 100%);
-  box-shadow: 0 8px 28px oklch(0.60 0.027 250 / 0.5);
+  background: linear-gradient(180deg, oklch(0.75 0.027 25) 0%, oklch(0.58 0.026 25) 100%);
+  box-shadow: 0 8px 28px oklch(0.60 0.027 25 / 0.5);
   transform: translateY(-2px);
 }
 
@@ -1699,7 +1699,7 @@ h1, .text-title {
       0 0 60px oklch(0.7 0.3 200 / 0.6),
       0 0 120px oklch(0.6 0.25 280 / 0.4),
       0 0 180px oklch(0.5 0.2 320 / 0.3),
-      0 0 240px oklch(0.4 0.022 250 / 0.2),
+      0 0 240px oklch(0.4 0.022 25 / 0.2),
       inset 0 0 30px oklch(0.8 0.15 200 / 0.2);
   }
   50% {
@@ -1707,7 +1707,7 @@ h1, .text-title {
       0 0 80px oklch(0.75 0.35 200 / 0.7),
       0 0 150px oklch(0.65 0.3 280 / 0.5),
       0 0 220px oklch(0.55 0.25 320 / 0.35),
-      0 0 300px oklch(0.45 0.03 250 / 0.25),
+      0 0 300px oklch(0.45 0.03 25 / 0.25),
       inset 0 0 40px oklch(0.9 0.2 200 / 0.25);
   }
 }
@@ -1715,13 +1715,13 @@ h1, .text-title {
 @keyframes treasure-gleam {
   0%, 100% {
     box-shadow:
-      0 0 30px oklch(0.60 0.027 250 / 0.3),
-      0 0 60px oklch(0.50 0.022 250 / 0.2);
+      0 0 30px oklch(0.60 0.027 25 / 0.3),
+      0 0 60px oklch(0.50 0.022 25 / 0.2);
   }
   50% {
     box-shadow:
-      0 0 50px oklch(0.70 0.033 250 / 0.4),
-      0 0 100px oklch(0.55 0.027 250 / 0.25);
+      0 0 50px oklch(0.70 0.033 25 / 0.4),
+      0 0 100px oklch(0.55 0.027 25 / 0.25);
   }
 }
 
