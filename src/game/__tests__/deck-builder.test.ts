@@ -188,6 +188,46 @@ describe('deck-builder', () => {
       const result = hooks[0].apply([], {} as any)
       expect(result.bonuses).toContain('eg_guard')
     })
+
+    it('returns hooks for shadow dungeon', () => {
+      const hooks = getDungeonDeckHooks('shadow')
+      expect(hooks.length).toBe(1)
+      expect(hooks[0].id).toBe('dungeon_shadow_stealth')
+      expect(hooks[0].phase).toBe('bonus')
+    })
+
+    it('returns hooks for celestial dungeon', () => {
+      const hooks = getDungeonDeckHooks('celestial')
+      expect(hooks.length).toBe(1)
+      expect(hooks[0].id).toBe('dungeon_celestial_insight')
+      expect(hooks[0].phase).toBe('bonus')
+    })
+
+    it('returns hooks for abyss dungeon', () => {
+      const hooks = getDungeonDeckHooks('abyss')
+      expect(hooks.length).toBe(1)
+      expect(hooks[0].id).toBe('dungeon_abyss_power')
+      expect(hooks[0].phase).toBe('bonus')
+    })
+
+    it('shadow hook adds tactical_retreat', () => {
+      const hooks = getDungeonDeckHooks('shadow')
+      const result = hooks[0].apply([], {} as any)
+      expect(result.bonuses).toContain('eg_tactical_retreat')
+    })
+
+    it('celestial hook adds concentrate', () => {
+      const hooks = getDungeonDeckHooks('celestial')
+      const result = hooks[0].apply([], {} as any)
+      expect(result.bonuses).toContain('eg_concentrate')
+    })
+
+    it('abyss hook adds multiple bonus cards', () => {
+      const hooks = getDungeonDeckHooks('abyss')
+      const result = hooks[0].apply([], {} as any)
+      expect(result.bonuses).toContain('eg_pierce')
+      expect(result.bonuses).toContain('eg_twin_slash')
+    })
   })
 
   describe('deck building with dungeon hooks', () => {
