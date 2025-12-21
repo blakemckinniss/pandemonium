@@ -81,11 +81,14 @@ export function HeroCarousel({
           <Icon icon="mdi:chevron-left" width={24} />
         </button>
 
-        {/* Hero Container - outer wrapper clips, inner has glow space */}
+        {/* Hero Container - clip horizontally only, allow vertical glow escape */}
         <div
           ref={containerRef}
-          className="w-full overflow-hidden"
-          style={{ padding: `${GLOW_SPACE}px 0` }}
+          className="w-full"
+          style={{
+            padding: `${GLOW_SPACE}px 0`,
+            clipPath: 'inset(-50px 0px -50px 0px)',
+          }}
         >
           {/* Sliding track */}
           <div

@@ -475,7 +475,7 @@ function PlayTab({
     }
   }
   return (
-    <div className="flex-1 flex flex-col items-center justify-start pt-12 px-8 pb-8 overflow-y-auto">
+    <div className="flex-1 flex flex-col items-center justify-start pt-12 px-8 pb-8 overflow-visible">
       {/* Hero Selection Carousel */}
       {availableHeroes.length > 0 && (
         <HeroCarousel
