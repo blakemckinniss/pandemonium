@@ -28,6 +28,7 @@ import { DeckAnalytics } from '../DeckAnalytics'
 import { CollectionStats } from '../CollectionStats'
 import { GachaReveal } from '../PackOpening'
 import { ModifierSelection } from '../ModifierSelection/ModifierSelection'
+import { HeroCarousel } from '../HeroCarousel/HeroCarousel'
 import { useMetaStore } from '../../stores/metaStore'
 
 type HubTab = 'play' | 'collection' | 'build' | 'packs'
@@ -474,40 +475,14 @@ function PlayTab({
     }
   }
   return (
-    <div className="flex-1 flex flex-col items-center justify-center p-8">
-      {/* Hero Selection */}
+    <div className="flex-1 flex flex-col items-center justify-start p-8 overflow-y-auto">
+      {/* Hero Selection Carousel */}
       {availableHeroes.length > 0 && (
-        <div className="mb-8">
-          <p className="section-header">Select Hero</p>
-          <div className="flex gap-4 flex-wrap justify-center max-w-3xl">
-            {availableHeroes.map((hero) => (
-              <div
-                key={hero.id}
-                onClick={() => setSelectedHeroId(hero.id)}
-                className="cursor-pointer transition-all duration-200 hover:opacity-100"
-                style={selectedHeroId === hero.id ? {
-                  filter: 'drop-shadow(0 0 12px rgba(255, 200, 100, 0.6))',
-                  transform: 'scale(1.05)',
-                } : {
-                  opacity: 0.75,
-                }}
-              >
-                <Card
-                  variant="hand"
-                  {...getCardDefProps(hero)}
-                />
-                {/* Hero stats below card */}
-                {hero.heroStats && (
-                  <div className="mt-2 text-center text-sm text-warm-400">
-                    <span className="text-heal">{hero.heroStats.health} HP</span>
-                    <span className="mx-2">·</span>
-                    <span className="text-energy">{hero.heroStats.energy} Energy</span>
-                  </div>
-                )}
-              </div>
-            ))}
-          </div>
-        </div>
+        <HeroCarousel
+          heroes={availableHeroes}
+          selectedHeroId={selectedHeroId}
+          onSelectHero={setSelectedHeroId}
+        />
       )}
 
       {/* Deck Selection */}
