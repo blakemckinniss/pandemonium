@@ -101,13 +101,16 @@ export function DungeonCompleteScreen({
         <div className={`transition-all duration-500 ${animationPhase >= 1 ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
           <div className="flex items-center gap-3 mb-2">
             <Icon icon="game-icons:laurel-crown" className="w-12 h-12 text-energy" />
-            <h1 className="text-5xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-energy via-heal to-energy">
-              Dungeon Cleared!
+            <h1 className="text-5xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-element-void via-heal to-element-void">
+              Total Domination
             </h1>
             <Icon icon="game-icons:laurel-crown" className="w-12 h-12 text-energy transform scale-x-[-1]" />
           </div>
-          <p className="text-center text-warm-400 text-lg">
-            You conquered all {totalFloors} floors
+          <p className="text-center text-element-void text-lg italic mb-1">
+            Every creature fell to your irresistible charm
+          </p>
+          <p className="text-center text-warm-400">
+            All {totalFloors} floors seduced
           </p>
         </div>
 

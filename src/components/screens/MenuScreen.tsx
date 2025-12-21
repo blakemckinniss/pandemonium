@@ -29,6 +29,7 @@ import { CollectionStats } from '../CollectionStats'
 import { GachaReveal } from '../PackOpening'
 import { ModifierSelection } from '../ModifierSelection/ModifierSelection'
 import { HeroCarousel } from '../HeroCarousel/HeroCarousel'
+import { GalleryScreen } from './GalleryScreen'
 import { useMetaStore } from '../../stores/metaStore'
 
 type HubTab = 'play' | 'collection' | 'build' | 'packs'
@@ -50,6 +51,7 @@ interface MenuScreenProps {
 export function MenuScreen({ onStartRun }: MenuScreenProps) {
   // Tab state
   const [activeTab, setActiveTab] = useState<HubTab>('play')
+  const [showGallery, setShowGallery] = useState(false)
 
   // Play tab state
   const [customDecks, setCustomDecks] = useState<CustomDeckRecord[]>([])
@@ -256,19 +258,29 @@ export function MenuScreen({ onStartRun }: MenuScreenProps) {
       <header className="menu-header">
         <div className="flex items-center justify-between px-6 py-4">
           <h1 className="menu-title">Pandemonium</h1>
-          <div className="flex gap-3">
-            <span className="stat-badge">
-              <Icon icon="mdi:counter" className="text-accent-ember" />
-              Runs: {stats.totalRuns}
-            </span>
-            <span className="stat-badge">
-              <Icon icon="mdi:trophy" className="text-gold" />
-              Wins: {stats.totalWins}
-            </span>
-            <span className="stat-badge">
-              <Icon icon="mdi:stairs" className="text-accent-warm" />
-              Best: Floor {stats.bestFloor}
-            </span>
+          <div className="flex items-center gap-4">
+            <div className="flex gap-3">
+              <span className="stat-badge">
+                <Icon icon="mdi:counter" className="text-accent-ember" />
+                Runs: {stats.totalRuns}
+              </span>
+              <span className="stat-badge">
+                <Icon icon="mdi:trophy" className="text-gold" />
+                Wins: {stats.totalWins}
+              </span>
+              <span className="stat-badge">
+                <Icon icon="mdi:stairs" className="text-accent-warm" />
+                Best: Floor {stats.bestFloor}
+              </span>
+            </div>
+            <button
+              onClick={() => setShowGallery(true)}
+              className="flex items-center gap-2 px-4 py-2 rounded-lg bg-pink-500/20 border border-pink-500/40 text-pink-300 hover:bg-pink-500/30 hover:border-pink-500/60 transition-all"
+              title="Character Gallery"
+            >
+              <Icon icon="game-icons:love-howl" className="w-5 h-5" />
+              Gallery
+            </button>
           </div>
         </div>
 
@@ -390,6 +402,11 @@ export function MenuScreen({ onStartRun }: MenuScreenProps) {
           onClose={() => setSelectedCard(null)}
           onAddToDeck={() => { handleAddCard(selectedCard.id); setActiveTab('build') }}
         />
+      )}
+
+      {/* Character Gallery */}
+      {showGallery && (
+        <GalleryScreen onBack={() => setShowGallery(false)} />
       )}
     </div>
   )

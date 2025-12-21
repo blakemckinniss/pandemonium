@@ -254,3 +254,21 @@ export type {
 } from './run-lock'
 
 export { DEFAULT_RUN_PROGRESS } from './run-lock'
+
+// Affection & Outfits
+export type {
+  AffectionLevel,
+  HeroAffection,
+  OutfitRarity,
+  OutfitDefinition,
+  GalleryPose,
+  HeroGalleryState,
+} from './affection'
+
+export {
+  AFFECTION_LEVELS,
+  getAffectionLevel,
+  getAffectionProgress,
+  calculateAffectionGain,
+  createDefaultAffection,
+} from './affection'

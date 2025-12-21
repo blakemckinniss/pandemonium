@@ -5,6 +5,12 @@ import type {
   HeatState,
   OwnedModifier,
   ModifierDefinition,
+  HeroAffection,
+} from '../types'
+import {
+  createDefaultAffection,
+  getAffectionLevel,
+  calculateAffectionGain,
 } from '../types'
 import {
   DEFAULT_STREAK_STATE,
@@ -47,6 +53,11 @@ interface MetaState {
   // Modifier Definitions (AI-generated, cached)
   modifierDefinitions: ModifierDefinition[]
 
+  // Affection & Outfits
+  heroAffection: Record<string, HeroAffection>
+  unlockedOutfits: Record<string, string[]>
+  equippedOutfits: Record<string, string>
+
   // Actions - Unlocks
   unlockCard: (cardId: string) => void
   unlockHero: (heroId: string) => void
@@ -78,6 +89,17 @@ interface MetaState {
   addModifierDefinition: (definition: ModifierDefinition) => void
   getModifierDefinition: (id: string) => ModifierDefinition | undefined
 
+  // Actions - Affection
+  addAffection: (heroId: string, points: number) => void
+  recordHeroRun: (heroId: string, won: boolean, floorsCleared: number, enemiesKilled: number) => void
+  getHeroAffection: (heroId: string) => HeroAffection
+
+  // Actions - Outfits
+  unlockOutfit: (heroId: string, outfitId: string) => void
+  equipOutfit: (heroId: string, outfitId: string) => void
+  isOutfitUnlocked: (heroId: string, outfitId: string) => boolean
+  getEquippedOutfit: (heroId: string) => string
+
   // Reset
   reset: () => void
 }
@@ -102,6 +124,18 @@ const initialState = {
   heat: { ...DEFAULT_HEAT_STATE },
   ownedModifiers: [] as OwnedModifier[],
   modifierDefinitions: [] as ModifierDefinition[],
+  // Affection & Outfits
+  heroAffection: {} as Record<string, HeroAffection>,
+  unlockedOutfits: {
+    sakura: ['default'],
+    luna: ['default'],
+    aria: ['default'],
+  } as Record<string, string[]>,
+  equippedOutfits: {
+    sakura: 'default',
+    luna: 'default',
+    aria: 'default',
+  } as Record<string, string>,
 }
 
 export const useMetaStore = create<MetaState>()(
@@ -257,6 +291,81 @@ export const useMetaStore = create<MetaState>()(
 
       getModifierDefinition: (id) =>
         get().modifierDefinitions.find((d) => d.id === id),
+
+      // Affection Actions
+      addAffection: (heroId, points) =>
+        set((state) => {
+          const current = state.heroAffection[heroId] ?? createDefaultAffection(heroId)
+          const newPoints = current.points + points
+          return {
+            heroAffection: {
+              ...state.heroAffection,
+              [heroId]: {
+                ...current,
+                points: newPoints,
+                level: getAffectionLevel(newPoints),
+              },
+            },
+          }
+        }),
+
+      recordHeroRun: (heroId, won, floorsCleared, enemiesKilled) =>
+        set((state) => {
+          const current = state.heroAffection[heroId] ?? createDefaultAffection(heroId)
+          const affectionGain = calculateAffectionGain({ won, floorsCleared, enemiesKilled })
+          const newPoints = current.points + affectionGain
+          return {
+            heroAffection: {
+              ...state.heroAffection,
+              [heroId]: {
+                ...current,
+                points: newPoints,
+                level: getAffectionLevel(newPoints),
+                runsCompleted: current.runsCompleted + 1,
+                winsWithHero: won ? current.winsWithHero + 1 : current.winsWithHero,
+              },
+            },
+          }
+        }),
+
+      getHeroAffection: (heroId) => {
+        const state = get()
+        return state.heroAffection[heroId] ?? createDefaultAffection(heroId)
+      },
+
+      // Outfit Actions
+      unlockOutfit: (heroId, outfitId) =>
+        set((state) => {
+          const current = state.unlockedOutfits[heroId] ?? ['default']
+          if (current.includes(outfitId)) return state
+          return {
+            unlockedOutfits: {
+              ...state.unlockedOutfits,
+              [heroId]: [...current, outfitId],
+            },
+          }
+        }),
+
+      equipOutfit: (heroId, outfitId) =>
+        set((state) => {
+          const unlocked = state.unlockedOutfits[heroId] ?? ['default']
+          if (!unlocked.includes(outfitId)) return state
+          return {
+            equippedOutfits: {
+              ...state.equippedOutfits,
+              [heroId]: outfitId,
+            },
+          }
+        }),
+
+      isOutfitUnlocked: (heroId, outfitId) => {
+        const unlocked = get().unlockedOutfits[heroId] ?? ['default']
+        return unlocked.includes(outfitId)
+      },
+
+      getEquippedOutfit: (heroId) => {
+        return get().equippedOutfits[heroId] ?? 'default'
+      },
 
       reset: () => set(initialState),
     }),

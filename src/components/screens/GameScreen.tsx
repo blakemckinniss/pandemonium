@@ -977,8 +977,9 @@ export function GameScreen({ deckId, heroId, dungeonDeckId, selectedModifierIds,
       {isVictory && (
         <div ref={victoryRef} className="absolute inset-0 bg-black/80 flex items-center justify-center z-40">
           <div className="text-center">
-            <h2 className="text-5xl font-bold mb-4 text-heal">Victory!</h2>
-            <p className="text-warm-400">Proceeding to rewards...</p>
+            <h2 className="text-5xl font-bold mb-2 text-heal">Conquered!</h2>
+            <p className="text-element-void italic mb-2">Another heart falls to your charms</p>
+            <p className="text-warm-400">Claiming your rewards...</p>
           </div>
         </div>
       )}
@@ -986,19 +987,20 @@ export function GameScreen({ deckId, heroId, dungeonDeckId, selectedModifierIds,
       {isDefeat && (
         <div ref={defeatRef} className="absolute inset-0 bg-black/80 flex items-center justify-center z-40">
           <div className="text-center">
-            <h2 className="text-5xl font-bold mb-6 text-damage">Defeat</h2>
+            <h2 className="text-5xl font-bold mb-2 text-damage">Overwhelmed...</h2>
+            <p className="text-lg text-element-void italic mb-6">Your allure wasn't enough this time</p>
             <div className="defeat-content">
-              <p className="text-warm-400 mb-2">You reached floor {state.floor}</p>
+              <p className="text-warm-400 mb-2">You seduced your way to floor {state.floor}</p>
               <div className="text-sm text-warm-500 mb-6 space-y-1">
-                <p>Enemies Slain: {state.stats.enemiesKilled}</p>
-                <p>Damage Dealt: {state.stats.damageDealt}</p>
+                <p>Hearts Broken: {state.stats.enemiesKilled}</p>
+                <p>Passion Unleashed: {state.stats.damageDealt}</p>
                 <p>Cards Played: {state.stats.cardsPlayed}</p>
               </div>
               <button
                 onClick={() => void roomHandlers.handleRestart()}
-                className="px-8 py-3 bg-energy text-black font-bold rounded-lg text-lg hover:brightness-110 transition"
+                className="px-8 py-3 bg-element-void text-white font-bold rounded-lg text-lg hover:brightness-110 transition"
               >
-                Try Again
+                Seduce Again
               </button>
             </div>
           </div>

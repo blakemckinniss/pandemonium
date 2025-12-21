@@ -26,6 +26,7 @@ import { OFFENSIVE_POWERS } from './offensive'
 import { DEFENSIVE_POWERS } from './defensive'
 import { UTILITY_POWERS } from './utility'
 import { TURN_BASED_POWERS } from './turn-based'
+import { SEDUCTIVE_POWERS } from './seductive'
 import { ELEMENTAL_STATUS_POWERS } from '../elements'
 import { registerPower } from './registry'
 
@@ -51,6 +52,10 @@ for (const power of UTILITY_POWERS) {
 }
 
 for (const power of TURN_BASED_POWERS) {
+  registerPower(power)
+}
+
+for (const power of SEDUCTIVE_POWERS) {
   registerPower(power)
 }
 
