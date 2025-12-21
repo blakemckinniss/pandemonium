@@ -49,7 +49,7 @@ gsap.registerEffect({
   }) => {
     const tl = gsap.timeline()
     const direction = config.direction ?? 'right'
-    const color = config.color ?? 'oklch(0.15 0.02 250)'
+    const color = config.color ?? 'oklch(0.15 0.02 25)'
 
     // Create wipe overlay
     const wipe = document.createElement('div')

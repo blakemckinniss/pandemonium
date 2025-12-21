@@ -12,7 +12,7 @@ export function handleHeroAbilityEvents(event: VisualEvent, ctx: HandlerContext)
         emitParticle(playerEl, 'heroActivated')
         emitParticle(playerEl, 'energy')
         effects.pulse(playerEl, {
-          color: 'oklch(0.6 0.2 250)',
+          color: 'oklch(0.6 0.2 25)',
           scale: 1.05,
         })
       }

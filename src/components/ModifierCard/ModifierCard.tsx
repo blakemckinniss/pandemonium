@@ -78,7 +78,7 @@ export const ModifierCard = memo(function ModifierCard({
     if (isSelected) {
       gsap.to(cardRef.current, {
         scale: 1.05,
-        boxShadow: '0 0 20px oklch(0.7 0.15 250 / 0.5)',
+        boxShadow: '0 0 20px oklch(0.7 0.15 25 / 0.5)',
         duration: 0.2,
         ease: 'power2.out',
       })

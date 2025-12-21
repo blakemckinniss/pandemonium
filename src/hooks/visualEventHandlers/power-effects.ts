@@ -50,8 +50,8 @@ export function handlePowerEffectEvents(event: VisualEvent, ctx: HandlerContext)
           burn: 'oklch(0.6 0.2 40)',
           burning: 'oklch(0.6 0.2 40)',
           regen: 'oklch(0.6 0.18 145)',
-          metallicize: 'oklch(0.5 0.1 250)',
-          platedArmor: 'oklch(0.5 0.1 250)',
+          metallicize: 'oklch(0.5 0.1 35)',
+          platedArmor: 'oklch(0.5 0.1 35)',
         }
         const particleTypes: Record<string, 'thorns' | 'poison' | 'spark' | 'heal' | 'block'> = {
           thorns: 'thorns',

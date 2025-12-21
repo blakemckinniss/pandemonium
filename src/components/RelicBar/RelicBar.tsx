@@ -83,7 +83,7 @@ export function RelicBar({ relics, triggeredRelicId }: RelicBarProps) {
     const def = relic ? getRelicDefinition(relic.definitionId) : null
     const glowColor = def?.rarity === 'boss' ? 'oklch(0.7 0.2 25)'
       : def?.rarity === 'rare' ? 'oklch(0.8 0.18 85)'
-      : def?.rarity === 'uncommon' ? 'oklch(0.7 0.15 250)'
+      : def?.rarity === 'uncommon' ? 'oklch(0.7 0.15 25)'
       : 'oklch(0.7 0.1 55)'
 
     gsap.timeline()
