@@ -131,7 +131,7 @@ export const SEDUCTIVE_POWERS: PowerDefinition[] = [
     id: 'irresistible',
     name: 'Irresistible',
     description: 'Cards that apply Charm cost 1 less Energy.',
-    stackBehavior: 'replace',
+    stackBehavior: 'intensity',
     // Note: Energy reduction handled in card cost calculation
   },
   {

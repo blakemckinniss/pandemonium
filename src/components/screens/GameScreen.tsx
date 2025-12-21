@@ -525,6 +525,7 @@ export function GameScreen({ deckId, heroId, dungeonDeckId, selectedModifierIds,
     const store = useMetaStore.getState()
     const unlocks = checkUnlocks(runResult, store)
     store.recordRun(runResult)
+    store.recordHeroRun(runResult.heroId, runResult.won, runResult.floor, runResult.enemiesKilled)
 
     if (unlocks.length > 0) {
       setPendingUnlocks(unlocks)

@@ -6,7 +6,7 @@ import {
   AFFECTION_LEVELS,
   getAffectionProgress,
 } from '../../types'
-import type { HeroAffection, AffectionLevel } from '../../types'
+import type { AffectionLevel } from '../../types'
 
 interface GalleryScreenProps {
   onBack: () => void

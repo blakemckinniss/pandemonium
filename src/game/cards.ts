@@ -159,8 +159,8 @@ export function getEffectiveCardDef(card: CardInstance): CardDefinition | undefi
 // The validated registerCard() is for AI-generated cards that must have images
 registerCardUnsafe({
   id: 'strike',
-  name: 'Strike',
-  description: 'Deal 6 damage.',
+  name: 'Passionate Strike',
+  description: 'Lash out with fervent intensity. Deal 6 damage.',
   energy: 1,
   theme: 'attack',
   target: 'enemy',
@@ -168,16 +168,16 @@ registerCardUnsafe({
   element: 'physical',
   effects: [{ type: 'damage', amount: 6 }],
   upgradesTo: {
-    name: 'Strike+',
-    description: 'Deal 9 damage.',
+    name: 'Passionate Strike+',
+    description: 'An even fiercer blow. Deal 9 damage.',
     effects: [{ type: 'damage', amount: 9 }],
   },
 })
 
 registerCardUnsafe({
   id: 'defend',
-  name: 'Defend',
-  description: 'Gain 5 Block.',
+  name: 'Alluring Guard',
+  description: 'Deflect with graceful poise. Gain 5 Block.',
   energy: 1,
   theme: 'skill',
   target: 'self',
@@ -185,16 +185,16 @@ registerCardUnsafe({
   element: 'physical',
   effects: [{ type: 'block', amount: 5 }],
   upgradesTo: {
-    name: 'Defend+',
-    description: 'Gain 8 Block.',
+    name: 'Alluring Guard+',
+    description: 'An impenetrable stance. Gain 8 Block.',
     effects: [{ type: 'block', amount: 8 }],
   },
 })
 
 registerCardUnsafe({
   id: 'bash',
-  name: 'Bash',
-  description: 'Deal 8 damage. Apply 2 Vulnerable.',
+  name: 'Ravishing Blow',
+  description: 'A stunning strike that leaves them breathless. Deal 8 damage. Apply 2 Vulnerable.',
   energy: 2,
   theme: 'attack',
   target: 'enemy',
@@ -205,8 +205,8 @@ registerCardUnsafe({
     { type: 'applyPower', powerId: 'vulnerable', amount: 2 },
   ],
   upgradesTo: {
-    name: 'Bash+',
-    description: 'Deal 10 damage. Apply 3 Vulnerable.',
+    name: 'Ravishing Blow+',
+    description: 'Impossible to resist. Deal 10 damage. Apply 3 Vulnerable.',
     effects: [
       { type: 'damage', amount: 10 },
       { type: 'applyPower', powerId: 'vulnerable', amount: 3 },
@@ -222,7 +222,8 @@ registerCardUnsafe({
 registerCardUnsafe({
   id: 'hero_sakura',
   name: 'Sakura',
-  description: 'A fierce fire mage whose flames burn with passion and fury.',
+  description:
+    'A voluptuous fire mage with curves that rival her flames. Her revealing robes barely contain her ample assets as she commands infernal power.',
   energy: 0,
   theme: 'hero',
   target: 'none',
@@ -240,7 +241,7 @@ registerCardUnsafe({
     { type: 'applyPower', powerId: 'burning', amount: 2, target: 'allEnemies' },
   ],
   activated: {
-    description: 'Deal 10 fire damage. Apply 2 Burning.',
+    description: 'Ignite their desires. Deal 10 fire damage. Apply 2 Burning.',
     effects: [
       { type: 'damage', amount: 10, target: 'enemy', element: 'fire' },
       { type: 'applyPower', powerId: 'burning', amount: 2 },
@@ -248,7 +249,7 @@ registerCardUnsafe({
     energyCost: 2,
   },
   ultimate: {
-    description: 'Deal 30 fire damage to ALL enemies. Apply 5 Burning.',
+    description: 'Engulf them in passionate flames. Deal 30 fire damage to ALL. Apply 5 Burning.',
     effects: [
       { type: 'damage', amount: 30, target: 'allEnemies', element: 'fire' },
       { type: 'applyPower', powerId: 'burning', amount: 5, target: 'allEnemies' },
@@ -262,7 +263,8 @@ registerCardUnsafe({
 registerCardUnsafe({
   id: 'hero_luna',
   name: 'Luna',
-  description: 'A graceful ice sorceress who freezes foes with elegant precision.',
+  description:
+    'An elegant ice sorceress whose pale skin and generous figure are barely concealed by shimmering frost. Her cold beauty freezes hearts and foes alike.',
   energy: 0,
   theme: 'hero',
   target: 'none',
@@ -280,7 +282,7 @@ registerCardUnsafe({
     { type: 'block', amount: 8, target: 'self' },
   ],
   activated: {
-    description: 'Gain 12 Block. Apply 1 Frozen to an enemy.',
+    description: 'Encase yourself in frigid allure. Gain 12 Block. Apply 1 Frozen.',
     effects: [
       { type: 'block', amount: 12, target: 'self' },
       { type: 'applyPower', powerId: 'frozen', amount: 1 },
@@ -288,7 +290,7 @@ registerCardUnsafe({
     energyCost: 2,
   },
   ultimate: {
-    description: 'Gain 25 Block. Apply 3 Frozen to ALL enemies.',
+    description: 'Flash freeze with icy perfection. Gain 25 Block. Apply 3 Frozen to ALL.',
     effects: [
       { type: 'block', amount: 25, target: 'self' },
       { type: 'applyPower', powerId: 'frozen', amount: 3, target: 'allEnemies' },
@@ -302,7 +304,8 @@ registerCardUnsafe({
 registerCardUnsafe({
   id: 'hero_aria',
   name: 'Aria',
-  description: 'A lightning warrior who strikes with blinding speed and electric fury.',
+  description:
+    'A lithe storm knight whose tight bodysuit accentuates every curve. Electric energy crackles across her exposed skin as she moves with deadly grace.',
   energy: 0,
   theme: 'hero',
   target: 'none',
@@ -320,7 +323,7 @@ registerCardUnsafe({
     { type: 'draw', amount: 1 },
   ],
   activated: {
-    description: 'Deal 6 lightning damage twice.',
+    description: 'Strike with electrifying speed. Deal 6 lightning damage twice.',
     effects: [
       { type: 'damage', amount: 6, target: 'enemy', element: 'lightning' },
       { type: 'damage', amount: 6, target: 'enemy', element: 'lightning' },
@@ -328,7 +331,7 @@ registerCardUnsafe({
     energyCost: 1,
   },
   ultimate: {
-    description: 'Deal 15 lightning damage to ALL enemies 3 times.',
+    description: 'Unleash a storm of ecstasy. Deal 15 lightning damage to ALL enemies 3 times.',
     effects: [
       { type: 'damage', amount: 15, target: 'allEnemies', element: 'lightning' },
       { type: 'damage', amount: 15, target: 'allEnemies', element: 'lightning' },
@@ -413,8 +416,8 @@ registerCardUnsafe({
 
 registerCardUnsafe({
   id: 'inflame',
-  name: 'Inflame',
-  description: 'Gain 2 Strength.',
+  name: 'Burning Desire',
+  description: 'Stoke the flames of passion within. Gain 2 Strength.',
   energy: 1,
   theme: 'power',
   target: 'self',
@@ -425,8 +428,8 @@ registerCardUnsafe({
 
 registerCardUnsafe({
   id: 'demon_form',
-  name: 'Demon Form',
-  description: 'At the start of each turn, gain 2 Strength.',
+  name: 'Succubus Form',
+  description: 'Embrace your inner demon. At the start of each turn, gain 2 Strength.',
   energy: 3,
   theme: 'power',
   target: 'self',
@@ -437,8 +440,8 @@ registerCardUnsafe({
 
 registerCardUnsafe({
   id: 'metallicize',
-  name: 'Metallicize',
-  description: 'At the end of your turn, gain 3 Block.',
+  name: 'Armored Allure',
+  description: 'Clad yourself in irresistible protection. At the end of your turn, gain 3 Block.',
   energy: 1,
   theme: 'power',
   target: 'self',
@@ -449,8 +452,8 @@ registerCardUnsafe({
 
 registerCardUnsafe({
   id: 'noxious_fumes',
-  name: 'Noxious Fumes',
-  description: 'At the start of your turn, apply 2 Poison to ALL enemies.',
+  name: 'Intoxicating Mist',
+  description: 'Release an irresistible aroma. At the start of your turn, apply 2 Poison to ALL.',
   energy: 1,
   theme: 'power',
   target: 'self',
@@ -463,8 +466,8 @@ registerCardUnsafe({
 
 registerCardUnsafe({
   id: 'pommel_strike',
-  name: 'Pommel Strike',
-  description: 'Deal 9 damage. Draw 1 card.',
+  name: "Lover's Blow",
+  description: 'A teasing strike that leaves them wanting more. Deal 9 damage. Draw 1 card.',
   energy: 1,
   theme: 'attack',
   target: 'enemy',
@@ -478,8 +481,8 @@ registerCardUnsafe({
 
 registerCardUnsafe({
   id: 'cleave',
-  name: 'Cleave',
-  description: 'Deal 8 damage to ALL enemies.',
+  name: 'Sweeping Caress',
+  description: 'Touch them all at once. Deal 8 damage to ALL enemies.',
   energy: 1,
   theme: 'attack',
   target: 'allEnemies',
@@ -490,8 +493,8 @@ registerCardUnsafe({
 
 registerCardUnsafe({
   id: 'twin_strike',
-  name: 'Twin Strike',
-  description: 'Deal 5 damage twice.',
+  name: 'Double Tease',
+  description: 'Two quick strikes that leave them flustered. Deal 5 damage twice.',
   energy: 1,
   theme: 'attack',
   target: 'enemy',
@@ -505,8 +508,8 @@ registerCardUnsafe({
 
 registerCardUnsafe({
   id: 'heavy_blade',
-  name: 'Heavy Blade',
-  description: 'Deal 14 damage.',
+  name: 'Crushing Embrace',
+  description: 'Overwhelm them with your full force. Deal 14 damage.',
   energy: 2,
   theme: 'attack',
   target: 'enemy',
@@ -517,8 +520,8 @@ registerCardUnsafe({
 
 registerCardUnsafe({
   id: 'fireball',
-  name: 'Fireball',
-  description: 'Deal 12 damage. Apply 3 Burning.',
+  name: 'Blazing Passion',
+  description: 'Unleash smoldering desire. Deal 12 damage. Apply 3 Burning.',
   energy: 2,
   theme: 'attack',
   target: 'enemy',
@@ -532,8 +535,8 @@ registerCardUnsafe({
 
 registerCardUnsafe({
   id: 'frost_bolt',
-  name: 'Frost Bolt',
-  description: 'Deal 8 damage. Apply 2 Frozen.',
+  name: 'Icy Kiss',
+  description: 'A chilling touch that numbs the senses. Deal 8 damage. Apply 2 Frozen.',
   energy: 1,
   theme: 'attack',
   target: 'enemy',
@@ -547,8 +550,8 @@ registerCardUnsafe({
 
 registerCardUnsafe({
   id: 'lightning_strike',
-  name: 'Lightning Strike',
-  description: 'Deal 7 damage to a random enemy 3 times.',
+  name: 'Electric Touch',
+  description: 'Send shivers through their body. Deal 7 damage 3 times.',
   energy: 2,
   theme: 'attack',
   target: 'enemy',
@@ -563,8 +566,8 @@ registerCardUnsafe({
 
 registerCardUnsafe({
   id: 'void_rend',
-  name: 'Void Rend',
-  description: 'Deal 10 damage. Apply 3 Weak.',
+  name: 'Dark Seduction',
+  description: 'Drain their will to resist. Deal 10 damage. Apply 3 Weak.',
   energy: 2,
   theme: 'attack',
   target: 'enemy',
@@ -580,8 +583,8 @@ registerCardUnsafe({
 
 registerCardUnsafe({
   id: 'shrug_it_off',
-  name: 'Shrug It Off',
-  description: 'Gain 8 Block. Draw 1 card.',
+  name: 'Playful Dodge',
+  description: 'Dance away with a teasing smile. Gain 8 Block. Draw 1 card.',
   energy: 1,
   theme: 'skill',
   target: 'self',
@@ -595,8 +598,8 @@ registerCardUnsafe({
 
 registerCardUnsafe({
   id: 'armaments',
-  name: 'Armaments',
-  description: 'Gain 5 Block. Upgrade a card in your hand.',
+  name: 'Battle Lingerie',
+  description: 'Enhance your outfit for combat. Gain 5 Block. Upgrade a card in your hand.',
   energy: 1,
   theme: 'skill',
   target: 'self',
@@ -610,8 +613,8 @@ registerCardUnsafe({
 
 registerCardUnsafe({
   id: 'true_grit',
-  name: 'True Grit',
-  description: 'Gain 7 Block. Exhaust a card in your hand.',
+  name: 'Steely Resolve',
+  description: 'Harden your heart. Gain 7 Block. Exhaust a card in your hand.',
   energy: 1,
   theme: 'skill',
   target: 'self',
@@ -625,8 +628,8 @@ registerCardUnsafe({
 
 registerCardUnsafe({
   id: 'ice_barrier',
-  name: 'Ice Barrier',
-  description: 'Gain 12 Block. Apply 1 Frozen to yourself.',
+  name: 'Frigid Refusal',
+  description: 'Become untouchable. Gain 12 Block. Apply 1 Frozen to yourself.',
   energy: 2,
   theme: 'skill',
   target: 'self',
@@ -640,8 +643,8 @@ registerCardUnsafe({
 
 registerCardUnsafe({
   id: 'second_wind',
-  name: 'Second Wind',
-  description: 'Gain 12 Block. Exhaust a card in your hand.',
+  name: 'Breathless Recovery',
+  description: 'Catch your breath after exertion. Gain 12 Block. Exhaust a card.',
   energy: 1,
   theme: 'skill',
   target: 'self',
@@ -655,8 +658,8 @@ registerCardUnsafe({
 
 registerCardUnsafe({
   id: 'bloodletting',
-  name: 'Bloodletting',
-  description: 'Lose 3 HP. Gain 2 Energy.',
+  name: 'Crimson Sacrifice',
+  description: 'Offer your essence for power. Lose 3 HP. Gain 2 Energy.',
   energy: 0,
   theme: 'skill',
   target: 'self',
@@ -670,8 +673,8 @@ registerCardUnsafe({
 
 registerCardUnsafe({
   id: 'battle_trance',
-  name: 'Battle Trance',
-  description: 'Draw 3 cards. You cannot draw additional cards this turn.',
+  name: 'Hypnotic Focus',
+  description: 'Enter a mesmerizing state. Draw 3 cards. Cannot draw more this turn.',
   energy: 0,
   theme: 'skill',
   target: 'self',
@@ -691,8 +694,8 @@ registerCardUnsafe({
 
 registerCardUnsafe({
   id: 'phoenix_rebirth',
-  name: 'Phoenix Rebirth',
-  description: 'Deal 15 damage. Apply 5 Burning. Heal 8 HP.',
+  name: 'Passionate Resurrection',
+  description: 'Rise from the flames of desire. Deal 15 damage. Apply 5 Burning. Heal 8 HP.',
   energy: 3,
   theme: 'attack',
   target: 'enemy',
@@ -707,8 +710,8 @@ registerCardUnsafe({
 
 registerCardUnsafe({
   id: 'glacial_fortress',
-  name: 'Glacial Fortress',
-  description: 'Gain 25 Block. Apply 3 Frozen to ALL enemies.',
+  name: 'Frigid Dominion',
+  description: 'Become an untouchable ice queen. Gain 25 Block. Apply 3 Frozen to ALL enemies.',
   energy: 3,
   theme: 'skill',
   target: 'self',
@@ -722,8 +725,8 @@ registerCardUnsafe({
 
 registerCardUnsafe({
   id: 'storm_avatar',
-  name: 'Storm Avatar',
-  description: 'Gain 3 Strength. Deal 24 damage to ALL enemies.',
+  name: 'Tempest Goddess',
+  description: 'Awaken divine fury within. Gain 3 Strength. Deal 24 damage to ALL enemies.',
   energy: 4,
   theme: 'attack',
   target: 'allEnemies',
@@ -737,8 +740,8 @@ registerCardUnsafe({
 
 registerCardUnsafe({
   id: 'void_embrace',
-  name: 'Void Embrace',
-  description: 'Draw 5 cards. Apply 5 Vulnerable to an enemy.',
+  name: 'Abyssal Surrender',
+  description: 'Let the darkness take you. Draw 5 cards. Apply 5 Vulnerable to an enemy.',
   energy: 2,
   theme: 'skill',
   target: 'enemy',
@@ -752,8 +755,8 @@ registerCardUnsafe({
 
 registerCardUnsafe({
   id: 'primordial_inferno',
-  name: 'Primordial Inferno',
-  description: 'Deal 50 damage. Apply 10 Burning.',
+  name: 'Eternal Flame of Desire',
+  description: 'Unleash the primal fire within your soul. Deal 50 damage. Apply 10 Burning.',
   energy: 5,
   theme: 'attack',
   target: 'enemy',
@@ -767,8 +770,8 @@ registerCardUnsafe({
 
 registerCardUnsafe({
   id: 'cosmic_singularity',
-  name: 'Cosmic Singularity',
-  description: 'Deal 99 damage to an enemy.',
+  name: "Oblivion's Kiss",
+  description: 'The final embrace of the void consumes all. Deal 99 damage to an enemy.',
   energy: 6,
   theme: 'attack',
   target: 'enemy',
@@ -784,8 +787,8 @@ registerCardUnsafe({
 
 registerCardUnsafe({
   id: 'boss_necromancer',
-  name: 'Shadow Lord',
-  description: 'Master of death and darkness.',
+  name: 'Necromancer Temptress',
+  description: 'Seductive mistress of death who binds souls with dark desire.',
   theme: 'enemy',
   element: 'void',
   energy: 0,
@@ -853,4 +856,175 @@ registerCardUnsafe({
       { type: 'applyPower', powerId: 'frail', amount: 5, target: 'player' },
     ],
   },
+})
+
+// ============================================
+// SEDUCTIVE CARDS
+// Charm/seduce themed cards using erotic powers
+// ============================================
+
+registerCardUnsafe({
+  id: 'sultry_gaze',
+  name: 'Sultry Gaze',
+  description: 'Your eyes bewitch them. Apply 2 Charmed.',
+  energy: 1,
+  theme: 'skill',
+  target: 'enemy',
+  rarity: 'common',
+  element: 'void',
+  effects: [{ type: 'applyPower', powerId: 'charmed', amount: 2 }],
+})
+
+registerCardUnsafe({
+  id: 'seductive_whisper',
+  name: 'Seductive Whisper',
+  description: 'Whisper sweet nothings. Apply 2 Flustered. Draw 1 card.',
+  energy: 1,
+  theme: 'skill',
+  target: 'enemy',
+  rarity: 'common',
+  element: 'void',
+  effects: [
+    { type: 'applyPower', powerId: 'flustered', amount: 2 },
+    { type: 'draw', amount: 1 },
+  ],
+})
+
+registerCardUnsafe({
+  id: 'bedroom_eyes',
+  name: 'Bedroom Eyes',
+  description: 'They cannot resist. Apply 3 Enthralled.',
+  energy: 2,
+  theme: 'skill',
+  target: 'enemy',
+  rarity: 'uncommon',
+  element: 'void',
+  effects: [{ type: 'applyPower', powerId: 'enthralled', amount: 3 }],
+})
+
+registerCardUnsafe({
+  id: 'heartbreaker_strike',
+  name: 'Heartbreaker',
+  description: 'Break their heart. Deal 8 damage. Apply 1 Lovestruck.',
+  energy: 1,
+  theme: 'attack',
+  target: 'enemy',
+  rarity: 'uncommon',
+  element: 'void',
+  effects: [
+    { type: 'damage', amount: 8 },
+    { type: 'applyPower', powerId: 'lovestruck', amount: 1 },
+  ],
+})
+
+registerCardUnsafe({
+  id: 'captivating_dance',
+  name: 'Captivating Dance',
+  description: 'Your sensual movements mesmerize. Apply 1 Seduced to ALL enemies.',
+  energy: 2,
+  theme: 'skill',
+  target: 'allEnemies',
+  rarity: 'rare',
+  element: 'void',
+  effects: [{ type: 'applyPower', powerId: 'seduced', amount: 1 }],
+})
+
+registerCardUnsafe({
+  id: 'femme_fatale',
+  name: 'Femme Fatale',
+  description: 'Deadly allure. Gain 2 Allure. Gain 2 Seductress.',
+  energy: 2,
+  theme: 'power',
+  target: 'self',
+  rarity: 'rare',
+  element: 'void',
+  effects: [
+    { type: 'applyPower', powerId: 'allure', amount: 2, target: 'self' },
+    { type: 'applyPower', powerId: 'seductress', amount: 2, target: 'self' },
+  ],
+})
+
+registerCardUnsafe({
+  id: 'irresistible_charm',
+  name: 'Irresistible Charm',
+  description: 'None can resist your beauty. Gain Irresistible. Charm cards cost 1 less.',
+  energy: 1,
+  theme: 'power',
+  target: 'self',
+  rarity: 'uncommon',
+  element: 'void',
+  effects: [{ type: 'applyPower', powerId: 'irresistible', amount: 1, target: 'self' }],
+})
+
+registerCardUnsafe({
+  id: 'aura_of_temptation',
+  name: 'Aura of Temptation',
+  description: 'Your presence intoxicates. Gain 1 Temptation. Each turn, charm a random enemy.',
+  energy: 2,
+  theme: 'power',
+  target: 'self',
+  rarity: 'rare',
+  element: 'void',
+  effects: [{ type: 'applyPower', powerId: 'temptation', amount: 1, target: 'self' }],
+})
+
+registerCardUnsafe({
+  id: 'dominating_presence',
+  name: 'Dominating Presence',
+  description: 'Assert your dominance. Gain 2 Domination. Charmed enemies take bonus damage.',
+  energy: 2,
+  theme: 'power',
+  target: 'self',
+  rarity: 'rare',
+  element: 'void',
+  effects: [{ type: 'applyPower', powerId: 'domination', amount: 2, target: 'self' }],
+})
+
+registerCardUnsafe({
+  id: 'passionate_kiss',
+  name: 'Passionate Kiss',
+  description: 'Steal their breath away. Deal 6 damage. Heal 4 HP.',
+  energy: 1,
+  theme: 'attack',
+  target: 'enemy',
+  rarity: 'common',
+  element: 'void',
+  effects: [
+    { type: 'damage', amount: 6 },
+    { type: 'heal', amount: 4, target: 'self' },
+  ],
+})
+
+registerCardUnsafe({
+  id: 'love_drunk',
+  name: 'Love Drunk',
+  description: 'They stumble in a daze. Deal 12 damage to Charmed enemies. Otherwise, apply 2 Charmed.',
+  energy: 2,
+  theme: 'attack',
+  target: 'enemy',
+  rarity: 'uncommon',
+  element: 'void',
+  effects: [
+    {
+      type: 'conditional',
+      condition: { type: 'hasPower', powerId: 'charmed', target: 'enemy' },
+      then: [{ type: 'damage', amount: 12 }],
+      else: [{ type: 'applyPower', powerId: 'charmed', amount: 2 }],
+    },
+  ],
+})
+
+registerCardUnsafe({
+  id: 'succubus_embrace',
+  name: 'Succubus Embrace',
+  description: 'Drain their very essence. Deal 15 damage. Heal equal to damage dealt.',
+  energy: 3,
+  theme: 'attack',
+  target: 'enemy',
+  rarity: 'legendary',
+  element: 'void',
+  effects: [
+    { type: 'damage', amount: 15 },
+    { type: 'heal', amount: 15, target: 'self' },
+  ],
 })
