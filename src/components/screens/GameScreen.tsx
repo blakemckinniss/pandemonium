@@ -21,6 +21,7 @@ import { CardPileModal, type PileType } from '../Modal/CardPileModal'
 import { CardSelectionModal } from '../Modal/CardSelectionModal'
 import { StatusSidebar } from '../StatusSidebar/StatusSidebar'
 import type { RunState, ModifierInstance } from '../../types'
+import { AFFECTION_LEVELS } from '../../types'
 import { generateUid } from '../../lib/utils'
 import { getCardDefinition } from '../../game/cards'
 import { createNewRun } from '../../game/new-game'
@@ -523,9 +524,18 @@ export function GameScreen({ deckId, heroId, dungeonDeckId, selectedModifierIds,
 
     // Record in meta store and check unlocks
     const store = useMetaStore.getState()
-    const unlocks = checkUnlocks(runResult, store)
+    let unlocks = checkUnlocks(runResult, store)
     store.recordRun(runResult)
+
+    // Track affection level-up
+    const oldAffection = store.getHeroAffection(runResult.heroId)
     store.recordHeroRun(runResult.heroId, runResult.won, runResult.floor, runResult.enemiesKilled)
+    const newAffection = useMetaStore.getState().getHeroAffection(runResult.heroId)
+
+    if (newAffection.level !== oldAffection.level) {
+      const levelLabel = AFFECTION_LEVELS[newAffection.level].label
+      unlocks = [...unlocks, `💕 ${runResult.heroId}: ${levelLabel}`]
+    }
 
     if (unlocks.length > 0) {
       setPendingUnlocks(unlocks)
