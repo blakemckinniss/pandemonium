@@ -38,13 +38,17 @@ export function buildDeck(context: DeckBuilderContext): DeckBuilderResult {
   const sortedHooks = sortHooksByPhase(allHooks)
 
   // Get the available evergreen pool based on unlocks
-  let pool = getAvailableEvergreenPool({
-    totalWins: 0, // TODO: Wire to meta state
-    currentStreak: 0,
-    clearedDungeons: [],
-    heroAffections: {},
-    achievements: [],
-  })
+  // If context provides unlocked IDs, use them; otherwise use base pool
+  let pool =
+    context.unlockedEvergreenIds.length > 0
+      ? context.unlockedEvergreenIds
+      : getAvailableEvergreenPool({
+          totalWins: 0,
+          currentStreak: 0,
+          clearedDungeons: [],
+          heroAffections: {},
+          achievements: [],
+        })
 
   // Inject carry slot cards (guaranteed in deck)
   const carrySlotCards = context.carrySlots.map((slot) => slot.cardId)

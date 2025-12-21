@@ -4,6 +4,9 @@ import type {
   DungeonDeckDefinition,
   OwnedDungeonDeck,
   ModifierDefinition,
+  EvergreenUnlockRecord,
+  CarrySlotRecord,
+  CarrySlotSource,
 } from '../types'
 
 // ============================================
@@ -119,7 +122,7 @@ export interface StreakHistoryRecord {
 // ============================================
 
 // Schema version - bump this and wipe DB on breaking changes
-const SCHEMA_VERSION = 3
+const SCHEMA_VERSION = 4
 
 class PandemoniumDB extends Dexie {
   runs!: EntityTable<RunRecord, 'id'>
@@ -131,6 +134,8 @@ class PandemoniumDB extends Dexie {
   modifiers!: EntityTable<ModifierRecord, 'id'>
   ownedModifiers!: EntityTable<OwnedModifierRecord, 'id'>
   streakHistory!: EntityTable<StreakHistoryRecord, 'id'>
+  evergreenUnlocks!: EntityTable<EvergreenUnlockRecord, 'id'>
+  carrySlots!: EntityTable<CarrySlotRecord, 'id'>
 
   constructor() {
     super('PandemoniumDB')
@@ -146,6 +151,8 @@ class PandemoniumDB extends Dexie {
       modifiers: '++id, &modifierId, generatedAt',
       ownedModifiers: '++id, &modifierId, source',
       streakHistory: '++id, brokenAt, streak',
+      evergreenUnlocks: '++id, &cardId, unlockedAt, unlockSource',
+      carrySlots: '++id, &slotIndex, cardId, source',
     })
   }
 }
@@ -616,4 +623,119 @@ export async function getBestStreak(): Promise<number> {
 
 export async function clearStreakHistory(): Promise<void> {
   await db.streakHistory.clear()
+}
+
+// ============================================
+// EVERGREEN UNLOCK FUNCTIONS
+// ============================================
+
+export async function unlockEvergreenCard(
+  cardId: string,
+  unlockSource: EvergreenUnlockRecord['unlockSource'],
+  unlockValue?: string
+): Promise<number> {
+  // Check if already unlocked
+  const existing = await db.evergreenUnlocks.where('cardId').equals(cardId).first()
+  if (existing) {
+    return existing.id!
+  }
+
+  const record: Omit<EvergreenUnlockRecord, 'id'> = {
+    cardId,
+    unlockedAt: new Date(),
+    unlockSource,
+    unlockValue,
+  }
+  const id = await db.evergreenUnlocks.add(record)
+  return id as number
+}
+
+export async function isEvergreenCardUnlocked(cardId: string): Promise<boolean> {
+  const record = await db.evergreenUnlocks.where('cardId').equals(cardId).first()
+  return !!record
+}
+
+export async function getUnlockedEvergreenCardIds(): Promise<string[]> {
+  const records = await db.evergreenUnlocks.toArray()
+  return records.map((r) => r.cardId)
+}
+
+export async function getEvergreenUnlocks(): Promise<EvergreenUnlockRecord[]> {
+  return db.evergreenUnlocks.orderBy('unlockedAt').reverse().toArray()
+}
+
+export async function getEvergreenUnlocksBySource(
+  source: EvergreenUnlockRecord['unlockSource']
+): Promise<EvergreenUnlockRecord[]> {
+  return db.evergreenUnlocks.where('unlockSource').equals(source).toArray()
+}
+
+export async function clearEvergreenUnlocks(): Promise<void> {
+  await db.evergreenUnlocks.clear()
+}
+
+// ============================================
+// CARRY SLOT FUNCTIONS
+// ============================================
+
+export async function setCarrySlot(
+  slotIndex: 0 | 1 | 2,
+  cardId: string,
+  source: CarrySlotSource,
+  isProtected: boolean = false
+): Promise<number> {
+  // Remove existing card in this slot if any
+  await db.carrySlots.where('slotIndex').equals(slotIndex).delete()
+
+  const record: Omit<CarrySlotRecord, 'id'> = {
+    slotIndex,
+    cardId,
+    protected: isProtected,
+    source,
+    acquiredAt: new Date(),
+  }
+  const id = await db.carrySlots.add(record)
+  return id as number
+}
+
+export async function getCarrySlot(slotIndex: 0 | 1 | 2): Promise<CarrySlotRecord | undefined> {
+  return db.carrySlots.where('slotIndex').equals(slotIndex).first()
+}
+
+export async function getAllCarrySlots(): Promise<CarrySlotRecord[]> {
+  return db.carrySlots.orderBy('slotIndex').toArray()
+}
+
+export async function clearCarrySlot(slotIndex: 0 | 1 | 2): Promise<boolean> {
+  const existing = await db.carrySlots.where('slotIndex').equals(slotIndex).first()
+  if (!existing) return false
+
+  // Protected slots can't be cleared normally
+  if (existing.protected) return false
+
+  await db.carrySlots.where('slotIndex').equals(slotIndex).delete()
+  return true
+}
+
+export async function forceCleanCarrySlot(slotIndex: 0 | 1 | 2): Promise<void> {
+  // Force clear even protected slots (for admin/debug)
+  await db.carrySlots.where('slotIndex').equals(slotIndex).delete()
+}
+
+export async function clearAllCarrySlots(): Promise<void> {
+  await db.carrySlots.clear()
+}
+
+export async function clearUnprotectedCarrySlots(): Promise<void> {
+  const slots = await db.carrySlots.toArray()
+  for (const slot of slots) {
+    if (!slot.protected) {
+      await db.carrySlots.where('slotIndex').equals(slot.slotIndex).delete()
+    }
+  }
+}
+
+export async function getCarrySlotCardIds(): Promise<string[]> {
+  const slots = await db.carrySlots.toArray()
+  return slots.map((s) => s.cardId)
 }

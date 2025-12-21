@@ -1,10 +1,14 @@
-import type { RunState, HeroDefinition, EnemyEntity, ModifierInstance } from '../types'
+import type { RunState, HeroDefinition, EnemyEntity, ModifierInstance, CarrySlot } from '../types'
 import { createCardInstance } from './actions'
 import { generateUid, randomInt } from '../lib/utils'
 import { createDungeonDeck, createDungeonDeckFromDefinition, drawRoomChoices } from './dungeon-deck'
 import { getRoomDefinition } from '../content/rooms'
 import { getCardDefinition, getEnemyCardById } from './cards'
-import { getDungeonDeck } from '../stores/db'
+import {
+  getDungeonDeck,
+  getUnlockedEvergreenCardIds,
+  getAllCarrySlots,
+} from '../stores/db'
 import { applyEnemyStatModifiers, getPlayerStatModifications } from './modifier-resolver'
 import { calculateHeatEffects } from './heat'
 import { buildDeck, createDeckBuilderContext } from './deck-builder'
@@ -413,11 +417,28 @@ export async function createNewRun(
   if (customCardIds) {
     cardIds = customCardIds
   } else {
+    // Fetch persistence data for deck building
+    const [unlockedEvergreenIds, carrySlotRecords] = await Promise.all([
+      getUnlockedEvergreenCardIds(),
+      getAllCarrySlots(),
+    ])
+
+    // Convert DB records to CarrySlot format
+    const carrySlots: CarrySlot[] = carrySlotRecords.map((r) => ({
+      slotIndex: r.slotIndex,
+      cardId: r.cardId,
+      protected: r.protected,
+      source: r.source,
+      acquiredAt: r.acquiredAt.getTime(),
+    }))
+
     // Use the evergreen deck builder pipeline
     const deckContext = createDeckBuilderContext(heroCardId ?? heroId, {
       modifiers,
       relics: [], // Relics assigned after run creation
       dungeonId: dungeonDeckId,
+      carrySlots,
+      unlockedEvergreenIds,
     })
     const deckResult = buildDeck(deckContext)
     cardIds = deckResult.cardIds
