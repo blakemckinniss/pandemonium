@@ -8,6 +8,29 @@
 
 Slay the Spire inspired roguelike card game with drag-and-drop combat.
 
+## Art Direction: Erotic Fantasy Waifu Game
+
+**This is an NSFW anime waifu card game.** The visual identity centers on attractive anime characters with erotic appeal.
+
+### Core Aesthetic Principles
+
+| Element | Direction |
+|---------|-----------|
+| Heroes | Voluptuous anime women, NSFW-first (body is main attraction, outfit/magic as accent) |
+| Enemies | Seductive monster girls - monster features ENHANCE eroticism (slime transparency, tentacles, etc.) |
+| Hand Cards | Effect-focused art (spells, weapons, phenomena) - NO characters on action cards |
+| Style | Booru-tag anime aesthetic, ecchi/borderline-H, "hot cosplay" vibe |
+| Physical | Large breasts, cleavage, exposed skin are intentional design choices |
+
+### Image Generation Philosophy
+
+- **Heroes**: Attractive anime women with revealing fantasy outfits. Physical attributes emphasized.
+- **Enemies**: Monster musume / monster girl aesthetic. Species traits add erotic spice (transparent slime bodies, ghostly see-through forms, tentacle accessories).
+- **Cards**: Pure magical effects, weapons, phenomena. NO characters - keeps visual distinction from entity cards.
+
+**Config**: `services/image-gen/prompts.yaml` (archetypes, templates, style definitions)
+**Generator**: `services/image-gen/prompts.py` (prompt building logic)
+
 ## Frontend Design Plugin (CRITICAL)
 
 **The `frontend-design` plugin by Anthropic is active and essential for this project.**
@@ -23,13 +46,14 @@ This is a highly visual game - every UI element matters. The plugin automaticall
 
 | Element | Aesthetic |
 |---------|-----------|
-| Theme | Dark fantasy / arcane grimoire |
+| Theme | Dark erotic fantasy / seductive arcane |
 | Typography | Display fonts for headers, refined body fonts |
-| Color | Deep purples, blacks, gold accents, elemental colors |
+| Color | Deep purples, blacks, silver/gold accents, elemental colors |
 | Motion | Card animations, particle effects, combat feedback |
-| Atmosphere | Mystical, dangerous, rewarding |
+| Atmosphere | Sensual, dangerous, alluring |
+| Characters | Anime waifu aesthetic, voluptuous, revealing outfits |
 
-**When building UI components:** Commit to bold choices. Cards should feel tactile. Combat should feel impactful. Menus should feel like ancient tomes. Never settle for generic.
+**When building UI components:** Commit to bold choices. Cards should feel tactile. Combat should feel impactful. Character art should be alluring. Never settle for generic.
 
 ## Critical Integrations (ALWAYS ACTIVE)
 
