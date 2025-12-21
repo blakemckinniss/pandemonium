@@ -276,3 +276,24 @@ export {
   getOutfitById,
   canUnlockOutfit,
 } from './affection'
+
+// Deck Builder (Evergreen System)
+export type {
+  EvergreenCategory,
+  EvergreenCardMeta,
+  UnlockCondition,
+  DeckBuilderContext,
+  DeckBuilderResult,
+  DeckHookPhase,
+  DeckHookSource,
+  DeckHook,
+  DeckHookResult,
+  DeckHookDefinition,
+  CarrySlotSource,
+  CarrySlot,
+  EvergreenUnlockRecord,
+  CarrySlotRecord,
+  HeroDeckHooks,
+} from './deck-builder'
+
+export { BASE_DECK_SIZE, MAX_CARRY_SLOTS, HOOK_PHASE_ORDER } from './deck-builder'

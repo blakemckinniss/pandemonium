@@ -7,6 +7,7 @@ import { getCardDefinition, getEnemyCardById } from './cards'
 import { getDungeonDeck } from '../stores/db'
 import { applyEnemyStatModifiers, getPlayerStatModifications } from './modifier-resolver'
 import { calculateHeatEffects } from './heat'
+import { buildDeck, createDeckBuilderContext } from './deck-builder'
 
 // ============================================
 // HERO DEFINITIONS
@@ -407,8 +408,20 @@ export async function createNewRun(
 ): Promise<RunState> {
   const { def: hero, heroCardId } = resolveHero(heroId)
 
-  // Build deck from custom cards or hero starter deck
-  const cardIds = customCardIds ?? hero.starterDeck
+  // Build deck: use custom cards if provided, otherwise use evergreen deck builder
+  let cardIds: string[]
+  if (customCardIds) {
+    cardIds = customCardIds
+  } else {
+    // Use the evergreen deck builder pipeline
+    const deckContext = createDeckBuilderContext(heroCardId ?? heroId, {
+      modifiers,
+      relics: [], // Relics assigned after run creation
+      dungeonId: dungeonDeckId,
+    })
+    const deckResult = buildDeck(deckContext)
+    cardIds = deckResult.cardIds
+  }
   const deck = cardIds.map((cardId) => createCardInstance(cardId))
 
   // Apply player stat modifications from modifiers

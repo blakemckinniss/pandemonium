@@ -1,11 +1,47 @@
 import type { CardDefinition, CardInstance } from '../types'
 import { logger } from '../lib/logger'
+import { createHeroBonusHook } from './deck-builder/hero-hooks'
+
+// Import evergreen initialization and re-export query functions
+import {
+  initializeEvergreenCards,
+  getAllEvergreenCardIds,
+  getEvergreenMeta,
+  getAllEvergreenMeta,
+  getBasePoolCardIds,
+  getUnlockPoolCardIds,
+  getUnlockedEvergreenCardIds,
+  isUnlockConditionMet,
+} from './evergreen-cards'
+
+export {
+  getAllEvergreenCardIds,
+  getEvergreenMeta,
+  getAllEvergreenMeta,
+  getBasePoolCardIds,
+  getUnlockPoolCardIds,
+  getUnlockedEvergreenCardIds,
+  isUnlockConditionMet,
+}
 
 // ============================================
 // CARD REGISTRY
 // ============================================
 
 const cardRegistry = new Map<string, CardDefinition>()
+
+// Deferred initialization flag
+let evergreenInitialized = false
+
+/**
+ * Ensure evergreen cards are initialized.
+ * Safe to call multiple times.
+ */
+function ensureEvergreenInitialized(): void {
+  if (evergreenInitialized) return
+  evergreenInitialized = true
+  initializeEvergreenCards((card) => cardRegistry.set(card.id, card))
+}
 
 // Required fields for each card theme
 const REQUIRED_FIELDS_BY_THEME: Record<string, (keyof CardDefinition)[]> = {
@@ -82,10 +118,12 @@ export function purgeInvalidCards(): string[] {
 }
 
 export function getCardDefinition(id: string): CardDefinition | undefined {
+  ensureEvergreenInitialized()
   return cardRegistry.get(id)
 }
 
 export function getAllCards(): CardDefinition[] {
+  ensureEvergreenInitialized()
   return Array.from(cardRegistry.values())
 }
 
@@ -257,6 +295,10 @@ registerCardUnsafe({
     chargesRequired: 4,
     chargeOn: 'cardPlayed',
   },
+  // Fire affinity: Bonus fire-themed card in starter deck
+  deckHooks: [
+    createHeroBonusHook('hero_sakura', ['eg_flex'], 'Inner fire: Start with Flex for Strength stacking'),
+  ],
   effects: [],
 })
 
@@ -298,6 +340,10 @@ registerCardUnsafe({
     chargesRequired: 4,
     chargeOn: 'turnStart',
   },
+  // Ice affinity: Bonus defensive card in starter deck
+  deckHooks: [
+    createHeroBonusHook('hero_luna', ['eg_iron_wall'], 'Frozen fortress: Start with Iron Wall for extra defense'),
+  ],
   effects: [],
 })
 
@@ -340,6 +386,10 @@ registerCardUnsafe({
     chargesRequired: 5,
     chargeOn: 'cardPlayed',
   },
+  // Speed affinity: Filter for low-cost cards + bonus draw card
+  deckHooks: [
+    createHeroBonusHook('hero_aria', ['eg_concentrate'], 'Swift mind: Start with Concentrate for extra draws'),
+  ],
   effects: [],
 })
 
