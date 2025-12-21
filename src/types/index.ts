@@ -267,8 +267,12 @@ export type {
 
 export {
   AFFECTION_LEVELS,
+  HERO_OUTFITS,
   getAffectionLevel,
   getAffectionProgress,
   calculateAffectionGain,
   createDefaultAffection,
+  getHeroOutfits,
+  getOutfitById,
+  canUnlockOutfit,
 } from './affection'

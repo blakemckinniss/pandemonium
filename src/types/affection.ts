@@ -140,3 +140,182 @@ export function createDefaultAffection(heroId: string): HeroAffection {
     winsWithHero: 0,
   }
 }
+
+// ============================================
+// OUTFIT DEFINITIONS
+// ============================================
+
+export const HERO_OUTFITS: OutfitDefinition[] = [
+  // ============================================
+  // SAKURA OUTFITS
+  // ============================================
+  {
+    id: 'sakura_default',
+    heroId: 'sakura',
+    name: 'Battle Maiden',
+    description: 'Standard combat attire with cherry blossom motifs.',
+    rarity: 'common',
+    requiredLevel: 'stranger',
+    goldCost: 0,
+    image: '/cards/hero_sakura.webp',
+    poses: ['default'],
+  },
+  {
+    id: 'sakura_casual',
+    heroId: 'sakura',
+    name: 'Off-Duty',
+    description: 'Relaxed attire for quiet moments between battles.',
+    rarity: 'common',
+    requiredLevel: 'friend',
+    goldCost: 100,
+    image: '/cards/hero_sakura_casual.webp',
+    poses: ['default', 'relaxed'],
+  },
+  {
+    id: 'sakura_elegant',
+    heroId: 'sakura',
+    name: 'Moonlit Blossom',
+    description: 'An elegant evening gown adorned with silver petals.',
+    rarity: 'rare',
+    requiredLevel: 'intimate',
+    goldCost: 500,
+    image: '/cards/hero_sakura_elegant.webp',
+    poses: ['default', 'alluring'],
+  },
+  {
+    id: 'sakura_devoted',
+    heroId: 'sakura',
+    name: 'Sacred Bond',
+    description: 'A ceremonial outfit symbolizing eternal devotion.',
+    rarity: 'legendary',
+    requiredLevel: 'devoted',
+    goldCost: 1000,
+    image: '/cards/hero_sakura_devoted.webp',
+    poses: ['default', 'intimate', 'embrace'],
+  },
+
+  // ============================================
+  // LUNA OUTFITS
+  // ============================================
+  {
+    id: 'luna_default',
+    heroId: 'luna',
+    name: 'Starweaver',
+    description: 'Mystical robes woven from moonlight threads.',
+    rarity: 'common',
+    requiredLevel: 'stranger',
+    goldCost: 0,
+    image: '/cards/hero_luna.webp',
+    poses: ['default'],
+  },
+  {
+    id: 'luna_casual',
+    heroId: 'luna',
+    name: 'Twilight Rest',
+    description: 'Comfortable attire for stargazing evenings.',
+    rarity: 'common',
+    requiredLevel: 'friend',
+    goldCost: 100,
+    image: '/cards/hero_luna_casual.webp',
+    poses: ['default', 'dreamy'],
+  },
+  {
+    id: 'luna_elegant',
+    heroId: 'luna',
+    name: 'Celestial Empress',
+    description: 'A regal gown that shimmers like the night sky.',
+    rarity: 'rare',
+    requiredLevel: 'intimate',
+    goldCost: 500,
+    image: '/cards/hero_luna_elegant.webp',
+    poses: ['default', 'commanding'],
+  },
+  {
+    id: 'luna_devoted',
+    heroId: 'luna',
+    name: 'Eternal Eclipse',
+    description: 'An otherworldly manifestation of complete trust.',
+    rarity: 'legendary',
+    requiredLevel: 'devoted',
+    goldCost: 1000,
+    image: '/cards/hero_luna_devoted.webp',
+    poses: ['default', 'intimate', 'surrender'],
+  },
+
+  // ============================================
+  // ARIA OUTFITS
+  // ============================================
+  {
+    id: 'aria_default',
+    heroId: 'aria',
+    name: 'Storm Dancer',
+    description: 'Light armor designed for agile combat.',
+    rarity: 'common',
+    requiredLevel: 'stranger',
+    goldCost: 0,
+    image: '/cards/hero_aria.webp',
+    poses: ['default'],
+  },
+  {
+    id: 'aria_casual',
+    heroId: 'aria',
+    name: 'Wind\'s Whisper',
+    description: 'Flowing garments that dance with the breeze.',
+    rarity: 'common',
+    requiredLevel: 'friend',
+    goldCost: 100,
+    image: '/cards/hero_aria_casual.webp',
+    poses: ['default', 'playful'],
+  },
+  {
+    id: 'aria_elegant',
+    heroId: 'aria',
+    name: 'Tempest Queen',
+    description: 'Electrifying attire crackling with raw power.',
+    rarity: 'rare',
+    requiredLevel: 'intimate',
+    goldCost: 500,
+    image: '/cards/hero_aria_elegant.webp',
+    poses: ['default', 'powerful'],
+  },
+  {
+    id: 'aria_devoted',
+    heroId: 'aria',
+    name: 'Heart of the Storm',
+    description: 'The eye of the tempest - calm, absolute, eternal.',
+    rarity: 'legendary',
+    requiredLevel: 'devoted',
+    goldCost: 1000,
+    image: '/cards/hero_aria_devoted.webp',
+    poses: ['default', 'intimate', 'passion'],
+  },
+]
+
+/**
+ * Get all outfits for a specific hero
+ */
+export function getHeroOutfits(heroId: string): OutfitDefinition[] {
+  return HERO_OUTFITS.filter(o => o.heroId === heroId)
+}
+
+/**
+ * Get outfit by ID
+ */
+export function getOutfitById(outfitId: string): OutfitDefinition | undefined {
+  return HERO_OUTFITS.find(o => o.id === outfitId)
+}
+
+/**
+ * Check if an outfit is unlockable at current affection level
+ */
+export function canUnlockOutfit(
+  outfit: OutfitDefinition,
+  currentLevel: AffectionLevel
+): boolean {
+  const levels: AffectionLevel[] = [
+    'stranger', 'acquaintance', 'friend', 'close', 'intimate', 'devoted', 'soulbound'
+  ]
+  const currentIndex = levels.indexOf(currentLevel)
+  const requiredIndex = levels.indexOf(outfit.requiredLevel)
+  return currentIndex >= requiredIndex
+}

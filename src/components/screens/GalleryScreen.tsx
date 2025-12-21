@@ -5,6 +5,8 @@ import { HEROES } from '../../game/new-game'
 import {
   AFFECTION_LEVELS,
   getAffectionProgress,
+  getHeroOutfits,
+  canUnlockOutfit,
 } from '../../types'
 import type { AffectionLevel } from '../../types'
 
@@ -107,8 +109,9 @@ export function GalleryScreen({ onBack }: GalleryScreenProps) {
     const affection = getHeroAffection(heroId)
     const progress = getAffectionProgress(affection.points)
     const levelData = AFFECTION_LEVELS[affection.level]
-    const heroOutfits = unlockedOutfits[heroId] ?? ['default']
-    const equipped = equippedOutfits[heroId] ?? 'default'
+    const allOutfits = getHeroOutfits(heroId)
+    const unlockedIds = unlockedOutfits[heroId] ?? [allOutfits[0]?.id ?? 'default']
+    const equipped = equippedOutfits[heroId] ?? allOutfits[0]?.id ?? 'default'
 
     return (
       <div className="flex-1 p-6">
@@ -176,41 +179,73 @@ export function GalleryScreen({ onBack }: GalleryScreenProps) {
           </h3>
 
           <div className="grid grid-cols-4 gap-4">
-            {heroOutfits.map((outfitId) => (
-              <button
-                key={outfitId}
-                onClick={() => equipOutfit(heroId, outfitId)}
-                className={`
-                  p-3 rounded-xl border-2 transition-all
-                  ${equipped === outfitId
-                    ? 'border-pink-500 bg-pink-500/10'
-                    : 'border-warm-700 bg-warm-800/50 hover:border-warm-500'
-                  }
-                `}
-              >
-                <div className="w-full aspect-[3/4] rounded-lg bg-warm-700 mb-2 flex items-center justify-center">
-                  <Icon
-                    icon={outfitId === 'default' ? 'game-icons:dress' : 'game-icons:corset'}
-                    className="w-12 h-12 text-warm-500"
-                  />
-                </div>
-                <div className="text-sm text-warm-300 capitalize">
-                  {outfitId === 'default' ? 'Default' : outfitId.replace(/_/g, ' ')}
-                </div>
-                {equipped === outfitId && (
-                  <div className="text-xs text-pink-400 mt-1">Equipped</div>
-                )}
-              </button>
-            ))}
+            {allOutfits.map((outfit) => {
+              const isUnlocked = unlockedIds.includes(outfit.id)
+              const canUnlock = canUnlockOutfit(outfit, affection.level)
+              const isEquipped = equipped === outfit.id
 
-            {/* Locked outfit placeholder */}
-            <div className="p-3 rounded-xl border-2 border-dashed border-warm-700/50 opacity-50">
-              <div className="w-full aspect-[3/4] rounded-lg bg-warm-800/30 mb-2 flex items-center justify-center">
-                <Icon icon="game-icons:padlock" className="w-12 h-12 text-warm-600" />
-              </div>
-              <div className="text-sm text-warm-500">Locked</div>
-              <div className="text-xs text-warm-600">Reach Intimate</div>
-            </div>
+              const rarityColors: Record<string, string> = {
+                common: 'text-warm-400',
+                rare: 'text-cyan-400',
+                legendary: 'text-purple-400',
+                mythic: 'text-amber-400',
+              }
+
+              if (isUnlocked) {
+                return (
+                  <button
+                    key={outfit.id}
+                    onClick={() => equipOutfit(heroId, outfit.id)}
+                    className={`
+                      p-3 rounded-xl border-2 transition-all
+                      ${isEquipped
+                        ? 'border-pink-500 bg-pink-500/10'
+                        : 'border-warm-700 bg-warm-800/50 hover:border-warm-500'
+                      }
+                    `}
+                  >
+                    <div className="w-full aspect-[3/4] rounded-lg bg-warm-700 mb-2 flex items-center justify-center overflow-hidden">
+                      <Icon
+                        icon="game-icons:corset"
+                        className={`w-12 h-12 ${rarityColors[outfit.rarity]}`}
+                      />
+                    </div>
+                    <div className="text-sm text-warm-300">{outfit.name}</div>
+                    <div className={`text-xs ${rarityColors[outfit.rarity]} capitalize`}>
+                      {outfit.rarity}
+                    </div>
+                    {isEquipped && (
+                      <div className="text-xs text-pink-400 mt-1">Equipped</div>
+                    )}
+                  </button>
+                )
+              }
+
+              // Locked outfit
+              return (
+                <div
+                  key={outfit.id}
+                  className={`
+                    p-3 rounded-xl border-2 border-dashed transition-all
+                    ${canUnlock
+                      ? 'border-warm-600 opacity-80 hover:border-warm-500'
+                      : 'border-warm-700/50 opacity-50'
+                    }
+                  `}
+                >
+                  <div className="w-full aspect-[3/4] rounded-lg bg-warm-800/30 mb-2 flex items-center justify-center">
+                    <Icon icon="game-icons:padlock" className="w-12 h-12 text-warm-600" />
+                  </div>
+                  <div className="text-sm text-warm-500">{outfit.name}</div>
+                  <div className="text-xs text-warm-600">
+                    {canUnlock
+                      ? `${outfit.goldCost} gold`
+                      : `Reach ${AFFECTION_LEVELS[outfit.requiredLevel].label}`
+                    }
+                  </div>
+                </div>
+              )
+            })}
           </div>
         </div>
       </div>

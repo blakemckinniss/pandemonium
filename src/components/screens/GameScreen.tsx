@@ -534,7 +534,8 @@ export function GameScreen({ deckId, heroId, dungeonDeckId, selectedModifierIds,
 
     if (newAffection.level !== oldAffection.level) {
       const levelLabel = AFFECTION_LEVELS[newAffection.level].label
-      unlocks = [...unlocks, `💕 ${runResult.heroId}: ${levelLabel}`]
+      const heroName = runResult.heroId.charAt(0).toUpperCase() + runResult.heroId.slice(1)
+      unlocks = [...unlocks, `💕 ${heroName}: ${levelLabel}`]
     }
 
     if (unlocks.length > 0) {
