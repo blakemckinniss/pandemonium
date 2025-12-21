@@ -6,6 +6,7 @@
 
 import type { Element } from './elements'
 import type { RoomType } from './rooms'
+import type { DeckHookDefinition } from './deck-builder'
 
 // ============================================
 // MODIFIER TAXONOMY
@@ -192,6 +193,9 @@ export interface ModifierDefinition {
 
   // Actual effects
   effects: ModifierEffect[]
+
+  // Deck building hook (modifies starter deck)
+  deckHook?: DeckHookDefinition
 
   // Generation metadata (if AI-generated)
   generatedBy?: 'system' | 'groq'

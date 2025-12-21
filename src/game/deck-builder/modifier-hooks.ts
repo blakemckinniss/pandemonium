@@ -5,16 +5,27 @@
 // Phase 5 will add full modifier integration.
 
 import type { DeckHookDefinition, ModifierInstance } from '../../types'
+import { getModifierDefinition } from '../modifiers'
 
 /**
  * Get deck hooks from active modifiers.
  * Modifiers can define deck modifications via a deckHook property.
- * Note: This is a Phase 5 feature - currently returns empty array.
  */
-export function getModifierDeckHooks(_modifiers: ModifierInstance[]): DeckHookDefinition[] {
-  // Phase 5: Look up ModifierDefinition for each instance and check for deckHook
-  // For now, modifiers don't provide deck hooks yet
-  return []
+export function getModifierDeckHooks(modifiers: ModifierInstance[]): DeckHookDefinition[] {
+  const hooks: DeckHookDefinition[] = []
+
+  for (const instance of modifiers) {
+    const definition = getModifierDefinition(instance.definitionId)
+    if (definition?.deckHook) {
+      hooks.push({
+        ...definition.deckHook,
+        source: 'modifier' as const,
+        sourceId: definition.id,
+      })
+    }
+  }
+
+  return hooks
 }
 
 /**
