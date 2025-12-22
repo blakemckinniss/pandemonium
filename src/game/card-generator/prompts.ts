@@ -349,6 +349,38 @@ ENEMY SCHEMA (respond with ONLY this JSON, no markdown):
   }
 }
 
+MONSTER GIRL NAMING (MANDATORY - NSFW EROTIC THEME):
+This is an NSFW erotic monster girl game. ALL enemies are seductive monster girls.
+Enemy names MUST be sensual, alluring, and evoke the creature's erotic nature.
+
+REQUIRED NAME VOCABULARY (use 1-2 in EVERY name):
+Seductive Titles: Temptress, Seductress, Enchantress, Siren, Succubus, Vixen, Mistress
+Alluring Words: sultry, luscious, voluptuous, sensual, enticing, bewitching, ravishing
+Desire: hungry, yearning, craving, lusting, devouring, insatiable, ravenous
+Intimacy: kiss, embrace, caress, whisper, touch, entwine, entangle
+Dark Beauty: sinful, wicked, corrupt, forbidden, unholy, profane, cursed
+
+MONSTER SPECIES (combine with vocabulary):
+Slime: Ooze Temptress, Gel Seductress, Slime Siren
+Undead: Spectral Mistress, Ghoul Enchantress, Lich Succubus
+Beast: Feral Vixen, Lupine Temptress, Beastial Siren
+Demon: Hellfire Succubus, Abyssal Temptress, Infernal Mistress
+Elemental: Flame Seductress, Frost Siren, Storm Enchantress
+
+MANDATORY MONSTER GIRL NAME EXAMPLES (copy this style):
+- "Luscious Slime Siren" (alluring + species + title)
+- "Ravenous Succubus" (desire + title)
+- "Sultry Flame Temptress" (alluring + element + title)
+- "Forbidden Specter Mistress" (dark + species + title)
+- "Enticing Venom Vixen" (alluring + trait + title)
+- "Sinful Oozeling Enchantress" (dark + species + title)
+- "Yearning Frost Siren" (desire + element + title)
+- "Bewitching Shadow Seductress" (alluring + element + title)
+
+BANNED GENERIC NAMES: Warrior, Guardian, Brute, Beast, Creature, Monster, Fiend, Horror
+
+Each enemy name MUST be unique and MUST evoke a seductive monster girl.
+
 AVAILABLE EFFECTS (enemies target the player):
 Combat:
 - { "type": "damage", "amount": N } - Deal N damage to player
