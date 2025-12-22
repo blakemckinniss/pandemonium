@@ -382,12 +382,14 @@ export async function checkUnlocks(result: RunResult, store: MetaState): Promise
   // Build unlock context from current player state
   // Note: totalWins is pre-increment, so add 1 if this run was won
   const clearedDungeons = await getClearedDungeonIds()
+  // Convert affection level strings to numeric values for unlock condition checking
+  const affectionLevelOrder = ['stranger', 'acquaintance', 'friend', 'close', 'intimate', 'devoted', 'soulbound']
   const unlockContext = {
     totalWins: store.totalWins + (result.won ? 1 : 0),
     currentStreak: store.streak.currentStreak + (result.won ? 1 : 0),
     clearedDungeons,
     heroAffections: Object.fromEntries(
-      Object.entries(store.heroAffection).map(([id, aff]) => [id, aff.level])
+      Object.entries(store.heroAffection).map(([id, aff]) => [id, affectionLevelOrder.indexOf(aff.level)])
     ),
     achievements: [], // TODO: Wire up achievements system when implemented
   }
@@ -405,7 +407,7 @@ export async function checkUnlocks(result: RunResult, store: MetaState): Promise
     if (await isCollectionCardUnlocked(meta.cardId)) continue
 
     // Unlock the card
-    await unlockCollectionCard(meta.cardId, 'reward')
+    await unlockCollectionCard(meta.cardId, 'win')
     const card = getCardDefinition(meta.cardId)
     newUnlocks.push(`Card: ${card?.name ?? meta.cardId}`)
   }

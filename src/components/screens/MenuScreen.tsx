@@ -354,7 +354,6 @@ export function MenuScreen({ onStartRun }: MenuScreenProps) {
           <CollectionTab
             collection={collection}
             evergreenMeta={evergreenMeta}
-            filteredCards={filteredCollectionCards}
             filters={filters}
             setFilters={setFilters}
             sortBy={sortBy}
