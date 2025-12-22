@@ -189,6 +189,9 @@ def card_to_prompt(
     """
     Convert a card definition into an image generation prompt.
 
+    Z-IMAGE TURBO OPTIMIZED: Uses camera-style narrative prompts (80-250 words).
+    No emphasis brackets, no negative prompts - all constraints in positive prompt.
+
     Hand cards generate EROTIC NARRATIVE SCENES (MTG-style storytelling):
     - Intimate moments, sensual actions, erotic phenomena
     - Partial body parts allowed (cropped suggestively)
@@ -203,69 +206,63 @@ def card_to_prompt(
         custom_hint: Optional custom style hints
 
     Returns:
-        Erotic scene prompt (partial body parts OK, no full portraits)
+        Narrative prompt optimized for Z-Image Turbo
     """
-    templates = get_templates()
     elem_style = get_element_styles().get(element, get_element_styles().get("physical", {}))
     theme_style = get_theme_styles().get(theme, get_theme_styles().get("attack", {}))
-    rarity_quality = get_rarity_quality().get(rarity, "detailed")
 
     # Get name-based visuals from NSFW-themed card names - THIS IS PRIMARY
-    # These now describe erotic SCENES, not abstract energy
     name_visual = _extract_name_visuals(name)
 
-    # Build erotic scene prompt
-    parts = [
-        # Quality prefix with NSFW tags
-        templates.get("hand_quality_prefix", "masterpiece, best_quality, highres, nsfw, ecchi"),
-        rarity_quality,
-    ]
+    # Z-IMAGE TURBO FORMAT: Camera-style narrative sentences
+    # Structure: [Subject & Scene] → [Details] → [Framing] → [Lighting] → [Style] → [Constraints]
 
-    # NAME-BASED VISUALS FIRST - Most important!
-    # These describe the actual erotic scene/moment
+    # 1. SUBJECT & SCENE - What we're depicting
     if name_visual:
-        parts.append(name_visual)  # No emphasis brackets - let SD balance naturally
+        scene = f"An intimate erotic scene showing {name_visual}."
+    else:
+        scene = "An intimate erotic scene with sensual magical energy."
 
-    parts.extend(
-        [
-            # Subject - erotic scene, intimate moment
-            templates.get(
-                "hand_subject_base", "erotic scene, intimate moment, sensual action in progress"
-            ),
-            # Theme-specific erotic elements
-            theme_style.get("subject", "sensual magical phenomenon"),
-            theme_style.get("erotic_elements", "bare skin, intimate touch"),
-            # Composition - narrative, cropped suggestively
-            templates.get(
-                "hand_composition",
-                "narrative composition, intimate framing, cropped suggestively",
-            ),
-            theme_style.get("composition", "suggestive angle"),
-            theme_style.get("mood", "sensual"),
-            theme_style.get("camera", "intimate close-up"),
-            # Erotic scene elements from templates
-            templates.get(
-                "hand_erotic_scenes",
-                "bare skin, curves, flushed skin, silk sheets, intimate touch",
-            ),
-            # Element colors for mood lighting
-            f"mood lighting: {elem_style['colors']}",
-            elem_style.get("atmosphere", "intimate"),
-            # Atmosphere - boudoir, sensual
-            templates.get(
-                "hand_atmosphere", "sensual lighting, intimate mood, boudoir atmosphere"
-            ),
-            # Style - anime ecchi
-            templates.get("hand_style", "anime illustration, ecchi art style, sensual fantasy"),
-            # Suffix
-            templates.get("hand_suffix", "no_text, vignette edges, intimate background"),
-        ]
+    # 2. DETAILS - Theme-specific erotic elements
+    theme_subject = theme_style.get("subject", "sensual magical phenomenon")
+    theme_erotic = theme_style.get("erotic_elements", "bare skin, intimate touch")
+    details = f"The scene depicts {theme_subject} with {theme_erotic}."
+
+    # 3. FRAMING - Composition and camera angle
+    theme_composition = theme_style.get("composition", "suggestive angle")
+    theme_camera = theme_style.get("camera", "intimate close-up")
+    framing = (
+        f"Framed with {theme_composition} using {theme_camera} shot. "
+        "Cropped suggestively to show partial body, curves, and sensual details."
     )
 
-    if custom_hint:
-        parts.append(custom_hint)
+    # 4. LIGHTING - Element-based mood lighting
+    elem_colors = elem_style.get("colors", "warm amber tones")
+    elem_atmosphere = elem_style.get("atmosphere", "intimate")
+    theme_mood = theme_style.get("mood", "sensual")
+    lighting = (
+        f"Lit with {elem_colors} creating {elem_atmosphere} atmosphere. "
+        f"The mood is {theme_mood} with soft shadows and warm highlights on skin."
+    )
 
-    return ", ".join(parts)
+    # 5. STYLE - Rendering approach
+    style = (
+        "Rendered in anime illustration style with ecchi art sensibilities. "
+        "High quality digital painting with attention to skin texture and fabric details."
+    )
+
+    # 6. CONSTRAINTS - Z-Image Turbo requires these in positive prompt
+    constraints = "No text, no watermark, no logos, no UI elements, no card frame, no border."
+
+    # Combine into narrative prompt
+    prompt_parts = [scene, details, framing, lighting, style]
+
+    if custom_hint:
+        prompt_parts.append(custom_hint)
+
+    prompt_parts.append(constraints)
+
+    return " ".join(prompt_parts)
 
 
 def card_to_xml_prompt(
@@ -331,7 +328,9 @@ def hero_to_prompt(
 ) -> str:
     """
     Convert a hero definition into an image generation prompt.
-    Uses booru-style tags for attractive anime character portraits.
+
+    Z-IMAGE TURBO OPTIMIZED: Uses camera-style narrative prompts (80-250 words).
+    No emphasis brackets, no negative prompts - all constraints in positive prompt.
 
     Args:
         name: Hero name (e.g., "Pyromancer")
@@ -341,58 +340,70 @@ def hero_to_prompt(
         custom_hint: Optional custom style hints
 
     Returns:
-        Booru-style prompt string for attractive hero portrait
+        Narrative prompt optimized for Z-Image Turbo
     """
-    templates = get_templates()
-
     # Element-specific features from config
     element_features = get_element_features("hero")
-    elem_features = element_features.get(element, "long_hair")
+    elem_features = element_features.get(element, "flowing hair")
 
     # Archetype-specific data from config
     hero_archetypes = get_hero_archetypes()
     archetype_data = hero_archetypes.get(archetype, {})
-    arch_tags = archetype_data.get("booru_tags", "warrior, fantasy")
     arch_pose = archetype_data.get("pose", "heroic stance")
     arch_wardrobe = archetype_data.get("wardrobe", "fantasy armor")
-    arch_physical = archetype_data.get("physical", "large breasts, cleavage")
+    arch_physical = archetype_data.get("physical", "voluptuous figure with large breasts")
 
-    parts = [
-        # Quality tags first
-        templates.get("hero_quality_prefix", "masterpiece, best_quality, highres"),
-        # Character base - attractive anime woman
-        templates.get("hero_character_base", "1girl, solo, beautiful detailed eyes, perfect face"),
-        elem_features,
-        "long_hair, flowing_hair",
-        # Physical attributes - emphasis on attractive features
-        templates.get("hero_body_base", "huge breasts, large breasts, cleavage, perfect body"),
-        arch_physical,
-        # Framing
-        templates.get("hero_framing", "portrait, upper body, three-quarter view"),
-        # Pose from archetype
-        arch_pose,
-        # Expression
-        templates.get("hero_expression", "confident smirk, seductive gaze"),
-        # Wardrobe from archetype - revealing
-        arch_wardrobe,
-        templates.get("hero_wardrobe", "revealing fantasy armor, deep cleavage"),
-        # Archetype tags
-        arch_tags,
-        f"{name.lower().replace(' ', '_')}",
-        # Lighting
-        templates.get("hero_lighting", "soft key light, rim light, dramatic shadows"),
-        # Atmosphere
-        templates.get("hero_atmosphere", "dramatic lighting, heroic aura, subtle glow"),
-        # Style
-        templates.get("hero_style", "anime style, digital art, fantasy, ecchi"),
-        # No text
-        templates.get("hero_suffix", "no_text"),
-    ]
+    # Z-IMAGE TURBO FORMAT: Camera-style narrative sentences
+    # Structure: [Subject] → [Appearance] → [Clothing] → [Pose] → [Lighting] → [Style]
+
+    # 1. SUBJECT - Who we're depicting
+    subject = (
+        f"A beautiful anime woman, a {archetype} hero named {name}. "
+        f"She has {elem_features} and stunning detailed eyes with a perfect face."
+    )
+
+    # 2. APPEARANCE - Physical attributes
+    appearance = (
+        f"Her figure is {arch_physical}. "
+        "She has an alluring physique with exposed cleavage and perfect body proportions."
+    )
+
+    # 3. CLOTHING - Wardrobe
+    clothing = (
+        f"She wears {arch_wardrobe}, revealing and form-fitting. "
+        "The outfit shows deep cleavage and accentuates her curves."
+    )
+
+    # 4. POSE & EXPRESSION - How she's positioned
+    pose = (
+        f"She stands in a {arch_pose}, exuding confidence. "
+        "Her expression is a seductive smirk with bedroom eyes gazing at the viewer."
+    )
+
+    # 5. FRAMING - Camera position
+    framing = "Portrait shot showing upper body in three-quarter view."
+
+    # 6. LIGHTING - Dramatic hero lighting
+    lighting = (
+        "Lit with soft key light and rim lighting creating dramatic shadows. "
+        "A subtle heroic glow emanates around her."
+    )
+
+    # 7. STYLE - Rendering approach
+    style = "Rendered in anime illustration style with ecchi sensibilities and fantasy aesthetics."
+
+    # 8. CONSTRAINTS - Z-Image Turbo requires these in positive prompt
+    constraints = "No text, no watermark, no logos, no UI elements."
+
+    # Combine into narrative prompt
+    prompt_parts = [subject, appearance, clothing, pose, framing, lighting, style]
 
     if custom_hint:
-        parts.append(custom_hint)
+        prompt_parts.append(custom_hint)
 
-    return ", ".join(parts)
+    prompt_parts.append(constraints)
+
+    return " ".join(prompt_parts)
 
 
 # ============================================
@@ -410,7 +421,9 @@ def enemy_to_prompt(
 ) -> str:
     """
     Convert an enemy definition into an image generation prompt.
-    Uses booru-style tags for seductive monster girl portraits.
+
+    Z-IMAGE TURBO OPTIMIZED: Uses camera-style narrative prompts (80-250 words).
+    No emphasis brackets, no negative prompts - all constraints in positive prompt.
 
     Args:
         name: Enemy name (e.g., "Acid Slime")
@@ -421,65 +434,73 @@ def enemy_to_prompt(
         custom_hint: Optional custom style hints
 
     Returns:
-        Booru-style prompt string for seductive enemy portrait
+        Narrative prompt optimized for Z-Image Turbo
     """
-    templates = get_templates()
-
     # Element-specific features from config
     element_features = get_element_features("enemy")
-    elem_features = element_features.get(element, "long_hair")
+    elem_features = element_features.get(element, "flowing hair")
 
     # Archetype-specific data from config
     enemy_archetypes = get_enemy_archetypes()
     archetype_data = enemy_archetypes.get(archetype, {})
-    arch_tags = archetype_data.get("booru_tags", "monster_girl, fantasy")
     arch_creature = archetype_data.get("creature", "beautiful monster girl")
-    arch_mood = archetype_data.get("mood", "dangerous, alluring")
+    arch_mood = archetype_data.get("mood", "dangerous and alluring")
     arch_details = archetype_data.get("details", "")
-    arch_erotic = archetype_data.get("erotic_features", "nude, exposed")
+    arch_erotic = archetype_data.get("erotic_features", "exposed skin and sensual curves")
 
-    # Difficulty affects quality tags
-    difficulty_tags = get_difficulty_tags()
-    quality_tags = difficulty_tags.get(difficulty, "detailed")
+    # Z-IMAGE TURBO FORMAT: Camera-style narrative sentences
 
-    parts = [
-        # Quality tags first
-        templates.get("enemy_quality_prefix", "masterpiece, best_quality, highres"),
-        quality_tags,
-        # Character - seductive monster girl
-        templates.get("enemy_character_base", "1girl, solo, monster_girl, beautiful detailed eyes"),
-        elem_features,
-        "long_hair, flowing_hair",
-        # Physical attributes - voluptuous and dangerous
-        templates.get("enemy_body_base", "huge breasts, large breasts, cleavage, voluptuous"),
-        # Archetype-specific erotic features (how monster traits enhance sexuality)
-        arch_erotic,
-        # Framing
-        templates.get("enemy_framing", "portrait, upper body, dynamic pose"),
-        # Expression - seductive threat
-        templates.get("enemy_expression", "seductive smirk, bedroom eyes, predatory gaze"),
-        # Creature description from archetype
-        arch_creature,
-        arch_mood,
-        # Archetype-specific visual details
-        arch_details,
-        # Wardrobe - barely covered
-        templates.get("enemy_wardrobe", "barely covered, revealing outfit, sideboob, underboob"),
-        # Archetype tags
-        arch_tags,
-        f"{name.lower().replace(' ', '_')}",
-        # Atmosphere
-        templates.get("enemy_atmosphere", "dramatic lighting, dark atmosphere, menacing aura"),
-        # Style
-        templates.get("enemy_style", "anime style, digital art, monster musume, ecchi"),
-        # No text
-        templates.get("enemy_suffix", "no_text"),
-    ]
+    # 1. SUBJECT - What we're depicting
+    subject = (
+        f"A seductive monster girl, a {archetype} creature called {name}. "
+        f"She is a {arch_creature} with {elem_features} and beautiful detailed eyes."
+    )
+
+    # 2. APPEARANCE - Physical attributes with monster features
+    appearance = (
+        "Her figure is voluptuous with huge breasts and exposed cleavage. "
+        f"Her monster traits enhance her sexuality: {arch_erotic}."
+    )
+
+    # 3. MONSTER DETAILS - Archetype-specific features
+    if arch_details:
+        details = f"Distinctive features include {arch_details}."
+    else:
+        details = "She has subtle inhuman features that add to her allure."
+
+    # 4. EXPRESSION & MOOD - Seductive threat
+    expression = (
+        f"Her demeanor is {arch_mood}. "
+        "She wears a seductive smirk with bedroom eyes and a predatory gaze."
+    )
+
+    # 5. CLOTHING - Barely covered
+    clothing = (
+        "She is barely covered, wearing a revealing outfit that shows sideboob and underboob. "
+        "Her attire leaves little to imagination."
+    )
+
+    # 6. FRAMING - Dynamic monster pose
+    framing = "Portrait shot showing upper body in a dynamic pose."
+
+    # 7. LIGHTING - Dark and dramatic
+    lighting = "Lit with dramatic lighting in a dark atmosphere with a menacing aura."
+
+    # 8. STYLE - Monster musume aesthetic
+    style = "Rendered in anime illustration style with monster musume and ecchi aesthetics."
+
+    # 9. CONSTRAINTS - Z-Image Turbo requires these in positive prompt
+    constraints = "No text, no watermark, no logos, no UI elements."
+
+    # Combine into narrative prompt
+    prompt_parts = [subject, appearance, details, expression, clothing, framing, lighting, style]
 
     if custom_hint:
-        parts.append(custom_hint)
+        prompt_parts.append(custom_hint)
 
-    return ", ".join(parts)
+    prompt_parts.append(constraints)
+
+    return " ".join(prompt_parts)
 
 
 # ============================================
