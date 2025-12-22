@@ -1,5 +1,6 @@
-import { describe, it, expect } from 'vitest'
+import { describe, it, expect, beforeAll } from 'vitest'
 import { applyAction } from '../actions'
+import { registerCardUnsafe } from '../cards'
 import type {
   RunState,
   CombatState,
@@ -8,7 +9,47 @@ import type {
   CardInstance,
   RunStats,
   HeroState,
+  CardDefinition,
 } from '../../types'
+
+// ============================================================================
+// Mock Card Definitions for Tests
+// ============================================================================
+
+const MOCK_CARDS: CardDefinition[] = [
+  {
+    id: 'strike',
+    name: 'Strike',
+    description: 'Deal 6 damage.',
+    energy: 1,
+    theme: 'attack',
+    target: 'enemy',
+    effects: [{ type: 'damage', amount: 6 }],
+  },
+  {
+    id: 'defend',
+    name: 'Defend',
+    description: 'Gain 5 Block.',
+    energy: 1,
+    theme: 'skill',
+    target: 'self',
+    effects: [{ type: 'block', amount: 5 }],
+  },
+  {
+    id: 'inflame',
+    name: 'Inflame',
+    description: 'Gain 2 Strength.',
+    energy: 1,
+    theme: 'power',
+    target: 'self',
+    effects: [{ type: 'applyPower', powerId: 'strength', amount: 2, target: 'self' }],
+  },
+]
+
+beforeAll(() => {
+  // Register mock cards for tests
+  MOCK_CARDS.forEach(card => registerCardUnsafe(card))
+})
 
 // ============================================================================
 // Test Factories
