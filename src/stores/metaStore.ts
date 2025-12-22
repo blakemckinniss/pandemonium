@@ -25,7 +25,7 @@ import {
   getAllEvergreenMeta,
   isUnlockConditionMet,
 } from '../game/evergreen-cards'
-import { getCard } from '../game/cards'
+import { getCardDefinition } from '../game/cards'
 
 interface RunResult {
   won: boolean
@@ -406,7 +406,7 @@ export async function checkUnlocks(result: RunResult, store: MetaState): Promise
 
     // Unlock the card
     await unlockCollectionCard(meta.cardId, 'reward')
-    const card = getCard(meta.cardId)
+    const card = getCardDefinition(meta.cardId)
     newUnlocks.push(`Card: ${card?.name ?? meta.cardId}`)
   }
 

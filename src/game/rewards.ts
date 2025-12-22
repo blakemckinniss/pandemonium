@@ -68,7 +68,7 @@ export async function getCardRewardPool(params: {
   floor: number
   dungeonId?: string
 }): Promise<CardDefinition[]> {
-  const { runDeckCardIds, floor, dungeonId } = params
+  const { runDeckCardIds, floor, dungeonId: _dungeonId } = params
 
   // Get all unlocked cards from collection
   const unlockedCardIds = await getUnlockedCollectionCardIds()
@@ -97,7 +97,7 @@ export async function getCardRewardPool(params: {
     if (!allowedRarities.includes(cardRarity)) continue
 
     // Optional: filter by dungeon theme affinity
-    // Future: dungeonId could boost certain elements/themes
+    // Future: _dungeonId could boost certain elements/themes
 
     pool.push(def)
   }

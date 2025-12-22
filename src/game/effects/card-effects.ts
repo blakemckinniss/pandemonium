@@ -237,7 +237,7 @@ export function executeAddCard(
 export function executeShuffle(
   draft: RunState,
   effect: { type: 'shuffle'; pile: 'drawPile' | 'discardPile'; into?: 'drawPile' },
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+   
   _ctx: EffectContext
 ): void {
   if (!draft.combat) return
@@ -495,7 +495,7 @@ export function executeDiscover(
     copies?: number
     exhaust?: boolean
   },
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+   
   _ctx: EffectContext
 ): void {
   if (!draft.combat) return

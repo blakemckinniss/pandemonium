@@ -8,6 +8,16 @@ import { buildDeck, createDeckBuilderContext } from '../deck-builder'
 import { getModifierDeckHooks, getDungeonDeckHooks } from '../deck-builder/modifier-hooks'
 import { getModifierDefinition } from '../modifiers'
 import type { ModifierInstance } from '../../types'
+import type { DeckBuilderContext } from '../../types/deck-builder'
+
+/** Minimal mock context for testing deck hooks */
+const mockContext: DeckBuilderContext = {
+  heroCardId: 'hero_test',
+  modifiers: [],
+  relics: [],
+  carrySlots: [],
+  unlockedCollectionIds: [],
+}
 
 // Ensure modifiers are registered
 beforeAll(async () => {
@@ -122,7 +132,7 @@ describe('deck-builder', () => {
 
     it('battle_ready hook adds bonus cards', () => {
       const def = getModifierDefinition('battle_ready')
-      const result = def?.deckHook?.apply([], {} as any)
+      const result = def?.deckHook?.apply([], mockContext)
 
       expect(result?.bonuses).toContain('eg_strike')
       expect(result?.bonuses).toContain('eg_pierce')
@@ -179,13 +189,13 @@ describe('deck-builder', () => {
 
     it('inferno hook adds bonus cards', () => {
       const hooks = getDungeonDeckHooks('inferno')
-      const result = hooks[0].apply([], {} as any)
+      const result = hooks[0].apply([], mockContext)
       expect(result.bonuses).toContain('eg_strike')
     })
 
     it('void_realm hook adds bonus cards', () => {
       const hooks = getDungeonDeckHooks('void_realm')
-      const result = hooks[0].apply([], {} as any)
+      const result = hooks[0].apply([], mockContext)
       expect(result.bonuses).toContain('eg_guard')
     })
 
@@ -212,19 +222,19 @@ describe('deck-builder', () => {
 
     it('shadow hook adds tactical_retreat', () => {
       const hooks = getDungeonDeckHooks('shadow')
-      const result = hooks[0].apply([], {} as any)
+      const result = hooks[0].apply([], mockContext)
       expect(result.bonuses).toContain('eg_tactical_retreat')
     })
 
     it('celestial hook adds concentrate', () => {
       const hooks = getDungeonDeckHooks('celestial')
-      const result = hooks[0].apply([], {} as any)
+      const result = hooks[0].apply([], mockContext)
       expect(result.bonuses).toContain('eg_concentrate')
     })
 
     it('abyss hook adds multiple bonus cards', () => {
       const hooks = getDungeonDeckHooks('abyss')
-      const result = hooks[0].apply([], {} as any)
+      const result = hooks[0].apply([], mockContext)
       expect(result.bonuses).toContain('eg_pierce')
       expect(result.bonuses).toContain('eg_twin_slash')
     })

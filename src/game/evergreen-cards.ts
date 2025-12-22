@@ -740,18 +740,18 @@ export function getAllEvergreenMeta(): CollectionCardMeta[] {
  * Get base pool card IDs (always unlocked).
  */
 export function getBasePoolCardIds(): string[] {
-  return Array.from(evergreenRegistry.entries())
-    .filter(([_, meta]) => meta.unlockCondition.type === 'always')
-    .map(([id]) => id)
+  return Array.from(evergreenRegistry.values())
+    .filter((meta) => meta.unlockCondition.type === 'always')
+    .map((meta) => meta.cardId)
 }
 
 /**
  * Get unlock pool card IDs (require unlock conditions).
  */
 export function getUnlockPoolCardIds(): string[] {
-  return Array.from(evergreenRegistry.entries())
-    .filter(([_, meta]) => meta.unlockCondition.type !== 'always')
-    .map(([id]) => id)
+  return Array.from(evergreenRegistry.values())
+    .filter((meta) => meta.unlockCondition.type !== 'always')
+    .map((meta) => meta.cardId)
 }
 
 /**
@@ -795,7 +795,7 @@ export function getUnlockedCollectionCardIds(context: {
   heroAffections: Record<string, number>
   achievements: string[]
 }): string[] {
-  return Array.from(evergreenRegistry.entries())
-    .filter(([_, meta]) => isUnlockConditionMet(meta.unlockCondition, context))
-    .map(([id]) => id)
+  return Array.from(evergreenRegistry.values())
+    .filter((meta) => isUnlockConditionMet(meta.unlockCondition, context))
+    .map((meta) => meta.cardId)
 }
