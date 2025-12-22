@@ -400,6 +400,15 @@ export async function getAvailableDungeonDecks(): Promise<OwnedDungeonDeck[]> {
   return all.filter(d => d.status === 'available')
 }
 
+/**
+ * Get IDs of all dungeons the player has successfully cleared (status = 'beaten').
+ * Used for unlock condition checking.
+ */
+export async function getClearedDungeonIds(): Promise<string[]> {
+  const all = await getAllOwnedDungeonDecks()
+  return all.filter(d => d.status === 'beaten').map(d => d.deckId)
+}
+
 // ============================================
 // MODIFIER FUNCTIONS (AI-Generated Storage)
 // ============================================

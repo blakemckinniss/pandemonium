@@ -20,7 +20,12 @@ import {
   incrementStreak,
   breakStreak,
 } from '../game/streak'
-import { isCollectionCardUnlocked, unlockCollectionCard } from './db'
+import { isCollectionCardUnlocked, unlockCollectionCard, getClearedDungeonIds } from './db'
+import {
+  getAllEvergreenMeta,
+  isUnlockConditionMet,
+} from '../game/evergreen-cards'
+import { getCard } from '../game/cards'
 
 interface RunResult {
   won: boolean
@@ -364,35 +369,45 @@ export const useMetaStore = create<MetaState>()(
 )
 
 // Unlock conditions - check after each run
-// Now async because card unlocks go through IndexedDB
+// Uses data-driven unlock conditions from evergreen-cards.ts
 export async function checkUnlocks(result: RunResult, store: MetaState): Promise<string[]> {
   const newUnlocks: string[] = []
 
-  // Win first run → unlock second hero
+  // Win first run → unlock second hero (special case, not card-based)
   if (result.won && store.totalWins === 0) {
     store.unlockHero('mage')
     newUnlocks.push('Hero: Mage')
   }
 
-  // Reach floor 5 → unlock Whirlwind
-  if (result.floor >= 5 && !(await isCollectionCardUnlocked('whirlwind'))) {
-    await unlockCollectionCard('whirlwind', 'reward')
-    newUnlocks.push('Card: Whirlwind')
+  // Build unlock context from current player state
+  // Note: totalWins is pre-increment, so add 1 if this run was won
+  const clearedDungeons = await getClearedDungeonIds()
+  const unlockContext = {
+    totalWins: store.totalWins + (result.won ? 1 : 0),
+    currentStreak: store.streak.currentStreak + (result.won ? 1 : 0),
+    clearedDungeons,
+    heroAffections: Object.fromEntries(
+      Object.entries(store.heroAffection).map(([id, aff]) => [id, aff.level])
+    ),
+    achievements: [], // TODO: Wire up achievements system when implemented
   }
 
-  // Kill 50 enemies → unlock Heavy Blade
-  if (
-    store.totalEnemiesKilled + result.enemiesKilled >= 50 &&
-    !(await isCollectionCardUnlocked('heavy_blade'))
-  ) {
-    await unlockCollectionCard('heavy_blade', 'reward')
-    newUnlocks.push('Card: Heavy Blade')
-  }
+  // Check all evergreen cards for newly met unlock conditions
+  const allMeta = getAllEvergreenMeta()
+  for (const meta of allMeta) {
+    // Skip base pool (always unlocked)
+    if (meta.unlockCondition.type === 'always') continue
 
-  // 10 total runs → unlock Armaments
-  if (store.totalRuns + 1 >= 10 && !(await isCollectionCardUnlocked('armaments'))) {
-    await unlockCollectionCard('armaments', 'reward')
-    newUnlocks.push('Card: Armaments')
+    // Check if condition is now met
+    if (!isUnlockConditionMet(meta.unlockCondition, unlockContext)) continue
+
+    // Check if already unlocked in IndexedDB
+    if (await isCollectionCardUnlocked(meta.cardId)) continue
+
+    // Unlock the card
+    await unlockCollectionCard(meta.cardId, 'reward')
+    const card = getCard(meta.cardId)
+    newUnlocks.push(`Card: ${card?.name ?? meta.cardId}`)
   }
 
   return newUnlocks
