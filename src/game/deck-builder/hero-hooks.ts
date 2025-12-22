@@ -45,6 +45,7 @@ export function createHeroSwapHook(
     source: 'hero',
     sourceId: heroId,
     description: `Swap up to ${maxSwaps} cards with ${heroId}'s variants`,
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     apply: (cards, _context) => {
       const swaps: Array<{ original: string; replacement: string }> = []
       const result = [...cards]
@@ -81,6 +82,7 @@ export function createHeroBonusHook(
     source: 'hero',
     sourceId: heroId,
     description: description ?? `Add ${bonusCardIds.length} bonus card(s) from ${heroId}`,
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     apply: (cards, _context) => ({
       cards,
       bonuses: bonusCardIds,

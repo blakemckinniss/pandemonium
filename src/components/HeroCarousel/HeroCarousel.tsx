@@ -20,7 +20,14 @@ export function HeroCarousel({
   onSelectHero,
 }: HeroCarouselProps) {
   const containerRef = useRef<HTMLDivElement>(null)
-  const [currentIndex, setCurrentIndex] = useState(0)
+  // Initialize centered on selected hero
+  const [currentIndex, setCurrentIndex] = useState(() => {
+    const selectedIdx = heroes.findIndex(h => h.id === selectedHeroId)
+    if (selectedIdx > 0) {
+      return Math.max(0, Math.min(selectedIdx - 1, heroes.length - VISIBLE_COUNT))
+    }
+    return 0
+  })
   const [cardWidth, setCardWidth] = useState(200)
 
   // Calculate card width based on container (accounting for glow padding)
@@ -39,16 +46,6 @@ export function HeroCarousel({
     window.addEventListener('resize', updateWidth)
     return () => window.removeEventListener('resize', updateWidth)
   }, [])
-
-  // Center on selected hero initially
-  useEffect(() => {
-    const selectedIdx = heroes.findIndex(h => h.id === selectedHeroId)
-    if (selectedIdx > 0) {
-      // Try to center the selected hero (put it in middle of 3)
-      const targetIndex = Math.max(0, Math.min(selectedIdx - 1, heroes.length - VISIBLE_COUNT))
-      setCurrentIndex(targetIndex)
-    }
-  }, []) // Only on mount
 
   const maxIndex = Math.max(0, heroes.length - VISIBLE_COUNT)
 
