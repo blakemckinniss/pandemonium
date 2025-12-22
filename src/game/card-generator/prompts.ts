@@ -166,20 +166,34 @@ THEME GUIDELINES:
 - skill: Block, draw, or utility, blue border
 - power: Persistent effects that last the combat, purple border
 
-NAME CREATIVITY (MANDATORY - unique names only):
-BANNED WORDS (never use): Strike, Slash, Blow, Fury, Maelstrom, Echo, Storm, Rage, Wrath, Surge, Blast, Burst, Wave, Shield, Spark, Mirror, Catalyst, Flame, Shadow, Dark, Light, Thunder, Frost, Whispering, Whisper, Moonlit, Crimson, Requiem, Veil
-BANNED PATTERNS: Do NOT repeat any word from the banned list even with prefixes/suffixes (e.g., "Firestorm", "Echoing", "Shieldwall" are all banned)
+NAME CREATIVITY (MANDATORY - EROTIC FANTASY THEME):
+This is an NSFW erotic fantasy game. Card names MUST be sensual, seductive, and evocative of passion/desire.
 
-GOOD NAMES use metaphor, creature references, or unexpected combinations:
-- "Serpent's Kiss" (creature + action)
-- "Hollow Victory" (abstract concept)
-- "Threadbare Armor" (descriptive + item)
-- "Borrowed Time" (idiom reference)
-- "Shattered Meridian" (evocative imagery)
-- "Creeping Doubt" (personified emotion)
-- "Iron Maiden's Grip" (historical reference)
+REQUIRED NAME VOCABULARY (use 1-2 of these words in EVERY name):
+Sensual: sultry, velvet, silk, satin, lace, caress, embrace, whisper, touch, stroke
+Passion: ecstasy, pleasure, desire, lust, passion, bliss, ravish, devour, hunger, thirst
+Seduction: tempt, seduce, allure, charm, entice, captivate, bewitch, mesmerize
+Intensity: torment, agony, anguish, rapture, frenzy, fever, burning, scorching
+Dark Beauty: forbidden, sinful, wicked, corrupt, profane, unholy, carnal
+Binding: bind, chain, restrain, dominate, submit, surrender, yield
 
-Each generated name MUST be unique - never reuse names across cards.
+BANNED WORDS (too generic): Strike, Slash, Blow, Fury, Storm, Rage, Wrath, Surge, Blast, Shield, Spark, Thunder, Frost
+
+MANDATORY NSFW NAME EXAMPLES (copy this style):
+- "Sultry Embrace" (sensual + action)
+- "Velvet Torment" (texture + intensity)
+- "Forbidden Ecstasy" (dark + passion)
+- "Silken Chains" (texture + binding)
+- "Burning Desire" (intensity + passion)
+- "Carnal Whisper" (dark + sensual)
+- "Lascivious Touch" (explicit + sensual)
+- "Rapturous Agony" (passion + intensity)
+- "Sinful Caress" (dark + sensual)
+- "Passionate Surrender" (passion + binding)
+- "Wicked Allure" (dark + seduction)
+- "Temptress's Kiss" (seduction + action)
+
+Each generated name MUST be unique and MUST use the erotic vocabulary above.
 
 SYNERGY DESIGN (IMPORTANT):
 Cards should enable combos, not just be standalone effects. Include at least ONE of:
