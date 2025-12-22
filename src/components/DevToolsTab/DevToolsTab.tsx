@@ -1,43 +1,17 @@
 import { useState } from 'react'
 import { Icon } from '@iconify/react'
-import type { CardDefinition, CardTheme, Element, Rarity, AtomicEffect } from '../../types'
-import { generateUid } from '../../lib/utils'
+import type { CardDefinition, CardTheme, Element, Rarity } from '../../types'
+import { generateRandomCard, type GenerationOptions } from '../../game/card-generator'
 import { Card } from '../Card/Card'
 import { getCardDefProps } from '../Card/utils'
 
 type DevTool = 'card-generator' | 'effect-tester' | 'debug-info'
 
-interface CardFormData {
-  name: string
-  energy: number
-  theme: CardTheme
-  element: Element | ''
-  rarity: Rarity
-  description: string
-  effectsJson: string
-}
-
 const INITIAL_FORM: CardFormData = {
-  name: 'Test Card',
-  energy: 1,
-  theme: 'attack',
-  element: 'physical',
-  rarity: 'common',
-  description: 'Deal 6 damage.',
-  effectsJson: '[{"type": "damage", "amount": 6}]',
-}
-
-const EFFECT_PRESETS: Record<string, AtomicEffect[]> = {
-  'damage-6': [{ type: 'damage', amount: 6 }],
-  'damage-12': [{ type: 'damage', amount: 12 }],
-  'block-5': [{ type: 'block', amount: 5 }],
-  'block-8': [{ type: 'block', amount: 8 }],
-  'damage-block': [{ type: 'damage', amount: 6 }, { type: 'block', amount: 4 }],
-  'draw-2': [{ type: 'draw', amount: 2 }],
-  'aoe-4': [{ type: 'damage', amount: 4, target: 'all_enemies' }],
-  'poison-3': [{ type: 'applyPower', powerId: 'poison', stacks: 3 }],
-  'strength-2': [{ type: 'applyPower', powerId: 'strength', stacks: 2, target: 'self' }],
-  'vulnerable-2': [{ type: 'applyPower', powerId: 'vulnerable', stacks: 2 }],
+  theme: '',
+  element: '',
+  rarity: '',
+  hint: '',
 }
 
 interface DevToolsTabProps {
@@ -48,93 +22,29 @@ export function DevToolsTab({ onTestCard }: DevToolsTabProps) {
   const [activeTool, setActiveTool] = useState<DevTool>('card-generator')
   const [form, setForm] = useState<CardFormData>(INITIAL_FORM)
   const [generatedCard, setGeneratedCard] = useState<CardDefinition | null>(null)
-  const [isGeneratingArt, setIsGeneratingArt] = useState(false)
-  const [artError, setArtError] = useState<string | null>(null)
-  const [effectsError, setEffectsError] = useState<string | null>(null)
+  const [isGenerating, setIsGenerating] = useState(false)
+  const [error, setError] = useState<string | null>(null)
 
-  // Parse and validate effects JSON
-  const parseEffects = (json: string): AtomicEffect[] | null => {
-    try {
-      const parsed = JSON.parse(json)
-      if (!Array.isArray(parsed)) {
-        setEffectsError('Effects must be an array')
-        return null
-      }
-      setEffectsError(null)
-      return parsed as AtomicEffect[]
-    } catch {
-      setEffectsError('Invalid JSON')
-      return null
-    }
-  }
-
-  // Generate card from form
-  const handleGenerateCard = () => {
-    const effects = parseEffects(form.effectsJson)
-    if (!effects) return
-
-    const card: CardDefinition = {
-      id: `dev_${generateUid()}`,
-      name: form.name,
-      energy: form.energy,
-      theme: form.theme,
-      rarity: form.rarity,
-      description: form.description,
-      target: form.theme === 'power' ? 'none' : 'enemy',
-      effects,
-      ...(form.element && { element: form.element as Element }),
-    }
-
-    setGeneratedCard(card)
-  }
-
-  // Generate AI art for the card
-  const handleGenerateArt = async () => {
-    if (!generatedCard) return
-
-    setIsGeneratingArt(true)
-    setArtError(null)
+  // Generate card using LIVE Groq API + ComfyUI (NO MOCK DATA)
+  const handleGenerateCard = async () => {
+    setIsGenerating(true)
+    setError(null)
 
     try {
-      const response = await fetch('http://localhost:8420/generate', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          card_id: generatedCard.id,
-          name: generatedCard.name,
-          description: generatedCard.description,
-          theme: generatedCard.theme,
-          element: generatedCard.element || 'physical',
-          rarity: generatedCard.rarity,
-        }),
-      })
+      // Build options from form - only include non-empty values
+      const options: GenerationOptions = {}
+      if (form.theme) options.theme = form.theme
+      if (form.element) options.element = form.element
+      if (form.rarity) options.rarity = form.rarity
+      if (form.hint) options.hint = form.hint
 
-      if (!response.ok) {
-        throw new Error(`Generation failed: ${response.statusText}`)
-      }
-
-      const result = await response.json()
-
-      // Update card with generated image path
-      setGeneratedCard(prev => prev ? {
-        ...prev,
-        image: result.path.replace(/^.*\/public/, ''),
-      } : null)
+      // Call real Groq API for card generation + ComfyUI for art
+      const card = await generateRandomCard(options)
+      setGeneratedCard(card)
     } catch (err) {
-      setArtError(err instanceof Error ? err.message : 'Failed to generate art')
+      setError(err instanceof Error ? err.message : 'Generation failed')
     } finally {
-      setIsGeneratingArt(false)
-    }
-  }
-
-  // Apply effect preset
-  const applyPreset = (presetId: string) => {
-    const effects = EFFECT_PRESETS[presetId]
-    if (effects) {
-      setForm(prev => ({
-        ...prev,
-        effectsJson: JSON.stringify(effects, null, 2),
-      }))
+      setIsGenerating(false)
     }
   }
 
@@ -177,51 +87,35 @@ export function DevToolsTab({ onTestCard }: DevToolsTabProps) {
             </h2>
 
             <div className="grid grid-cols-2 gap-6">
-              {/* Form */}
+              {/* Form - Constraints for AI generation */}
               <div className="space-y-4">
-                {/* Name */}
-                <div>
-                  <label className="block text-sm text-gray-400 mb-1">Card Name</label>
-                  <input
-                    type="text"
-                    value={form.name}
-                    onChange={e => setForm(prev => ({ ...prev, name: e.target.value }))}
-                    className="w-full px-3 py-2 bg-black/40 border border-amber-900/40 rounded text-white focus:border-amber-500/60 focus:outline-none"
-                  />
-                </div>
+                <p className="text-sm text-gray-500 italic">
+                  Leave fields empty to let AI decide. Fill in to constrain generation.
+                </p>
 
-                {/* Energy + Theme + Rarity row */}
-                <div className="grid grid-cols-3 gap-3">
+                {/* Theme + Rarity row */}
+                <div className="grid grid-cols-2 gap-3">
                   <div>
-                    <label className="block text-sm text-gray-400 mb-1">Energy</label>
-                    <input
-                      type="number"
-                      min={0}
-                      max={10}
-                      value={form.energy}
-                      onChange={e => setForm(prev => ({ ...prev, energy: parseInt(e.target.value) || 0 }))}
-                      className="w-full px-3 py-2 bg-black/40 border border-amber-900/40 rounded text-white focus:border-amber-500/60 focus:outline-none"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm text-gray-400 mb-1">Theme</label>
+                    <label className="block text-sm text-gray-400 mb-1">Theme (optional)</label>
                     <select
                       value={form.theme}
-                      onChange={e => setForm(prev => ({ ...prev, theme: e.target.value as CardTheme }))}
+                      onChange={e => setForm(prev => ({ ...prev, theme: e.target.value as CardTheme | '' }))}
                       className="w-full px-3 py-2 bg-black/40 border border-amber-900/40 rounded text-white focus:border-amber-500/60 focus:outline-none"
                     >
+                      <option value="">Random</option>
                       <option value="attack">Attack</option>
                       <option value="skill">Skill</option>
                       <option value="power">Power</option>
                     </select>
                   </div>
                   <div>
-                    <label className="block text-sm text-gray-400 mb-1">Rarity</label>
+                    <label className="block text-sm text-gray-400 mb-1">Rarity (optional)</label>
                     <select
                       value={form.rarity}
-                      onChange={e => setForm(prev => ({ ...prev, rarity: e.target.value as Rarity }))}
+                      onChange={e => setForm(prev => ({ ...prev, rarity: e.target.value as Rarity | '' }))}
                       className="w-full px-3 py-2 bg-black/40 border border-amber-900/40 rounded text-white focus:border-amber-500/60 focus:outline-none"
                     >
+                      <option value="">Random</option>
                       <option value="common">Common</option>
                       <option value="uncommon">Uncommon</option>
                       <option value="rare">Rare</option>
@@ -231,13 +125,13 @@ export function DevToolsTab({ onTestCard }: DevToolsTabProps) {
 
                 {/* Element */}
                 <div>
-                  <label className="block text-sm text-gray-400 mb-1">Element</label>
+                  <label className="block text-sm text-gray-400 mb-1">Element (optional)</label>
                   <select
                     value={form.element}
                     onChange={e => setForm(prev => ({ ...prev, element: e.target.value as Element | '' }))}
                     className="w-full px-3 py-2 bg-black/40 border border-amber-900/40 rounded text-white focus:border-amber-500/60 focus:outline-none"
                   >
-                    <option value="">None</option>
+                    <option value="">Random</option>
                     <option value="physical">Physical</option>
                     <option value="fire">Fire</option>
                     <option value="ice">Ice</option>
@@ -246,74 +140,41 @@ export function DevToolsTab({ onTestCard }: DevToolsTabProps) {
                   </select>
                 </div>
 
-                {/* Description */}
+                {/* Hint - natural language guidance */}
                 <div>
-                  <label className="block text-sm text-gray-400 mb-1">Description</label>
+                  <label className="block text-sm text-gray-400 mb-1">Theme Hint (optional)</label>
                   <input
                     type="text"
-                    value={form.description}
-                    onChange={e => setForm(prev => ({ ...prev, description: e.target.value }))}
-                    className="w-full px-3 py-2 bg-black/40 border border-amber-900/40 rounded text-white focus:border-amber-500/60 focus:outline-none"
+                    value={form.hint}
+                    onChange={e => setForm(prev => ({ ...prev, hint: e.target.value }))}
+                    placeholder="e.g. 'vampiric drain', 'explosive damage', 'defensive stance'"
+                    className="w-full px-3 py-2 bg-black/40 border border-amber-900/40 rounded text-white placeholder:text-gray-600 focus:border-amber-500/60 focus:outline-none"
                   />
                 </div>
 
-                {/* Effect Presets */}
-                <div>
-                  <label className="block text-sm text-gray-400 mb-1">Effect Presets</label>
-                  <div className="flex flex-wrap gap-1">
-                    {Object.keys(EFFECT_PRESETS).map(preset => (
-                      <button
-                        key={preset}
-                        onClick={() => applyPreset(preset)}
-                        className="px-2 py-1 text-xs bg-amber-900/30 hover:bg-amber-900/50 border border-amber-900/40 rounded text-amber-300 transition-colors"
-                      >
-                        {preset}
-                      </button>
-                    ))}
-                  </div>
-                </div>
+                {/* Generate Button */}
+                <button
+                  onClick={() => void handleGenerateCard()}
+                  disabled={isGenerating}
+                  className="w-full px-4 py-3 bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-500 hover:to-orange-500 disabled:from-amber-900 disabled:to-orange-900 disabled:text-amber-400 text-black font-bold rounded transition-all flex items-center justify-center gap-2"
+                >
+                  <Icon icon={isGenerating ? 'mdi:loading' : 'mdi:auto-fix'} className={isGenerating ? 'animate-spin' : ''} />
+                  {isGenerating ? 'Generating with Groq + ComfyUI...' : 'Generate Card (AI)'}
+                </button>
 
-                {/* Effects JSON */}
-                <div>
-                  <label className="block text-sm text-gray-400 mb-1">
-                    Effects JSON
-                    {effectsError && <span className="text-red-400 ml-2">{effectsError}</span>}
-                  </label>
-                  <textarea
-                    value={form.effectsJson}
-                    onChange={e => setForm(prev => ({ ...prev, effectsJson: e.target.value }))}
-                    rows={6}
-                    className={`w-full px-3 py-2 bg-black/40 border rounded text-white font-mono text-sm focus:outline-none ${
-                      effectsError ? 'border-red-500/60' : 'border-amber-900/40 focus:border-amber-500/60'
-                    }`}
-                  />
-                </div>
-
-                {/* Actions */}
-                <div className="flex gap-2">
-                  <button
-                    onClick={handleGenerateCard}
-                    className="flex-1 px-4 py-2 bg-amber-600 hover:bg-amber-500 text-black font-medium rounded transition-colors"
-                  >
-                    Generate Card
-                  </button>
-                  {generatedCard && (
-                    <button
-                      onClick={handleGenerateArt}
-                      disabled={isGeneratingArt}
-                      className="px-4 py-2 bg-purple-600 hover:bg-purple-500 disabled:bg-purple-900 disabled:text-purple-400 text-white font-medium rounded transition-colors flex items-center gap-2"
-                    >
-                      <Icon icon={isGeneratingArt ? 'mdi:loading' : 'mdi:image-plus'} className={isGeneratingArt ? 'animate-spin' : ''} />
-                      {isGeneratingArt ? 'Generating...' : 'Generate Art'}
-                    </button>
-                  )}
-                </div>
-
-                {artError && (
+                {error && (
                   <div className="text-red-400 text-sm bg-red-900/20 border border-red-900/40 rounded px-3 py-2">
-                    {artError}
+                    <Icon icon="mdi:alert" className="inline mr-1" />
+                    {error}
                   </div>
                 )}
+
+                {/* Generation info */}
+                <div className="text-xs text-gray-600 space-y-1">
+                  <p>• Card metadata generated via <span className="text-amber-500">Groq API</span></p>
+                  <p>• Card art generated via <span className="text-purple-400">ComfyUI</span></p>
+                  <p>• Same pipeline as in-game rewards</p>
+                </div>
               </div>
 
               {/* Preview */}

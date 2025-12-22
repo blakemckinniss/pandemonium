@@ -46,7 +46,7 @@ export function RewardScreen({ floor, gold, goldMultiplier = 1, ownedRelicIds, o
       }
 
       try {
-        const cards = await getCachedCards(CARDS_PER_REWARD)
+        const cards = await getCachedCards(CARDS_PER_REWARD, floor)
         if (!cancelled) {
           setCardChoices(cards)
           setGenerationProgress(cards.length)
@@ -96,7 +96,7 @@ export function RewardScreen({ floor, gold, goldMultiplier = 1, ownedRelicIds, o
     setGenerationProgress(0)
 
     try {
-      const cards = await getCachedCards(CARDS_PER_REWARD)
+      const cards = await getCachedCards(CARDS_PER_REWARD, floor)
       setCardChoices(cards)
       setGenerationProgress(cards.length)
       setIsGenerating(false)

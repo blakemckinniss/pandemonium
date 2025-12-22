@@ -1,17 +1,12 @@
-import type { RunState, HeroDefinition, EnemyEntity, ModifierInstance, CarrySlot } from '../types'
+import type { RunState, HeroDefinition, EnemyEntity, ModifierInstance } from '../types'
 import { createCardInstance } from './actions'
 import { generateUid, randomInt } from '../lib/utils'
 import { createDungeonDeck, createDungeonDeckFromDefinition, drawRoomChoices } from './dungeon-deck'
 import { getRoomDefinition } from '../content/rooms'
 import { getCardDefinition, getEnemyCardById } from './cards'
-import {
-  getDungeonDeck,
-  getUnlockedCollectionCardIds,
-  getAllCarrySlots,
-} from '../stores/db'
+import { getDungeonDeck } from '../stores/db'
 import { applyEnemyStatModifiers, getPlayerStatModifications } from './modifier-resolver'
 import { calculateHeatEffects } from './heat'
-import { buildDeck, createDeckBuilderContext } from './deck-builder'
 
 // ============================================
 // HERO DEFINITIONS
@@ -412,37 +407,9 @@ export async function createNewRun(
 ): Promise<RunState> {
   const { def: hero, heroCardId } = resolveHero(heroId)
 
-  // Build deck: use custom cards if provided, otherwise use evergreen deck builder
-  let cardIds: string[]
-  if (customCardIds) {
-    cardIds = customCardIds
-  } else {
-    // Fetch persistence data for deck building
-    const [unlockedCollectionIds, carrySlotRecords] = await Promise.all([
-      getUnlockedCollectionCardIds(),
-      getAllCarrySlots(),
-    ])
-
-    // Convert DB records to CarrySlot format
-    const carrySlots: CarrySlot[] = carrySlotRecords.map((r) => ({
-      slotIndex: r.slotIndex,
-      cardId: r.cardId,
-      protected: r.protected,
-      source: r.source,
-      acquiredAt: r.acquiredAt.getTime(),
-    }))
-
-    // Use the deck builder pipeline
-    const deckContext = createDeckBuilderContext(heroCardId ?? heroId, {
-      modifiers,
-      relics: [], // Relics assigned after run creation
-      dungeonId: dungeonDeckId,
-      carrySlots,
-      unlockedCollectionIds,
-    })
-    const deckResult = buildDeck(deckContext)
-    cardIds = deckResult.cardIds
-  }
+  // Build deck: use custom cards if provided, otherwise use hero's starter deck
+  // All additional cards will be AI-generated during the run
+  const cardIds = customCardIds ?? hero.starterDeck
   const deck = cardIds.map((cardId) => createCardInstance(cardId))
 
   // Apply player stat modifications from modifiers

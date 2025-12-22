@@ -6,11 +6,21 @@
 
 import { generateRandomCard } from './card-generator'
 import { getHealthStatus } from '../lib/image-gen'
-import type { CardDefinition } from '../types'
+import { getAllowedRarities } from './rewards'
+import type { CardDefinition, CardRarity } from '../types'
 
 const CACHE_TARGET_SIZE = 9  // Keep 9 cards ready (3 rewards worth)
 const REFILL_THRESHOLD = 3   // Start refilling when below 3
 const PREFETCH_INTERVAL_MS = 5000  // Check prefetch every 5 seconds during combat
+
+// Valid themes for card rewards (exclude hero, enemy, curse, status)
+const REWARD_THEMES = ['attack', 'skill', 'power'] as const
+type RewardTheme = typeof REWARD_THEMES[number]
+
+/** Pick random valid reward theme */
+function pickRandomTheme(): RewardTheme {
+  return REWARD_THEMES[Math.floor(Math.random() * REWARD_THEMES.length)]
+}
 
 interface CardCache {
   cards: CardDefinition[]
@@ -45,23 +55,43 @@ function notifyListeners() {
 }
 
 /**
- * Get cards from cache, falls back to generation if cache empty
+ * Get cards from cache, filtered by floor-appropriate rarity.
+ * Falls back to generation if cache doesn't have enough matching cards.
  */
-export async function getCachedCards(count: number): Promise<CardDefinition[]> {
+export async function getCachedCards(count: number, floor: number = 1): Promise<CardDefinition[]> {
   const result: CardDefinition[] = []
+  const allowedRarities = getAllowedRarities(floor)
 
-  // Take from cache first
-  while (result.length < count && cache.cards.length > 0) {
-    const card = cache.cards.shift()
-    if (card) result.push(card)
+  // Take from cache, filtering by allowed rarity for this floor
+  const remainingCache: CardDefinition[] = []
+  for (const card of cache.cards) {
+    if (result.length >= count) {
+      remainingCache.push(card)
+      continue
+    }
+
+    const cardRarity = (card.rarity ?? 'common') as CardRarity
+    if (allowedRarities.includes(cardRarity)) {
+      result.push(card)
+    } else {
+      // Keep cards that don't match current floor for later
+      remainingCache.push(card)
+    }
   }
+  cache.cards = remainingCache
 
-  // If cache couldn't fulfill, generate remaining (art is always included)
+  // If cache couldn't fulfill, generate remaining with proper constraints
   if (result.length < count) {
     const needed = count - result.length
+    // Pick floor-appropriate rarity for generation
+    const targetRarity = pickFloorRarity(floor)
+
     const generated = await Promise.all(
       Array.from({ length: needed }, () =>
-        generateRandomCard().catch(() => null)
+        generateRandomCard({
+          theme: pickRandomTheme(),
+          rarity: targetRarity,
+        }).catch(() => null)
       )
     )
     result.push(...generated.filter((c): c is CardDefinition => c !== null))
@@ -74,6 +104,17 @@ export async function getCachedCards(count: number): Promise<CardDefinition[]> {
   return result
 }
 
+/** Pick appropriate rarity based on floor (weighted toward common) */
+function pickFloorRarity(floor: number): 'common' | 'uncommon' | 'rare' {
+  const allowed = getAllowedRarities(floor)
+  const roll = Math.random()
+
+  // Weight: 60% common, 30% uncommon, 10% rare (if allowed)
+  if (allowed.includes('rare') && roll > 0.9) return 'rare'
+  if (allowed.includes('uncommon') && roll > 0.6) return 'uncommon'
+  return 'common'
+}
+
 /**
  * Get current cache size (for UI display)
  */
@@ -83,12 +124,16 @@ export function getCacheSize(): number {
 
 /**
  * Generate a single card and add to cache.
+ * Only generates valid reward themes (attack/skill/power).
  * Returns true if successful.
  */
 async function generateOneCard(): Promise<boolean> {
   try {
-    const card = await generateRandomCard()
-    cache.cards.push(card)
+    const card = await generateRandomCard({
+      theme: pickRandomTheme(),
+      // Mix of rarities for cache - will be filtered by floor when pulled
+    })
+    cache.cards = [...cache.cards, card]
     notifyListeners()
     return true
   } catch (err) {

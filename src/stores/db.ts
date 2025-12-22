@@ -4,13 +4,30 @@ import type {
   DungeonDeckDefinition,
   OwnedDungeonDeck,
   ModifierDefinition,
-  CollectionUnlockRecord,
-  CarrySlotRecord,
-  CarrySlotSource,
 } from '../types'
 
-// Re-export types for consumers
-export type { CollectionUnlockRecord, CarrySlotRecord }
+// ============================================
+// COLLECTION & CARRY SLOT TYPES
+// ============================================
+
+export type CarrySlotSource = 'reward' | 'purchase' | 'run_clear' | 'protected'
+
+export interface CollectionUnlockRecord {
+  id?: number
+  cardId: string
+  unlockedAt: Date
+  unlockSource: 'starter' | 'reward' | 'purchase' | 'achievement' | 'generated'
+  unlockValue?: string // e.g., achievement ID or dungeon ID
+}
+
+export interface CarrySlotRecord {
+  id?: number
+  slotIndex: 0 | 1 | 2
+  cardId: string
+  protected: boolean
+  source: CarrySlotSource
+  acquiredAt: Date
+}
 
 // ============================================
 // RUN HISTORY SCHEMA

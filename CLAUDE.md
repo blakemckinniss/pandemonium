@@ -8,6 +8,21 @@
 
 Slay the Spire inspired roguelike card game with drag-and-drop combat.
 
+## 🚨 AI-FIRST PRINCIPLE (HARD RULE) 🚨
+
+**This is an AI-powered game. NO MOCK DATA. NO HARDCODED FALLBACKS.**
+
+| Rule | Enforcement |
+|------|-------------|
+| Card generation | Use Groq API via `generateRandomCard()` - NEVER local presets |
+| Image generation | Use ComfyUI via image-gen API - NEVER placeholder images |
+| Dungeon generation | Use Groq API via `generateDungeon()` - NEVER static content |
+| Dev tools | Must use SAME live APIs as production game |
+
+**Why:** The entire value proposition is AI-generated content. Mock data defeats the purpose.
+
+**Pattern:** If a feature needs AI content, call the real API. If the API is down, show an error - don't fall back to hardcoded data.
+
 ## Art Direction: Erotic Fantasy Waifu Game
 
 **This is an NSFW anime waifu card game.** The visual identity centers on attractive anime characters with erotic appeal.
@@ -54,6 +69,63 @@ This is a highly visual game - every UI element matters. The plugin automaticall
 | Characters | Anime waifu aesthetic, voluptuous, revealing outfits |
 
 **When building UI components:** Commit to bold choices. Cards should feel tactile. Combat should feel impactful. Character art should be alluring. Never settle for generic.
+
+## 🚨 SERVER INFRASTRUCTURE (HARD ENFORCED) 🚨
+
+> **⚠️ HOOKS ENFORCE THIS AUTOMATICALLY. Curl without timeout = BLOCKED. Operations on dead servers = BLOCKED.**
+
+This project has **3 reserved server slots**. Hooks in `.claude/hooks/` enforce proper usage.
+
+### Reserved Ports
+
+| Server | Port | Purpose | Health Check |
+|--------|------|---------|--------------|
+| **Vite** | 5173 | Dev server | HTTP response |
+| **ComfyUI** | 8188 | GPU image gen | JSON from `/system_stats` |
+| **Image-gen** | 8420 | Card prompts | JSON status from `/health` |
+
+### Server Manager (USE THIS)
+
+```bash
+# Check all servers
+python .claude/hooks/server_manager.py status
+
+# Start a server
+python .claude/hooks/server_manager.py start vite
+python .claude/hooks/server_manager.py start comfyui
+python .claude/hooks/server_manager.py start imagegen
+
+# Ensure running (start if needed)
+python .claude/hooks/server_manager.py ensure comfyui
+
+# Quick port check
+python .claude/hooks/server_manager.py ports
+```
+
+### Hard Blocks (Automatic)
+
+| Hook | Blocks | Fix |
+|------|--------|-----|
+| `curl_enforcer.py` | `curl` without `--connect-timeout` | Add `--connect-timeout 2 -m 5` |
+| `server_gate.py` | Operations when required server down | Start server first |
+| `server_status_init.py` | (SessionStart) Shows status on init | N/A |
+
+### Curl Rules
+
+```bash
+# ❌ BLOCKED - No timeout
+curl http://localhost:5173
+
+# ✅ ALLOWED - Has timeout
+curl --connect-timeout 2 -m 5 http://localhost:5173
+
+# ✅ BETTER - Check server first
+python .claude/hooks/server_manager.py status
+```
+
+**Max timeout: 10 seconds.** Anything longer defeats the purpose.
+
+---
 
 ## Critical Integrations (ALWAYS ACTIVE)
 

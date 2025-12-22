@@ -6,7 +6,6 @@ import type { Element } from './elements'
 import type { EffectValue } from './values'
 import type { EntityTarget, CardTheme } from './targeting'
 import type { AtomicEffect } from './effects'
-import type { DeckHookDefinition } from './deck-builder'
 
 // Card Variants
 export type CardVariant = 'player' | 'hand' | 'enemy' | 'room'
@@ -152,7 +151,6 @@ export interface CardDefinition {
   passive?: AtomicEffect[] // Effects applied at combat start
   activated?: HeroActivated // Ability usable once per turn
   ultimate?: HeroUltimate // Powerful ability that charges over time
-  deckHooks?: DeckHookDefinition[] // Hooks to modify deck building for this hero
 
   // Enemy-specific fields (only for theme: 'enemy')
   enemyStats?: EnemyStats

@@ -1,57 +1,23 @@
 import type { CardDefinition, CardInstance } from '../types'
 import { logger } from '../lib/logger'
-import { createHeroBonusHook } from './deck-builder/hero-hooks'
-
-// Import evergreen initialization and re-export query functions
-import {
-  initializeEvergreenCards,
-  getAllEvergreenCardIds,
-  getEvergreenMeta,
-  getAllEvergreenMeta,
-  getBasePoolCardIds,
-  getUnlockPoolCardIds,
-  getUnlockedCollectionCardIds,
-  isUnlockConditionMet,
-} from './evergreen-cards'
-
-export {
-  getAllEvergreenCardIds,
-  getEvergreenMeta,
-  getAllEvergreenMeta,
-  getBasePoolCardIds,
-  getUnlockPoolCardIds,
-  getUnlockedCollectionCardIds,
-  isUnlockConditionMet,
-}
 
 // ============================================
 // CARD REGISTRY
+// All player cards are AI-generated at runtime.
+// Only heroes and enemies are predefined.
 // ============================================
 
 const cardRegistry = new Map<string, CardDefinition>()
 
-// Deferred initialization flag
-let evergreenInitialized = false
-
-/**
- * Ensure evergreen cards are initialized.
- * Safe to call multiple times.
- */
-function ensureEvergreenInitialized(): void {
-  if (evergreenInitialized) return
-  evergreenInitialized = true
-  initializeEvergreenCards((card) => cardRegistry.set(card.id, card))
-}
-
 // Required fields for each card theme
 const REQUIRED_FIELDS_BY_THEME: Record<string, (keyof CardDefinition)[]> = {
-  attack: ['id', 'name', 'description', 'energy', 'theme', 'target', 'effects', 'image', 'element'],
-  skill: ['id', 'name', 'description', 'energy', 'theme', 'target', 'effects', 'image', 'element'],
-  power: ['id', 'name', 'description', 'energy', 'theme', 'target', 'effects', 'image', 'element'],
-  curse: ['id', 'name', 'description', 'energy', 'theme', 'target', 'effects', 'element'],
-  status: ['id', 'name', 'description', 'energy', 'theme', 'target', 'effects', 'element'],
-  hero: ['id', 'name', 'description', 'theme', 'image', 'heroStats', 'element'],
-  enemy: ['id', 'name', 'description', 'theme', 'image', 'enemyStats', 'element'],
+  attack: ['id', 'name', 'description', 'energy', 'theme', 'target', 'effects'],
+  skill: ['id', 'name', 'description', 'energy', 'theme', 'target', 'effects'],
+  power: ['id', 'name', 'description', 'energy', 'theme', 'target', 'effects'],
+  curse: ['id', 'name', 'description', 'energy', 'theme', 'target', 'effects'],
+  status: ['id', 'name', 'description', 'energy', 'theme', 'target', 'effects'],
+  hero: ['id', 'name', 'description', 'theme', 'image', 'heroStats'],
+  enemy: ['id', 'name', 'description', 'theme', 'image', 'enemyStats'],
 }
 
 /**
@@ -94,8 +60,8 @@ export function registerCard(card: CardDefinition): boolean {
 }
 
 /**
- * Force-register a card without validation (use sparingly).
- * For AI-generated cards still awaiting image generation.
+ * Force-register a card without validation.
+ * Used for AI-generated cards and predefined heroes/enemies.
  */
 export function registerCardUnsafe(card: CardDefinition): void {
   cardRegistry.set(card.id, card)
@@ -118,20 +84,11 @@ export function purgeInvalidCards(): string[] {
 }
 
 export function getCardDefinition(id: string): CardDefinition | undefined {
-  ensureEvergreenInitialized()
   return cardRegistry.get(id)
 }
 
 export function getAllCards(): CardDefinition[] {
-  ensureEvergreenInitialized()
   return Array.from(cardRegistry.values())
-}
-
-/**
- * Get starter card IDs for initializing player collection.
- */
-export function getStarterCardIds(): string[] {
-  return ['strike', 'defend', 'bash']
 }
 
 /**
@@ -165,7 +122,6 @@ export function getEnemyCardById(id: string): CardDefinition | undefined {
 
 /**
  * Get effective card definition, applying upgrades if card is upgraded
- * Use this when displaying cards or resolving effects
  */
 export function getEffectiveCardDef(card: CardInstance): CardDefinition | undefined {
   const base = cardRegistry.get(card.definitionId)
@@ -175,76 +131,66 @@ export function getEffectiveCardDef(card: CardInstance): CardDefinition | undefi
     return base
   }
 
-  // Merge upgraded properties over base
   return {
     ...base,
     ...base.upgradesTo,
-    // Preserve id from base
     id: base.id,
-    // Mark as upgraded
     upgraded: true,
   }
 }
 
 // ============================================
-// STARTER CARDS
-// These are the free cards given to every player.
-// All other cards are generated via AI and stored
-// in the player's collection (IndexedDB).
+// STARTER DECK CARDS
+// Basic cards for all heroes' starting decks.
 // ============================================
 
-// Built-in cards use registerCardUnsafe - they're developer-curated, not AI-generated
-// The validated registerCard() is for AI-generated cards that must have images
 registerCardUnsafe({
   id: 'strike',
-  name: 'Passionate Strike',
-  description: 'Lash out with fervent intensity. Deal 6 damage.',
+  name: 'Strike',
+  description: 'Deal 6 damage.',
   energy: 1,
   theme: 'attack',
   target: 'enemy',
   rarity: 'common',
-  element: 'physical',
   effects: [{ type: 'damage', amount: 6 }],
   upgradesTo: {
-    name: 'Passionate Strike+',
-    description: 'An even fiercer blow. Deal 9 damage.',
+    name: 'Strike+',
+    description: 'Deal 9 damage.',
     effects: [{ type: 'damage', amount: 9 }],
   },
 })
 
 registerCardUnsafe({
   id: 'defend',
-  name: 'Alluring Guard',
-  description: 'Deflect with graceful poise. Gain 5 Block.',
+  name: 'Defend',
+  description: 'Gain 5 Block.',
   energy: 1,
   theme: 'skill',
   target: 'self',
   rarity: 'common',
-  element: 'physical',
   effects: [{ type: 'block', amount: 5 }],
   upgradesTo: {
-    name: 'Alluring Guard+',
-    description: 'An impenetrable stance. Gain 8 Block.',
+    name: 'Defend+',
+    description: 'Gain 8 Block.',
     effects: [{ type: 'block', amount: 8 }],
   },
 })
 
 registerCardUnsafe({
   id: 'bash',
-  name: 'Ravishing Blow',
-  description: 'A stunning strike that leaves them breathless. Deal 8 damage. Apply 2 Vulnerable.',
+  name: 'Bash',
+  description: 'Deal 8 damage. Apply 2 Vulnerable.',
   energy: 2,
   theme: 'attack',
   target: 'enemy',
   rarity: 'common',
-  element: 'physical',
   effects: [
     { type: 'damage', amount: 8 },
     { type: 'applyPower', powerId: 'vulnerable', amount: 2 },
   ],
   upgradesTo: {
-    name: 'Ravishing Blow+',
-    description: 'Impossible to resist. Deal 10 damage. Apply 3 Vulnerable.',
+    name: 'Bash+',
+    description: 'Deal 10 damage. Apply 3 Vulnerable.',
     effects: [
       { type: 'damage', amount: 10 },
       { type: 'applyPower', powerId: 'vulnerable', amount: 3 },
@@ -254,7 +200,8 @@ registerCardUnsafe({
 
 // ============================================
 // STARTER HEROES
-// Three anime heroines with distinct elemental identities.
+// Sensual anime heroines with elemental powers.
+// All cards in their decks are AI-generated.
 // ============================================
 
 registerCardUnsafe({
@@ -275,7 +222,6 @@ registerCardUnsafe({
     drawPerTurn: 5,
   },
   passive: [
-    // Start combat with 2 Burning on all enemies
     { type: 'applyPower', powerId: 'burning', amount: 2, target: 'allEnemies' },
   ],
   activated: {
@@ -295,10 +241,6 @@ registerCardUnsafe({
     chargesRequired: 4,
     chargeOn: 'cardPlayed',
   },
-  // Fire affinity: Bonus fire-themed card in starter deck
-  deckHooks: [
-    createHeroBonusHook('hero_sakura', ['eg_flex'], 'Inner fire: Start with Flex for Strength stacking'),
-  ],
   effects: [],
 })
 
@@ -320,7 +262,6 @@ registerCardUnsafe({
     drawPerTurn: 5,
   },
   passive: [
-    // Start combat with 8 Block
     { type: 'block', amount: 8, target: 'self' },
   ],
   activated: {
@@ -340,10 +281,6 @@ registerCardUnsafe({
     chargesRequired: 4,
     chargeOn: 'turnStart',
   },
-  // Ice affinity: Bonus defensive card in starter deck
-  deckHooks: [
-    createHeroBonusHook('hero_luna', ['eg_iron_wall'], 'Frozen fortress: Start with Iron Wall for extra defense'),
-  ],
   effects: [],
 })
 
@@ -365,7 +302,6 @@ registerCardUnsafe({
     drawPerTurn: 6,
   },
   passive: [
-    // Start combat with 1 extra energy and draw
     { type: 'draw', amount: 1 },
   ],
   activated: {
@@ -386,14 +322,10 @@ registerCardUnsafe({
     chargesRequired: 5,
     chargeOn: 'cardPlayed',
   },
-  // Speed affinity: Filter for low-cost cards + bonus draw card
-  deckHooks: [
-    createHeroBonusHook('hero_aria', ['eg_concentrate'], 'Swift mind: Start with Concentrate for extra draws'),
-  ],
   effects: [],
 })
 
-// Test heroes used by hero.test.ts - simple abilities for predictable testing
+// Test heroes for hero.test.ts
 registerCardUnsafe({
   id: 'hero_pyromancer',
   name: 'Pyromancer',
@@ -456,383 +388,8 @@ registerCardUnsafe({
 })
 
 // ============================================
-// BASIC CARDS
-// Common cards for testing and early gameplay.
-// Most cards are AI-generated, but these provide
-// a baseline for game mechanics.
-// ============================================
-
-// --- POWER CARDS ---
-
-registerCardUnsafe({
-  id: 'inflame',
-  name: 'Burning Desire',
-  description: 'Stoke the flames of passion within. Gain 2 Strength.',
-  energy: 1,
-  theme: 'power',
-  target: 'self',
-  rarity: 'uncommon',
-  element: 'fire',
-  effects: [{ type: 'applyPower', powerId: 'strength', amount: 2, target: 'self' }],
-})
-
-registerCardUnsafe({
-  id: 'demon_form',
-  name: 'Succubus Form',
-  description: 'Embrace your inner demon. At the start of each turn, gain 2 Strength.',
-  energy: 3,
-  theme: 'power',
-  target: 'self',
-  rarity: 'rare',
-  element: 'fire',
-  effects: [{ type: 'applyPower', powerId: 'demonForm', amount: 2, target: 'self' }],
-})
-
-registerCardUnsafe({
-  id: 'metallicize',
-  name: 'Armored Allure',
-  description: 'Clad yourself in irresistible protection. At the end of your turn, gain 3 Block.',
-  energy: 1,
-  theme: 'power',
-  target: 'self',
-  rarity: 'uncommon',
-  element: 'physical',
-  effects: [{ type: 'applyPower', powerId: 'metallicize', amount: 3, target: 'self' }],
-})
-
-registerCardUnsafe({
-  id: 'noxious_fumes',
-  name: 'Intoxicating Mist',
-  description: 'Release an irresistible aroma. At the start of your turn, apply 2 Poison to ALL.',
-  energy: 1,
-  theme: 'power',
-  target: 'self',
-  rarity: 'uncommon',
-  element: 'void',
-  effects: [{ type: 'applyPower', powerId: 'noxiousFumes', amount: 2, target: 'self' }],
-})
-
-// --- ATTACK CARDS ---
-
-registerCardUnsafe({
-  id: 'pommel_strike',
-  name: "Lover's Blow",
-  description: 'A teasing strike that leaves them wanting more. Deal 9 damage. Draw 1 card.',
-  energy: 1,
-  theme: 'attack',
-  target: 'enemy',
-  rarity: 'common',
-  element: 'physical',
-  effects: [
-    { type: 'damage', amount: 9 },
-    { type: 'draw', amount: 1 },
-  ],
-})
-
-registerCardUnsafe({
-  id: 'cleave',
-  name: 'Sweeping Caress',
-  description: 'Touch them all at once. Deal 8 damage to ALL enemies.',
-  energy: 1,
-  theme: 'attack',
-  target: 'allEnemies',
-  rarity: 'common',
-  element: 'physical',
-  effects: [{ type: 'damage', amount: 8, target: 'allEnemies' }],
-})
-
-registerCardUnsafe({
-  id: 'twin_strike',
-  name: 'Double Tease',
-  description: 'Two quick strikes that leave them flustered. Deal 5 damage twice.',
-  energy: 1,
-  theme: 'attack',
-  target: 'enemy',
-  rarity: 'common',
-  element: 'physical',
-  effects: [
-    { type: 'damage', amount: 5 },
-    { type: 'damage', amount: 5 },
-  ],
-})
-
-registerCardUnsafe({
-  id: 'heavy_blade',
-  name: 'Crushing Embrace',
-  description: 'Overwhelm them with your full force. Deal 14 damage.',
-  energy: 2,
-  theme: 'attack',
-  target: 'enemy',
-  rarity: 'common',
-  element: 'physical',
-  effects: [{ type: 'damage', amount: 14 }],
-})
-
-registerCardUnsafe({
-  id: 'fireball',
-  name: 'Blazing Passion',
-  description: 'Unleash smoldering desire. Deal 12 damage. Apply 3 Burning.',
-  energy: 2,
-  theme: 'attack',
-  target: 'enemy',
-  rarity: 'uncommon',
-  element: 'fire',
-  effects: [
-    { type: 'damage', amount: 12, element: 'fire' },
-    { type: 'applyPower', powerId: 'burning', amount: 3 },
-  ],
-})
-
-registerCardUnsafe({
-  id: 'frost_bolt',
-  name: 'Icy Kiss',
-  description: 'A chilling touch that numbs the senses. Deal 8 damage. Apply 2 Frozen.',
-  energy: 1,
-  theme: 'attack',
-  target: 'enemy',
-  rarity: 'common',
-  element: 'ice',
-  effects: [
-    { type: 'damage', amount: 8, element: 'ice' },
-    { type: 'applyPower', powerId: 'frozen', amount: 2 },
-  ],
-})
-
-registerCardUnsafe({
-  id: 'lightning_strike',
-  name: 'Electric Touch',
-  description: 'Send shivers through their body. Deal 7 damage 3 times.',
-  energy: 2,
-  theme: 'attack',
-  target: 'enemy',
-  rarity: 'uncommon',
-  element: 'lightning',
-  effects: [
-    { type: 'damage', amount: 7, element: 'lightning' },
-    { type: 'damage', amount: 7, element: 'lightning' },
-    { type: 'damage', amount: 7, element: 'lightning' },
-  ],
-})
-
-registerCardUnsafe({
-  id: 'void_rend',
-  name: 'Dark Seduction',
-  description: 'Drain their will to resist. Deal 10 damage. Apply 3 Weak.',
-  energy: 2,
-  theme: 'attack',
-  target: 'enemy',
-  rarity: 'uncommon',
-  element: 'void',
-  effects: [
-    { type: 'damage', amount: 10, element: 'void' },
-    { type: 'applyPower', powerId: 'weak', amount: 3 },
-  ],
-})
-
-// --- SKILL CARDS ---
-
-registerCardUnsafe({
-  id: 'shrug_it_off',
-  name: 'Playful Dodge',
-  description: 'Dance away with a teasing smile. Gain 8 Block. Draw 1 card.',
-  energy: 1,
-  theme: 'skill',
-  target: 'self',
-  rarity: 'common',
-  element: 'physical',
-  effects: [
-    { type: 'block', amount: 8, target: 'self' },
-    { type: 'draw', amount: 1 },
-  ],
-})
-
-registerCardUnsafe({
-  id: 'armaments',
-  name: 'Battle Lingerie',
-  description: 'Enhance your outfit for combat. Gain 5 Block. Upgrade a card in your hand.',
-  energy: 1,
-  theme: 'skill',
-  target: 'self',
-  rarity: 'common',
-  element: 'physical',
-  effects: [
-    { type: 'block', amount: 5, target: 'self' },
-    { type: 'upgrade', target: { from: 'hand', count: 1 } },
-  ],
-})
-
-registerCardUnsafe({
-  id: 'true_grit',
-  name: 'Steely Resolve',
-  description: 'Harden your heart. Gain 7 Block. Exhaust a card in your hand.',
-  energy: 1,
-  theme: 'skill',
-  target: 'self',
-  rarity: 'common',
-  element: 'physical',
-  effects: [
-    { type: 'block', amount: 7, target: 'self' },
-    { type: 'exhaust', target: { from: 'hand', count: 1 } },
-  ],
-})
-
-registerCardUnsafe({
-  id: 'ice_barrier',
-  name: 'Frigid Refusal',
-  description: 'Become untouchable. Gain 12 Block. Apply 1 Frozen to yourself.',
-  energy: 2,
-  theme: 'skill',
-  target: 'self',
-  rarity: 'uncommon',
-  element: 'ice',
-  effects: [
-    { type: 'block', amount: 12, target: 'self' },
-    { type: 'applyPower', powerId: 'frozen', amount: 1, target: 'self' },
-  ],
-})
-
-registerCardUnsafe({
-  id: 'second_wind',
-  name: 'Breathless Recovery',
-  description: 'Catch your breath after exertion. Gain 12 Block. Exhaust a card.',
-  energy: 1,
-  theme: 'skill',
-  target: 'self',
-  rarity: 'uncommon',
-  element: 'physical',
-  effects: [
-    { type: 'block', amount: 12, target: 'self' },
-    { type: 'exhaust', target: { from: 'hand', count: 1 } },
-  ],
-})
-
-registerCardUnsafe({
-  id: 'bloodletting',
-  name: 'Crimson Sacrifice',
-  description: 'Offer your essence for power. Lose 3 HP. Gain 2 Energy.',
-  energy: 0,
-  theme: 'skill',
-  target: 'self',
-  rarity: 'uncommon',
-  element: 'void',
-  effects: [
-    { type: 'damage', amount: 3, target: 'self', piercing: true },
-    { type: 'energy', amount: 2, operation: 'gain' },
-  ],
-})
-
-registerCardUnsafe({
-  id: 'battle_trance',
-  name: 'Hypnotic Focus',
-  description: 'Enter a mesmerizing state. Draw 3 cards. Cannot draw more this turn.',
-  energy: 0,
-  theme: 'skill',
-  target: 'self',
-  rarity: 'uncommon',
-  element: 'physical',
-  effects: [
-    { type: 'draw', amount: 3 },
-    { type: 'applyPower', powerId: 'noDraw', amount: 1, target: 'self' },
-  ],
-})
-
-// ============================================
-// PREMIUM RARITY SHOWCASE CARDS
-// Legendary, Mythic, and Ancient tier cards
-// featuring enhanced WebGL holographic effects
-// ============================================
-
-registerCardUnsafe({
-  id: 'phoenix_rebirth',
-  name: 'Passionate Resurrection',
-  description: 'Rise from the flames of desire. Deal 15 damage. Apply 5 Burning. Heal 8 HP.',
-  energy: 3,
-  theme: 'attack',
-  target: 'enemy',
-  rarity: 'legendary',
-  element: 'fire',
-  effects: [
-    { type: 'damage', amount: 15 },
-    { type: 'applyPower', powerId: 'burning', amount: 5 },
-    { type: 'heal', amount: 8, target: 'self' },
-  ],
-})
-
-registerCardUnsafe({
-  id: 'glacial_fortress',
-  name: 'Frigid Dominion',
-  description: 'Become an untouchable ice queen. Gain 25 Block. Apply 3 Frozen to ALL enemies.',
-  energy: 3,
-  theme: 'skill',
-  target: 'self',
-  rarity: 'legendary',
-  element: 'ice',
-  effects: [
-    { type: 'block', amount: 25, target: 'self' },
-    { type: 'applyPower', powerId: 'frozen', amount: 3, target: 'allEnemies' },
-  ],
-})
-
-registerCardUnsafe({
-  id: 'storm_avatar',
-  name: 'Tempest Goddess',
-  description: 'Awaken divine fury within. Gain 3 Strength. Deal 24 damage to ALL enemies.',
-  energy: 4,
-  theme: 'attack',
-  target: 'allEnemies',
-  rarity: 'mythic',
-  element: 'lightning',
-  effects: [
-    { type: 'applyPower', powerId: 'strength', amount: 3, target: 'self' },
-    { type: 'damage', amount: 24 },
-  ],
-})
-
-registerCardUnsafe({
-  id: 'void_embrace',
-  name: 'Abyssal Surrender',
-  description: 'Let the darkness take you. Draw 5 cards. Apply 5 Vulnerable to an enemy.',
-  energy: 2,
-  theme: 'skill',
-  target: 'enemy',
-  rarity: 'mythic',
-  element: 'void',
-  effects: [
-    { type: 'draw', amount: 5 },
-    { type: 'applyPower', powerId: 'vulnerable', amount: 5 },
-  ],
-})
-
-registerCardUnsafe({
-  id: 'primordial_inferno',
-  name: 'Eternal Flame of Desire',
-  description: 'Unleash the primal fire within your soul. Deal 50 damage. Apply 10 Burning.',
-  energy: 5,
-  theme: 'attack',
-  target: 'enemy',
-  rarity: 'ancient',
-  element: 'fire',
-  effects: [
-    { type: 'damage', amount: 50 },
-    { type: 'applyPower', powerId: 'burning', amount: 10 },
-  ],
-})
-
-registerCardUnsafe({
-  id: 'cosmic_singularity',
-  name: "Oblivion's Kiss",
-  description: 'The final embrace of the void consumes all. Deal 99 damage to an enemy.',
-  energy: 6,
-  theme: 'attack',
-  target: 'enemy',
-  rarity: 'ancient',
-  element: 'void',
-  effects: [{ type: 'damage', amount: 99 }],
-})
-
-// ============================================
-// BOSS ENEMY CARDS
-// Special enemy cards with ultimates that trigger at low health
+// BOSS ENEMIES
+// Seductive monster bosses with ultimates.
 // ============================================
 
 registerCardUnsafe({
@@ -906,175 +463,4 @@ registerCardUnsafe({
       { type: 'applyPower', powerId: 'frail', amount: 5, target: 'player' },
     ],
   },
-})
-
-// ============================================
-// SEDUCTIVE CARDS
-// Charm/seduce themed cards using erotic powers
-// ============================================
-
-registerCardUnsafe({
-  id: 'sultry_gaze',
-  name: 'Sultry Gaze',
-  description: 'Your eyes bewitch them. Apply 2 Charmed.',
-  energy: 1,
-  theme: 'skill',
-  target: 'enemy',
-  rarity: 'common',
-  element: 'void',
-  effects: [{ type: 'applyPower', powerId: 'charmed', amount: 2 }],
-})
-
-registerCardUnsafe({
-  id: 'seductive_whisper',
-  name: 'Seductive Whisper',
-  description: 'Whisper sweet nothings. Apply 2 Flustered. Draw 1 card.',
-  energy: 1,
-  theme: 'skill',
-  target: 'enemy',
-  rarity: 'common',
-  element: 'void',
-  effects: [
-    { type: 'applyPower', powerId: 'flustered', amount: 2 },
-    { type: 'draw', amount: 1 },
-  ],
-})
-
-registerCardUnsafe({
-  id: 'bedroom_eyes',
-  name: 'Bedroom Eyes',
-  description: 'They cannot resist. Apply 3 Enthralled.',
-  energy: 2,
-  theme: 'skill',
-  target: 'enemy',
-  rarity: 'uncommon',
-  element: 'void',
-  effects: [{ type: 'applyPower', powerId: 'enthralled', amount: 3 }],
-})
-
-registerCardUnsafe({
-  id: 'heartbreaker_strike',
-  name: 'Heartbreaker',
-  description: 'Break their heart. Deal 8 damage. Apply 1 Lovestruck.',
-  energy: 1,
-  theme: 'attack',
-  target: 'enemy',
-  rarity: 'uncommon',
-  element: 'void',
-  effects: [
-    { type: 'damage', amount: 8 },
-    { type: 'applyPower', powerId: 'lovestruck', amount: 1 },
-  ],
-})
-
-registerCardUnsafe({
-  id: 'captivating_dance',
-  name: 'Captivating Dance',
-  description: 'Your sensual movements mesmerize. Apply 1 Seduced to ALL enemies.',
-  energy: 2,
-  theme: 'skill',
-  target: 'allEnemies',
-  rarity: 'rare',
-  element: 'void',
-  effects: [{ type: 'applyPower', powerId: 'seduced', amount: 1 }],
-})
-
-registerCardUnsafe({
-  id: 'femme_fatale',
-  name: 'Femme Fatale',
-  description: 'Deadly allure. Gain 2 Allure. Gain 2 Seductress.',
-  energy: 2,
-  theme: 'power',
-  target: 'self',
-  rarity: 'rare',
-  element: 'void',
-  effects: [
-    { type: 'applyPower', powerId: 'allure', amount: 2, target: 'self' },
-    { type: 'applyPower', powerId: 'seductress', amount: 2, target: 'self' },
-  ],
-})
-
-registerCardUnsafe({
-  id: 'irresistible_charm',
-  name: 'Irresistible Charm',
-  description: 'None can resist your beauty. Gain Irresistible. Charm cards cost 1 less.',
-  energy: 1,
-  theme: 'power',
-  target: 'self',
-  rarity: 'uncommon',
-  element: 'void',
-  effects: [{ type: 'applyPower', powerId: 'irresistible', amount: 1, target: 'self' }],
-})
-
-registerCardUnsafe({
-  id: 'aura_of_temptation',
-  name: 'Aura of Temptation',
-  description: 'Your presence intoxicates. Gain 1 Temptation. Each turn, charm a random enemy.',
-  energy: 2,
-  theme: 'power',
-  target: 'self',
-  rarity: 'rare',
-  element: 'void',
-  effects: [{ type: 'applyPower', powerId: 'temptation', amount: 1, target: 'self' }],
-})
-
-registerCardUnsafe({
-  id: 'dominating_presence',
-  name: 'Dominating Presence',
-  description: 'Assert your dominance. Gain 2 Domination. Charmed enemies take bonus damage.',
-  energy: 2,
-  theme: 'power',
-  target: 'self',
-  rarity: 'rare',
-  element: 'void',
-  effects: [{ type: 'applyPower', powerId: 'domination', amount: 2, target: 'self' }],
-})
-
-registerCardUnsafe({
-  id: 'passionate_kiss',
-  name: 'Passionate Kiss',
-  description: 'Steal their breath away. Deal 6 damage. Heal 4 HP.',
-  energy: 1,
-  theme: 'attack',
-  target: 'enemy',
-  rarity: 'common',
-  element: 'void',
-  effects: [
-    { type: 'damage', amount: 6 },
-    { type: 'heal', amount: 4, target: 'self' },
-  ],
-})
-
-registerCardUnsafe({
-  id: 'love_drunk',
-  name: 'Love Drunk',
-  description: 'They stumble in a daze. Deal 12 damage to Charmed enemies. Otherwise, apply 2 Charmed.',
-  energy: 2,
-  theme: 'attack',
-  target: 'enemy',
-  rarity: 'uncommon',
-  element: 'void',
-  effects: [
-    {
-      type: 'conditional',
-      condition: { type: 'hasPower', powerId: 'charmed', target: 'enemy' },
-      then: [{ type: 'damage', amount: 12 }],
-      else: [{ type: 'applyPower', powerId: 'charmed', amount: 2 }],
-    },
-  ],
-})
-
-registerCardUnsafe({
-  id: 'succubus_embrace',
-  name: 'Succubus Embrace',
-  description: 'Drain their very essence. Deal 15 damage. Heal equal to damage dealt.',
-  energy: 3,
-  theme: 'attack',
-  target: 'enemy',
-  rarity: 'legendary',
-  element: 'void',
-  effects: [
-    { type: 'damage', amount: 15 },
-    { type: 'heal', amount: 15, target: 'self' },
-  ],
 })

@@ -1,5 +1,13 @@
 import { describe, it, expect } from 'vitest'
-import type { UnlockCondition } from '../../../types'
+
+// Local type definition for unlock conditions (matches unlock system)
+type UnlockCondition =
+  | { type: 'always' }
+  | { type: 'totalWins'; count: number }
+  | { type: 'streakReached'; streak: number }
+  | { type: 'dungeonClear'; dungeonId: string }
+  | { type: 'heroAffection'; heroId: string; level: number }
+  | { type: 'achievement'; achievementId: string }
 
 // Extract the formatUnlockCondition logic for testing
 // (matches implementation in CollectionTab.tsx)
