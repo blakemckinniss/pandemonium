@@ -157,6 +157,9 @@ export const useRunLockStore = create<RunLockStoreState>()(
 
         // Increment streak on successful completion
         incrementStreak()
+
+        // TODO (claude-p9bl): Award protected carry slot on dungeon clear
+        // awardProtectedCarrySlot() - will be implemented with carry slots system
       },
 
       // Fail run (death)
@@ -176,6 +179,9 @@ export const useRunLockStore = create<RunLockStoreState>()(
 
         // Break streak on death
         breakStreak()
+
+        // TODO (claude-p9bl): Clear unprotected carry slots on death
+        // clearUnprotectedCarrySlots() - will be implemented with carry slots system
       },
 
       // Abandon run (with gold cost)

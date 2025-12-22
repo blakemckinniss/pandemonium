@@ -382,6 +382,9 @@ export function GameScreen({ deckId, heroId, dungeonDeckId, selectedModifierIds,
           setPreviousStreak(streak.currentStreak)
           incrementStreak()
 
+          // Mark run as completed in runLockStore (handles streak/heat persistence)
+          useRunLockStore.getState().completeRun()
+
           setState((prev) => {
             if (!prev) return prev
             return { ...prev, gamePhase: 'dungeonComplete', combat: null, gold: prev.gold + goldReward }
@@ -513,6 +516,11 @@ export function GameScreen({ deckId, heroId, dungeonDeckId, selectedModifierIds,
     if (!isWin && !isLoss) return
 
     runRecordedRef.current = true
+
+    // Handle death: reset streak, clear unprotected carry slots
+    if (isLoss) {
+      useRunLockStore.getState().failRun()
+    }
 
     const runResult = {
       won: isWin,
