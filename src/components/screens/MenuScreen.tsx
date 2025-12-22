@@ -12,8 +12,6 @@ import {
   type CustomDeckRecord,
   type CollectionUnlockRecord,
 } from '../../stores/db'
-import { getAllEvergreenMeta } from '../../game/evergreen-cards'
-import type { CollectionCardMeta } from '../../types/deck-builder'
 import { CollectionTab } from '../CollectionTab'
 
 // Adapter type for backwards compatibility with collection UI
@@ -49,9 +47,10 @@ import { GachaReveal } from '../PackOpening'
 import { ModifierSelection } from '../ModifierSelection/ModifierSelection'
 import { HeroCarousel } from '../HeroCarousel/HeroCarousel'
 import { GalleryScreen } from './GalleryScreen'
+import { DevToolsTab } from '../DevToolsTab'
 import { useMetaStore } from '../../stores/metaStore'
 
-type HubTab = 'play' | 'collection' | 'build' | 'packs'
+type HubTab = 'play' | 'collection' | 'build' | 'packs' | 'dev'
 
 const INITIAL_FILTERS: CardFilters = {
   themes: [],
@@ -89,7 +88,6 @@ export function MenuScreen({ onStartRun }: MenuScreenProps) {
 
   // Collection & deck building state
   const [collection, setCollection] = useState<LegacyCollectionCard[]>([])
-  const [evergreenMeta, setEvergreenMeta] = useState<CollectionCardMeta[]>([])
   const [currentDeck, setCurrentDeck] = useState<string[]>([])
   const [deckName, setDeckName] = useState('Custom Deck')
   const [editingDeckId, setEditingDeckId] = useState<string | null>(null)
@@ -131,10 +129,6 @@ export function MenuScreen({ onStartRun }: MenuScreenProps) {
       setCollection(unlockRecordsToLegacy(unlocks))
       setDungeonDecks(dungeons)
       setSeeded(contentSeeded)
-
-      // Load all evergreen card metadata for collection display
-      const allMeta = getAllEvergreenMeta()
-      setEvergreenMeta(allMeta)
 
       // Load heroes - MVP: show all heroes for selection
       const allHeroes = getAllHeroes()
@@ -315,6 +309,7 @@ export function MenuScreen({ onStartRun }: MenuScreenProps) {
             { id: 'collection', icon: 'mdi:cards', label: `Collection (${collection.length})` },
             { id: 'build', icon: 'mdi:pencil', label: 'Build Deck' },
             { id: 'packs', icon: 'mdi:package-variant', label: 'Open Packs' },
+            { id: 'dev', icon: 'mdi:code-braces', label: 'Dev Tools' },
           ] as const).map((tab) => (
             <button
               key={tab.id}
@@ -353,7 +348,6 @@ export function MenuScreen({ onStartRun }: MenuScreenProps) {
         {activeTab === 'collection' && (
           <CollectionTab
             collection={collection}
-            evergreenMeta={evergreenMeta}
             filters={filters}
             setFilters={setFilters}
             sortBy={sortBy}
@@ -407,6 +401,10 @@ export function MenuScreen({ onStartRun }: MenuScreenProps) {
             onGachaComplete={() => void handleGachaComplete()}
             onGachaSkip={() => void handleGachaComplete()}
           />
+        )}
+
+        {activeTab === 'dev' && (
+          <DevToolsTab />
         )}
       </main>
 
