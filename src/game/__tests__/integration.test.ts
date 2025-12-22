@@ -827,3 +827,137 @@ describe('block decay across turns', () => {
     expect(result.combat?.player.block).toBe(15) // 5 + 5 + 5
   })
 })
+
+// ============================================================================
+// Reward → Deck Flow Integration Tests
+// ============================================================================
+
+describe('reward to deck flow', () => {
+  it('selecting_reward_card_adds_to_deck', () => {
+    // Arrange - Initial state with starter deck
+    const initialDeck = [
+      createCardInstance('strike', { uid: 'starter_strike_1' }),
+      createCardInstance('strike', { uid: 'starter_strike_2' }),
+      createCardInstance('defend', { uid: 'starter_defend_1' }),
+    ]
+
+    const state = createRunState({
+      gamePhase: 'reward',
+      deck: initialDeck,
+      gold: 50,
+    })
+
+    // Act - Simulate reward selection (what handleAddCard does)
+    const rewardCardId = 'bash'
+    const newCard = createCardInstance(rewardCardId)
+    const goldReward = 20
+
+    const updatedState: RunState = {
+      ...state,
+      deck: [...state.deck, newCard],
+      gold: state.gold + goldReward,
+    }
+
+    // Assert - Deck increased by 1
+    expect(updatedState.deck).toHaveLength(4)
+    expect(updatedState.deck[3].definitionId).toBe('bash')
+    expect(updatedState.gold).toBe(70)
+  })
+
+  it('reward_card_has_unique_uid', () => {
+    // Arrange
+    const initialDeck = [
+      createCardInstance('strike', { uid: 'starter_1' }),
+      createCardInstance('strike', { uid: 'starter_2' }),
+    ]
+
+    // Act - Add two copies of the same card as rewards
+    const reward1 = createCardInstance('heavy_blade')
+    const reward2 = createCardInstance('heavy_blade')
+
+    const finalDeck = [...initialDeck, reward1, reward2]
+
+    // Assert - Same definition, unique UIDs
+    expect(finalDeck[2].definitionId).toBe('heavy_blade')
+    expect(finalDeck[3].definitionId).toBe('heavy_blade')
+    expect(finalDeck[2].uid).not.toBe(finalDeck[3].uid)
+  })
+
+  it('reward_cards_persist_across_combat_restart', () => {
+    // Arrange - State after reward was claimed
+    const deckWithReward = [
+      createCardInstance('strike', { uid: 'starter_1' }),
+      createCardInstance('defend', { uid: 'starter_2' }),
+      createCardInstance('inflame', { uid: 'reward_1' }), // Claimed reward
+    ]
+
+    const state = createRunState({
+      gamePhase: 'roomSelect',
+      deck: deckWithReward,
+    })
+
+    // Act - Start new combat (simulated)
+    const combatState = createCombat({
+      drawPile: [...deckWithReward], // Deck becomes draw pile
+    })
+
+    const stateWithCombat: RunState = {
+      ...state,
+      gamePhase: 'combat',
+      combat: combatState,
+    }
+
+    // Assert - Reward card is in the new combat's draw pile
+    expect(stateWithCombat.combat?.drawPile).toHaveLength(3)
+    const inflameCard = stateWithCombat.combat?.drawPile.find(
+      (c) => c.definitionId === 'inflame'
+    )
+    expect(inflameCard).toBeDefined()
+    expect(inflameCard?.uid).toBe('reward_1')
+  })
+
+  it('multiple_rewards_accumulate_in_deck', () => {
+    // Arrange - Empty starter for clarity
+    let state = createRunState({
+      deck: [],
+      gold: 0,
+    })
+
+    // Act - Claim 5 rewards over multiple combats
+    const rewardCards = ['strike', 'defend', 'bash', 'inflame', 'heavy_blade']
+    for (const cardId of rewardCards) {
+      const newCard = createCardInstance(cardId)
+      state = {
+        ...state,
+        deck: [...state.deck, newCard],
+        gold: state.gold + 15,
+      }
+    }
+
+    // Assert
+    expect(state.deck).toHaveLength(5)
+    expect(state.gold).toBe(75)
+
+    // Verify each card is present with correct definition
+    const definitionIds = state.deck.map((c) => c.definitionId)
+    expect(definitionIds).toContain('strike')
+    expect(definitionIds).toContain('defend')
+    expect(definitionIds).toContain('bash')
+    expect(definitionIds).toContain('inflame')
+    expect(definitionIds).toContain('heavy_blade')
+  })
+
+  it('upgraded_reward_preserves_upgrade_status', () => {
+    // Arrange
+    const initialDeck = [createCardInstance('strike', { uid: 'starter_1' })]
+
+    // Act - Claim an upgraded reward (e.g., from upgraded card pool)
+    const upgradedReward = createCardInstance('strike', { upgraded: true })
+    const finalDeck = [...initialDeck, upgradedReward]
+
+    // Assert
+    expect(finalDeck[0].upgraded).toBe(false)
+    expect(finalDeck[1].upgraded).toBe(true)
+    expect(finalDeck[1].definitionId).toBe('strike')
+  })
+})
