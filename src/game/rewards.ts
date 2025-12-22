@@ -10,9 +10,13 @@ import type {
   StreakMilestoneReward,
   ModifierInstance,
   HeatState,
+  CardRarity,
+  CardDefinition,
 } from '../types'
 import { calculateStreakMultiplier, checkMilestoneReached } from './streak'
 import { getModifierDefinition } from './modifiers'
+import { getCardDefinition } from './cards'
+import { getUnlockedCollectionCardIds } from '../stores/db'
 
 // ============================================
 // BASE REWARD VALUES
@@ -31,6 +35,136 @@ const BASE_REWARDS = {
   // Modifier bonus (from reward value)
   modifierRewardMultiplier: 0.02, // 2% gold per point of total RV
 } as const
+
+// ============================================
+// CARD REWARD POOL (Collection-Based)
+// ============================================
+
+/** Rarity tiers for floor gating */
+const RARITY_TIERS: Record<string, CardRarity[]> = {
+  early: ['common'],                                    // Floor 1-4
+  mid: ['common', 'uncommon'],                          // Floor 5-9
+  late: ['common', 'uncommon', 'rare', 'epic'],         // Floor 10-14
+  endgame: ['common', 'uncommon', 'rare', 'epic', 'ultra-rare', 'legendary'], // Floor 15+
+}
+
+/**
+ * Get allowed rarities based on current floor.
+ * Higher floors unlock rarer cards as rewards.
+ */
+export function getAllowedRarities(floor: number): CardRarity[] {
+  if (floor >= 15) return RARITY_TIERS.endgame
+  if (floor >= 10) return RARITY_TIERS.late
+  if (floor >= 5) return RARITY_TIERS.mid
+  return RARITY_TIERS.early
+}
+
+/**
+ * Get card reward pool from player's unlocked collection.
+ * Filters by floor-appropriate rarity and excludes cards already in run deck.
+ */
+export async function getCardRewardPool(params: {
+  runDeckCardIds: string[]
+  floor: number
+  dungeonId?: string
+}): Promise<CardDefinition[]> {
+  const { runDeckCardIds, floor, dungeonId } = params
+
+  // Get all unlocked cards from collection
+  const unlockedCardIds = await getUnlockedCollectionCardIds()
+
+  // Get allowed rarities for this floor
+  const allowedRarities = getAllowedRarities(floor)
+
+  // Build set of cards already in deck for fast lookup
+  const deckCardSet = new Set(runDeckCardIds)
+
+  // Filter collection to valid reward pool
+  const pool: CardDefinition[] = []
+
+  for (const cardId of unlockedCardIds) {
+    // Skip cards already in run deck
+    if (deckCardSet.has(cardId)) continue
+
+    const def = getCardDefinition(cardId)
+    if (!def) continue
+
+    // Skip non-collectible cards (hero, enemy, status, curse)
+    if (['hero', 'enemy', 'status', 'curse'].includes(def.theme)) continue
+
+    // Check rarity is allowed for this floor
+    const cardRarity = def.rarity ?? 'common'
+    if (!allowedRarities.includes(cardRarity)) continue
+
+    // Optional: filter by dungeon theme affinity
+    // Future: dungeonId could boost certain elements/themes
+
+    pool.push(def)
+  }
+
+  return pool
+}
+
+/**
+ * Generate card reward choices from the reward pool.
+ * Returns N cards weighted by rarity (rarer = less likely).
+ */
+export async function generateCardRewards(params: {
+  runDeckCardIds: string[]
+  floor: number
+  count?: number
+  dungeonId?: string
+}): Promise<CardDefinition[]> {
+  const { runDeckCardIds, floor, count = 3, dungeonId } = params
+
+  const pool = await getCardRewardPool({ runDeckCardIds, floor, dungeonId })
+
+  if (pool.length === 0) return []
+  if (pool.length <= count) return pool
+
+  // Weight by rarity (common more likely than rare)
+  const weights = pool.map(card => {
+    const rarity = card.rarity ?? 'common'
+    return getRarityWeight(rarity)
+  })
+
+  const totalWeight = weights.reduce((sum, w) => sum + w, 0)
+  const selected: CardDefinition[] = []
+  const usedIndices = new Set<number>()
+
+  // Weighted random selection without replacement
+  for (let i = 0; i < count && usedIndices.size < pool.length; i++) {
+    let roll = Math.random() * totalWeight
+
+    for (let j = 0; j < pool.length; j++) {
+      if (usedIndices.has(j)) continue
+
+      roll -= weights[j]
+      if (roll <= 0) {
+        selected.push(pool[j])
+        usedIndices.add(j)
+        break
+      }
+    }
+  }
+
+  return selected
+}
+
+/** Rarity weight for reward selection (higher = more common in rewards) */
+function getRarityWeight(rarity: CardRarity): number {
+  switch (rarity) {
+    case 'common': return 100
+    case 'uncommon': return 60
+    case 'rare': return 30
+    case 'epic': return 15
+    case 'ultra-rare': return 8
+    case 'legendary': return 4
+    case 'mythic': return 2
+    case 'ancient': return 1
+    default: return 50
+  }
+}
 
 // ============================================
 // REWARD CALCULATION
