@@ -12,6 +12,9 @@ import {
   type CustomDeckRecord,
   type CollectionUnlockRecord,
 } from '../../stores/db'
+import { getAllEvergreenMeta } from '../../game/evergreen-cards'
+import type { CollectionCardMeta } from '../../types/deck-builder'
+import { CollectionTab } from '../CollectionTab'
 
 // Adapter type for backwards compatibility with collection UI
 // TODO: Refactor in bead claude-zw7t
@@ -42,7 +45,6 @@ import { getCardDefProps } from '../Card/utils'
 import { CardFiltersBar, filterCards, sortCards } from '../CardFilters'
 import { CardDetailModal } from '../CardDetailModal'
 import { DeckAnalytics } from '../DeckAnalytics'
-import { CollectionStats } from '../CollectionStats'
 import { GachaReveal } from '../PackOpening'
 import { ModifierSelection } from '../ModifierSelection/ModifierSelection'
 import { HeroCarousel } from '../HeroCarousel/HeroCarousel'
@@ -87,6 +89,7 @@ export function MenuScreen({ onStartRun }: MenuScreenProps) {
 
   // Collection & deck building state
   const [collection, setCollection] = useState<LegacyCollectionCard[]>([])
+  const [evergreenMeta, setEvergreenMeta] = useState<CollectionCardMeta[]>([])
   const [currentDeck, setCurrentDeck] = useState<string[]>([])
   const [deckName, setDeckName] = useState('Custom Deck')
   const [editingDeckId, setEditingDeckId] = useState<string | null>(null)
@@ -128,6 +131,10 @@ export function MenuScreen({ onStartRun }: MenuScreenProps) {
       setCollection(unlockRecordsToLegacy(unlocks))
       setDungeonDecks(dungeons)
       setSeeded(contentSeeded)
+
+      // Load all evergreen card metadata for collection display
+      const allMeta = getAllEvergreenMeta()
+      setEvergreenMeta(allMeta)
 
       // Load heroes - MVP: show all heroes for selection
       const allHeroes = getAllHeroes()
@@ -346,6 +353,7 @@ export function MenuScreen({ onStartRun }: MenuScreenProps) {
         {activeTab === 'collection' && (
           <CollectionTab
             collection={collection}
+            evergreenMeta={evergreenMeta}
             filteredCards={filteredCollectionCards}
             filters={filters}
             setFilters={setFilters}
@@ -615,59 +623,6 @@ function PlayTab({
           {seeding ? 'Generating...' : seeded ? 'Content Seeded' : 'Seed Base Content'}
         </button>
       )}
-    </div>
-  )
-}
-
-function CollectionTab({
-  collection, filteredCards, filters, setFilters,
-  sortBy, sortDirection, onSortChange,
-  collectionStatsCollapsed, setCollectionStatsCollapsed,
-  onAddCard, onViewCard,
-}: {
-  collection: LegacyCollectionCard[]
-  filteredCards: { def: CardDefinition; quantity: number }[]
-  filters: CardFilters
-  setFilters: (f: CardFilters) => void
-  sortBy: SortOption
-  sortDirection: SortDirection
-  onSortChange: (s: SortOption, d: SortDirection) => void
-  collectionStatsCollapsed: boolean
-  setCollectionStatsCollapsed: (c: boolean) => void
-  onAddCard: (id: string) => void
-  onViewCard: (card: CardDefinition) => void
-}) {
-  return (
-    <div className="flex-1 flex flex-col overflow-hidden">
-      {/* Two-column layout: Stats sidebar + Card grid */}
-      <div className="flex-1 flex overflow-hidden">
-        {/* Left column: Collection Stats */}
-        <aside className="w-72 flex-shrink-0 border-border overflow-y-auto p-4">
-          <CollectionStats
-            collection={collection}
-            collapsed={collectionStatsCollapsed}
-            onToggleCollapsed={() => setCollectionStatsCollapsed(!collectionStatsCollapsed)}
-          />
-        </aside>
-
-        {/* Right column: Filters + Card Grid */}
-        <div className="flex-1 flex flex-col overflow-hidden">
-          <div className="px-6 pt-4">
-            <CardFiltersBar
-              filters={filters}
-              onFiltersChange={setFilters}
-              sortBy={sortBy}
-              sortDirection={sortDirection}
-              onSortChange={onSortChange}
-              totalCards={collection.length}
-              filteredCount={filteredCards.length}
-            />
-          </div>
-          <div className="flex-1 overflow-auto p-4 sm:p-6 lg:p-8">
-            <CardGrid cards={filteredCards} onAddCard={onAddCard} onViewCard={onViewCard} />
-          </div>
-        </div>
-      </div>
     </div>
   )
 }
