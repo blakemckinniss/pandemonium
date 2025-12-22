@@ -224,7 +224,7 @@ def card_to_prompt(
     # NAME-BASED VISUALS FIRST - Most important!
     # These describe the actual erotic scene/moment
     if name_visual:
-        parts.append(f"((({name_visual})))")  # Triple emphasis for SD
+        parts.append(name_visual)  # No emphasis brackets - let SD balance naturally
 
     parts.extend(
         [
