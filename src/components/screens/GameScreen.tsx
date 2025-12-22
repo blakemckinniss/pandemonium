@@ -522,40 +522,44 @@ export function GameScreen({ deckId, heroId, dungeonDeckId, selectedModifierIds,
       heroId: state.hero.heroCardId ?? state.hero.id ?? 'unknown',
     }
 
-    // Record in meta store and check unlocks
-    const store = useMetaStore.getState()
-    let unlocks = checkUnlocks(runResult, store)
-    store.recordRun(runResult)
+    // Async handler for unlock checks (IndexedDB)
+    const recordRunAsync = async () => {
+      const store = useMetaStore.getState()
+      let unlocks = await checkUnlocks(runResult, store)
+      store.recordRun(runResult)
 
-    // Track affection level-up
-    const oldAffection = store.getHeroAffection(runResult.heroId)
-    store.recordHeroRun(runResult.heroId, runResult.won, runResult.floor, runResult.enemiesKilled)
-    const newAffection = useMetaStore.getState().getHeroAffection(runResult.heroId)
+      // Track affection level-up
+      const oldAffection = store.getHeroAffection(runResult.heroId)
+      store.recordHeroRun(runResult.heroId, runResult.won, runResult.floor, runResult.enemiesKilled)
+      const newAffection = useMetaStore.getState().getHeroAffection(runResult.heroId)
 
-    if (newAffection.level !== oldAffection.level) {
-      const levelLabel = AFFECTION_LEVELS[newAffection.level].label
-      const heroName = runResult.heroId.charAt(0).toUpperCase() + runResult.heroId.slice(1)
-      unlocks = [...unlocks, `💕 ${heroName}: ${levelLabel}`]
+      if (newAffection.level !== oldAffection.level) {
+        const levelLabel = AFFECTION_LEVELS[newAffection.level].label
+        const heroName = runResult.heroId.charAt(0).toUpperCase() + runResult.heroId.slice(1)
+        unlocks = [...unlocks, `💕 ${heroName}: ${levelLabel}`]
+      }
+
+      if (unlocks.length > 0) {
+        setPendingUnlocks(unlocks)
+      }
+
+      // Save to IndexedDB
+      await saveRun({
+        startedAt: runStartRef.current,
+        endedAt: new Date(),
+        heroId: state.hero.heroCardId ?? state.hero.id ?? 'unknown',
+        won: isWin,
+        floor: state.floor,
+        gold: state.gold,
+        enemiesKilled: state.stats.enemiesKilled,
+        cardsPlayed: state.stats.cardsPlayed,
+        damageDealt: state.stats.damageDealt,
+        damageTaken: state.stats.damageTaken,
+        finalDeck: state.deck.map((c) => c.definitionId),
+      })
     }
 
-    if (unlocks.length > 0) {
-      setPendingUnlocks(unlocks)
-    }
-
-    // Save to IndexedDB
-    void saveRun({
-      startedAt: runStartRef.current,
-      endedAt: new Date(),
-      heroId: state.hero.heroCardId ?? state.hero.id ?? 'unknown',
-      won: isWin,
-      floor: state.floor,
-      gold: state.gold,
-      enemiesKilled: state.stats.enemiesKilled,
-      cardsPlayed: state.stats.cardsPlayed,
-      damageDealt: state.stats.damageDealt,
-      damageTaken: state.stats.damageTaken,
-      finalDeck: state.deck.map((c) => c.definitionId),
-    })
+    void recordRunAsync()
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [state?.gamePhase, state?.combat?.phase])
 

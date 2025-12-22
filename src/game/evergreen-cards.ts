@@ -9,19 +9,19 @@
 // - Unlock Pool (12): Progressive unlocks via wins, streaks, dungeons
 
 import type { CardDefinition } from '../types'
-import type { EvergreenCardMeta, UnlockCondition } from '../types/deck-builder'
+import type { CollectionCardMeta, UnlockCondition } from '../types/deck-builder'
 
 // ============================================
 // EVERGREEN METADATA REGISTRY
 // ============================================
 
-const evergreenRegistry = new Map<string, EvergreenCardMeta>()
+const evergreenRegistry = new Map<string, CollectionCardMeta>()
 
 /** Pending registrations - deferred until initializeEvergreenCards() is called */
 interface PendingRegistration {
   card: CardDefinition
-  category: EvergreenCardMeta['category']
-  complexity: EvergreenCardMeta['complexity']
+  category: CollectionCardMeta['category']
+  complexity: CollectionCardMeta['complexity']
   unlockCondition: UnlockCondition
 }
 
@@ -30,8 +30,8 @@ let initialized = false
 
 function queueEvergreen(
   card: CardDefinition,
-  category: EvergreenCardMeta['category'],
-  complexity: EvergreenCardMeta['complexity'],
+  category: CollectionCardMeta['category'],
+  complexity: CollectionCardMeta['complexity'],
   unlockCondition: UnlockCondition = { type: 'always' }
 ): void {
   pendingRegistrations.push({ card, category, complexity, unlockCondition })
@@ -725,14 +725,14 @@ export function getAllEvergreenCardIds(): string[] {
 /**
  * Get evergreen card metadata.
  */
-export function getEvergreenMeta(cardId: string): EvergreenCardMeta | undefined {
+export function getEvergreenMeta(cardId: string): CollectionCardMeta | undefined {
   return evergreenRegistry.get(cardId)
 }
 
 /**
  * Get all evergreen card metadata.
  */
-export function getAllEvergreenMeta(): EvergreenCardMeta[] {
+export function getAllEvergreenMeta(): CollectionCardMeta[] {
   return Array.from(evergreenRegistry.values())
 }
 
@@ -786,9 +786,9 @@ export function isUnlockConditionMet(
 }
 
 /**
- * Get all unlocked evergreen card IDs based on player progress.
+ * Get all unlocked collection card IDs based on player progress.
  */
-export function getUnlockedEvergreenCardIds(context: {
+export function getUnlockedCollectionCardIds(context: {
   totalWins: number
   currentStreak: number
   clearedDungeons: string[]

@@ -277,10 +277,10 @@ export {
   canUnlockOutfit,
 } from './affection'
 
-// Deck Builder (Evergreen System)
+// Deck Builder (Collection System)
 export type {
-  EvergreenCategory,
-  EvergreenCardMeta,
+  CollectionCategory,
+  CollectionCardMeta,
   UnlockCondition,
   DeckBuilderContext,
   DeckBuilderResult,
@@ -291,7 +291,7 @@ export type {
   DeckHookDefinition,
   CarrySlotSource,
   CarrySlot,
-  EvergreenUnlockRecord,
+  CollectionUnlockRecord,
   CarrySlotRecord,
   HeroDeckHooks,
 } from './deck-builder'

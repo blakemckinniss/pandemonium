@@ -3,18 +3,35 @@ import { Icon } from '@iconify/react'
 import {
   getCustomDecks,
   getRunStats,
-  getCollection,
-  initializeStarterCollection,
+  getCollectionUnlocks,
+  unlockCollectionCard,
   getAllDungeonDecks,
   saveCustomDeck,
   updateCustomDeck,
   deleteCustomDeck,
-  addToCollection,
   type CustomDeckRecord,
-  type CollectionCard,
+  type CollectionUnlockRecord,
 } from '../../stores/db'
+
+// Adapter type for backwards compatibility with collection UI
+// TODO: Refactor in bead claude-zw7t
+interface LegacyCollectionCard {
+  cardId: string
+  quantity: number
+  source: string
+  obtainedAt: Date
+}
+
+function unlockRecordsToLegacy(records: CollectionUnlockRecord[]): LegacyCollectionCard[] {
+  return records.map(r => ({
+    cardId: r.cardId,
+    quantity: 1, // Unlock-based system: you have it or you don't
+    source: r.unlockSource,
+    obtainedAt: r.unlockedAt,
+  }))
+}
 import type { DungeonDeckDefinition, CardDefinition, CardFilters, SortOption, SortDirection } from '../../types'
-import { getStarterCardIds, getStarterHeroId, getAllHeroes, getCardDefinition } from '../../game/cards'
+import { getStarterHeroId, getAllHeroes, getCardDefinition } from '../../game/cards'
 import { getModifierDefinition } from '../../game/modifiers'
 import { seedBaseContent, isContentSeeded } from '../../game/seed-content'
 import { generatePack, type PackConfig } from '../../game/card-generator'
@@ -69,7 +86,7 @@ export function MenuScreen({ onStartRun }: MenuScreenProps) {
   const [selectedDungeonId, setSelectedDungeonId] = useState<string | undefined>(undefined)
 
   // Collection & deck building state
-  const [collection, setCollection] = useState<CollectionCard[]>([])
+  const [collection, setCollection] = useState<LegacyCollectionCard[]>([])
   const [currentDeck, setCurrentDeck] = useState<string[]>([])
   const [deckName, setDeckName] = useState('Custom Deck')
   const [editingDeckId, setEditingDeckId] = useState<string | null>(null)
@@ -96,19 +113,19 @@ export function MenuScreen({ onStartRun }: MenuScreenProps) {
   // Load data on mount
   useEffect(() => {
     async function loadData() {
-      await initializeStarterCollection(getStarterCardIds())
+      // Note: Starter cards are now part of base collection pool, no initialization needed
 
-      const [decks, runStats, owned, dungeons, contentSeeded] = await Promise.all([
+      const [decks, runStats, unlocks, dungeons, contentSeeded] = await Promise.all([
         getCustomDecks(),
         getRunStats(),
-        getCollection(),
+        getCollectionUnlocks(),
         getAllDungeonDecks(),
         isContentSeeded(),
       ])
 
       setCustomDecks(decks)
       setStats({ totalRuns: runStats.totalRuns, totalWins: runStats.totalWins, bestFloor: runStats.bestFloor })
-      setCollection(owned)
+      setCollection(unlockRecordsToLegacy(unlocks))
       setDungeonDecks(dungeons)
       setSeeded(contentSeeded)
 
@@ -229,10 +246,10 @@ export function MenuScreen({ onStartRun }: MenuScreenProps) {
     setShowGacha(false)
     setRevealedCards(pendingCards)
     for (const card of pendingCards) {
-      await addToCollection(card.id, 1, 'pack')
+      await unlockCollectionCard(card.id, 'achievement', 'pack_opening')
     }
-    const owned = await getCollection()
-    setCollection(owned)
+    const unlocks = await getCollectionUnlocks()
+    setCollection(unlockRecordsToLegacy(unlocks))
     setPendingCards([])
     setIsGenerating(false)
   }
@@ -608,7 +625,7 @@ function CollectionTab({
   collectionStatsCollapsed, setCollectionStatsCollapsed,
   onAddCard, onViewCard,
 }: {
-  collection: CollectionCard[]
+  collection: LegacyCollectionCard[]
   filteredCards: { def: CardDefinition; quantity: number }[]
   filters: CardFilters
   setFilters: (f: CardFilters) => void

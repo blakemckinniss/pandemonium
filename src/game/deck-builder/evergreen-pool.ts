@@ -6,7 +6,7 @@
 import {
   getAllEvergreenCardIds,
   getBasePoolCardIds,
-  getUnlockedEvergreenCardIds,
+  getUnlockedCollectionCardIds,
 } from '../evergreen-cards'
 
 /**
@@ -20,7 +20,7 @@ export function getAvailableEvergreenPool(context: {
   heroAffections: Record<string, number>
   achievements: string[]
 }): string[] {
-  return getUnlockedEvergreenCardIds(context)
+  return getUnlockedCollectionCardIds(context)
 }
 
 /**

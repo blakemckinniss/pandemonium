@@ -4,10 +4,13 @@ import type {
   DungeonDeckDefinition,
   OwnedDungeonDeck,
   ModifierDefinition,
-  EvergreenUnlockRecord,
+  CollectionUnlockRecord,
   CarrySlotRecord,
   CarrySlotSource,
 } from '../types'
+
+// Re-export types for consumers
+export type { CollectionUnlockRecord, CarrySlotRecord }
 
 // ============================================
 // RUN HISTORY SCHEMA
@@ -39,18 +42,6 @@ export interface GeneratedCardRecord {
   generatedAt: Date
   model: string // Model used for generation
   prompt?: string // Optional: store the prompt used
-}
-
-// ============================================
-// PLAYER COLLECTION SCHEMA
-// ============================================
-
-export interface CollectionCard {
-  id?: number
-  cardId: string // Reference to card definition ID
-  quantity: number // How many copies owned
-  obtainedAt: Date
-  source: 'starter' | 'pack' | 'reward' | 'crafted'
 }
 
 // ============================================
@@ -128,13 +119,12 @@ class PandemoniumDB extends Dexie {
   runs!: EntityTable<RunRecord, 'id'>
   generatedCards!: EntityTable<GeneratedCardRecord, 'id'>
   customDecks!: EntityTable<CustomDeckRecord, 'id'>
-  collection!: EntityTable<CollectionCard, 'id'>
   dungeonDecks!: EntityTable<DungeonDeckRecord, 'id'>
   ownedDungeonDecks!: EntityTable<OwnedDungeonDeckRecord, 'id'>
   modifiers!: EntityTable<ModifierRecord, 'id'>
   ownedModifiers!: EntityTable<OwnedModifierRecord, 'id'>
   streakHistory!: EntityTable<StreakHistoryRecord, 'id'>
-  evergreenUnlocks!: EntityTable<EvergreenUnlockRecord, 'id'>
+  collectionUnlocks!: EntityTable<CollectionUnlockRecord, 'id'>
   carrySlots!: EntityTable<CarrySlotRecord, 'id'>
 
   constructor() {
@@ -145,13 +135,12 @@ class PandemoniumDB extends Dexie {
       runs: '++id, startedAt, heroId, won, floor',
       generatedCards: '++id, cardId, generatedAt, model',
       customDecks: '++id, deckId, heroId, createdAt',
-      collection: '++id, &cardId, obtainedAt, source',
       dungeonDecks: '++id, &deckId, createdAt',
       ownedDungeonDecks: '++id, &deckId',
       modifiers: '++id, &modifierId, generatedAt',
       ownedModifiers: '++id, &modifierId, source',
       streakHistory: '++id, brokenAt, streak',
-      evergreenUnlocks: '++id, &cardId, unlockedAt, unlockSource',
+      collectionUnlocks: '++id, &cardId, unlockedAt, unlockSource',
       carrySlots: '++id, &slotIndex, cardId, source',
     })
   }
@@ -301,84 +290,6 @@ export async function deleteCustomDeck(deckId: string): Promise<void> {
 
 export async function clearCustomDecks(): Promise<void> {
   await db.customDecks.clear()
-}
-
-// ============================================
-// COLLECTION FUNCTIONS (TCG Ownership)
-// ============================================
-
-export async function addToCollection(
-  cardId: string,
-  quantity: number = 1,
-  source: CollectionCard['source'] = 'pack'
-): Promise<void> {
-  const existing = await db.collection.where('cardId').equals(cardId).first()
-
-  if (existing) {
-    await db.collection.where('cardId').equals(cardId).modify({
-      quantity: existing.quantity + quantity,
-    })
-  } else {
-    await db.collection.add({
-      cardId,
-      quantity,
-      obtainedAt: new Date(),
-      source,
-    })
-  }
-}
-
-export async function removeFromCollection(
-  cardId: string,
-  quantity: number = 1
-): Promise<boolean> {
-  const existing = await db.collection.where('cardId').equals(cardId).first()
-
-  if (!existing || existing.quantity < quantity) {
-    return false
-  }
-
-  if (existing.quantity === quantity) {
-    await db.collection.where('cardId').equals(cardId).delete()
-  } else {
-    await db.collection.where('cardId').equals(cardId).modify({
-      quantity: existing.quantity - quantity,
-    })
-  }
-
-  return true
-}
-
-export async function getCollection(): Promise<CollectionCard[]> {
-  return db.collection.toArray()
-}
-
-export async function getCollectionCard(cardId: string): Promise<CollectionCard | undefined> {
-  return db.collection.where('cardId').equals(cardId).first()
-}
-
-export async function getOwnedQuantity(cardId: string): Promise<number> {
-  const card = await db.collection.where('cardId').equals(cardId).first()
-  return card?.quantity ?? 0
-}
-
-export async function ownsCard(cardId: string): Promise<boolean> {
-  const qty = await getOwnedQuantity(cardId)
-  return qty > 0
-}
-
-export async function clearCollection(): Promise<void> {
-  await db.collection.clear()
-}
-
-export async function initializeStarterCollection(starterCardIds: string[]): Promise<void> {
-  // Only initialize if collection is empty
-  const count = await db.collection.count()
-  if (count > 0) return
-
-  for (const cardId of starterCardIds) {
-    await addToCollection(cardId, 1, 'starter')
-  }
 }
 
 // ============================================
@@ -626,52 +537,52 @@ export async function clearStreakHistory(): Promise<void> {
 }
 
 // ============================================
-// EVERGREEN UNLOCK FUNCTIONS
+// COLLECTION UNLOCK FUNCTIONS
 // ============================================
 
-export async function unlockEvergreenCard(
+export async function unlockCollectionCard(
   cardId: string,
-  unlockSource: EvergreenUnlockRecord['unlockSource'],
+  unlockSource: CollectionUnlockRecord['unlockSource'],
   unlockValue?: string
 ): Promise<number> {
   // Check if already unlocked
-  const existing = await db.evergreenUnlocks.where('cardId').equals(cardId).first()
+  const existing = await db.collectionUnlocks.where('cardId').equals(cardId).first()
   if (existing) {
     return existing.id!
   }
 
-  const record: Omit<EvergreenUnlockRecord, 'id'> = {
+  const record: Omit<CollectionUnlockRecord, 'id'> = {
     cardId,
     unlockedAt: new Date(),
     unlockSource,
     unlockValue,
   }
-  const id = await db.evergreenUnlocks.add(record)
+  const id = await db.collectionUnlocks.add(record)
   return id as number
 }
 
-export async function isEvergreenCardUnlocked(cardId: string): Promise<boolean> {
-  const record = await db.evergreenUnlocks.where('cardId').equals(cardId).first()
+export async function isCollectionCardUnlocked(cardId: string): Promise<boolean> {
+  const record = await db.collectionUnlocks.where('cardId').equals(cardId).first()
   return !!record
 }
 
-export async function getUnlockedEvergreenCardIds(): Promise<string[]> {
-  const records = await db.evergreenUnlocks.toArray()
+export async function getUnlockedCollectionCardIds(): Promise<string[]> {
+  const records = await db.collectionUnlocks.toArray()
   return records.map((r) => r.cardId)
 }
 
-export async function getEvergreenUnlocks(): Promise<EvergreenUnlockRecord[]> {
-  return db.evergreenUnlocks.orderBy('unlockedAt').reverse().toArray()
+export async function getCollectionUnlocks(): Promise<CollectionUnlockRecord[]> {
+  return db.collectionUnlocks.orderBy('unlockedAt').reverse().toArray()
 }
 
-export async function getEvergreenUnlocksBySource(
-  source: EvergreenUnlockRecord['unlockSource']
-): Promise<EvergreenUnlockRecord[]> {
-  return db.evergreenUnlocks.where('unlockSource').equals(source).toArray()
+export async function getCollectionUnlocksBySource(
+  source: CollectionUnlockRecord['unlockSource']
+): Promise<CollectionUnlockRecord[]> {
+  return db.collectionUnlocks.where('unlockSource').equals(source).toArray()
 }
 
-export async function clearEvergreenUnlocks(): Promise<void> {
-  await db.evergreenUnlocks.clear()
+export async function clearCollectionUnlocks(): Promise<void> {
+  await db.collectionUnlocks.clear()
 }
 
 // ============================================

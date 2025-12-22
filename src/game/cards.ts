@@ -10,7 +10,7 @@ import {
   getAllEvergreenMeta,
   getBasePoolCardIds,
   getUnlockPoolCardIds,
-  getUnlockedEvergreenCardIds,
+  getUnlockedCollectionCardIds,
   isUnlockConditionMet,
 } from './evergreen-cards'
 
@@ -20,7 +20,7 @@ export {
   getAllEvergreenMeta,
   getBasePoolCardIds,
   getUnlockPoolCardIds,
-  getUnlockedEvergreenCardIds,
+  getUnlockedCollectionCardIds,
   isUnlockConditionMet,
 }
 

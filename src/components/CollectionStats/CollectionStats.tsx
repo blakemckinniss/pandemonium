@@ -1,11 +1,19 @@
 import { useMemo } from 'react'
 import { Icon } from '@iconify/react'
 import { getAllCards, getCardDefinition } from '../../game/cards'
-import type { CollectionCard } from '../../stores/db'
 import type { CardRarity } from '../../types'
 
+// Legacy adapter type for backwards compatibility
+// TODO: Refactor in bead claude-zw7t to use CollectionUnlockRecord directly
+interface LegacyCollectionCard {
+  cardId: string
+  quantity: number
+  source: string
+  obtainedAt: Date
+}
+
 interface CollectionStatsProps {
-  collection: CollectionCard[]
+  collection: LegacyCollectionCard[]
   collapsed?: boolean
   onToggleCollapsed?: () => void
 }
@@ -41,7 +49,7 @@ interface CollectionAnalysis {
   recentCards: { cardId: string; name: string; obtainedAt: Date; source: string }[]
 }
 
-function analyzeCollection(collection: CollectionCard[]): CollectionAnalysis {
+function analyzeCollection(collection: LegacyCollectionCard[]): CollectionAnalysis {
   const allCards = getAllCards()
   // Filter to collectible cards (exclude hero/enemy/status/curse)
   const collectibleCards = allCards.filter(

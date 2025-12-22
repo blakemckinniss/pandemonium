@@ -8,11 +8,11 @@ import type { ModifierInstance } from './modifiers'
 import type { RelicInstance } from './relics'
 
 // ============================================
-// EVERGREEN CARD POOL
+// COLLECTION CARD POOL
 // ============================================
 
-/** Categories for evergreen cards */
-export type EvergreenCategory =
+/** Categories for collection cards */
+export type CollectionCategory =
   | 'attack_basic' // Pure damage
   | 'attack_utility' // Damage + draw/energy
   | 'attack_debuff' // Damage + debuffs
@@ -25,10 +25,10 @@ export type EvergreenCategory =
   | 'power_buff' // Self buffs
   | 'power_debuff' // Enemy debuffs
 
-/** Metadata for evergreen cards */
-export interface EvergreenCardMeta {
+/** Metadata for collection cards */
+export interface CollectionCardMeta {
   cardId: string
-  category: EvergreenCategory
+  category: CollectionCategory
   complexity: 1 | 2 | 3 // 1=simple, 2=moderate, 3=advanced
   unlockCondition: UnlockCondition
 }
@@ -37,7 +37,7 @@ export interface EvergreenCardMeta {
 // UNLOCK CONDITIONS
 // ============================================
 
-/** Conditions for unlocking evergreen cards */
+/** Conditions for unlocking collection cards */
 export type UnlockCondition =
   | { type: 'always' } // Base pool - always available
   | { type: 'totalWins'; count: number }
@@ -62,8 +62,8 @@ export interface DeckBuilderContext {
   dungeonId?: string
   /** Cards in carry slots */
   carrySlots: CarrySlot[]
-  /** IDs of unlocked evergreen cards */
-  unlockedEvergreenIds: string[]
+  /** IDs of unlocked collection cards */
+  unlockedCollectionIds: string[]
 }
 
 /** Result from deck builder pipeline */
@@ -167,8 +167,8 @@ export interface CarrySlot {
 // PERSISTENCE RECORDS (FOR DEXIE)
 // ============================================
 
-/** Record of an unlocked evergreen card */
-export interface EvergreenUnlockRecord {
+/** Record of an unlocked collection card */
+export interface CollectionUnlockRecord {
   id?: number
   cardId: string
   unlockedAt: Date

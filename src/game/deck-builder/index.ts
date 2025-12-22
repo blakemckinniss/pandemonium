@@ -40,8 +40,8 @@ export function buildDeck(context: DeckBuilderContext): DeckBuilderResult {
   // Get the available evergreen pool based on unlocks
   // If context provides unlocked IDs, use them; otherwise use base pool
   let pool =
-    context.unlockedEvergreenIds.length > 0
-      ? context.unlockedEvergreenIds
+    context.unlockedCollectionIds.length > 0
+      ? context.unlockedCollectionIds
       : getAvailableEvergreenPool({
           totalWins: 0,
           currentStreak: 0,
@@ -216,7 +216,7 @@ export function createDeckBuilderContext(
     relics?: DeckBuilderContext['relics']
     dungeonId?: string
     carrySlots?: CarrySlot[]
-    unlockedEvergreenIds?: string[]
+    unlockedCollectionIds?: string[]
   } = {}
 ): DeckBuilderContext {
   return {
@@ -225,7 +225,7 @@ export function createDeckBuilderContext(
     relics: options.relics ?? [],
     dungeonId: options.dungeonId,
     carrySlots: options.carrySlots ?? [],
-    unlockedEvergreenIds: options.unlockedEvergreenIds ?? [],
+    unlockedCollectionIds: options.unlockedCollectionIds ?? [],
   }
 }
 

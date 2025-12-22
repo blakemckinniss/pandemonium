@@ -20,6 +20,7 @@ import {
   incrementStreak,
   breakStreak,
 } from '../game/streak'
+import { isCollectionCardUnlocked, unlockCollectionCard } from './db'
 
 interface RunResult {
   won: boolean
@@ -30,8 +31,7 @@ interface RunResult {
 }
 
 interface MetaState {
-  // Unlocks
-  unlockedCards: string[]
+  // Unlocks (cards now tracked in IndexedDB via collectionUnlocks)
   unlockedHeroes: string[]
 
   // Stats
@@ -58,11 +58,9 @@ interface MetaState {
   unlockedOutfits: Record<string, string[]>
   equippedOutfits: Record<string, string>
 
-  // Actions - Unlocks
-  unlockCard: (cardId: string) => void
+  // Actions - Unlocks (cards now tracked in IndexedDB via collectionUnlocks)
   unlockHero: (heroId: string) => void
   recordRun: (result: RunResult) => void
-  isCardUnlocked: (cardId: string) => boolean
   isHeroUnlocked: (heroId: string) => boolean
 
   // Actions - Economy
@@ -104,12 +102,10 @@ interface MetaState {
   reset: () => void
 }
 
-// Default unlocks - starter content
-const DEFAULT_CARDS = ['strike', 'defend', 'bash', 'cleave', 'pommel_strike', 'shrug_it_off']
+// Default unlocks - starter content (cards now tracked in IndexedDB)
 const DEFAULT_HEROES = ['warrior']
 
 const initialState = {
-  unlockedCards: DEFAULT_CARDS,
   unlockedHeroes: DEFAULT_HEROES,
   totalRuns: 0,
   totalWins: 0,
@@ -143,13 +139,6 @@ export const useMetaStore = create<MetaState>()(
     (set, get) => ({
       ...initialState,
 
-      unlockCard: (cardId) =>
-        set((state) => ({
-          unlockedCards: state.unlockedCards.includes(cardId)
-            ? state.unlockedCards
-            : [...state.unlockedCards, cardId],
-        })),
-
       unlockHero: (heroId) =>
         set((state) => ({
           unlockedHeroes: state.unlockedHeroes.includes(heroId)
@@ -166,8 +155,6 @@ export const useMetaStore = create<MetaState>()(
           totalGoldEarned: state.totalGoldEarned + result.gold,
           totalEnemiesKilled: state.totalEnemiesKilled + result.enemiesKilled,
         })),
-
-      isCardUnlocked: (cardId) => get().unlockedCards.includes(cardId),
 
       isHeroUnlocked: (heroId) => get().unlockedHeroes.includes(heroId),
 
@@ -377,7 +364,8 @@ export const useMetaStore = create<MetaState>()(
 )
 
 // Unlock conditions - check after each run
-export function checkUnlocks(result: RunResult, store: MetaState): string[] {
+// Now async because card unlocks go through IndexedDB
+export async function checkUnlocks(result: RunResult, store: MetaState): Promise<string[]> {
   const newUnlocks: string[] = []
 
   // Win first run → unlock second hero
@@ -387,23 +375,23 @@ export function checkUnlocks(result: RunResult, store: MetaState): string[] {
   }
 
   // Reach floor 5 → unlock Whirlwind
-  if (result.floor >= 5 && !store.isCardUnlocked('whirlwind')) {
-    store.unlockCard('whirlwind')
+  if (result.floor >= 5 && !(await isCollectionCardUnlocked('whirlwind'))) {
+    await unlockCollectionCard('whirlwind', 'reward')
     newUnlocks.push('Card: Whirlwind')
   }
 
   // Kill 50 enemies → unlock Heavy Blade
   if (
     store.totalEnemiesKilled + result.enemiesKilled >= 50 &&
-    !store.isCardUnlocked('heavy_blade')
+    !(await isCollectionCardUnlocked('heavy_blade'))
   ) {
-    store.unlockCard('heavy_blade')
+    await unlockCollectionCard('heavy_blade', 'reward')
     newUnlocks.push('Card: Heavy Blade')
   }
 
   // 10 total runs → unlock Armaments
-  if (store.totalRuns + 1 >= 10 && !store.isCardUnlocked('armaments')) {
-    store.unlockCard('armaments')
+  if (store.totalRuns + 1 >= 10 && !(await isCollectionCardUnlocked('armaments'))) {
+    await unlockCollectionCard('armaments', 'reward')
     newUnlocks.push('Card: Armaments')
   }
 

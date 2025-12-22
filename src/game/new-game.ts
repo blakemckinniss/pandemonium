@@ -6,7 +6,7 @@ import { getRoomDefinition } from '../content/rooms'
 import { getCardDefinition, getEnemyCardById } from './cards'
 import {
   getDungeonDeck,
-  getUnlockedEvergreenCardIds,
+  getUnlockedCollectionCardIds,
   getAllCarrySlots,
 } from '../stores/db'
 import { applyEnemyStatModifiers, getPlayerStatModifications } from './modifier-resolver'
@@ -418,8 +418,8 @@ export async function createNewRun(
     cardIds = customCardIds
   } else {
     // Fetch persistence data for deck building
-    const [unlockedEvergreenIds, carrySlotRecords] = await Promise.all([
-      getUnlockedEvergreenCardIds(),
+    const [unlockedCollectionIds, carrySlotRecords] = await Promise.all([
+      getUnlockedCollectionCardIds(),
       getAllCarrySlots(),
     ])
 
@@ -432,13 +432,13 @@ export async function createNewRun(
       acquiredAt: r.acquiredAt.getTime(),
     }))
 
-    // Use the evergreen deck builder pipeline
+    // Use the deck builder pipeline
     const deckContext = createDeckBuilderContext(heroCardId ?? heroId, {
       modifiers,
       relics: [], // Relics assigned after run creation
       dungeonId: dungeonDeckId,
       carrySlots,
-      unlockedEvergreenIds,
+      unlockedCollectionIds,
     })
     const deckResult = buildDeck(deckContext)
     cardIds = deckResult.cardIds
