@@ -18,7 +18,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent))
 
 from generator import CardArtGenerator
-from prompts import card_to_prompt
+from prompts import batch_prompt_from_card_def
 
 
 def load_cards_from_game() -> list[dict]:
@@ -102,13 +102,7 @@ def generate_for_cards(
 
         print(f"\n[{i + 1}/{len(cards)}] {card_id}: {name}")
 
-        prompt = card_to_prompt(
-            name=name,
-            description=card.get("description", "A mysterious card"),
-            theme=card.get("theme", "attack"),
-            element=card.get("element", "physical"),
-            rarity=card.get("rarity", "common"),
-        )
+        prompt = batch_prompt_from_card_def(card)
 
         if dry_run:
             print(f"  Prompt: {prompt[:100]}...")
