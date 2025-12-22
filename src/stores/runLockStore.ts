@@ -18,6 +18,7 @@ import type {
   StreakState,
   HeatState,
 } from '../types'
+import { clearUnprotectedCarrySlots } from './db'
 import { DEFAULT_RUN_PROGRESS, DEFAULT_STREAK_STATE, DEFAULT_HEAT_STATE } from '../types'
 import { generateUid } from '../lib/utils'
 
@@ -158,8 +159,8 @@ export const useRunLockStore = create<RunLockStoreState>()(
         // Increment streak on successful completion
         incrementStreak()
 
-        // TODO (claude-p9bl): Award protected carry slot on dungeon clear
-        // awardProtectedCarrySlot() - will be implemented with carry slots system
+        // Note: Protected carry slot award is handled in DungeonCompleteScreen
+        // Player chooses which card to slot from their run deck
       },
 
       // Fail run (death)
@@ -180,8 +181,8 @@ export const useRunLockStore = create<RunLockStoreState>()(
         // Break streak on death
         breakStreak()
 
-        // TODO (claude-p9bl): Clear unprotected carry slots on death
-        // clearUnprotectedCarrySlots() - will be implemented with carry slots system
+        // Clear unprotected carry slots on death (async, fire-and-forget)
+        void clearUnprotectedCarrySlots()
       },
 
       // Abandon run (with gold cost)
