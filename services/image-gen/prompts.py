@@ -114,6 +114,11 @@ def get_action_visuals() -> dict[str, str]:
     return _load_config().get("action_visuals", {})
 
 
+def get_nsfw_name_visuals() -> dict[str, str]:
+    """Get NSFW card name words to visual concept mapping."""
+    return _load_config().get("nsfw_name_visuals", {})
+
+
 def _extract_action_keywords(description: str) -> str:
     """Extract booru-style tags from card description."""
     desc_lower = description.lower()
@@ -138,6 +143,41 @@ def _extract_action_visual(description: str) -> str:
     return "magical energy burst, arcane power, glowing effect"
 
 
+def _extract_name_visuals(name: str) -> str:
+    """
+    Extract visual concepts from NSFW-themed card names.
+
+    Parses evocative card names like "Sultry Embrace" or "Velvet Torment"
+    and returns matching visual descriptions for effect-focused imagery.
+
+    Args:
+        name: Card name to parse
+
+    Returns:
+        Visual description string based on name keywords, or empty string if no match
+    """
+    name_lower = name.lower()
+    nsfw_visuals = get_nsfw_name_visuals()
+    matched_visuals = []
+
+    # Check each word in the name against NSFW visual mappings
+    words = name_lower.replace("'s", "").replace("-", " ").split()
+    for word in words:
+        if word in nsfw_visuals:
+            matched_visuals.append(nsfw_visuals[word])
+
+    # Also check for partial matches (e.g., "embracing" matches "embrace")
+    for keyword, visual in nsfw_visuals.items():
+        if keyword in name_lower and visual not in matched_visuals:
+            matched_visuals.append(visual)
+
+    # Return combined visuals (up to 2 to avoid prompt bloat)
+    if matched_visuals:
+        return ", ".join(matched_visuals[:2])
+
+    return ""
+
+
 def card_to_prompt(
     name: str,
     description: str,
@@ -149,11 +189,13 @@ def card_to_prompt(
     """
     Convert a card definition into an image generation prompt.
 
-    IMPORTANT: Hand cards (attack/skill/power) generate EFFECT-FOCUSED images,
-    NOT character portraits. Shows the spell, weapon, or magical phenomenon.
+    Hand cards generate EROTIC NARRATIVE SCENES (MTG-style storytelling):
+    - Intimate moments, sensual actions, erotic phenomena
+    - Partial body parts allowed (cropped suggestively)
+    - NOT full character portraits (those are hero/enemy cards)
 
     Args:
-        name: Card name (e.g., "Flame Strike")
+        name: Card name (e.g., "Sultry Embrace", "Velvet Torment")
         description: Card effect description
         theme: Card type (attack/skill/power/curse/status)
         element: Elemental affinity
@@ -161,47 +203,64 @@ def card_to_prompt(
         custom_hint: Optional custom style hints
 
     Returns:
-        Effect-focused prompt string (no characters)
+        Erotic scene prompt (partial body parts OK, no full portraits)
     """
     templates = get_templates()
     elem_style = get_element_styles().get(element, get_element_styles().get("physical", {}))
     theme_style = get_theme_styles().get(theme, get_theme_styles().get("attack", {}))
     rarity_quality = get_rarity_quality().get(rarity, "detailed")
 
-    # Get action visual from description
-    action_visual = _extract_action_visual(description)
+    # Get name-based visuals from NSFW-themed card names - THIS IS PRIMARY
+    # These now describe erotic SCENES, not abstract energy
+    name_visual = _extract_name_visuals(name)
 
-    # Build effect-focused prompt - NO CHARACTERS
+    # Build erotic scene prompt
     parts = [
-        # Quality prefix
-        templates.get("hand_quality_prefix", "masterpiece, best_quality, highres"),
+        # Quality prefix with NSFW tags
+        templates.get("hand_quality_prefix", "masterpiece, best_quality, highres, nsfw, ecchi"),
         rarity_quality,
-        # Subject - the EFFECT itself, not a character
-        templates.get("hand_subject_base", "isolated magical effect, no characters"),
-        # Theme-specific subject description
-        theme_style.get("subject", "magical phenomenon"),
-        # The actual effect from card name
-        f"{name.lower().replace(' ', '_')}_effect",
-        # Action visual from description
-        action_visual,
-        # Element colors and effects
-        f"color scheme: {elem_style['colors']}",
-        elem_style["effects"],
-        # Theme composition and mood
-        theme_style.get("composition", "centered composition"),
-        theme_style.get("mood", "dramatic"),
-        theme_style.get("camera", "close-up"),
-        # Atmosphere
-        templates.get("hand_atmosphere", "dramatic lighting, particle effects, glowing energy"),
-        # Style
-        templates.get("hand_style", "painterly fantasy card illustration, bold shapes"),
-        # Composition
-        templates.get("hand_composition", "centered composition, close-up, icon-like readability"),
-        # Anti-character emphasis (positive phrasing since turbo has no negative)
-        "empty scene, disembodied effect, only the magical phenomenon, no caster, no wielder",
-        # Suffix
-        templates.get("hand_suffix", "no_text, vignette edges, dark gradient background"),
     ]
+
+    # NAME-BASED VISUALS FIRST - Most important!
+    # These describe the actual erotic scene/moment
+    if name_visual:
+        parts.append(f"((({name_visual})))")  # Triple emphasis for SD
+
+    parts.extend(
+        [
+            # Subject - erotic scene, intimate moment
+            templates.get(
+                "hand_subject_base", "erotic scene, intimate moment, sensual action in progress"
+            ),
+            # Theme-specific erotic elements
+            theme_style.get("subject", "sensual magical phenomenon"),
+            theme_style.get("erotic_elements", "bare skin, intimate touch"),
+            # Composition - narrative, cropped suggestively
+            templates.get(
+                "hand_composition",
+                "narrative composition, intimate framing, cropped suggestively",
+            ),
+            theme_style.get("composition", "suggestive angle"),
+            theme_style.get("mood", "sensual"),
+            theme_style.get("camera", "intimate close-up"),
+            # Erotic scene elements from templates
+            templates.get(
+                "hand_erotic_scenes",
+                "bare skin, curves, flushed skin, silk sheets, intimate touch",
+            ),
+            # Element colors for mood lighting
+            f"mood lighting: {elem_style['colors']}",
+            elem_style.get("atmosphere", "intimate"),
+            # Atmosphere - boudoir, sensual
+            templates.get(
+                "hand_atmosphere", "sensual lighting, intimate mood, boudoir atmosphere"
+            ),
+            # Style - anime ecchi
+            templates.get("hand_style", "anime illustration, ecchi art style, sensual fantasy"),
+            # Suffix
+            templates.get("hand_suffix", "no_text, vignette edges, intimate background"),
+        ]
+    )
 
     if custom_hint:
         parts.append(custom_hint)

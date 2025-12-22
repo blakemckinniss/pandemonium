@@ -29,40 +29,46 @@ element_styles:
     atmosphere: "mysterious, otherworldly, ominous"
 
 # ============================================
-# THEME STYLES (for HAND CARDS - effect/action focused, NO characters)
-# These are spell effects, weapons, magical phenomena - NOT people
+# THEME STYLES (for HAND CARDS - EROTIC scenes/objects/phenomena)
+# Maximally NSFW without being character portraits
+# Show: erotic objects, suggestive body parts, sensual scenes, intimate items
 # ============================================
 theme_styles:
   attack:
-    subject: "the attack effect itself, weapon strike, energy blast, impact explosion"
-    composition: "close-up on effect, violent motion, impact burst, debris flying"
-    mood: "aggressive, violent, destructive, kinetic"
-    camera: "dynamic angle, motion blur, centered on impact"
-    negative_add: "person, character, human, face, body, hands, wielder, caster"
+    subject: "erotic weapon, dominatrix whip crack, leather crop striking, sensual violence, bondage implement"
+    composition: "close-up on erotic weapon, suggestive angle, impact on bare skin, red marks"
+    mood: "aggressive seduction, violent passion, dominant, punishing pleasure"
+    camera: "dynamic angle, motion blur, intimate close-up"
+    erotic_elements: "leather, latex, chains, bare skin receiving impact, pleasure-pain"
+    negative_add: "full body, full face, portrait, standing pose"
   skill:
-    subject: "magical shield, defensive barrier, tactical effect, utility spell"
-    composition: "centered magical phenomenon, controlled energy, clean lines"
-    mood: "precise, tactical, protective, efficient"
-    camera: "centered composition, clear focal point"
-    negative_add: "person, character, human, face, body, hands, caster"
+    subject: "intimate magical barrier, sensual shield of lingerie, protective silk ribbons, defensive corset armor"
+    composition: "erotic protective items, silk and lace forming shields, intimate garments as armor"
+    mood: "seductive protection, alluring defense, intimate safety"
+    camera: "centered on erotic defensive item, soft focus"
+    erotic_elements: "lingerie, silk, lace, satin, garter belts, stockings, corsets"
+    negative_add: "full body, full face, portrait"
   power:
-    subject: "persistent aura, magical emblem, power sigil, enchantment effect"
-    composition: "symmetrical design, radiating energy, iconic silhouette"
-    mood: "mystical, transcendent, empowering, eternal"
-    camera: "centered, emblematic, icon-like"
-    negative_add: "person, character, human, face, body, portrait"
+    subject: "erotic power sigil, pleasure rune, orgasmic energy symbol, lust emblem, desire seal"
+    composition: "womb tattoo design, tramp stamp sigil, erotic magical symbol, intimate marking"
+    mood: "transcendent pleasure, empowering lust, eternal desire"
+    camera: "centered sigil, glowing on skin, intimate placement"
+    erotic_elements: "womb tattoo, heart shapes, venus symbols, erotic runes, body markings"
+    negative_add: "full body, full face, portrait"
   curse:
-    subject: "dark corruption effect, cursed energy, malevolent phenomenon"
-    composition: "twisted forms, spreading corruption, dark tendrils"
-    mood: "malevolent, corrupting, sinister, infectious"
-    camera: "ominous angle, spreading outward"
-    negative_add: "person, character, human, face, body"
+    subject: "corruption spreading on bare skin, dark pleasure tendrils, sinful marking spreading, lewd curse effect"
+    composition: "dark tendrils on curves, corruption caressing body parts, spreading intimate marks"
+    mood: "dark seduction, corrupting pleasure, sinister desire, infectious lust"
+    camera: "intimate angle on affected area, spreading outward"
+    erotic_elements: "tentacles on skin, corruption marks, dark caress, pleasure corruption"
+    negative_add: "full body, full face, portrait"
   status:
-    subject: "simple effect indicator, basic phenomenon"
-    composition: "minimal, clean, readable"
-    mood: "neutral, plain"
-    camera: "centered, simple"
-    negative_add: "person, character, human, face"
+    subject: "simple erotic indicator, blush effect, arousal mark, pleasure status"
+    composition: "minimal erotic element, clean sensual indicator"
+    mood: "suggestive, intimate"
+    camera: "centered, simple, suggestive"
+    erotic_elements: "blush marks, sweat drops, lip bite, arousal indicators"
+    negative_add: "full body, full face"
 
 # ============================================
 # RARITY QUALITY
@@ -375,16 +381,19 @@ difficulty_tags:
 # Reusable prompt component templates
 # ============================================
 templates:
-  # ---- HAND CARDS (attack/skill/power) - EFFECT FOCUSED, NO CHARACTERS ----
-  # These show spells, weapons, magical phenomena - never people
-  hand_quality_prefix: "masterpiece, best_quality, highres, sharp_focus"
-  hand_subject_base: "isolated magical effect, single subject, no characters present"
-  hand_composition: "centered composition, close-up, icon-like readability, minimal background"
-  hand_atmosphere: "dramatic lighting, particle effects, glowing energy, high contrast"
-  hand_style: "painterly fantasy card illustration, bold shapes, textured brushstrokes"
-  hand_suffix: "no_text, vignette edges, dark gradient background"
-  # Strong negative to prevent character generation
-  hand_negative: "person, people, human, character, face, head, eyes, hands, body, torso, legs, arms, portrait, 1girl, 1boy, anime girl, woman, man, humanoid, armor on person, clothing on person, staff held, casting pose, looking at viewer, full body, holding"
+  # ---- HAND CARDS - EROTIC NARRATIVE SCENES (MTG-style storytelling) ----
+  # Each card tells a sensual MOMENT: action in progress, intimate scene, erotic event
+  # Show: body parts receiving action, intimate objects in use, suggestive scenes mid-action
+  hand_quality_prefix: "masterpiece, best_quality, highres, sharp_focus, nsfw, ecchi"
+  hand_subject_base: "erotic scene, intimate moment, sensual action in progress, suggestive composition"
+  hand_composition: "narrative composition, scene with context, action mid-moment, intimate framing, cropped suggestively"
+  hand_atmosphere: "sensual lighting, intimate mood, boudoir atmosphere, candlelight, soft shadows on skin"
+  hand_style: "anime illustration, ecchi art style, sensual fantasy, erotic card art, hentai aesthetic"
+  hand_suffix: "no_text, vignette edges, intimate background, bedroom setting"
+  # Allow partial body parts but not full character portraits
+  hand_negative: "full body shot, full face visible, portrait composition, looking at viewer, standing pose, ID photo, mugshot, character sheet"
+  # Erotic scene elements to include
+  hand_erotic_scenes: "bare skin, curves, sweat drops, flushed skin, silk sheets, candlelight on skin, intimate touch, pleasure expression cropped, arched back, gripping sheets, bound wrists, spread pose cropped, wet skin, oil gleam"
 
   # ---- HERO CARDS - NSFW-FIRST CHARACTER PORTRAITS ----
   # Body is the main attraction, outfit/magic is the accent (hot cosplay aesthetic)
@@ -454,3 +463,162 @@ action_visuals:
   strength: "red power aura, fist-shaped energy, muscle sigil"
   dexterity: "blue speed trails, agility runes, swift energy"
   rage: "crimson fury explosion, anger flames, berserker aura"
+
+# ============================================
+# NSFW NAME VISUALS
+# Maps card name words to EROTIC SCENES (MTG-style narrative moments)
+# Each describes an intimate scene/action, not abstract energy
+# ============================================
+nsfw_name_visuals:
+  # Sensual/Touch - intimate physical moments
+  embrace: "arms wrapped around bare waist from behind, fingers interlaced on stomach, spooning silhouette"
+  caress: "fingertips trailing down bare spine, goosebumps on skin, gentle touch on curves"
+  touch: "single finger tracing collarbone, hand on bare thigh, intimate skin contact"
+  stroke: "hand running through hair pulling head back, fingers down side of body"
+  whisper: "lips brushing against ear, breath on neck, close intimate proximity"
+  kiss: "lips pressed to shoulder blade, lipstick mark on neck, kiss trail down body"
+
+  # Pleasure/Desire - ecstatic moments
+  ecstasy: "arched back in pleasure, gripping silk sheets, head thrown back eyes closed"
+  pleasure: "parted lips exhaling, flushed cheeks, hand gripping pillow"
+  desire: "reaching hand toward viewer, beckoning finger, come-hither pose"
+  lust: "biting lower lip, heavy-lidded eyes, hand sliding under fabric"
+  passion: "tangled in sheets, disheveled hair, post-coital glow"
+  bliss: "relaxed naked back view, afterglow, satisfied sprawl on bed"
+  climax: "tensed thighs, gripping headboard, peak moment frozen"
+  moan: "open mouth, tilted head, vocal pleasure moment"
+
+  # Seduction/Temptation - teasing moments
+  tempt: "strap sliding off shoulder, revealing glance over shoulder, undressing tease"
+  seduce: "finger on lips shushing, bedroom eyes, pulling someone closer by tie"
+  allure: "silhouette in doorway backlit, mysterious figure beckoning"
+  charm: "wink and blown kiss, playful tongue out, flirtatious pose"
+  entice: "lifting hem of skirt slightly, peek of skin, teasing reveal"
+  tease: "almost-kiss pulling away, denied touch, playful withholding"
+  flirt: "hair twirl, coy smile, suggestive lean forward showing cleavage"
+
+  # Dark/Forbidden - taboo scenes
+  forbidden: "secret rendezvous, hidden alcove embrace, illicit meeting"
+  sinful: "confession booth silhouette, nun habit pulled aside, sacred space defiled"
+  wicked: "cruel smile holding leash, standing over kneeling figure, power play"
+  corrupt: "innocent outfit being removed, corruption spreading as clothes fall"
+  unholy: "altar scene, candles and chains, ritualistic positioning"
+  taboo: "teacher-student desk scene, office affair, forbidden relationship"
+
+  # Pain/Pleasure - BDSM moments
+  torment: "ice cube trailing down stomach, feather teasing, sensory play"
+  agony: "hands tied above head straining, pleasurable struggle"
+  suffering: "blindfolded anticipation, waiting for touch, denied release"
+  anguish: "edging moment, so close but denied, desperate need"
+  pain: "red marks from spanking on curves, pleasurable punishment aftermath"
+  punish: "bent over lap, hand raised to strike, discipline scene"
+  spank: "hand print on bare skin, impact moment, discipline"
+
+  # Texture/Material - sensual fabrics
+  velvet: "velvet ribbon being untied, soft fabric against bare skin"
+  silk: "silk scarf blindfold, silk robe falling open, silk sheet barely covering"
+  satin: "satin gloves removing, satin nightgown slipping off shoulder"
+  lace: "lace panties being pulled aside, lace bra unhooking, peek through lace"
+  leather: "leather collar and leash, leather cuffs on wrists, leather corset"
+  latex: "shiny latex outfit skin-tight, latex gloves snapping on"
+
+  # Binding/Control - bondage scenes
+  bind: "wrists tied to bedpost with silk, rope harness on torso, shibari"
+  chain: "chains connecting collar to ceiling, chain leash held taut"
+  restrain: "held down by wrists, pinned against wall, immobilized"
+  dominate: "boot on chest looking down, collar being attached, ownership"
+  submit: "kneeling position, head bowed, offering self, supplication"
+  obey: "following pointed finger command, trained response"
+  serve: "on knees offering drink, attendant position, service pose"
+
+  # Intensity - overwhelming moments
+  ravish: "clothes being torn off, aggressive passion, desperate need"
+  devour: "hungry mouth on neck, consuming kisses, ravenous"
+  consume: "wrapped completely around partner, total embrace, absorbed"
+  overwhelm: "multiple hands on body, overstimulated, too much pleasure"
+  claim: "possessive grip on hip, marking territory, ownership bite"
+
+  # Body focus - anatomical scenes
+  curves: "hourglass silhouette, emphasis on hips and bust, body contours"
+  flesh: "bare skin expanses, nude torso, exposed body"
+  skin: "oil gleaming on skin, wet skin in shower, touchable surface"
+  breasts: "cleavage being admired, hands cupping from behind, chest focus"
+  thighs: "legs parted invitingly, thick thighs squeezing, between legs view"
+  lips: "glossy parted lips, kiss-swollen mouth, lipstick smeared"
+  neck: "exposed vulnerable neck, marks and kisses on throat"
+  back: "arched bare back, spine visible, back dimples"
+
+  # Sweet/Indulgence - sensory pleasure
+  nectar: "dripping honey on body to lick off, sweet on skin"
+  honey: "golden syrup pooling in navel, sticky sweet mess"
+  sweet: "whipped cream on curves, chocolate drizzle, dessert play"
+  indulge: "champagne being poured over body, decadent excess"
+  taste: "tongue on skin, licking lips after, savoring"
+  drip: "wax dripping on stomach, liquid trailing down body"
+
+  # Night/Setting - atmospheric scenes
+  midnight: "moonlit bedroom, window light on nude figure, witching hour tryst"
+  shadow: "silhouette undressing, shadowy figure approaching bed"
+  night: "candlelit boudoir, dim intimate lighting, nocturnal encounter"
+  dark: "figure emerging from darkness, mysterious lover, anonymous encounter"
+  candlelight: "warm glow on skin, romantic lighting, flickering shadows"
+
+  # Weapon/Attack - violent passion
+  lash: "whip striking bare back, red welt forming, crack moment"
+  strike: "slap mark on cheek or ass, impact redness, discipline"
+  slash: "clothes being cut away with knife, fabric falling"
+  pierce: "needle play dots, corset being laced tight piercing"
+  bite: "teeth marks on shoulder, vampire bite on neck, love bite"
+  scratch: "nail marks down back, passionate scratches, wild night evidence"
+  claw: "dragging nails down chest, leaving red trails"
+
+  # Fire/Heat - burning passion
+  burn: "candle wax dripping on stomach, heat play, warm sensation"
+  flame: "passionate clinch, burning desire, heated moment"
+  heat: "steam rising from bodies, hot breath, temperature play"
+  scorch: "brand-like kiss mark, burning touch leaving marks"
+  smolder: "intense eye contact, barely contained desire, about to ignite"
+  blaze: "wild passionate tangle, unbridled fire, explosive passion"
+
+  # Sultry/Alluring - seductive poses
+  sultry: "bedroom eyes over bare shoulder, smoldering look, come-hither"
+  sensual: "slow movements, deliberate touch, luxuriating in sensation"
+  voluptuous: "full figure curves emphasized, abundance of flesh, lush body"
+  provocative: "challenging stare, daring pose, pushing boundaries"
+  seductive: "finger tracing own lips, self-touch, enticing"
+  erotic: "artistic nude pose, tasteful explicit, beautiful lewdness"
+
+  # Fabric/Clothing - state of undress
+  sheer: "see-through fabric revealing nipples, transparent negligee"
+  gossamer: "barely-there fabric, wispy covering nothing, thin veil"
+  torn: "ripped shirt exposing chest, torn stockings, clothes destroyed by passion"
+  wet: "white shirt transparent from water, soaked fabric clinging"
+  disheveled: "post-sex messy clothes, unbuttoned and untucked, just-fucked look"
+
+  # Power dynamics
+  worship: "kneeling before standing figure, adoration pose, devotion"
+  beg: "pleading eyes looking up, desperate need, asking for permission"
+  command: "finger pointing down, authoritative stance, giving orders"
+  reward: "pat on head, good pet praise, earned pleasure"
+  deny: "hand stopping approach, access refused, edging control"
+
+  # Water/Wet - shower/bath scenes
+  wet: "shower water streaming down body, soaked hair clinging"
+  bath: "rose petals in bathwater, bubble bath reveal, soak scene"
+  drench: "completely soaked clothes clinging to every curve"
+  steam: "steamy bathroom, foggy mirror, hot shower scene"
+
+  # Classic concepts
+  virgin: "innocent white lingerie, first time nervousness, deflowering scene"
+  whore: "slutty outfit, whorish pose, paid pleasure"
+  slut: "multiple partners implied, used thoroughly, satisfied exhaustion"
+  harlot: "brothel setting, professional seduction, courtesan"
+
+  # Misc evocative
+  eternal: "time-frozen moment of pleasure, endless climax, infinite loop"
+  soul: "connection during intimacy, eye contact during sex, deep bond"
+  secret: "hidden tryst, affair scene, sneaking around"
+  sin: "guilty pleasure, knowing it's wrong, doing it anyway"
+  vice: "indulging addiction, can't resist, giving in"
+  ruin: "destroyed by pleasure, wrecked, completely undone"
+  doom: "inevitable surrender, can't escape desire, fated to fall"
